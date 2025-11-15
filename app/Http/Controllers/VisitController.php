@@ -105,8 +105,16 @@ class VisitController extends Controller
     {
         $visit->load(['patient.user', 'staff.user', 'appointment', 'medicalOrders']);
 
+        $staff = \App\Models\Staff::with('user')->get()->map(function ($staff) {
+            return [
+                'id' => $staff->id,
+                'name' => $staff->user ? $staff->user->name : trim($staff->first_name . ' ' . $staff->last_name),
+            ];
+        });
+
         return Inertia::render('Visits/Show', [
             'visit' => $visit,
+            'staff' => $staff,
         ]);
     }
 

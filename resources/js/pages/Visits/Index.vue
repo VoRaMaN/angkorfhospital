@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { assignProcess, update } from '@/routes/visits';
-import { Plus, Search, Eye, Edit, Trash2, UserCheck, X, Loader2 } from 'lucide-vue-next';
+import { Plus, Search, Eye, Edit, UserCheck, X, Loader2 } from 'lucide-vue-next';
 
 import { ref } from 'vue';
 
@@ -181,18 +181,6 @@ const getStatusColor = (status: string) => {
                                     </td>
                                     <td class="p-4 align-middle">
                                         <div class="flex items-center space-x-2">
-                                            <Button v-if="visit.status === 'pending'" variant="outline" size="sm"
-                                                class="text-blue-600 hover:text-blue-700"
-                                                @click="openAssignModal(visit)">
-                                                <UserCheck class="size-4 mr-1" />
-                                                Assign
-                                            </Button>
-                                            <Button v-if="visit.status === 'pending' || visit.status === 'in_progress'"
-                                                variant="outline" size="sm" class="text-red-600 hover:text-red-700"
-                                                @click="cancelVisit(visit)">
-                                                <X class="size-4 mr-1" />
-                                                Cancel
-                                            </Button>
                                             <Button variant="ghost" size="sm" as-child>
                                                 <Link :href="`/visits/${visit.id}`">
                                                 <Eye class="size-4 mr-1" />
@@ -204,6 +192,16 @@ const getStatusColor = (status: string) => {
                                                 <Edit class="size-4 mr-1" />
                                                 Edit
                                                 </Link>
+                                            </Button>
+                                            <Button v-if="visit.status === 'pending'" variant="default" size="sm"
+                                                @click="openAssignModal(visit)">
+                                                <UserCheck class="size-4 mr-1" />
+                                                Assign
+                                            </Button>
+                                            <Button v-if="visit.status === 'pending' || visit.status === 'in_progress'"
+                                                variant="destructive" size="sm" @click="cancelVisit(visit)">
+                                                <X class="size-4 mr-1" />
+                                                Cancel
                                             </Button>
                                         </div>
                                     </td>

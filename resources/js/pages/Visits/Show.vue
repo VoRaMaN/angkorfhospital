@@ -5,8 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Calendar, User, Stethoscope, FileText } from 'lucide-vue-next';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { assignProcess, update } from '@/routes/visits';
+import { ArrowLeft, Edit, Calendar, User, Stethoscope, FileText, UserCheck, X, Loader2 } from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { ref } from 'vue';
 
 interface Visit {
     id: number;
@@ -30,6 +35,10 @@ interface Visit {
 
 interface Props {
     visit: Visit;
+    staff: Array<{
+        id: number;
+        name: string;
+    }>;
 }
 
 const props = defineProps<Props>();
@@ -44,6 +53,43 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+// Modal state
+const showAssignModal = ref(false);
+
+// Form for assigning staff
+const assignForm = useForm({
+    staff_id: '',
+});
+
+// Functions
+const openAssignModal = () => {
+    assignForm.reset();
+    showAssignModal.value = true;
+};
+
+const assignVisit = () => {
+    assignForm.patch(assignProcess(props.visit.id).url, {
+        onSuccess: () => {
+            showAssignModal.value = false;
+            // Refresh the page or update the list
+            window.location.reload();
+        },
+    });
+};
+
+const cancelVisit = () => {
+    if (confirm('Are you sure you want to cancel this visit?')) {
+        router.patch(update(props.visit.id).url, {
+            status: 'cancelled',
+        }, {
+            onSuccess: () => {
+                // Refresh the page or update the list
+                window.location.reload();
+            },
+        });
+    }
+};
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -77,7 +123,17 @@ const getStatusColor = (status: string) => {
                     <h1 class="text-2xl font-bold">Visit Details</h1>
                     <p class="text-muted-foreground">View visit information and associated medical orders</p>
                 </div>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center gap-2">
+                    <div class="flex gap-2">
+                        <Button v-if="visit.status === 'pending'" variant="default" size="sm" @click="openAssignModal">
+                            <UserCheck class="size-4 mr-1" />
+                            Assign
+                        </Button>
+                        <Button v-if="visit.status === 'pending' || visit.status === 'in_progress'" variant="destructive" size="sm" @click="cancelVisit">
+                            <X class="size-4 mr-1" />
+                            Cancel
+                        </Button>
+                    </div>
                     <Button variant="outline" as-child>
                         <Link :href="`/visits/${visit.id}/edit`">
                             <Edit class="size-4" />
@@ -180,5 +236,44 @@ const getStatusColor = (status: string) => {
                 </div>
             </div>
         </div>
+
+        <!-- Assign Staff Modal -->
+        <Dialog v-model:open="showAssignModal">
+            <DialogContent class="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Assign Staff to Visit</DialogTitle>
+                    <DialogDescription>
+                        Select a staff member to assign to this visit. This will also initiate the medical order
+                        process.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="grid gap-4 py-4">
+                    <div class="grid grid-cols-4 items-center gap-4">
+                        <Label for="staff" class="text-right">
+                            Staff
+                        </Label>
+                        <Select v-model="assignForm.staff_id">
+                            <SelectTrigger class="col-span-3">
+                                <SelectValue placeholder="Select staff member" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem v-for="staff in props.staff" :key="staff.id" :value="staff.id.toString()">
+                                    {{ staff.name }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="showAssignModal = false">
+                        Cancel
+                    </Button>
+                    <Button type="button" @click="assignVisit" :disabled="assignForm.processing">
+                        <Loader2 v-if="assignForm.processing" class="mr-2 h-4 w-4 animate-spin" />
+                        Assign & Process
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

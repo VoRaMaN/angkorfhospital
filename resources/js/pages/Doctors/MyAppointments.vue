@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { show, updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { Calendar, Clock, User } from 'lucide-vue-next';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -63,32 +63,22 @@ const updateStatus = async (appointment: any, newStatus: string) => {
     confirmModalOpen.value = true;
 };
 
-const confirmStatusUpdate = async () => {
+const confirmStatusUpdate = () => {
     if (!selectedAppointment.value || !selectedNewStatus.value) return;
 
-    try {
-        const route = updateStatusRoute(selectedAppointment.value.id);
-        const response = await fetch(route.url, {
-            method: route.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-            },
-            body: JSON.stringify({ status: selectedNewStatus.value }),
-        });
-
-        if (response.ok) {
+    router.patch(updateStatusRoute(selectedAppointment.value.id).url, {
+        status: selectedNewStatus.value,
+    }, {
+        onSuccess: () => {
             confirmModalOpen.value = false;
             selectedAppointment.value = null;
             selectedNewStatus.value = '';
             window.location.reload(); // Refresh to show updated status
-        } else {
+        },
+        onError: () => {
             alert('Failed to update appointment status');
-        }
-    } catch (error) {
-        console.error('Error updating status:', error);
-        alert('An error occurred while updating the status');
-    }
+        },
+    });
 };
 
 const cancelStatusUpdate = () => {
@@ -100,6 +90,7 @@ const cancelStatusUpdate = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="My Appointments" />
 
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
@@ -154,7 +145,7 @@ const cancelStatusUpdate = () => {
                                 <div class="flex gap-2">
                                     <Button variant="outline" size="sm" as-child>
                                         <Link :href="show(appointment.id).url">
-                                            View Details
+                                        View Details
                                         </Link>
                                     </Button>
 

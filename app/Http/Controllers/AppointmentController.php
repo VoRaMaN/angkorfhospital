@@ -27,13 +27,13 @@ class AppointmentController extends Controller
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
-                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
+                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name),
+                    ] : ['name' => trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name)],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
-                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
-                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
+                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name),
+                    ] : ['name' => trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name)],
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'status' => $appointment->status,
@@ -113,7 +113,7 @@ class AppointmentController extends Controller
     /**
      * Update the status of the specified resource in storage.
      */
-    public function updateStatus(Request $request, Appointment $appointment): JsonResponse
+    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
     {
         $this->authorize('update', $appointment);
 
@@ -125,10 +125,8 @@ class AppointmentController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json([
-            'message' => 'Appointment status updated successfully.',
-            'appointment' => $appointment,
-        ]);
+        return redirect()->back()
+            ->with('success', 'Appointment status updated successfully.');
     }
 
     /**
