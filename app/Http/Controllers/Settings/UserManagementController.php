@@ -114,14 +114,6 @@ class UserManagementController extends Controller
                     'contact_number' => $validated['contact_number'] ?? '',
                     'hire_date' => now(),
                 ]);
-
-                Doctor::create([
-                    'user_id' => $user->id,
-                    'staff_id' => $staff->id,
-                    'specialization' => $validated['specialization'],
-                    'department_id' => $validated['department_id'],
-                    'license_number' => $validated['license_number'],
-                ]);
                 break;
 
             case 'patient':
