@@ -72,7 +72,7 @@ class UserManagementController extends Controller
     public function create()
     {
         return Inertia::render('Settings/UserManagement/Create', [
-            'roles' => \App\Models\Role::all(),
+            'roles' => \App\Models\StaffRole::all(),
             'departments' => \App\Models\Department::all(),
         ]);
     }
@@ -163,7 +163,7 @@ class UserManagementController extends Controller
 
         return Inertia::render('Settings/UserManagement/Edit', [
             'user' => $user,
-            'roles' => \App\Models\Role::all(),
+            'roles' => \App\Models\StaffRole::all(),
             'departments' => \App\Models\Department::all(),
         ]);
     }

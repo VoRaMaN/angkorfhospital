@@ -24,7 +24,7 @@ class AppointmentSeeder extends Seeder
         // If no doctors exist, create some doctor staff first
         if ($doctors->isEmpty()) {
             // Get doctor role
-            $doctorRole = \App\Models\Role::where('name', 'Doctor')->first();
+            $doctorRole = \App\Models\StaffRole::where('name', 'Doctor')->first();
 
             if ($doctorRole) {
                 // Get cardiology department

@@ -51,6 +51,12 @@ class SpatiePermissionSeeder extends Seeder
             'edit_medical_records',
             'delete_medical_records',
 
+            // Medical orders
+            'view_medical_orders',
+            'create_medical_orders',
+            'edit_medical_orders',
+            'delete_medical_orders',
+
             // Medications
             'view_medications',
             'create_medications',
@@ -62,6 +68,12 @@ class SpatiePermissionSeeder extends Seeder
             'create_prescriptions',
             'edit_prescriptions',
             'delete_prescriptions',
+
+            // Visits
+            'view_visits',
+            'create_visits',
+            'edit_visits',
+            'delete_visits',
 
             // Billing
             'view_billing',
@@ -120,10 +132,16 @@ class SpatiePermissionSeeder extends Seeder
             'view_medical_records',
             'create_medical_records',
             'edit_medical_records',
+            'view_medical_orders',
+            'create_medical_orders',
+            'edit_medical_orders',
             'view_medications',
             'view_prescriptions',
             'create_prescriptions',
             'edit_prescriptions',
+            'view_visits',
+            'create_visits',
+            'edit_visits',
             'view_billing',
         ]);
 
@@ -138,8 +156,14 @@ class SpatiePermissionSeeder extends Seeder
             'create_appointments',
             'edit_appointments',
             'view_medical_records',
+            'view_medical_orders',
+            'create_medical_orders',
+            'edit_medical_orders',
             'view_medications',
             'view_prescriptions',
+            'view_visits',
+            'create_visits',
+            'edit_visits',
             'view_billing',
             'create_billing',
             'edit_billing',
@@ -155,7 +179,9 @@ class SpatiePermissionSeeder extends Seeder
         $patientRole->syncPermissions([
             'view_appointments', // Can view their own appointments
             'view_medical_records', // Can view their own records
+            'view_medical_orders', // Can view their own medical orders
             'view_prescriptions', // Can view their own prescriptions
+            'view_visits', // Can view their own visits
             'view_billing', // Can view their own billing
         ]);
     }

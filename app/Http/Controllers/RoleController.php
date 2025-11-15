@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
+use App\Models\StaffRole as Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Permission as SpatiePermission;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleController extends Controller
 {
@@ -22,7 +24,7 @@ class RoleController extends Controller
                 'id' => $role->id,
                 'name' => $role->name,
                 'description' => $role->description,
-                'permissions_count' => 0, // Custom roles don't have direct permissions
+                'permissions_count' => SpatieRole::where('name', $role->name)->first()?->permissions()->count() ?? 0,
                 'created_at' => $role->created_at,
                 'updated_at' => $role->updated_at,
             ];
@@ -34,6 +36,26 @@ class RoleController extends Controller
                 'search' => request('search', ''),
             ],
         ]);
+    }
+
+    protected function getRolePermissions(Role $role): array
+    {
+        $spatieRole = SpatieRole::where('name', $role->name)->first();
+
+        if (! $spatieRole) {
+            return [];
+        }
+
+        return $spatieRole->permissions->map(function ($p) {
+            $nameParts = explode('_', $p->name, 2);
+            $group = count($nameParts) > 1 ? $nameParts[1] : $p->name;
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'group' => $group,
+            ];
+        })->toArray();
     }
 
     /**
@@ -48,10 +70,21 @@ class RoleController extends Controller
                 'id' => $role->id,
                 'name' => $role->name,
                 'description' => $role->description,
-                'permissions' => [], // Custom roles don't have direct permissions
+                'permissions' => $this->getRolePermissions($role),
                 'created_at' => $role->created_at,
                 'updated_at' => $role->updated_at,
             ],
+            // Also provide all available permissions grouped for parity with create/edit
+            'available_permissions' => SpatiePermission::all()->map(function ($p) {
+                $nameParts = explode('_', $p->name, 2);
+                $group = count($nameParts) > 1 ? $nameParts[1] : $p->name;
+
+                return [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'group' => $group,
+                ];
+            }),
         ]);
     }
 
@@ -62,7 +95,20 @@ class RoleController extends Controller
     {
         $this->authorize('create_roles');
 
-        return Inertia::render('settings/Roles/Create');
+        $permissions = SpatiePermission::all()->map(function ($p) {
+            $nameParts = explode('_', $p->name, 2);
+            $group = count($nameParts) > 1 ? $nameParts[1] : $p->name;
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'group' => $group,
+            ];
+        });
+
+        return Inertia::render('settings/Roles/Create', [
+            'available_permissions' => $permissions,
+        ]);
     }
 
     /**
@@ -72,9 +118,13 @@ class RoleController extends Controller
     {
         $this->authorize('create_roles');
 
+        $permissionTable = config('permission.table_names.permissions', 'spatie_permissions');
+
         $request->validate([
             'name' => 'required|string|unique:roles,name|max:255',
             'description' => 'nullable|string|max:1000',
+            'permissions' => 'nullable|array',
+            'permissions.*' => "exists:{$permissionTable},id",
         ]);
 
         DB::beginTransaction();
@@ -83,6 +133,15 @@ class RoleController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
             ]);
+
+            // Create matching Spatie role and assign permissions
+            $spatieRole = SpatieRole::firstOrCreate([
+                'name' => $request->name,
+            ], ['guard_name' => config('auth.defaults.guard', 'web')]);
+
+            if ($request->has('permissions')) {
+                $spatieRole->syncPermissions($request->permissions);
+            }
 
             DB::commit();
 
@@ -106,8 +165,19 @@ class RoleController extends Controller
                 'id' => $role->id,
                 'name' => $role->name,
                 'description' => $role->description,
-                'permissions' => [], // Custom roles don't have direct permissions
+                // RoleForm expects initial permissions as an array of IDs
+                'permissions' => SpatieRole::where('name', $role->name)->first()?->permissions()->pluck('id')->toArray() ?? [],
             ],
+            'available_permissions' => SpatiePermission::all()->map(function ($p) {
+                $nameParts = explode('_', $p->name, 2);
+                $group = count($nameParts) > 1 ? $nameParts[1] : $p->name;
+
+                return [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'group' => $group,
+                ];
+            }),
         ]);
     }
 
@@ -118,17 +188,38 @@ class RoleController extends Controller
     {
         $this->authorize('edit_roles');
 
+        $permissionTable = config('permission.table_names.permissions', 'spatie_permissions');
+
         $request->validate([
             'name' => 'sometimes|string|max:255|unique:roles,name,'.$role->id,
             'description' => 'nullable|string|max:1000',
+            'permissions' => 'nullable|array',
+            'permissions.*' => "exists:{$permissionTable},id",
         ]);
 
         DB::beginTransaction();
         try {
+            $oldName = $role->name;
+
             $role->update([
                 'name' => $request->name,
                 'description' => $request->description,
             ]);
+
+            // Keep Spatie role in sync (rename if necessary and sync permissions)
+            $spatieRole = SpatieRole::where('name', $oldName)->first();
+            if ($spatieRole && $oldName !== $role->name) {
+                $spatieRole->name = $role->name;
+                $spatieRole->save();
+            }
+
+            $spatieRole = SpatieRole::firstOrCreate([
+                'name' => $role->name,
+            ], ['guard_name' => config('auth.defaults.guard', 'web')]);
+
+            if ($request->has('permissions')) {
+                $spatieRole->syncPermissions($request->permissions);
+            }
 
             DB::commit();
 
@@ -160,6 +251,15 @@ class RoleController extends Controller
             }
 
             $role->delete();
+
+            // Remove spatie role if it exists and is not assigned to any user
+            $spatieRole = SpatieRole::where('name', $role->name)->first();
+            if ($spatieRole) {
+                $assignedCount = DB::table(config('permission.table_names.model_has_roles'))->where('role_id', $spatieRole->id)->count();
+                if ($assignedCount === 0) {
+                    $spatieRole->delete();
+                }
+            }
 
             DB::commit();
 

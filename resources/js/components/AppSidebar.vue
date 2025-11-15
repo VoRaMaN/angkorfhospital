@@ -54,110 +54,39 @@ import doctor from "@/routes/doctors";
 const page = usePage();
 
 const coreNavItems = computed(() => [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Appointments',
-        href: index().url,
-        icon: Calendar,
-    },
-    {
-        title: 'Lab Panels',
-        href: labPanelIndex().url,
-        icon: Heart,
-    }, {
-        title: 'Visits',
-        href: visitsIndex().url,
-        icon: Calendar,
+    { title: 'Dashboard', href: dashboard().url, icon: LayoutGrid, },
+    { title: 'Appointments', href: index().url, icon: Calendar, },
+    { title: 'Lab Panels', href: labPanelIndex().url, icon: Heart, }, {
+        title: 'Visits', href: visitsIndex().url, icon: Calendar,
     },
 ]);
 
 const patientCareNavItems = computed(() => [
-    {
-        title: 'Patients',
-        href: patientsIndex().url,
-        icon: Heart,
-    },
-    {
-        title: 'Medical Records',
-        href: medicalRecordsIndex().url,
-        icon: Users2Icon,
-    },
-    {
-        title: 'Medical Orders',
-        href: medicalOrdersIndex().url,
-        icon: ClipboardList,
-    },
-    // {
-    //     title: 'Prescriptions',
-    //     href: prescriptionsIndex().url,
-    //     icon: Pill,
-    // },
+    { title: 'Patients', href: patientsIndex().url, icon: Heart, },
+    { title: 'Medical Records', href: medicalRecordsIndex().url, icon: Users2Icon, },
+    { title: 'Medical Orders', href: medicalOrdersIndex().url, icon: ClipboardList, },
 ]);
 
 const medicalResourcesNavItems = computed(() => [
-    {
-        title: 'All Inventory',
-        href: inventoryIndex().url,
-        icon: Warehouse,
-    },
-    {
-        title: 'RX Medicine',
-        href: rxMedicine().url,
-        icon: Pill,
-    },
-    {
-        title: 'Lab Inventory',
-        href: labInventory().url,
-        icon: Warehouse,
-    }
+    { title: 'All Inventory', href: inventoryIndex().url, icon: Warehouse, },
+    { title: 'RX Medicine', href: rxMedicine().url, icon: Pill, },
+    { title: 'Lab Inventory', href: labInventory().url, icon: Warehouse, }
 ]);
 
 const financialNavItems = computed(() => [
-    {
-        title: 'Billings',
-        href: billingsIndex().url,
-        icon: DollarSign,
-    },
+    { title: 'Billings', href: billingsIndex().url, icon: DollarSign, },
 ]);
 
 const doctorNavItems = computed(() => [
-    {
-        title: 'My Appointments',
-        href: doctor.myAppointments().url,
-        icon: ClipboardCheckIcon,
-    },
-    {
-        title: 'My Patients',
-        href: doctor.myPatients().url,
-        icon: Users2Icon,
-    },
-    {
-        title: 'My Visits',
-        href: doctor.myVisits().url,
-        icon: Calendar,
-    },
+    { title: 'My Appointments', href: doctor.myAppointments().url, icon: ClipboardCheckIcon, },
+    { title: 'My Patients', href: doctor.myPatients().url, icon: Users2Icon, },
+    { title: 'My Visits', href: doctor.myVisits().url, icon: Calendar, },
 ]);
 
 const managementNavItems = computed(() => [
-    {
-        title: 'Departments',
-        href: departmentsIndex().url,
-        icon: Building,
-    },
-    {
-        title: 'Staff',
-        href: staffIndex().url,
-        icon: UserCheck,
-    },
-    {
-        title: 'Roles',
-        href: rolesIndex().url,
-        icon: Shield,
-    },
+    { title: 'Departments', href: departmentsIndex().url, icon: Building, },
+    { title: 'Staff', href: staffIndex().url, icon: UserCheck, },
+    { title: 'Roles', href: rolesIndex().url, icon: Shield, },
 ]);
 
 const footerNavItems: NavItem[] = [

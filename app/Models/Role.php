@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+/**
+ * Deprecated: Use `StaffRole` instead. This class remains for backward compatibility.
+ */
+class Role extends StaffRole
 {
     /** @use HasFactory<\Database\Factories\RoleFactory> */
     use HasFactory;
@@ -15,8 +17,5 @@ class Role extends Model
         'description',
     ];
 
-    public function staff()
-    {
-        return $this->hasMany(Staff::class);
-    }
+    // All behavior is inherited from StaffRole
 }

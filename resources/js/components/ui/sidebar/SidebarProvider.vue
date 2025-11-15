@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import { useEventListener, useMediaQuery, useVModel } from '@vueuse/core'
 import { TooltipProvider } from 'reka-ui'
 import { computed, type HTMLAttributes, type Ref, ref } from 'vue'
+import { watch } from 'vue'
 import { provideSidebarContext, SIDEBAR_COOKIE_MAX_AGE, SIDEBAR_COOKIE_NAME, SIDEBAR_KEYBOARD_SHORTCUT, SIDEBAR_WIDTH, SIDEBAR_WIDTH_ICON } from './utils'
 
 const props = withDefaults(defineProps<{
@@ -25,6 +26,20 @@ const open = useVModel(props, 'open', emits, {
   defaultValue: props.defaultOpen ?? false,
   passive: (props.open === undefined) as false,
 }) as Ref<boolean>
+
+// When the value for `defaultOpen` changes (from server-side Inertia shared
+// props) we should update the local `open` state — but only if the `open`
+// prop is not controlled by the parent. This prevents the sidebar from being
+// unexpectedly cleared when navigating between pages that change the
+// `sidebarOpen` shared property.
+watch(
+  () => props.defaultOpen,
+  (value) => {
+    if (props.open === undefined) {
+      open.value = value ?? false
+    }
+  },
+)
 
 function setOpen(value: boolean) {
   open.value = value // emits('update:open', value)

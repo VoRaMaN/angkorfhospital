@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Models\Patient;
-use App\Models\Role;
+// Note: the application's domain `Role` model is separate from Spatie's Role model.
+// Spatie Role is not imported here; we simply use the role name when assigning using Spatie's trait
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -79,7 +80,7 @@ class PatientController extends Controller
     {
         $this->authorize('view', $patient);
 
-        $patient->load(['user', 'appointments.doctor.staff']);
+        $patient->load(['user', 'appointments.staff']);
 
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
@@ -114,12 +115,15 @@ class PatientController extends Controller
             ]);
 
             // Assign patient role
-            $patientRole = Role::where('name', 'patient')->first();
-            if ($patientRole) {
-                $user->assignRole($patientRole);
-            }
+            // `App\Models\Role` is a domain model (staff roles). Spatie uses its
+            // own Role model for permission checks. When creating a user account
+            // for a patient we must assign the Spatie role (not the domain Role
+            // model). Use the role name string so `assignRole` will work whether
+            // the Spatie role exists as a model or only as a string.
+            $user->assignRole('Patient');
 
             $patient->user_id = $user->id;
+            $patient->save();
 
             // Remove user account fields from patient data
             unset($data['create_user_account'], $data['name'], $data['email']);

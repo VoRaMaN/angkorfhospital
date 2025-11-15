@@ -29,7 +29,7 @@ class Staff extends Model
 
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(StaffRole::class);
     }
 
     public function department()

@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\Role;
+use App\Models\StaffRole as Role;
 use App\Models\User;
 
 class RolePolicy
