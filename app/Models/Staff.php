@@ -41,4 +41,14 @@ class Staff extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function files()
+    {
+        return $this->hasManyThrough(File::class, StaffFile::class);
+    }
+
+    public function staffFiles()
+    {
+        return $this->hasMany(StaffFile::class);
+    }
 }

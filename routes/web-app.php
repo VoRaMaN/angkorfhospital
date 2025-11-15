@@ -4,17 +4,18 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LabPanelController;
 use App\Http\Controllers\MedicalOrderController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientFileController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\StaffController;
-use App\Http\Controllers\VisitController;
+use App\Http\Controllers\StaffFileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -68,9 +69,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Staff
     Route::resource('staff', StaffController::class);
 
-    // Visits
-    Route::resource('visits', VisitController::class);
-    Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
+    // Files
+    Route::resource('files', FileController::class);
+    Route::resource('patient-files', PatientFileController::class);
+    Route::resource('staff-files', StaffFileController::class);
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

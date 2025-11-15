@@ -38,4 +38,14 @@ class Patient extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function files()
+    {
+        return $this->hasManyThrough(File::class, PatientFile::class);
+    }
+
+    public function patientFiles()
+    {
+        return $this->hasMany(PatientFile::class);
+    }
 }

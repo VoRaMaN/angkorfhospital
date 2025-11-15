@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class PatientFile extends Model
+{
+    protected $fillable = [
+        'patient_id',
+        'file_id',
+    ];
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function file(): BelongsTo
+    {
+        return $this->belongsTo(File::class);
+    }
+}
