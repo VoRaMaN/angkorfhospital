@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
@@ -35,7 +41,9 @@ const form = useForm({
     <Head title="Create Patient" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a href="/patients">
@@ -45,12 +53,17 @@ const form = useForm({
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Create Patient</h1>
-                    <p class="text-muted-foreground">Add a new patient record</p>
+                    <p class="text-muted-foreground">
+                        Add a new patient record
+                    </p>
                 </div>
             </div>
 
             <div class="max-w-2xl">
-                <form @submit.prevent="form.post('/patients')" class="space-y-6">
+                <form
+                    @submit.prevent="form.post('/patients')"
+                    class="space-y-6"
+                >
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
                             <Label for="first_name">First Name</Label>
@@ -59,7 +72,10 @@ const form = useForm({
                                 v-model="form.first_name"
                                 placeholder="Enter first name"
                             />
-                            <div v-if="form.errors.first_name" class="text-sm text-destructive">
+                            <div
+                                v-if="form.errors.first_name"
+                                class="text-sm text-destructive"
+                            >
                                 {{ form.errors.first_name }}
                             </div>
                         </div>
@@ -71,7 +87,10 @@ const form = useForm({
                                 v-model="form.last_name"
                                 placeholder="Enter last name"
                             />
-                            <div v-if="form.errors.last_name" class="text-sm text-destructive">
+                            <div
+                                v-if="form.errors.last_name"
+                                class="text-sm text-destructive"
+                            >
                                 {{ form.errors.last_name }}
                             </div>
                         </div>
@@ -85,7 +104,10 @@ const form = useForm({
                                 v-model="form.date_of_birth"
                                 type="date"
                             />
-                            <div v-if="form.errors.date_of_birth" class="text-sm text-destructive">
+                            <div
+                                v-if="form.errors.date_of_birth"
+                                class="text-sm text-destructive"
+                            >
                                 {{ form.errors.date_of_birth }}
                             </div>
                         </div>
@@ -98,11 +120,16 @@ const form = useForm({
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="female"
+                                        >Female</SelectItem
+                                    >
                                     <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <div v-if="form.errors.gender" class="text-sm text-destructive">
+                            <div
+                                v-if="form.errors.gender"
+                                class="text-sm text-destructive"
+                            >
                                 {{ form.errors.gender }}
                             </div>
                         </div>
@@ -115,7 +142,10 @@ const form = useForm({
                             v-model="form.phone_number"
                             placeholder="Enter phone number"
                         />
-                        <div v-if="form.errors.phone_number" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.phone_number"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.phone_number }}
                         </div>
                     </div>
@@ -128,7 +158,10 @@ const form = useForm({
                             type="email"
                             placeholder="Enter email address"
                         />
-                        <div v-if="form.errors.email" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.email"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.email }}
                         </div>
                     </div>
@@ -140,19 +173,27 @@ const form = useForm({
                             v-model="form.address"
                             placeholder="Enter address"
                         />
-                        <div v-if="form.errors.address" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.address"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.address }}
                         </div>
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="insurance_info">Insurance Information</Label>
+                        <Label for="insurance_info"
+                            >Insurance Information</Label
+                        >
                         <Input
                             id="insurance_info"
                             v-model="form.insurance_info"
                             placeholder="Enter insurance info"
                         />
-                        <div v-if="form.errors.insurance_info" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.insurance_info"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.insurance_info }}
                         </div>
                     </div>

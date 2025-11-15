@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { create, edit, show } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { Plus, Search, Eye, Edit, Trash2, DollarSign } from 'lucide-vue-next';
+import { DollarSign, Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -67,15 +75,19 @@ const getStatusVariant = (status: string) => {
     <Head title="Billings" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">Billings</h1>
-                    <p class="text-muted-foreground">Manage patient billing records</p>
+                    <p class="text-muted-foreground">
+                        Manage patient billing records
+                    </p>
                 </div>
                 <div class="ml-auto">
                     <Button as-child>
-                        <Link href="/billings/create">
+                        <Link :href="create().url">
                             <Plus class="size-4" />
                             Add Billing
                         </Link>
@@ -84,8 +96,10 @@ const getStatusVariant = (status: string) => {
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="relative flex-1 max-w-sm">
-                    <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <div class="relative max-w-sm flex-1">
+                    <Search
+                        class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
                     <Input
                         v-model="searchQuery"
                         placeholder="Search billings..."
@@ -109,11 +123,18 @@ const getStatusVariant = (status: string) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="billing in props.billings" :key="billing.id">
-                            <TableCell class="font-medium">{{ billing.patient_name }}</TableCell>
+                        <TableRow
+                            v-for="billing in props.billings"
+                            :key="billing.id"
+                        >
+                            <TableCell class="font-medium">{{
+                                billing.patient_name
+                            }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-1">
-                                    <DollarSign class="size-4 text-muted-foreground" />
+                                    <DollarSign
+                                        class="size-4 text-muted-foreground"
+                                    />
                                     {{ formatCurrency(billing.total_amount) }}
                                 </div>
                             </TableCell>
@@ -126,25 +147,37 @@ const getStatusVariant = (status: string) => {
                             <TableCell>
                                 <div class="flex items-center gap-1">
                                     <DollarSign class="size-4 text-red-600" />
-                                    {{ formatCurrency(billing.outstanding_amount) }}
+                                    {{
+                                        formatCurrency(
+                                            billing.outstanding_amount,
+                                        )
+                                    }}
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Badge :variant="getStatusVariant(billing.status)">
+                                <Badge
+                                    :variant="getStatusVariant(billing.status)"
+                                >
                                     {{ billing.status }}
                                 </Badge>
                             </TableCell>
-                            <TableCell>{{ new Date(billing.billing_date).toLocaleDateString() }}</TableCell>
-                            <TableCell>{{ new Date(billing.due_date).toLocaleDateString() }}</TableCell>
+                            <TableCell>{{
+                                new Date(
+                                    billing.billing_date,
+                                ).toLocaleDateString()
+                            }}</TableCell>
+                            <TableCell>{{
+                                new Date(billing.due_date).toLocaleDateString()
+                            }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
                                     <Button variant="ghost" size="sm" as-child>
-                                        <Link :href="`/billings/${billing.id}`">
+                                        <Link :href="show(billing.id).url">
                                             <Eye class="size-4" />
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
-                                        <Link :href="`/billings/${billing.id}/edit`">
+                                        <Link :href="edit(billing.id).url">
                                             <Edit class="size-4" />
                                         </Link>
                                     </Button>
@@ -155,7 +188,10 @@ const getStatusVariant = (status: string) => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.billings.length === 0">
-                            <TableCell colspan="8" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="8"
+                                class="text-center text-muted-foreground"
+                            >
                                 No billings found
                             </TableCell>
                         </TableRow>

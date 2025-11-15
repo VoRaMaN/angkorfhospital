@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    edit as labPanelEdit,
+    index as labPanelIndex,
+} from '@/routes/lab-panels';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
-import { index as labPanelIndex, edit as labPanelEdit } from '@/routes/lab-panels';
 
 interface Props {
     labPanel: {
@@ -47,11 +57,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-
     <Head title="Lab Panel Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a :href="labPanelIndex().url">
@@ -61,13 +72,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Lab Panel Details</h1>
-                    <p class="text-muted-foreground">View panel information and required supplies</p>
+                    <p class="text-muted-foreground">
+                        View panel information and required supplies
+                    </p>
                 </div>
                 <div class="ml-auto">
                     <Button variant="outline" as-child>
                         <Link :href="labPanelEdit(props.labPanel.id).url">
-                        <Edit class="size-4" />
-                        Edit
+                            <Edit class="size-4" />
+                            Edit
                         </Link>
                     </Button>
                 </div>
@@ -82,37 +95,92 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <CardContent>
                         <div class="grid gap-6 md:grid-cols-2">
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">Panel Name</dt>
-                                <dd class="text-sm">{{ props.labPanel.name }}</dd>
-                            </div>
-
-                            <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">Price</dt>
-                                <dd class="text-sm">${{ props.labPanel.price }}</dd>
-                            </div>
-
-                            <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">Status</dt>
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    Panel Name
+                                </dt>
                                 <dd class="text-sm">
-                                    <Badge :variant="props.labPanel.is_active ? 'default' : 'secondary'">
-                                        {{ props.labPanel.is_active ? 'Active' : 'Inactive' }}
+                                    {{ props.labPanel.name }}
+                                </dd>
+                            </div>
+
+                            <div class="space-y-2">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    Price
+                                </dt>
+                                <dd class="text-sm">
+                                    ${{ props.labPanel.price }}
+                                </dd>
+                            </div>
+
+                            <div class="space-y-2">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    Status
+                                </dt>
+                                <dd class="text-sm">
+                                    <Badge
+                                        :variant="
+                                            props.labPanel.is_active
+                                                ? 'default'
+                                                : 'secondary'
+                                        "
+                                    >
+                                        {{
+                                            props.labPanel.is_active
+                                                ? 'Active'
+                                                : 'Inactive'
+                                        }}
                                     </Badge>
                                 </dd>
                             </div>
 
                             <div class="space-y-2 md:col-span-2">
-                                <dt class="text-sm font-medium text-muted-foreground">Description</dt>
-                                <dd class="text-sm">{{ props.labPanel.description || 'No description provided' }}</dd>
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    Description
+                                </dt>
+                                <dd class="text-sm">
+                                    {{
+                                        props.labPanel.description ||
+                                        'No description provided'
+                                    }}
+                                </dd>
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">Created</dt>
-                                <dd class="text-sm">{{ new Date(props.labPanel.created_at).toLocaleString() }}</dd>
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    Created
+                                </dt>
+                                <dd class="text-sm">
+                                    {{
+                                        new Date(
+                                            props.labPanel.created_at,
+                                        ).toLocaleString()
+                                    }}
+                                </dd>
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">Last Updated</dt>
-                                <dd class="text-sm">{{ new Date(props.labPanel.updated_at).toLocaleString() }}</dd>
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    Last Updated
+                                </dt>
+                                <dd class="text-sm">
+                                    {{
+                                        new Date(
+                                            props.labPanel.updated_at,
+                                        ).toLocaleString()
+                                    }}
+                                </dd>
                             </div>
                         </div>
                     </CardContent>
@@ -121,11 +189,17 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <!-- Required Inventory Items -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Required Inventory Items ({{ props.labPanel.inventory_items.length }})</CardTitle>
+                        <CardTitle
+                            >Required Inventory Items ({{
+                                props.labPanel.inventory_items.length
+                            }})</CardTitle
+                        >
                     </CardHeader>
                     <CardContent>
-                        <div v-if="props.labPanel.inventory_items.length === 0"
-                            class="text-center py-8 text-muted-foreground">
+                        <div
+                            v-if="props.labPanel.inventory_items.length === 0"
+                            class="py-8 text-center text-muted-foreground"
+                        >
                             No inventory items assigned to this panel.
                         </div>
 
@@ -134,7 +208,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Item Name</TableHead>
-                                        <TableHead>Available Quantity</TableHead>
+                                        <TableHead
+                                            >Available Quantity</TableHead
+                                        >
                                         <TableHead>Quantity Required</TableHead>
                                         <TableHead>Price</TableHead>
                                         <TableHead>Notes</TableHead>
@@ -142,17 +218,40 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    <TableRow v-for="item in props.labPanel.inventory_items" :key="item.id">
-                                        <TableCell>{{ item.item_name }}</TableCell>
-                                        <TableCell>{{ item.quantity }} {{ item.unit }}</TableCell>
-                                        <TableCell>{{ item.pivot.quantity_required }}</TableCell>
+                                    <TableRow
+                                        v-for="item in props.labPanel
+                                            .inventory_items"
+                                        :key="item.id"
+                                    >
+                                        <TableCell>{{
+                                            item.item_name
+                                        }}</TableCell>
+                                        <TableCell
+                                            >{{ item.quantity }}
+                                            {{ item.unit }}</TableCell
+                                        >
+                                        <TableCell>{{
+                                            item.pivot.quantity_required
+                                        }}</TableCell>
                                         <TableCell>${{ item.price }}</TableCell>
-                                        <TableCell>{{ item.pivot.notes || 'N/A' }}</TableCell>
+                                        <TableCell>{{
+                                            item.pivot.notes || 'N/A'
+                                        }}</TableCell>
                                         <TableCell>
                                             <Badge
-                                                :variant="item.quantity >= item.pivot.quantity_required ? 'default' : 'destructive'">
-                                                {{ item.quantity >= item.pivot.quantity_required ? 'Available' :
-                                                'Insufficient' }}
+                                                :variant="
+                                                    item.quantity >=
+                                                    item.pivot.quantity_required
+                                                        ? 'default'
+                                                        : 'destructive'
+                                                "
+                                            >
+                                                {{
+                                                    item.quantity >=
+                                                    item.pivot.quantity_required
+                                                        ? 'Available'
+                                                        : 'Insufficient'
+                                                }}
                                             </Badge>
                                         </TableCell>
                                     </TableRow>

@@ -1,16 +1,44 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { assignProcess, create, edit, show, update } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { assignProcess, update } from '@/routes/visits';
-import { Plus, Search, Eye, Edit, UserCheck, X, Loader2 } from 'lucide-vue-next';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import {
+    Edit,
+    Eye,
+    Loader2,
+    Plus,
+    Search,
+    UserCheck,
+    X,
+} from 'lucide-vue-next';
 
 import { ref } from 'vue';
 
@@ -88,14 +116,18 @@ const assignVisit = () => {
 
 const cancelVisit = (visit: Visit) => {
     if (confirm('Are you sure you want to cancel this visit?')) {
-        router.patch(update(visit.id).url, {
-            status: 'cancelled',
-        }, {
-            onSuccess: () => {
-                // Refresh the page or update the list
-                window.location.reload();
+        router.patch(
+            update(visit.id).url,
+            {
+                status: 'cancelled',
             },
-        });
+            {
+                onSuccess: () => {
+                    // Refresh the page or update the list
+                    window.location.reload();
+                },
+            },
+        );
     }
 };
 
@@ -116,101 +148,132 @@ const getStatusColor = (status: string) => {
 </script>
 
 <template>
-
     <Head title="Visits" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Visits</h1>
-                    <p class="text-muted-foreground">Manage patient visits and their associated medical orders</p>
+                    <p class="text-muted-foreground">
+                        Manage patient visits and their associated medical
+                        orders
+                    </p>
                 </div>
                 <Button as-child>
-                    <Link href="/visits/create">
-                    <Plus class="size-4" />
-                    New Visit
+                    <Link :href="create().url">
+                        <Plus class="size-4" />
+                        New Visit
                     </Link>
                 </Button>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Visits</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="relative flex-1 max-w-sm">
-                            <Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search visits..." class="pl-8" />
-                        </div>
-                    </div>
+            <div class="flex items-center gap-4">
+                <div class="relative max-w-sm flex-1">
+                    <Search
+                        class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input placeholder="Search visits..." class="pl-9" />
+                </div>
+            </div>
 
-                    <div class="rounded-md border">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="border-b bg-muted/50">
-                                    <th class="h-12 px-4 text-left align-middle font-medium">Patient</th>
-                                    <th class="h-12 px-4 text-left align-middle font-medium">Staff</th>
-                                    <th class="h-12 px-4 text-left align-middle font-medium">Visit Date</th>
-                                    <th class="h-12 px-4 text-left align-middle font-medium">Status</th>
-                                    <th class="h-12 px-4 text-left align-middle font-medium">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="visit in visits" :key="visit.id" class="border-b">
-                                    <td class="p-4 align-middle">
-                                        <div class="font-medium">{{ visit.patient.user.name }}</div>
-                                        <div v-if="visit.appointment" class="text-sm text-muted-foreground">
-                                            From appointment
-                                        </div>
-                                    </td>
-                                    <td class="p-4 align-middle">
-                                        {{ visit.staff?.user.name || 'Unassigned' }}
-                                    </td>
-                                    <td class="p-4 align-middle">
-                                        {{ new Date(visit.visit_date_time).toLocaleDateString() }}
-                                        <div class="text-sm text-muted-foreground">
-                                            {{ new Date(visit.visit_date_time).toLocaleTimeString() }}
-                                        </div>
-                                    </td>
-                                    <td class="p-4 align-middle">
-                                        <Badge :class="getStatusColor(visit.status)">
-                                            {{ visit.status.replace('_', ' ') }}
-                                        </Badge>
-                                    </td>
-                                    <td class="p-4 align-middle">
-                                        <div class="flex items-center space-x-2">
-                                            <Button variant="ghost" size="sm" as-child>
-                                                <Link :href="`/visits/${visit.id}`">
-                                                <Eye class="size-4 mr-1" />
-                                                View
-                                                </Link>
-                                            </Button>
-                                            <Button variant="ghost" size="sm" as-child>
-                                                <Link :href="`/visits/${visit.id}/edit`">
-                                                <Edit class="size-4 mr-1" />
-                                                Edit
-                                                </Link>
-                                            </Button>
-                                            <Button v-if="visit.status === 'pending'" variant="default" size="sm"
-                                                @click="openAssignModal(visit)">
-                                                <UserCheck class="size-4 mr-1" />
-                                                Assign
-                                            </Button>
-                                            <Button v-if="visit.status === 'pending' || visit.status === 'in_progress'"
-                                                variant="destructive" size="sm" @click="cancelVisit(visit)">
-                                                <X class="size-4 mr-1" />
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </CardContent>
-            </Card>
+            <div class="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Patient</TableHead>
+                            <TableHead>Staff</TableHead>
+                            <TableHead>Visit Date</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="visit in visits" :key="visit.id">
+                            <TableCell>
+                                <div class="font-medium">
+                                    {{ visit.patient.user.name }}
+                                </div>
+                                <div
+                                    v-if="visit.appointment"
+                                    class="text-sm text-muted-foreground"
+                                >
+                                    From appointment
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                {{ visit.staff?.user.name || 'Unassigned' }}
+                            </TableCell>
+                            <TableCell>
+                                {{
+                                    new Date(
+                                        visit.visit_date_time,
+                                    ).toLocaleDateString()
+                                }}
+                                <div class="text-sm text-muted-foreground">
+                                    {{
+                                        new Date(
+                                            visit.visit_date_time,
+                                        ).toLocaleTimeString()
+                                    }}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <Badge :class="getStatusColor(visit.status)">
+                                    {{ visit.status.replace('_', ' ') }}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="show(visit.id).url">
+                                            <Eye class="size-4" />
+                                            View
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="edit(visit.id).url">
+                                            <Edit class="size-4" />
+                                            Edit
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        v-if="visit.status === 'pending'"
+                                        variant="default"
+                                        size="sm"
+                                        @click="openAssignModal(visit)"
+                                    >
+                                        <UserCheck class="size-4" />
+                                        Assign
+                                    </Button>
+                                    <Button
+                                        v-if="
+                                            visit.status === 'pending' ||
+                                            visit.status === 'in_progress'
+                                        "
+                                        variant="destructive"
+                                        size="sm"
+                                        @click="cancelVisit(visit)"
+                                    >
+                                        <X class="size-4" />
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
         </div>
 
         <!-- Assign Staff Modal -->
@@ -219,21 +282,25 @@ const getStatusColor = (status: string) => {
                 <DialogHeader>
                     <DialogTitle>Assign Staff to Visit</DialogTitle>
                     <DialogDescription>
-                        Select a staff member to assign to this visit. This will also initiate the medical order
-                        process.
+                        Select a staff member to assign to this visit. This will
+                        also initiate the medical order process.
                     </DialogDescription>
                 </DialogHeader>
                 <div class="grid gap-4 py-4">
                     <div class="grid grid-cols-4 items-center gap-4">
-                        <Label for="staff" class="text-right">
-                            Staff
-                        </Label>
+                        <Label for="staff" class="text-right"> Staff </Label>
                         <Select v-model="assignForm.staff_id">
                             <SelectTrigger class="col-span-3">
-                                <SelectValue placeholder="Select staff member" />
+                                <SelectValue
+                                    placeholder="Select staff member"
+                                />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="staff in props.staff" :key="staff.id" :value="staff.id.toString()">
+                                <SelectItem
+                                    v-for="staff in props.staff"
+                                    :key="staff.id"
+                                    :value="staff.id.toString()"
+                                >
                                     {{ staff.name }}
                                 </SelectItem>
                             </SelectContent>
@@ -241,11 +308,22 @@ const getStatusColor = (status: string) => {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="showAssignModal = false">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="showAssignModal = false"
+                    >
                         Cancel
                     </Button>
-                    <Button type="button" @click="assignVisit" :disabled="assignForm.processing">
-                        <Loader2 v-if="assignForm.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    <Button
+                        type="button"
+                        @click="assignVisit"
+                        :disabled="assignForm.processing"
+                    >
+                        <Loader2
+                            v-if="assignForm.processing"
+                            class="mr-2 h-4 w-4 animate-spin"
+                        />
                         Assign & Process
                     </Button>
                 </DialogFooter>

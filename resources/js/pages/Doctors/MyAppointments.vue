@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { show, updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { show, updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { Calendar, Clock, User } from 'lucide-vue-next';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ref } from 'vue';
 
 interface Props {
@@ -66,19 +80,23 @@ const updateStatus = async (appointment: any, newStatus: string) => {
 const confirmStatusUpdate = () => {
     if (!selectedAppointment.value || !selectedNewStatus.value) return;
 
-    router.patch(updateStatusRoute(selectedAppointment.value.id).url, {
-        status: selectedNewStatus.value,
-    }, {
-        onSuccess: () => {
-            confirmModalOpen.value = false;
-            selectedAppointment.value = null;
-            selectedNewStatus.value = '';
-            window.location.reload(); // Refresh to show updated status
+    router.patch(
+        updateStatusRoute(selectedAppointment.value.id).url,
+        {
+            status: selectedNewStatus.value,
         },
-        onError: () => {
-            alert('Failed to update appointment status');
+        {
+            onSuccess: () => {
+                confirmModalOpen.value = false;
+                selectedAppointment.value = null;
+                selectedNewStatus.value = '';
+                window.location.reload(); // Refresh to show updated status
+            },
+            onError: () => {
+                alert('Failed to update appointment status');
+            },
         },
-    });
+    );
 };
 
 const cancelStatusUpdate = () => {
@@ -90,14 +108,17 @@ const cancelStatusUpdate = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-
         <Head title="My Appointments" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">My Appointments</h1>
-                    <p class="text-muted-foreground">View and manage your scheduled appointments</p>
+                    <p class="text-muted-foreground">
+                        View and manage your scheduled appointments
+                    </p>
                 </div>
             </div>
 
@@ -112,24 +133,48 @@ const cancelStatusUpdate = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="appointment in appointments" :key="appointment.id">
+                        <TableRow
+                            v-for="appointment in appointments"
+                            :key="appointment.id"
+                        >
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <User class="h-4 w-4 text-muted-foreground" />
+                                    <User
+                                        class="h-4 w-4 text-muted-foreground"
+                                    />
                                     <div>
-                                        <div class="font-medium">{{ appointment.patient.name }}</div>
-                                        <div class="text-sm text-muted-foreground">
-                                            DOB: {{ new Date(appointment.patient.date_of_birth).toLocaleDateString() }}
+                                        <div class="font-medium">
+                                            {{ appointment.patient.name }}
+                                        </div>
+                                        <div
+                                            class="text-sm text-muted-foreground"
+                                        >
+                                            DOB:
+                                            {{
+                                                new Date(
+                                                    appointment.patient.date_of_birth,
+                                                ).toLocaleDateString()
+                                            }}
                                         </div>
                                     </div>
                                 </div>
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <Calendar class="h-4 w-4 text-muted-foreground" />
+                                    <Calendar
+                                        class="h-4 w-4 text-muted-foreground"
+                                    />
                                     <div>
-                                        <div>{{ new Date(appointment.appointment_date).toLocaleDateString() }}</div>
-                                        <div class="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <div>
+                                            {{
+                                                new Date(
+                                                    appointment.appointment_date,
+                                                ).toLocaleDateString()
+                                            }}
+                                        </div>
+                                        <div
+                                            class="flex items-center gap-1 text-sm text-muted-foreground"
+                                        >
                                             <Clock class="h-3 w-3" />
                                             {{ appointment.appointment_time }}
                                         </div>
@@ -137,55 +182,133 @@ const cancelStatusUpdate = () => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Badge :class="getStatusColor(appointment.status)">
+                                <Badge
+                                    :class="getStatusColor(appointment.status)"
+                                >
                                     {{ appointment.status }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
                                         <Link :href="show(appointment.id).url">
-                                        View Details
+                                            View Details
                                         </Link>
                                     </Button>
 
                                     <!-- Status-specific action buttons -->
-                                    <template v-if="appointment.status === 'scheduled'">
-                                        <Button variant="default" size="sm"
-                                            @click="updateStatus(appointment, 'confirmed')">
+                                    <template
+                                        v-if="
+                                            appointment.status === 'scheduled'
+                                        "
+                                    >
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'confirmed',
+                                                )
+                                            "
+                                        >
                                             Confirm
                                         </Button>
-                                        <Button variant="destructive" size="sm"
-                                            @click="updateStatus(appointment, 'cancelled')">
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'cancelled',
+                                                )
+                                            "
+                                        >
                                             Cancel
                                         </Button>
                                     </template>
 
-                                    <template v-else-if="appointment.status === 'confirmed'">
-                                        <Button variant="default" size="sm"
-                                            @click="updateStatus(appointment, 'completed')">
+                                    <template
+                                        v-else-if="
+                                            appointment.status === 'confirmed'
+                                        "
+                                    >
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'completed',
+                                                )
+                                            "
+                                        >
                                             Complete
                                         </Button>
-                                        <Button variant="destructive" size="sm"
-                                            @click="updateStatus(appointment, 'cancelled')">
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'cancelled',
+                                                )
+                                            "
+                                        >
                                             Cancel
                                         </Button>
-                                        <Button variant="outline" size="sm"
-                                            @click="updateStatus(appointment, 'no-show')">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'no-show',
+                                                )
+                                            "
+                                        >
                                             No Show
                                         </Button>
                                     </template>
 
-                                    <template v-else-if="appointment.status === 'cancelled'">
-                                        <Button variant="outline" size="sm"
-                                            @click="updateStatus(appointment, 'scheduled')">
+                                    <template
+                                        v-else-if="
+                                            appointment.status === 'cancelled'
+                                        "
+                                    >
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'scheduled',
+                                                )
+                                            "
+                                        >
                                             Reschedule
                                         </Button>
                                     </template>
 
-                                    <template v-else-if="appointment.status === 'no-show'">
-                                        <Button variant="outline" size="sm"
-                                            @click="updateStatus(appointment, 'scheduled')">
+                                    <template
+                                        v-else-if="
+                                            appointment.status === 'no-show'
+                                        "
+                                    >
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'scheduled',
+                                                )
+                                            "
+                                        >
                                             Reschedule
                                         </Button>
                                     </template>
@@ -202,12 +325,14 @@ const cancelStatusUpdate = () => {
                 <DialogHeader>
                     <DialogTitle>Confirm Status Update</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to update the status of this appointment to "{{ selectedNewStatus }}"?
-                        <br><br>
-                        <strong>Patient:</strong> {{ selectedAppointment?.patient?.name || 'Unknown' }}
-                        <br>
-                        <strong>Current Status:</strong> {{ selectedAppointment?.status || 'Unknown' }}
-                        <br>
+                        Are you sure you want to update the status of this
+                        appointment to "{{ selectedNewStatus }}"? <br /><br />
+                        <strong>Patient:</strong>
+                        {{ selectedAppointment?.patient?.name || 'Unknown' }}
+                        <br />
+                        <strong>Current Status:</strong>
+                        {{ selectedAppointment?.status || 'Unknown' }}
+                        <br />
                         <strong>New Status:</strong> {{ selectedNewStatus }}
                     </DialogDescription>
                 </DialogHeader>
@@ -215,9 +340,7 @@ const cancelStatusUpdate = () => {
                     <Button variant="outline" @click="cancelStatusUpdate">
                         Cancel
                     </Button>
-                    <Button @click="confirmStatusUpdate">
-                        Confirm
-                    </Button>
+                    <Button @click="confirmStatusUpdate"> Confirm </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

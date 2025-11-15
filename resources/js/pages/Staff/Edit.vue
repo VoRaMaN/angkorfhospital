@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StaffFilesTab from './StaffFilesTab.vue';
 
 interface Props {
@@ -69,7 +75,9 @@ const submit = () => {
     <Head title="Edit Staff" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a href="/staff">
@@ -79,19 +87,26 @@ const submit = () => {
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Edit Staff</h1>
-                    <p class="text-muted-foreground">Update staff information</p>
+                    <p class="text-muted-foreground">
+                        Update staff information
+                    </p>
                 </div>
             </div>
 
             <div class="max-w-2xl">
                 <Tabs default-value="information" class="w-full">
                     <TabsList class="grid w-full grid-cols-2">
-                        <TabsTrigger value="information">Staff Information</TabsTrigger>
+                        <TabsTrigger value="information"
+                            >Staff Information</TabsTrigger
+                        >
                         <TabsTrigger value="files">Files</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="information" class="mt-6">
-                        <form @submit.prevent="submit" class="space-y-6 rounded-lg border bg-card p-6">
+                        <form
+                            @submit.prevent="submit"
+                            class="space-y-6 rounded-lg border bg-card p-6"
+                        >
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div class="space-y-2">
                                     <Label for="first_name">First Name</Label>
@@ -101,7 +116,10 @@ const submit = () => {
                                         placeholder="Enter first name"
                                         required
                                     />
-                                    <div v-if="form.errors.first_name" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.first_name"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.first_name }}
                                     </div>
                                 </div>
@@ -114,7 +132,10 @@ const submit = () => {
                                         placeholder="Enter last name"
                                         required
                                     />
-                                    <div v-if="form.errors.last_name" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.last_name"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.last_name }}
                                     </div>
                                 </div>
@@ -129,7 +150,10 @@ const submit = () => {
                                         placeholder="Enter full name"
                                         readonly
                                     />
-                                    <div v-if="form.errors.name" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.name"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.name }}
                                     </div>
                                 </div>
@@ -143,7 +167,10 @@ const submit = () => {
                                         placeholder="Enter email address"
                                         required
                                     />
-                                    <div v-if="form.errors.email" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.email"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.email }}
                                     </div>
                                 </div>
@@ -154,32 +181,54 @@ const submit = () => {
                                     <Label for="role_id">Role</Label>
                                     <Select v-model="form.role_id">
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select role" />
+                                            <SelectValue
+                                                placeholder="Select role"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem v-for="role in props.roles" :key="role.id" :value="role.id.toString()">
+                                            <SelectItem
+                                                v-for="role in props.roles"
+                                                :key="role.id"
+                                                :value="role.id.toString()"
+                                            >
                                                 {{ role.name }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <div v-if="form.errors.role_id" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.role_id"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.role_id }}
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <Label for="department_id">Department</Label>
+                                    <Label for="department_id"
+                                        >Department</Label
+                                    >
                                     <Select v-model="form.department_id">
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select department" />
+                                            <SelectValue
+                                                placeholder="Select department"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem v-for="department in props.departments" :key="department.id" :value="department.id.toString()">
+                                            <SelectItem
+                                                v-for="department in props.departments"
+                                                :key="department.id"
+                                                :value="
+                                                    department.id.toString()
+                                                "
+                                            >
                                                 {{ department.name }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <div v-if="form.errors.department_id" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.department_id"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.department_id }}
                                     </div>
                                 </div>
@@ -192,17 +241,31 @@ const submit = () => {
                                     v-model="form.contact_number"
                                     placeholder="Enter phone number"
                                 />
-                                <div v-if="form.errors.contact_number" class="text-sm text-destructive">
+                                <div
+                                    v-if="form.errors.contact_number"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.contact_number }}
                                 </div>
                             </div>
 
                             <div class="flex gap-4">
-                                <Button type="submit" :disabled="form.processing">
+                                <Button
+                                    type="submit"
+                                    :disabled="form.processing"
+                                >
                                     <Save class="size-4" />
-                                    {{ form.processing ? 'Updating...' : 'Update Staff' }}
+                                    {{
+                                        form.processing
+                                            ? 'Updating...'
+                                            : 'Update Staff'
+                                    }}
                                 </Button>
-                                <Button type="button" variant="outline" as-child>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    as-child
+                                >
                                     <a href="/staff">Cancel</a>
                                 </Button>
                             </div>

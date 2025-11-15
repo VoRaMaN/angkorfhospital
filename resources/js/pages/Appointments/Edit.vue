@@ -1,9 +1,21 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
@@ -17,7 +29,11 @@ interface Props {
         status: string;
     };
     patients: Array<{ id: number; user: { name: string } }>;
-    staff: Array<{ id: number; user: { name: string }; role: { name: string } }>;
+    staff: Array<{
+        id: number;
+        user: { name: string };
+        role: { name: string };
+    }>;
 }
 
 const props = defineProps<Props>();
@@ -45,7 +61,9 @@ const form = useForm({
     <Head title="Edit Appointment" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a href="/appointments">
@@ -55,12 +73,18 @@ const form = useForm({
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Edit Appointment</h1>
-                    <p class="text-muted-foreground">Update appointment information</p>
+                    <p class="text-muted-foreground">
+                        Update appointment information
+                    </p>
                 </div>
             </div>
 
             <div class="max-w-2xl">
-                <form :action="`/appointments/${props.appointment.id}`" method="POST" class="space-y-6">
+                <form
+                    :action="`/appointments/${props.appointment.id}`"
+                    method="POST"
+                    class="space-y-6"
+                >
                     <input type="hidden" name="_method" value="PUT" />
 
                     <div class="space-y-2">
@@ -70,7 +94,11 @@ const form = useForm({
                                 <SelectValue placeholder="Select a patient" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="patient in props.patients" :key="patient.id" :value="patient.id.toString()">
+                                <SelectItem
+                                    v-for="patient in props.patients"
+                                    :key="patient.id"
+                                    :value="patient.id.toString()"
+                                >
                                     {{ patient.user.name }}
                                 </SelectItem>
                             </SelectContent>
@@ -84,18 +112,32 @@ const form = useForm({
                                 <SelectValue placeholder="Select staff" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="staffMember in props.staff" :key="staffMember.id" :value="staffMember.id.toString()">
-                                    {{ staffMember.user?.name || 'Unknown Staff' }} ({{ staffMember.role?.name || 'Staff' }})
+                                <SelectItem
+                                    v-for="staffMember in props.staff"
+                                    :key="staffMember.id"
+                                    :value="staffMember.id.toString()"
+                                >
+                                    {{
+                                        staffMember.user?.name ||
+                                        'Unknown Staff'
+                                    }}
+                                    ({{ staffMember.role?.name || 'Staff' }})
                                 </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
-                    <FormField v-slot="{ componentField }" name="appointment_date_time">
+                    <FormField
+                        v-slot="{ componentField }"
+                        name="appointment_date_time"
+                    >
                         <FormItem>
                             <FormLabel>Appointment Date & Time</FormLabel>
                             <FormControl>
-                                <Input v-bind="componentField" type="datetime-local" />
+                                <Input
+                                    v-bind="componentField"
+                                    type="datetime-local"
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -108,10 +150,18 @@ const form = useForm({
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="scheduled">Scheduled</SelectItem>
-                                <SelectItem value="confirmed">Confirmed</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                                <SelectItem value="scheduled"
+                                    >Scheduled</SelectItem
+                                >
+                                <SelectItem value="confirmed"
+                                    >Confirmed</SelectItem
+                                >
+                                <SelectItem value="completed"
+                                    >Completed</SelectItem
+                                >
+                                <SelectItem value="cancelled"
+                                    >Cancelled</SelectItem
+                                >
                                 <SelectItem value="no-show">No Show</SelectItem>
                             </SelectContent>
                         </Select>

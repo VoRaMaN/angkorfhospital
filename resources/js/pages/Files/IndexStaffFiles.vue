@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { create, edit, show } from '@/routes/staff-files';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
-import { show, edit, create } from '@/routes/staff-files';
 
 interface Props {
     items: Array<Record<string, any>>;
@@ -27,11 +34,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head :title="title" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">{{ title }}</h1>
-                    <p class="text-muted-foreground">Manage your {{ title.toLowerCase() }}</p>
+                    <p class="text-muted-foreground">
+                        Manage your {{ title.toLowerCase() }}
+                    </p>
                 </div>
                 <Button v-if="createRoute" as-child>
                     <Link :href="create().url">
@@ -60,11 +71,23 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <TableCell>{{ item.file.size }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="show(item.id).url">View</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="show(item.id).url"
+                                            >View</Link
+                                        >
                                     </Button>
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="edit(item.id).url">Edit</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="edit(item.id).url"
+                                            >Edit</Link
+                                        >
                                     </Button>
                                 </div>
                             </TableCell>

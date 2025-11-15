@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { create, edit, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
-import { create, show, edit } from '@/routes/medical-orders';
 
 interface OrderItem {
     item_type: string;
@@ -84,11 +91,15 @@ const getPriorityColor = (priority: string) => {
     <Head title="Medical Orders" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Medical Orders</h1>
-                    <p class="text-muted-foreground">Manage medical orders for patients</p>
+                    <p class="text-muted-foreground">
+                        Manage medical orders for patients
+                    </p>
                 </div>
                 <Button as-child>
                     <Link :href="create().url">
@@ -113,28 +124,46 @@ const getPriorityColor = (priority: string) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="order in medicalOrders" :key="order.id">
+                        <TableRow
+                            v-for="order in medicalOrders"
+                            :key="order.id"
+                        >
                             <TableCell>{{ order.patient_name }}</TableCell>
                             <TableCell>{{ order.staff_name }}</TableCell>
                             <TableCell>
-                                <Badge :class="getOrderTypeColor(order.order_type)">
+                                <Badge
+                                    :class="getOrderTypeColor(order.order_type)"
+                                >
                                     {{ order.order_type_label }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex flex-col gap-1">
-                                    <span class="text-sm font-medium">{{ order.items_count }} item(s)</span>
-                                    <div v-if="order.order_items.length > 0" class="flex flex-wrap gap-1">
+                                    <span class="text-sm font-medium"
+                                        >{{ order.items_count }} item(s)</span
+                                    >
+                                    <div
+                                        v-if="order.order_items.length > 0"
+                                        class="flex flex-wrap gap-1"
+                                    >
                                         <Badge
-                                            v-for="(item, idx) in order.order_items.slice(0, 3)"
+                                            v-for="(
+                                                item, idx
+                                            ) in order.order_items.slice(0, 3)"
                                             :key="idx"
                                             variant="outline"
                                             class="text-xs"
                                         >
-                                            {{ item.item_type }}: {{ item.item_name }}
+                                            {{ item.item_type }}:
+                                            {{ item.item_name }}
                                         </Badge>
-                                        <Badge v-if="order.order_items.length > 3" variant="outline" class="text-xs">
-                                            +{{ order.order_items.length - 3 }} more
+                                        <Badge
+                                            v-if="order.order_items.length > 3"
+                                            variant="outline"
+                                            class="text-xs"
+                                        >
+                                            +{{ order.order_items.length - 3 }}
+                                            more
                                         </Badge>
                                     </div>
                                 </div>
@@ -145,18 +174,32 @@ const getPriorityColor = (priority: string) => {
                                 </Badge>
                             </TableCell>
                             <TableCell>
-                                <Badge :class="getPriorityColor(order.priority)">
+                                <Badge
+                                    :class="getPriorityColor(order.priority)"
+                                >
                                     {{ order.priority_label }}
                                 </Badge>
                             </TableCell>
                             <TableCell>{{ order.ordered_at }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="show(order.id).url">View</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="show(order.id).url"
+                                            >View</Link
+                                        >
                                     </Button>
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="edit(order.id).url">Edit</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="edit(order.id).url"
+                                            >Edit</Link
+                                        >
                                     </Button>
                                 </div>
                             </TableCell>

@@ -118,7 +118,7 @@ class SpatiePermissionSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions($permissions); // Admin gets all permissions
 
-        $doctorRole = Role::firstOrCreate(['name' => 'Doctor']);
+        $doctorRole = Role::firstOrCreate(['name' => 'doctor']);
         $doctorRole->syncPermissions([
             'view_users',
             'view_staff',
@@ -145,7 +145,7 @@ class SpatiePermissionSeeder extends Seeder
             'edit_files',
         ]);
 
-        $staffRole = Role::firstOrCreate(['name' => 'Nurse']);
+        $staffRole = Role::firstOrCreate(['name' => 'nurse']);
         $staffRole->syncPermissions([
             'view_users',
             'view_staff',
@@ -178,7 +178,7 @@ class SpatiePermissionSeeder extends Seeder
             'delete_files',
         ]);
 
-        $patientRole = Role::firstOrCreate(['name' => 'Patient']);
+        $patientRole = Role::firstOrCreate(['name' => 'patient']);
         $patientRole->syncPermissions([
             'view_appointments', // Can view their own appointments
             'view_medical_records', // Can view their own records

@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { processPage } from '@/routes/medical-orders';
+import { show } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { show } from '@/routes/visits';
-import { processPage } from '@/routes/medical-orders';
-import { Calendar, Clock, User, Play, Eye } from 'lucide-vue-next';
+import { Calendar, Clock, Eye, Play, User } from 'lucide-vue-next';
 
 interface Props {
     visits: Array<{
@@ -60,14 +67,17 @@ const getStatusColor = (status: string) => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-
         <Head title="My Visits" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">My Visits</h1>
-                    <p class="text-muted-foreground">View and manage your assigned patient visits</p>
+                    <p class="text-muted-foreground">
+                        View and manage your assigned patient visits
+                    </p>
                 </div>
             </div>
 
@@ -85,10 +95,17 @@ const getStatusColor = (status: string) => {
                         <TableRow v-for="visit in visits" :key="visit.id">
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <User class="h-4 w-4 text-muted-foreground" />
+                                    <User
+                                        class="h-4 w-4 text-muted-foreground"
+                                    />
                                     <div>
-                                        <div class="font-medium">{{ visit.patient.user.name }}</div>
-                                        <div v-if="visit.appointment" class="text-sm text-muted-foreground">
+                                        <div class="font-medium">
+                                            {{ visit.patient.user.name }}
+                                        </div>
+                                        <div
+                                            v-if="visit.appointment"
+                                            class="text-sm text-muted-foreground"
+                                        >
                                             From appointment
                                         </div>
                                     </div>
@@ -96,12 +113,26 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <Calendar class="h-4 w-4 text-muted-foreground" />
+                                    <Calendar
+                                        class="h-4 w-4 text-muted-foreground"
+                                    />
                                     <div>
-                                        <div>{{ new Date(visit.visit_date_time).toLocaleDateString() }}</div>
-                                        <div class="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <div>
+                                            {{
+                                                new Date(
+                                                    visit.visit_date_time,
+                                                ).toLocaleDateString()
+                                            }}
+                                        </div>
+                                        <div
+                                            class="flex items-center gap-1 text-sm text-muted-foreground"
+                                        >
                                             <Clock class="h-3 w-3" />
-                                            {{ new Date(visit.visit_date_time).toLocaleTimeString() }}
+                                            {{
+                                                new Date(
+                                                    visit.visit_date_time,
+                                                ).toLocaleTimeString()
+                                            }}
                                         </div>
                                     </div>
                                 </div>
@@ -113,17 +144,35 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
                                         <Link :href="show(visit.id).url">
-                                        <Eye class="h-4 w-4 mr-1" />
-                                        View Details
+                                            <Eye class="mr-1 h-4 w-4" />
+                                            View Details
                                         </Link>
                                     </Button>
-                                    <Button v-if="visit.status === 'in_progress' && visit.medical_orders.length > 0"
-                                        variant="outline" class="text-green-600 border-green-600" size="sm" as-child>
-                                        <Link :href="processPage(visit.medical_orders[0].id).url">
-                                        <Play class="h-4 w-4 mr-1" />
-                                        Process Medical Order
+                                    <Button
+                                        v-if="
+                                            visit.status === 'in_progress' &&
+                                            visit.medical_orders.length > 0
+                                        "
+                                        variant="outline"
+                                        class="border-green-600 text-green-600"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link
+                                            :href="
+                                                processPage(
+                                                    visit.medical_orders[0].id,
+                                                ).url
+                                            "
+                                        >
+                                            <Play class="mr-1 h-4 w-4" />
+                                            Process Medical Order
                                         </Link>
                                     </Button>
                                 </div>

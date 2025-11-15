@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { create, edit, show } from '@/routes/staff';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-vue-next';
+import { Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -42,7 +50,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Staff" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">Staff</h1>
@@ -50,7 +60,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
                 <div class="ml-auto">
                     <Button as-child>
-                        <Link href="/staff/create">
+                        <Link :href="create().url">
                             <Plus class="size-4" />
                             Add Staff
                         </Link>
@@ -59,8 +69,10 @@ const breadcrumbs: BreadcrumbItem[] = [
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="relative flex-1 max-w-sm">
-                    <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <div class="relative max-w-sm flex-1">
+                    <Search
+                        class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
                     <Input
                         v-model="searchQuery"
                         placeholder="Search staff..."
@@ -83,28 +95,43 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="member in props.staff" :key="member.id">
-                            <TableCell class="font-medium">{{ member.name }}</TableCell>
+                        <TableRow
+                            v-for="member in props.staff"
+                            :key="member.id"
+                        >
+                            <TableCell class="font-medium">{{
+                                member.name
+                            }}</TableCell>
                             <TableCell>{{ member.email }}</TableCell>
                             <TableCell>
-                                <Badge variant="outline">{{ member.role_name }}</Badge>
+                                <Badge variant="outline">{{
+                                    member.role_name
+                                }}</Badge>
                             </TableCell>
                             <TableCell>{{ member.department_name }}</TableCell>
-                            <TableCell>{{ new Date(member.hire_date).toLocaleDateString() }}</TableCell>
+                            <TableCell>{{
+                                new Date(member.hire_date).toLocaleDateString()
+                            }}</TableCell>
                             <TableCell>
-                                <Badge :variant="member.status === 'active' ? 'default' : 'secondary'">
+                                <Badge
+                                    :variant="
+                                        member.status === 'active'
+                                            ? 'default'
+                                            : 'secondary'
+                                    "
+                                >
                                     {{ member.status }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
                                     <Button variant="ghost" size="sm" as-child>
-                                        <Link :href="`/staff/${member.id}`">
+                                        <Link :href="show(member.id).url">
                                             <Eye class="size-4" />
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
-                                        <Link :href="`/staff/${member.id}/edit`">
+                                        <Link :href="edit(member.id).url">
                                             <Edit class="size-4" />
                                         </Link>
                                     </Button>
@@ -115,7 +142,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.staff.length === 0">
-                            <TableCell colspan="7" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="7"
+                                class="text-center text-muted-foreground"
+                            >
                                 No staff found
                             </TableCell>
                         </TableRow>

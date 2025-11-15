@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { index } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
-import { index } from '@/routes/medical-records';
 
 interface Props {
     record: {
@@ -62,7 +68,9 @@ const submit = () => {
     <Head title="Edit Medical Record" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a :href="index().url">
@@ -72,12 +80,17 @@ const submit = () => {
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Edit Medical Record</h1>
-                    <p class="text-muted-foreground">Update medical record information</p>
+                    <p class="text-muted-foreground">
+                        Update medical record information
+                    </p>
                 </div>
             </div>
 
             <div class="max-w-2xl">
-                <form @submit.prevent="submit" class="space-y-6 rounded-lg border bg-card p-6">
+                <form
+                    @submit.prevent="submit"
+                    class="space-y-6 rounded-lg border bg-card p-6"
+                >
                     <div class="space-y-2">
                         <Label for="appointment_id">Appointment</Label>
                         <Select v-model="form.appointment_id">
@@ -85,12 +98,23 @@ const submit = () => {
                                 <SelectValue placeholder="Select appointment" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="appointment in props.appointments" :key="appointment.id" :value="appointment.id.toString()">
-                                    {{ appointment.patient_name }} - {{ appointment.doctor_name }} ({{ appointment.date }} {{ appointment.time }})
+                                <SelectItem
+                                    v-for="appointment in props.appointments"
+                                    :key="appointment.id"
+                                    :value="appointment.id.toString()"
+                                >
+                                    {{ appointment.patient_name }} -
+                                    {{ appointment.doctor_name }} ({{
+                                        appointment.date
+                                    }}
+                                    {{ appointment.time }})
                                 </SelectItem>
                             </SelectContent>
                         </Select>
-                        <div v-if="form.errors.appointment_id" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.appointment_id"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.appointment_id }}
                         </div>
                     </div>
@@ -103,7 +127,10 @@ const submit = () => {
                             type="date"
                             required
                         />
-                        <div v-if="form.errors.date_of_service" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.date_of_service"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.date_of_service }}
                         </div>
                     </div>
@@ -116,7 +143,10 @@ const submit = () => {
                             placeholder="Enter diagnosis..."
                             rows="3"
                         />
-                        <div v-if="form.errors.diagnosis" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.diagnosis"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.diagnosis }}
                         </div>
                     </div>
@@ -129,7 +159,10 @@ const submit = () => {
                             placeholder="Enter treatment plan..."
                             rows="3"
                         />
-                        <div v-if="form.errors.treatment" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.treatment"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.treatment }}
                         </div>
                     </div>
@@ -142,7 +175,10 @@ const submit = () => {
                             placeholder="Additional notes..."
                             rows="3"
                         />
-                        <div v-if="form.errors.notes" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.notes"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.notes }}
                         </div>
                     </div>
@@ -150,7 +186,11 @@ const submit = () => {
                     <div class="flex gap-4">
                         <Button type="submit" :disabled="form.processing">
                             <Save class="size-4" />
-                            {{ form.processing ? 'Updating...' : 'Update Record' }}
+                            {{
+                                form.processing
+                                    ? 'Updating...'
+                                    : 'Update Record'
+                            }}
                         </Button>
                         <Button type="button" variant="outline" as-child>
                             <a :href="index().url">Cancel</a>

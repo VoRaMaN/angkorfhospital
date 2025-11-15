@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { show } from '@/routes/medical-orders';
 import { Link } from '@inertiajs/vue3';
 import { Eye } from 'lucide-vue-next';
-import { show } from '@/routes/medical-orders';
 
 interface Props {
     patient: {
@@ -26,7 +33,7 @@ const props = defineProps<Props>();
     <div class="space-y-6">
         <!-- Medical Orders List -->
         <div class="rounded-lg border bg-card p-6">
-            <h3 class="text-lg font-medium mb-4">Medical Orders</h3>
+            <h3 class="mb-4 text-lg font-medium">Medical Orders</h3>
             <div class="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -40,16 +47,25 @@ const props = defineProps<Props>();
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="order in props.patient.medical_orders" :key="order.id">
+                        <TableRow
+                            v-for="order in props.patient.medical_orders"
+                            :key="order.id"
+                        >
                             <TableCell>{{ order.id }}</TableCell>
                             <TableCell>{{ order.type }}</TableCell>
                             <TableCell>
-                                <Badge variant="secondary">{{ order.status }}</Badge>
+                                <Badge variant="secondary">{{
+                                    order.status
+                                }}</Badge>
                             </TableCell>
                             <TableCell>
-                                <Badge variant="outline">{{ order.priority }}</Badge>
+                                <Badge variant="outline">{{
+                                    order.priority
+                                }}</Badge>
                             </TableCell>
-                            <TableCell>{{ new Date(order.created_at).toLocaleDateString() }}</TableCell>
+                            <TableCell>{{
+                                new Date(order.created_at).toLocaleDateString()
+                            }}</TableCell>
                             <TableCell>
                                 <Button variant="outline" size="sm" as-child>
                                     <Link :href="show(order.id).url">
@@ -59,8 +75,16 @@ const props = defineProps<Props>();
                                 </Button>
                             </TableCell>
                         </TableRow>
-                        <TableRow v-if="!props.patient.medical_orders || props.patient.medical_orders.length === 0">
-                            <TableCell colspan="6" class="text-center text-muted-foreground">
+                        <TableRow
+                            v-if="
+                                !props.patient.medical_orders ||
+                                props.patient.medical_orders.length === 0
+                            "
+                        >
+                            <TableCell
+                                colspan="6"
+                                class="text-center text-muted-foreground"
+                            >
                                 No medical orders found
                             </TableCell>
                         </TableRow>

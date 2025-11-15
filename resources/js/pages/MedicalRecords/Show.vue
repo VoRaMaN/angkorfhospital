@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { edit, index } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
-import { index, edit } from '@/routes/medical-records';
 
 interface Props {
     medicalRecord: {
@@ -40,7 +40,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Medical Record Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a :href="index().url">
@@ -50,7 +52,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Medical Record Details</h1>
-                    <p class="text-muted-foreground">View medical record information</p>
+                    <p class="text-muted-foreground">
+                        View medical record information
+                    </p>
                 </div>
                 <div class="ml-auto">
                     <Button variant="outline" as-child>
@@ -66,43 +70,112 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="rounded-lg border bg-card p-6">
                     <div class="grid gap-6 md:grid-cols-2">
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Patient</dt>
-                            <dd class="text-sm">{{ props.medicalRecord.patient_name }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Patient
+                            </dt>
+                            <dd class="text-sm">
+                                {{ props.medicalRecord.patient_name }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Doctor</dt>
-                            <dd class="text-sm">{{ props.medicalRecord.doctor_name }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Doctor
+                            </dt>
+                            <dd class="text-sm">
+                                {{ props.medicalRecord.doctor_name }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Visit Date</dt>
-                            <dd class="text-sm">{{ new Date(props.medicalRecord.visit_date).toLocaleDateString() }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Visit Date
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    new Date(
+                                        props.medicalRecord.visit_date,
+                                    ).toLocaleDateString()
+                                }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Created</dt>
-                            <dd class="text-sm">{{ new Date(props.medicalRecord.created_at).toLocaleString() }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Created
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    new Date(
+                                        props.medicalRecord.created_at,
+                                    ).toLocaleString()
+                                }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2 md:col-span-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Diagnosis</dt>
-                            <dd class="text-sm">{{ props.medicalRecord.diagnosis || 'No diagnosis recorded' }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Diagnosis
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    props.medicalRecord.diagnosis ||
+                                    'No diagnosis recorded'
+                                }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2 md:col-span-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Treatment</dt>
-                            <dd class="text-sm">{{ props.medicalRecord.treatment || 'No treatment recorded' }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Treatment
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    props.medicalRecord.treatment ||
+                                    'No treatment recorded'
+                                }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2 md:col-span-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Notes</dt>
-                            <dd class="text-sm">{{ props.medicalRecord.notes || 'No additional notes' }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Notes
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    props.medicalRecord.notes ||
+                                    'No additional notes'
+                                }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Last Updated</dt>
-                            <dd class="text-sm">{{ new Date(props.medicalRecord.updated_at).toLocaleString() }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Last Updated
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    new Date(
+                                        props.medicalRecord.updated_at,
+                                    ).toLocaleString()
+                                }}
+                            </dd>
                         </div>
                     </div>
                 </div>

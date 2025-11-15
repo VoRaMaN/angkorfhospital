@@ -1,12 +1,23 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    create as inventoryCreate,
+    edit as inventoryEdit,
+    show as inventoryShow,
+} from '@/routes/inventory';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
-import { create as inventoryCreate, show as inventoryShow, edit as inventoryEdit } from '@/routes/inventory';
 
 interface Props {
     labSupplies: Array<{
@@ -36,20 +47,23 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-
     <Head title="Lab Inventory" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Lab Inventory</h1>
-                    <p class="text-muted-foreground">Manage laboratory supplies and equipment</p>
+                    <p class="text-muted-foreground">
+                        Manage laboratory supplies and equipment
+                    </p>
                 </div>
                 <Button as-child>
                     <Link :href="inventoryCreate().url">
-                    <Plus class="size-4" />
-                    Add Item
+                        <Plus class="size-4" />
+                        Add Item
                     </Link>
                 </Button>
             </div>
@@ -69,23 +83,46 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="item in props.labSupplies" :key="item.id">
+                        <TableRow
+                            v-for="item in props.labSupplies"
+                            :key="item.id"
+                        >
                             <TableCell>{{ item.item_name }}</TableCell>
                             <TableCell>{{ item.description }}</TableCell>
-                            <TableCell>{{ item.quantity }} {{ item.unit }}</TableCell>
+                            <TableCell
+                                >{{ item.quantity }} {{ item.unit }}</TableCell
+                            >
                             <TableCell>{{ item.unit }}</TableCell>
                             <TableCell>
-                                <Badge :variant="item.quantity <= item.minimum_stock ? 'destructive' : 'default'">
+                                <Badge
+                                    :variant="
+                                        item.quantity <= item.minimum_stock
+                                            ? 'destructive'
+                                            : 'default'
+                                    "
+                                >
                                     {{ item.status }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="inventoryShow(item.id).url">View</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="inventoryShow(item.id).url"
+                                            >View</Link
+                                        >
                                     </Button>
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="inventoryEdit(item.id).url">Edit</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="inventoryEdit(item.id).url"
+                                            >Edit</Link
+                                        >
                                     </Button>
                                 </div>
                             </TableCell>

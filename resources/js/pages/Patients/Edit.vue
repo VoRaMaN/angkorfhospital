@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/AppLayout.vue';
+import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 
 interface Props {
     patient: {
@@ -59,7 +65,9 @@ const form = useForm({
     <Head title="Edit Patient" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a href="/patients">
@@ -69,19 +77,28 @@ const form = useForm({
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Edit Patient</h1>
-                    <p class="text-muted-foreground">Update patient information</p>
+                    <p class="text-muted-foreground">
+                        Update patient information
+                    </p>
                 </div>
             </div>
 
             <div class="max-w-2xl">
                 <Tabs default-value="information" class="w-full">
                     <TabsList class="grid w-full grid-cols-2">
-                        <TabsTrigger value="information">Patient Information</TabsTrigger>
+                        <TabsTrigger value="information"
+                            >Patient Information</TabsTrigger
+                        >
                         <TabsTrigger value="files">Files</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="information" class="mt-6">
-                        <form @submit.prevent="form.put(`/patients/${props.patient.id}`)" class="space-y-6">
+                        <form
+                            @submit.prevent="
+                                form.put(`/patients/${props.patient.id}`)
+                            "
+                            class="space-y-6"
+                        >
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div class="space-y-2">
                                     <Label for="first_name">First Name</Label>
@@ -90,7 +107,10 @@ const form = useForm({
                                         v-model="form.first_name"
                                         placeholder="Enter first name"
                                     />
-                                    <div v-if="form.errors.first_name" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.first_name"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.first_name }}
                                     </div>
                                 </div>
@@ -102,7 +122,10 @@ const form = useForm({
                                         v-model="form.last_name"
                                         placeholder="Enter last name"
                                     />
-                                    <div v-if="form.errors.last_name" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.last_name"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.last_name }}
                                     </div>
                                 </div>
@@ -110,27 +133,42 @@ const form = useForm({
 
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div class="space-y-2">
-                                    <Label for="date_of_birth">Date of Birth</Label>
+                                    <Label for="date_of_birth"
+                                        >Date of Birth</Label
+                                    >
                                     <Input
                                         id="date_of_birth"
                                         v-model="form.date_of_birth"
                                         type="date"
                                     />
-                                    <div v-if="form.errors.date_of_birth" class="text-sm text-destructive">
+                                    <div
+                                        v-if="form.errors.date_of_birth"
+                                        class="text-sm text-destructive"
+                                    >
                                         {{ form.errors.date_of_birth }}
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label class="text-sm font-medium">Gender</label>
+                                    <label class="text-sm font-medium"
+                                        >Gender</label
+                                    >
                                     <Select v-model="form.gender">
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select gender" />
+                                            <SelectValue
+                                                placeholder="Select gender"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="male">Male</SelectItem>
-                                            <SelectItem value="female">Female</SelectItem>
-                                            <SelectItem value="other">Other</SelectItem>
+                                            <SelectItem value="male"
+                                                >Male</SelectItem
+                                            >
+                                            <SelectItem value="female"
+                                                >Female</SelectItem
+                                            >
+                                            <SelectItem value="other"
+                                                >Other</SelectItem
+                                            >
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -143,7 +181,10 @@ const form = useForm({
                                     v-model="form.phone_number"
                                     placeholder="Enter phone number"
                                 />
-                                <div v-if="form.errors.phone_number" class="text-sm text-destructive">
+                                <div
+                                    v-if="form.errors.phone_number"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.phone_number }}
                                 </div>
                             </div>
@@ -156,7 +197,10 @@ const form = useForm({
                                     type="email"
                                     placeholder="Enter email address"
                                 />
-                                <div v-if="form.errors.patient_email" class="text-sm text-destructive">
+                                <div
+                                    v-if="form.errors.patient_email"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.patient_email }}
                                 </div>
                             </div>
@@ -168,39 +212,57 @@ const form = useForm({
                                     v-model="form.address"
                                     placeholder="Enter address"
                                 />
-                                <div v-if="form.errors.address" class="text-sm text-destructive">
+                                <div
+                                    v-if="form.errors.address"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.address }}
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="insurance_info">Insurance Information</Label>
+                                <Label for="insurance_info"
+                                    >Insurance Information</Label
+                                >
                                 <Input
                                     id="insurance_info"
                                     v-model="form.insurance_info"
                                     placeholder="Enter insurance info"
                                 />
-                                <div v-if="form.errors.insurance_info" class="text-sm text-destructive">
+                                <div
+                                    v-if="form.errors.insurance_info"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.insurance_info }}
                                 </div>
                             </div>
 
-                            <div class="flex items-center space-x-2" v-if="!props.patient.user">
+                            <div
+                                class="flex items-center space-x-2"
+                                v-if="!props.patient.user"
+                            >
                                 <Checkbox
                                     id="create_user_account"
                                     v-model:checked="form.create_user_account"
                                 />
                                 <label
                                     for="create_user_account"
-                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
                                     Create user account for self-service
                                 </label>
                             </div>
 
-                            <template v-if="form.create_user_account && !props.patient.user">
+                            <template
+                                v-if="
+                                    form.create_user_account &&
+                                    !props.patient.user
+                                "
+                            >
                                 <div class="border-t pt-6">
-                                    <h3 class="text-lg font-medium mb-4">User Account Information</h3>
+                                    <h3 class="mb-4 text-lg font-medium">
+                                        User Account Information
+                                    </h3>
 
                                     <div class="space-y-2">
                                         <Label for="user_name">Full Name</Label>
@@ -209,7 +271,10 @@ const form = useForm({
                                             v-model="form.name"
                                             placeholder="Enter full name for user account"
                                         />
-                                        <div v-if="form.errors.name" class="text-sm text-destructive">
+                                        <div
+                                            v-if="form.errors.name"
+                                            class="text-sm text-destructive"
+                                        >
                                             {{ form.errors.name }}
                                         </div>
                                     </div>
@@ -222,7 +287,10 @@ const form = useForm({
                                             type="email"
                                             placeholder="Enter email for user account"
                                         />
-                                        <div v-if="form.errors.email" class="text-sm text-destructive">
+                                        <div
+                                            v-if="form.errors.email"
+                                            class="text-sm text-destructive"
+                                        >
                                             {{ form.errors.email }}
                                         </div>
                                     </div>
@@ -230,7 +298,10 @@ const form = useForm({
                             </template>
 
                             <div class="flex gap-4">
-                                <Button type="submit" :disabled="form.processing">
+                                <Button
+                                    type="submit"
+                                    :disabled="form.processing"
+                                >
                                     Update Patient
                                 </Button>
                                 <Button variant="outline" as-child>

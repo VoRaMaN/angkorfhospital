@@ -1,16 +1,34 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    create as inventoryCreate,
+    edit as inventoryEdit,
+    index as inventoryIndex,
+    show as inventoryShow,
+} from '@/routes/inventory';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus, Search } from 'lucide-vue-next';
-import { index as inventoryIndex, create as inventoryCreate, show as inventoryShow, edit as inventoryEdit } from '@/routes/inventory';
 
-import { ref, watch, computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface Props {
     inventories: {
@@ -69,32 +87,39 @@ watch(selectedStatus, (value) => {
 });
 
 const updateFilter = (key: string, value: string) => {
-    router.get(inventoryIndex().url, { ...props.filters, [key]: value }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        inventoryIndex().url,
+        { ...props.filters, [key]: value },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const paginationLinks = computed(() => {
-    return props.inventories.links.filter(link => link.url);
+    return props.inventories.links.filter((link) => link.url);
 });
 </script>
 
 <template>
-
     <Head title="Inventory" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Inventory</h1>
-                    <p class="text-muted-foreground">Manage medical supplies and equipment</p>
+                    <p class="text-muted-foreground">
+                        Manage medical supplies and equipment
+                    </p>
                 </div>
                 <Button as-child>
                     <Link :href="inventoryCreate().url">
-                    <Plus class="size-4" />
-                    Add Item
+                        <Plus class="size-4" />
+                        Add Item
                     </Link>
                 </Button>
             </div>
@@ -103,8 +128,14 @@ const paginationLinks = computed(() => {
             <div class="flex flex-col gap-4 md:flex-row md:items-center">
                 <div class="flex-1">
                     <div class="relative">
-                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input v-model="searchQuery" placeholder="Search inventory..." class="pl-9" />
+                        <Search
+                            class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <Input
+                            v-model="searchQuery"
+                            placeholder="Search inventory..."
+                            class="pl-9"
+                        />
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -113,7 +144,11 @@ const paginationLinks = computed(() => {
                             <SelectValue placeholder="All Types" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem v-for="type in props.typesOfSupply" :key="type.value" :value="type.value">
+                            <SelectItem
+                                v-for="type in props.typesOfSupply"
+                                :key="type.value"
+                                :value="type.value"
+                            >
                                 {{ type.label }}
                             </SelectItem>
                         </SelectContent>
@@ -126,7 +161,9 @@ const paginationLinks = computed(() => {
                         <SelectContent>
                             <SelectItem value="in_stock">In Stock</SelectItem>
                             <SelectItem value="low_stock">Low Stock</SelectItem>
-                            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                            <SelectItem value="out_of_stock"
+                                >Out of Stock</SelectItem
+                            >
                         </SelectContent>
                     </Select>
                 </div>
@@ -146,25 +183,53 @@ const paginationLinks = computed(() => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="item in props.inventories.data" :key="item.id">
+                        <TableRow
+                            v-for="item in props.inventories.data"
+                            :key="item.id"
+                        >
                             <TableCell>{{ item.item_name }}</TableCell>
                             <TableCell>{{ item.description }}</TableCell>
-                            <TableCell>{{ item.type_of_supply.replace(/_/g, ' ').replace(/\b\w/g, (l: string) =>
-                                l.toUpperCase()) }}</TableCell>
-                            <TableCell>{{ item.quantity }} {{ item.unit }}</TableCell>
+                            <TableCell>{{
+                                item.type_of_supply
+                                    .replace(/_/g, ' ')
+                                    .replace(/\b\w/g, (l: string) =>
+                                        l.toUpperCase(),
+                                    )
+                            }}</TableCell>
+                            <TableCell
+                                >{{ item.quantity }} {{ item.unit }}</TableCell
+                            >
                             <TableCell>{{ item.unit }}</TableCell>
                             <TableCell>
-                                <Badge :variant="item.quantity <= item.minimum_stock ? 'destructive' : 'default'">
+                                <Badge
+                                    :variant="
+                                        item.quantity <= item.minimum_stock
+                                            ? 'destructive'
+                                            : 'default'
+                                    "
+                                >
                                     {{ item.status }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="inventoryShow(item.id).url">View</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="inventoryShow(item.id).url"
+                                            >View</Link
+                                        >
                                     </Button>
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="inventoryEdit(item.id).url">Edit</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="inventoryEdit(item.id).url"
+                                            >Edit</Link
+                                        >
                                     </Button>
                                 </div>
                             </TableCell>
@@ -174,9 +239,16 @@ const paginationLinks = computed(() => {
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-center gap-2" v-if="props.inventories.last_page > 1">
-                <Button v-for="link in paginationLinks" :key="link.label" :variant="link.active ? 'default' : 'outline'"
-                    as-child>
+            <div
+                class="flex justify-center gap-2"
+                v-if="props.inventories.last_page > 1"
+            >
+                <Button
+                    v-for="link in paginationLinks"
+                    :key="link.label"
+                    :variant="link.active ? 'default' : 'outline'"
+                    as-child
+                >
                     <Link :href="link.url!">{{ link.label }}</Link>
                 </Button>
             </div>

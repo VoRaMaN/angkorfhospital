@@ -1,18 +1,30 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ref } from 'vue';
 
 interface Props {
     appointment: {
         id: number;
-        patient: { user?: { name: string; email?: string } | null; first_name: string; last_name: string; email?: string };
+        patient: {
+            user?: { name: string; email?: string } | null;
+            first_name: string;
+            last_name: string;
+            email?: string;
+        };
         staff: { user: { name: string }; role: { name: string } };
         appointment_date_time: string;
         status: string;
@@ -44,17 +56,21 @@ const updateStatus = (newStatus: string) => {
 };
 
 const confirmStatusUpdate = () => {
-    router.patch(updateStatusRoute(props.appointment.id).url, {
-        status: selectedNewStatus.value,
-    }, {
-        onSuccess: () => {
-            confirmModalOpen.value = false;
-            selectedNewStatus.value = '';
+    router.patch(
+        updateStatusRoute(props.appointment.id).url,
+        {
+            status: selectedNewStatus.value,
         },
-        onError: () => {
-            alert('Failed to update appointment status');
+        {
+            onSuccess: () => {
+                confirmModalOpen.value = false;
+                selectedNewStatus.value = '';
+            },
+            onError: () => {
+                alert('Failed to update appointment status');
+            },
         },
-    });
+    );
 };
 
 const cancelStatusUpdate = () => {
@@ -67,7 +83,9 @@ const cancelStatusUpdate = () => {
     <Head title="Appointment Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a href="/appointments">
@@ -77,31 +95,78 @@ const cancelStatusUpdate = () => {
                 </Button>
                 <div>
                     <h1 class="text-2xl font-bold">Appointment Details</h1>
-                    <p class="text-muted-foreground">View appointment information</p>
+                    <p class="text-muted-foreground">
+                        View appointment information
+                    </p>
                 </div>
                 <div class="ml-auto flex items-center gap-2">
                     <div class="flex gap-2">
-                        <template v-if="props.appointment.status === 'scheduled'">
-                            <Button variant="default" size="sm" @click="updateStatus('confirmed')">Confirm</Button>
-                            <Button variant="destructive" size="sm" @click="updateStatus('cancelled')">Cancel</Button>
+                        <template
+                            v-if="props.appointment.status === 'scheduled'"
+                        >
+                            <Button
+                                variant="default"
+                                size="sm"
+                                @click="updateStatus('confirmed')"
+                                >Confirm</Button
+                            >
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                @click="updateStatus('cancelled')"
+                                >Cancel</Button
+                            >
                         </template>
 
-                        <template v-else-if="props.appointment.status === 'confirmed'">
-                            <Button variant="default" size="sm" @click="updateStatus('completed')">Complete</Button>
-                            <Button variant="destructive" size="sm" @click="updateStatus('cancelled')">Cancel</Button>
-                            <Button variant="outline" size="sm" @click="updateStatus('no-show')">No Show</Button>
+                        <template
+                            v-else-if="props.appointment.status === 'confirmed'"
+                        >
+                            <Button
+                                variant="default"
+                                size="sm"
+                                @click="updateStatus('completed')"
+                                >Complete</Button
+                            >
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                @click="updateStatus('cancelled')"
+                                >Cancel</Button
+                            >
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                @click="updateStatus('no-show')"
+                                >No Show</Button
+                            >
                         </template>
 
-                        <template v-else-if="props.appointment.status === 'cancelled'">
-                            <Button variant="outline" size="sm" @click="updateStatus('scheduled')">Reschedule</Button>
+                        <template
+                            v-else-if="props.appointment.status === 'cancelled'"
+                        >
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                @click="updateStatus('scheduled')"
+                                >Reschedule</Button
+                            >
                         </template>
 
-                        <template v-else-if="props.appointment.status === 'no-show'">
-                            <Button variant="outline" size="sm" @click="updateStatus('scheduled')">Reschedule</Button>
+                        <template
+                            v-else-if="props.appointment.status === 'no-show'"
+                        >
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                @click="updateStatus('scheduled')"
+                                >Reschedule</Button
+                            >
                         </template>
                     </div>
                     <Button variant="outline" as-child>
-                        <Link :href="`/appointments/${props.appointment.id}/edit`">
+                        <Link
+                            :href="`/appointments/${props.appointment.id}/edit`"
+                        >
                             <Edit class="size-4" />
                             Edit
                         </Link>
@@ -113,42 +178,118 @@ const cancelStatusUpdate = () => {
                 <div class="rounded-lg border bg-card p-6">
                     <div class="grid gap-6 md:grid-cols-2">
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Patient</dt>
-                            <dd class="text-sm">{{ props.appointment.patient.user?.name || `${props.appointment.patient.first_name} ${props.appointment.patient.last_name}` }}</dd>
-                        </div>
-
-                        <div class="space-y-2" v-if="props.appointment.patient.user?.email || props.appointment.patient.email">
-                            <dt class="text-sm font-medium text-muted-foreground">Patient Email</dt>
-                            <dd class="text-sm">{{ props.appointment.patient.user?.email || props.appointment.patient.email }}</dd>
-                        </div>
-
-                        <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Staff</dt>
-                            <dd class="text-sm">{{ props.appointment.staff.user.name }} ({{ props.appointment.staff.role.name }})</dd>
-                        </div>
-
-                        <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Appointment Date & Time</dt>
-                            <dd class="text-sm">{{ new Date(props.appointment.appointment_date_time).toLocaleString() }}</dd>
-                        </div>
-
-                        <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Status</dt>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Patient
+                            </dt>
                             <dd class="text-sm">
-                                <Badge :variant="props.appointment.status === 'completed' ? 'default' : 'secondary'">
-                                    {{ props.appointment.status.charAt(0).toUpperCase() + props.appointment.status.slice(1) }}
+                                {{
+                                    props.appointment.patient.user?.name ||
+                                    `${props.appointment.patient.first_name} ${props.appointment.patient.last_name}`
+                                }}
+                            </dd>
+                        </div>
+
+                        <div
+                            class="space-y-2"
+                            v-if="
+                                props.appointment.patient.user?.email ||
+                                props.appointment.patient.email
+                            "
+                        >
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Patient Email
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    props.appointment.patient.user?.email ||
+                                    props.appointment.patient.email
+                                }}
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Staff
+                            </dt>
+                            <dd class="text-sm">
+                                {{ props.appointment.staff.user.name }} ({{
+                                    props.appointment.staff.role.name
+                                }})
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Appointment Date & Time
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    new Date(
+                                        props.appointment.appointment_date_time,
+                                    ).toLocaleString()
+                                }}
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Status
+                            </dt>
+                            <dd class="text-sm">
+                                <Badge
+                                    :variant="
+                                        props.appointment.status === 'completed'
+                                            ? 'default'
+                                            : 'secondary'
+                                    "
+                                >
+                                    {{
+                                        props.appointment.status
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                        props.appointment.status.slice(1)
+                                    }}
                                 </Badge>
                             </dd>
                         </div>
 
-                        <div class="space-y-2" v-if="props.appointment.reason_for_visit">
-                            <dt class="text-sm font-medium text-muted-foreground">Reason for Visit</dt>
-                            <dd class="text-sm">{{ props.appointment.reason_for_visit }}</dd>
+                        <div
+                            class="space-y-2"
+                            v-if="props.appointment.reason_for_visit"
+                        >
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Reason for Visit
+                            </dt>
+                            <dd class="text-sm">
+                                {{ props.appointment.reason_for_visit }}
+                            </dd>
                         </div>
 
                         <div class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">Created</dt>
-                            <dd class="text-sm">{{ new Date(props.appointment.created_at).toLocaleString() }}</dd>
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Created
+                            </dt>
+                            <dd class="text-sm">
+                                {{
+                                    new Date(
+                                        props.appointment.created_at,
+                                    ).toLocaleString()
+                                }}
+                            </dd>
                         </div>
                     </div>
                 </div>
@@ -160,12 +301,17 @@ const cancelStatusUpdate = () => {
                 <DialogHeader>
                     <DialogTitle>Confirm Status Update</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to update the status of this appointment to "{{ selectedNewStatus }}"?
-                        <br><br>
-                        <strong>Patient:</strong> {{ props.appointment.patient.user?.name || `${props.appointment.patient.first_name} ${props.appointment.patient.last_name}` }}
-                        <br>
-                        <strong>Current Status:</strong> {{ props.appointment.status }}
-                        <br>
+                        Are you sure you want to update the status of this
+                        appointment to "{{ selectedNewStatus }}"? <br /><br />
+                        <strong>Patient:</strong>
+                        {{
+                            props.appointment.patient.user?.name ||
+                            `${props.appointment.patient.first_name} ${props.appointment.patient.last_name}`
+                        }}
+                        <br />
+                        <strong>Current Status:</strong>
+                        {{ props.appointment.status }}
+                        <br />
                         <strong>New Status:</strong> {{ selectedNewStatus }}
                     </DialogDescription>
                 </DialogHeader>
@@ -173,9 +319,7 @@ const cancelStatusUpdate = () => {
                     <Button variant="outline" @click="cancelStatusUpdate">
                         Cancel
                     </Button>
-                    <Button @click="confirmStatusUpdate">
-                        Confirm
-                    </Button>
+                    <Button @click="confirmStatusUpdate"> Confirm </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

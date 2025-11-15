@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { create, edit, show } from '@/routes/patients';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
@@ -30,14 +38,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Patients" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Patients</h1>
                     <p class="text-muted-foreground">Manage patient records</p>
                 </div>
                 <Button as-child>
-                    <Link href="/patients/create">
+                    <Link :href="create().url">
                         <Plus class="size-4" />
                         Add Patient
                     </Link>
@@ -57,19 +67,38 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="patient in props.patients" :key="patient.id">
+                        <TableRow
+                            v-for="patient in props.patients"
+                            :key="patient.id"
+                        >
                             <TableCell>{{ patient.user.name }}</TableCell>
                             <TableCell>{{ patient.user.email }}</TableCell>
-                            <TableCell>{{ new Date(patient.date_of_birth).toLocaleDateString() }}</TableCell>
+                            <TableCell>{{
+                                new Date(
+                                    patient.date_of_birth,
+                                ).toLocaleDateString()
+                            }}</TableCell>
                             <TableCell>{{ patient.gender }}</TableCell>
                             <TableCell>{{ patient.phone_number }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="`/patients/${patient.id}`">View</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="show(patient.id).url"
+                                            >View</Link
+                                        >
                                     </Button>
-                                    <Button variant="outline" size="sm" as-child>
-                                        <Link :href="`/patients/${patient.id}/edit`">Edit</Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <Link :href="edit(patient.id).url"
+                                            >Edit</Link
+                                        >
                                     </Button>
                                 </div>
                             </TableCell>

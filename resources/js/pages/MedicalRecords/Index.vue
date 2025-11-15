@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { create, edit, show } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-vue-next';
+import { Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
-import { create, show, edit } from '@/routes/medical-records';
 
 interface Props {
     medicalRecords: {
@@ -40,30 +47,39 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-
     <Head title="Medical Records" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">Medical Records</h1>
-                    <p class="text-muted-foreground">Manage patient medical records</p>
+                    <p class="text-muted-foreground">
+                        Manage patient medical records
+                    </p>
                 </div>
                 <div class="ml-auto">
                     <Button as-child>
                         <Link :href="create().url">
-                        <Plus class="size-4" />
-                        Add Record
+                            <Plus class="size-4" />
+                            Add Record
                         </Link>
                     </Button>
                 </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="relative flex-1 max-w-sm">
-                    <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input v-model="searchQuery" placeholder="Search records..." class="pl-9" />
+                <div class="relative max-w-sm flex-1">
+                    <Search
+                        class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search records..."
+                        class="pl-9"
+                    />
                 </div>
             </div>
 
@@ -80,26 +96,38 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="record in props.medicalRecords" :key="record.id">
-                            <TableCell class="font-medium">{{ record.patient_name }}</TableCell>
+                        <TableRow
+                            v-for="record in props.medicalRecords"
+                            :key="record.id"
+                        >
+                            <TableCell class="font-medium">{{
+                                record.patient_name
+                            }}</TableCell>
                             <TableCell>{{ record.doctor_name }}</TableCell>
                             <TableCell>
-                                <span class="truncate max-w-[200px] block" :title="record.diagnosis">
+                                <span
+                                    class="block max-w-[200px] truncate"
+                                    :title="record.diagnosis"
+                                >
                                     {{ record.diagnosis }}
                                 </span>
                             </TableCell>
-                            <TableCell>{{ new Date(record.visit_date).toLocaleDateString() }}</TableCell>
-                            <TableCell>{{ new Date(record.created_at).toLocaleDateString() }}</TableCell>
+                            <TableCell>{{
+                                new Date(record.visit_date).toLocaleDateString()
+                            }}</TableCell>
+                            <TableCell>{{
+                                new Date(record.created_at).toLocaleDateString()
+                            }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
                                     <Button variant="ghost" size="sm" as-child>
                                         <Link :href="show(record.id).url">
-                                        <Eye class="size-4" />
+                                            <Eye class="size-4" />
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
                                         <Link :href="edit(record.id).url">
-                                        <Edit class="size-4" />
+                                            <Edit class="size-4" />
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm">
@@ -109,7 +137,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.medicalRecords.length === 0">
-                            <TableCell colspan="6" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="6"
+                                class="text-center text-muted-foreground"
+                            >
                                 No medical records found
                             </TableCell>
                         </TableRow>

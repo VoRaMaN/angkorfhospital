@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StaffFilesTab from './StaffFilesTab.vue';
 
 interface Props {
@@ -43,7 +43,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Staff Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a href="/staff">
@@ -76,54 +78,127 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <div class="rounded-lg border bg-card p-6">
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Full Name</dt>
-                                    <dd class="text-sm font-medium">{{ props.staff.name }}</dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Email</dt>
-                                    <dd class="text-sm">{{ props.staff.email }}</dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Role</dt>
-                                    <dd class="text-sm">
-                                        <Badge variant="outline">{{ props.staff.role_name }}</Badge>
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Full Name
+                                    </dt>
+                                    <dd class="text-sm font-medium">
+                                        {{ props.staff.name }}
                                     </dd>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Department</dt>
-                                    <dd class="text-sm">{{ props.staff.department_name }}</dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Hire Date</dt>
-                                    <dd class="text-sm">{{ new Date(props.staff.hire_date).toLocaleDateString() }}</dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Status</dt>
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Email
+                                    </dt>
                                     <dd class="text-sm">
-                                        <Badge :variant="props.staff.status === 'active' ? 'default' : 'secondary'">
+                                        {{ props.staff.email }}
+                                    </dd>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Role
+                                    </dt>
+                                    <dd class="text-sm">
+                                        <Badge variant="outline">{{
+                                            props.staff.role_name
+                                        }}</Badge>
+                                    </dd>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Department
+                                    </dt>
+                                    <dd class="text-sm">
+                                        {{ props.staff.department_name }}
+                                    </dd>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Hire Date
+                                    </dt>
+                                    <dd class="text-sm">
+                                        {{
+                                            new Date(
+                                                props.staff.hire_date,
+                                            ).toLocaleDateString()
+                                        }}
+                                    </dd>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Status
+                                    </dt>
+                                    <dd class="text-sm">
+                                        <Badge
+                                            :variant="
+                                                props.staff.status === 'active'
+                                                    ? 'default'
+                                                    : 'secondary'
+                                            "
+                                        >
                                             {{ props.staff.status }}
                                         </Badge>
                                     </dd>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Phone</dt>
-                                    <dd class="text-sm">{{ props.staff.contact_number || 'Not provided' }}</dd>
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Phone
+                                    </dt>
+                                    <dd class="text-sm">
+                                        {{
+                                            props.staff.contact_number ||
+                                            'Not provided'
+                                        }}
+                                    </dd>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Created</dt>
-                                    <dd class="text-sm">{{ new Date(props.staff.created_at).toLocaleString() }}</dd>
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Created
+                                    </dt>
+                                    <dd class="text-sm">
+                                        {{
+                                            new Date(
+                                                props.staff.created_at,
+                                            ).toLocaleString()
+                                        }}
+                                    </dd>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Last Updated</dt>
-                                    <dd class="text-sm">{{ new Date(props.staff.updated_at).toLocaleString() }}</dd>
+                                    <dt
+                                        class="text-sm font-medium text-muted-foreground"
+                                    >
+                                        Last Updated
+                                    </dt>
+                                    <dd class="text-sm">
+                                        {{
+                                            new Date(
+                                                props.staff.updated_at,
+                                            ).toLocaleString()
+                                        }}
+                                    </dd>
                                 </div>
                             </div>
                         </div>
