@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
@@ -10,31 +9,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, index, show } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import {
-    eachDayOfInterval,
-    endOfMonth,
-    format,
-    isSameDay,
-    isToday,
-    startOfMonth,
-} from 'date-fns';
-import {
-    CalendarIcon,
-    ChevronLeft,
-    ChevronRight,
-    List,
-    Plus,
-} from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, List, Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Props {
@@ -80,6 +60,35 @@ const appointmentsByDate = computed(() => {
     });
 
     return grouped;
+});
+
+// Get calendar days (full weeks including adjacent months)
+const calendarDays = computed(() => {
+    const year = selectedDate.value.getFullYear();
+    const month = selectedDate.value.getMonth();
+
+    // Get first day of month
+    const firstDay = new Date(year, month, 1);
+    // Get last day of month
+    const lastDay = new Date(year, month + 1, 0);
+
+    // Get starting day of week (0 = Sunday, 1 = Monday, etc.)
+    const startDate = new Date(firstDay);
+    startDate.setDate(firstDay.getDate() - firstDay.getDay());
+
+    // Get ending day of week
+    const endDate = new Date(lastDay);
+    endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+
+    const days = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+        days.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return days;
 });
 
 // Get appointments for selected date
@@ -133,13 +142,6 @@ const navigateMonth = (direction: 'prev' | 'next') => {
         newDate.setMonth(newDate.getMonth() + 1);
     }
     selectedDate.value = newDate;
-};
-
-const selectDate = (date: Date | undefined) => {
-    if (date) {
-        selectedDate.value = date;
-        calendarOpen.value = false;
-    }
 };
 
 const viewAppointment = (appointment: any) => {
@@ -196,25 +198,13 @@ const closeAppointmentDialog = () => {
                     >
                         <ChevronLeft class="size-4" />
                     </Button>
-                    <Popover v-model:open="calendarOpen">
-                        <PopoverTrigger as-child>
-                            <Button
-                                variant="outline"
-                                class="w-48 justify-start"
-                            >
-                                <CalendarIcon class="mr-2 size-4" />
-                                {{ format(selectedDate, 'MMMM yyyy') }}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent class="w-auto p-0">
-                            <Calendar
-                                v-model="selectedDate"
-                                :month="selectedDate"
-                                @update:model-value="selectDate"
-                                initial-focus
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <Button
+                        variant="outline"
+                        class="w-48 justify-center"
+                        @click="calendarOpen = !calendarOpen"
+                    >
+                        {{ selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}
+                    </Button>
                     <Button
                         variant="outline"
                         size="sm"
@@ -227,7 +217,7 @@ const closeAppointmentDialog = () => {
                     {{ selectedDateAppointments.length }} appointment{{
                         selectedDateAppointments.length !== 1 ? 's' : ''
                     }}
-                    on {{ format(selectedDate, 'MMM d, yyyy') }}
+                    on {{ selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
                 </div>
             </div>
 
@@ -259,22 +249,17 @@ const closeAppointmentDialog = () => {
 
                                 <!-- Calendar days -->
                                 <div
-                                    v-for="day in eachDayOfInterval({
-                                        start: startOfMonth(selectedDate),
-                                        end: endOfMonth(selectedDate),
-                                    })"
+                                    v-for="day in calendarDays"
                                     :key="day.toISOString()"
                                     class="min-h-24 border border-border p-1"
                                     :class="{
-                                        'bg-muted': isToday(day),
-                                        'bg-primary/5': isSameDay(
-                                            day,
-                                            selectedDate,
-                                        ),
+                                        'bg-muted': new Date().toDateString() === day.toDateString(),
+                                        'bg-primary/5': selectedDate.toDateString() === day.toDateString(),
+                                        'text-muted-foreground': day.getMonth() !== selectedDate.getMonth(),
                                     }"
                                 >
                                     <div class="mb-1 text-sm font-medium">
-                                        {{ format(day, 'd') }}
+                                        {{ day.getDate() }}
                                     </div>
                                     <div class="space-y-1">
                                         <div
@@ -300,12 +285,7 @@ const closeAppointmentDialog = () => {
                                             </div>
                                             <div class="text-muted-foreground">
                                                 {{
-                                                    format(
-                                                        new Date(
-                                                            appointment.appointment_date_time,
-                                                        ),
-                                                        'HH:mm',
-                                                    )
+                                                    new Date(appointment.appointment_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
                                                 }}
                                             </div>
                                         </div>
@@ -321,7 +301,7 @@ const closeAppointmentDialog = () => {
                     <Card>
                         <CardHeader>
                             <CardTitle>{{
-                                format(selectedDate, 'MMM d, yyyy')
+                                selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                             }}</CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -371,12 +351,7 @@ const closeAppointmentDialog = () => {
                                         <div>
                                             Time:
                                             {{
-                                                format(
-                                                    new Date(
-                                                        appointment.appointment_date_time,
-                                                    ),
-                                                    'HH:mm',
-                                                )
+                                                new Date(appointment.appointment_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
                                             }}
                                             ({{
                                                 appointment.duration_minutes
@@ -440,12 +415,13 @@ const closeAppointmentDialog = () => {
                             >
                             <p class="text-sm text-muted-foreground">
                                 {{
-                                    format(
-                                        new Date(
-                                            selectedAppointment.appointment_date_time,
-                                        ),
-                                        'PPP p',
-                                    )
+                                    new Date(selectedAppointment.appointment_date_time).toLocaleString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })
                                 }}
                             </p>
                         </div>
@@ -501,8 +477,8 @@ const closeAppointmentDialog = () => {
                     <Button variant="outline" @click="closeAppointmentDialog"
                         >Close</Button
                     >
-                    <Button as-child>
-                        <Link :href="show(selectedAppointment?.id).url"
+                    <Button as-child v-if="selectedAppointment">
+                        <Link :href="show(selectedAppointment.id).url"
                             >View Full Details</Link
                         >
                     </Button>
