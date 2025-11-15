@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     complete as completeRoute,
@@ -92,6 +93,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -293,6 +296,7 @@ const orderSummary = computed(() => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
+            v-if="hasPermission('view_medical_orders')"
             class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -326,7 +330,10 @@ const orderSummary = computed(() => {
                         </Link>
                     </Button>
                     <Button
-                        v-if="medicalOrder.status === 'pending'"
+                        v-if="
+                            medicalOrder.status === 'pending' &&
+                            hasPermission('process_medical_orders')
+                        "
                         variant="default"
                         @click="confirmProcess"
                     >
@@ -334,7 +341,10 @@ const orderSummary = computed(() => {
                         Confirm Process
                     </Button>
                     <Button
-                        v-if="medicalOrder.status === 'processed'"
+                        v-if="
+                            medicalOrder.status === 'processed' &&
+                            hasPermission('complete_medical_orders')
+                        "
                         variant="default"
                         as-child
                     >
@@ -343,7 +353,11 @@ const orderSummary = computed(() => {
                             Confirm Process
                         </Link>
                     </Button>
-                    <Button variant="outline" as-child>
+                    <Button
+                        v-if="hasPermission('edit_medical_orders')"
+                        variant="outline"
+                        as-child
+                    >
                         <Link :href="edit(medicalOrder.id).url">
                             <Edit class="size-4" />
                             Edit
@@ -904,6 +918,16 @@ const orderSummary = computed(() => {
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to view medical orders.
+                </p>
             </div>
         </div>
     </AppLayout>

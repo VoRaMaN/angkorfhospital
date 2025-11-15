@@ -25,7 +25,10 @@ class StoreAppointmentRequest extends FormRequest
             'patient_id' => 'required|exists:patients,id',
             'staff_id' => 'required|exists:staff,id',
             'appointment_date_time' => 'required|date|after:now',
+            'duration_minutes' => 'required|integer|min:15|max:480',
+            'appointment_type' => 'required|in:consultation,emergency,follow_up,procedure,checkup,telemedicine,screening,therapy',
             'reason_for_visit' => 'required|string|max:1000',
+            'notes' => 'nullable|string|max:2000',
         ];
     }
 
@@ -36,7 +39,10 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'appointment_date_time.after' => 'Appointment date and time must be in the future.',
-            'status.in' => 'Status must be one of: scheduled, confirmed, completed, cancelled.',
+            'duration_minutes.min' => 'Duration must be at least 15 minutes.',
+            'duration_minutes.max' => 'Duration cannot exceed 8 hours (480 minutes).',
+            'appointment_type.in' => 'Please select a valid appointment type.',
+            'notes.max' => 'Notes cannot exceed 2000 characters.',
         ];
     }
 }

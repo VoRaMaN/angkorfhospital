@@ -101,7 +101,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.departments.length === 0">
-                            <TableCell colspan="4" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="4"
+                                class="text-center text-muted-foreground"
+                            >
                                 No departments found
                             </TableCell>
                         </TableRow>

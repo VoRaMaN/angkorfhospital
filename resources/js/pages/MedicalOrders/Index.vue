@@ -9,6 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
@@ -47,6 +48,8 @@ const props = withDefaults(defineProps<Props>(), {
     medicalOrders: () => [],
     filters: () => ({ search: '' }),
 });
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -101,7 +104,7 @@ const getPriorityColor = (priority: string) => {
                         Manage medical orders for patients
                     </p>
                 </div>
-                <Button as-child>
+                <Button as-child v-if="hasPermission('create_medical_orders')">
                     <Link :href="create().url">
                         <Plus class="size-4" />
                         Create Medical Order
@@ -196,6 +199,9 @@ const getPriorityColor = (priority: string) => {
                                         variant="outline"
                                         size="sm"
                                         as-child
+                                        v-if="
+                                            hasPermission('edit_medical_orders')
+                                        "
                                     >
                                         <Link :href="edit(order.id).url"
                                             >Edit</Link
@@ -205,7 +211,10 @@ const getPriorityColor = (priority: string) => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.medicalOrders.length === 0">
-                            <TableCell colspan="8" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="8"
+                                class="text-center text-muted-foreground"
+                            >
                                 No medical orders found
                             </TableCell>
                         </TableRow>

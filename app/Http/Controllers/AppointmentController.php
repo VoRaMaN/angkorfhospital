@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,15 +26,17 @@ class AppointmentController extends Controller
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name),
-                    ] : ['name' => trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name)],
+                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
+                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
-                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name),
-                    ] : ['name' => trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name)],
+                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
+                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
+                'duration_minutes' => $appointment->duration_minutes ?? 30,
+                'appointment_type' => $appointment->appointment_type ?? 'consultation',
                 'status' => $appointment->status,
                 'created_at' => $appointment->created_at,
             ];
@@ -46,6 +47,49 @@ class AppointmentController extends Controller
             'filters' => [
                 'search' => request('search', ''),
             ],
+        ]);
+    }
+
+    /**
+     * Display a calendar view of appointments.
+     */
+    public function calendar(): Response
+    {
+        $this->authorize('viewAny', Appointment::class);
+
+        $currentDate = request('date', now()->toDateString());
+        $startDate = \Carbon\Carbon::parse($currentDate)->startOfMonth()->startOfWeek();
+        $endDate = \Carbon\Carbon::parse($currentDate)->endOfMonth()->endOfWeek();
+
+        $appointments = Appointment::with(['patient.user', 'staff.user'])
+            ->whereBetween('appointment_date_time', [$startDate, $endDate])
+            ->get();
+
+        // Transform appointments for the frontend
+        $transformedAppointments = $appointments->map(function ($appointment) {
+            return [
+                'id' => $appointment->id,
+                'patient' => $appointment->patient ? [
+                    'user' => $appointment->patient->user ? [
+                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
+                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
+                ] : ['user' => ['name' => 'Unknown Patient']],
+                'staff' => $appointment->staff ? [
+                    'user' => $appointment->staff->user ? [
+                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
+                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
+                ] : ['user' => ['name' => 'Unknown Staff']],
+                'appointment_date_time' => $appointment->appointment_date_time,
+                'duration_minutes' => $appointment->duration_minutes ?? 30,
+                'appointment_type' => $appointment->appointment_type ?? 'consultation',
+                'status' => $appointment->status,
+                'reason_for_visit' => $appointment->reason_for_visit,
+            ];
+        });
+
+        return Inertia::render('Appointments/Calendar', [
+            'appointments' => $transformedAppointments,
+            'currentDate' => $currentDate,
         ]);
     }
 
@@ -118,7 +162,7 @@ class AppointmentController extends Controller
         $this->authorize('update', $appointment);
 
         $request->validate([
-            'status' => 'required|in:scheduled,confirmed,completed,cancelled,no-show',
+            'status' => 'required|in:scheduled,confirmed,arrived,in_progress,completed,cancelled,no_show,rescheduled',
         ]);
 
         $appointment->update([

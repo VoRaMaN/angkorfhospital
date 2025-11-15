@@ -272,7 +272,10 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.visits.length === 0">
-                            <TableCell colspan="5" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="5"
+                                class="text-center text-muted-foreground"
+                            >
                                 No visits found
                             </TableCell>
                         </TableRow>

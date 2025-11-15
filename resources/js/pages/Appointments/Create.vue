@@ -41,7 +41,10 @@ const form = useForm({
     patient_id: '',
     staff_id: '',
     appointment_date_time: '',
+    duration_minutes: '30',
+    appointment_type: 'consultation',
     reason_for_visit: '',
+    notes: '',
 });
 </script>
 
@@ -143,6 +146,71 @@ const form = useForm({
                         </div>
                     </div>
 
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <Label for="duration_minutes"
+                                >Duration (minutes)</Label
+                            >
+                            <Input
+                                id="duration_minutes"
+                                v-model="form.duration_minutes"
+                                type="number"
+                                min="15"
+                                max="480"
+                                step="15"
+                            />
+                            <div
+                                v-if="form.errors.duration_minutes"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.duration_minutes }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <Label for="appointment_type"
+                                >Appointment Type</Label
+                            >
+                            <Select v-model="form.appointment_type">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="consultation"
+                                        >Consultation</SelectItem
+                                    >
+                                    <SelectItem value="emergency"
+                                        >Emergency</SelectItem
+                                    >
+                                    <SelectItem value="follow_up"
+                                        >Follow-up</SelectItem
+                                    >
+                                    <SelectItem value="procedure"
+                                        >Procedure</SelectItem
+                                    >
+                                    <SelectItem value="checkup"
+                                        >Check-up</SelectItem
+                                    >
+                                    <SelectItem value="telemedicine"
+                                        >Telemedicine</SelectItem
+                                    >
+                                    <SelectItem value="screening"
+                                        >Screening</SelectItem
+                                    >
+                                    <SelectItem value="therapy"
+                                        >Therapy</SelectItem
+                                    >
+                                </SelectContent>
+                            </Select>
+                            <div
+                                v-if="form.errors.appointment_type"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.appointment_type }}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="space-y-2">
                         <Label for="reason_for_visit">Reason for Visit</Label>
                         <Textarea
@@ -156,6 +224,22 @@ const form = useForm({
                             class="text-sm text-destructive"
                         >
                             {{ form.errors.reason_for_visit }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <Label for="notes">Additional Notes</Label>
+                        <Textarea
+                            id="notes"
+                            v-model="form.notes"
+                            placeholder="Any additional notes or special instructions..."
+                            rows="2"
+                        />
+                        <div
+                            v-if="form.errors.notes"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.notes }}
                         </div>
                     </div>
 

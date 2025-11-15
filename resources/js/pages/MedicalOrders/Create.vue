@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { index, store } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
@@ -90,6 +91,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -499,6 +502,7 @@ const getLabItemPrice = (inventoryId: number) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
+            v-if="hasPermission('create_medical_orders')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -1804,6 +1808,16 @@ const getLabItemPrice = (inventoryId: number) => {
                     </Button>
                 </div>
             </form>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to create medical orders.
+                </p>
+            </div>
         </div>
     </AppLayout>
 </template>

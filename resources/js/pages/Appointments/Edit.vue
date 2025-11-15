@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -26,7 +27,11 @@ interface Props {
         patient_id: number;
         staff_id: number;
         appointment_date_time: string;
+        duration_minutes: number;
+        appointment_type: string;
         status: string;
+        reason_for_visit?: string;
+        notes?: string;
     };
     patients: Array<{ id: number; user: { name: string } }>;
     staff: Array<{
@@ -37,6 +42,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -53,7 +60,11 @@ const form = useForm({
     patient_id: props.appointment.patient_id.toString(),
     staff_id: props.appointment.staff_id.toString(),
     appointment_date_time: props.appointment.appointment_date_time,
+    duration_minutes: props.appointment.duration_minutes?.toString() || '30',
+    appointment_type: props.appointment.appointment_type || 'consultation',
     status: props.appointment.status,
+    reason_for_visit: props.appointment.reason_for_visit || '',
+    notes: props.appointment.notes || '',
 });
 </script>
 
@@ -79,7 +90,7 @@ const form = useForm({
                 </div>
             </div>
 
-            <div class="max-w-2xl">
+            <div class="max-w-2xl" v-if="hasPermission('edit_appointments')">
                 <form
                     :action="`/appointments/${props.appointment.id}`"
                     method="POST"
@@ -143,6 +154,80 @@ const form = useForm({
                         </FormItem>
                     </FormField>
 
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium"
+                                >Duration (minutes)</label
+                            >
+                            <Input
+                                v-model="form.duration_minutes"
+                                type="number"
+                                min="15"
+                                max="480"
+                                step="15"
+                            />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium"
+                                >Appointment Type</label
+                            >
+                            <Select v-model="form.appointment_type">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="consultation"
+                                        >Consultation</SelectItem
+                                    >
+                                    <SelectItem value="emergency"
+                                        >Emergency</SelectItem
+                                    >
+                                    <SelectItem value="follow_up"
+                                        >Follow-up</SelectItem
+                                    >
+                                    <SelectItem value="procedure"
+                                        >Procedure</SelectItem
+                                    >
+                                    <SelectItem value="checkup"
+                                        >Check-up</SelectItem
+                                    >
+                                    <SelectItem value="telemedicine"
+                                        >Telemedicine</SelectItem
+                                    >
+                                    <SelectItem value="screening"
+                                        >Screening</SelectItem
+                                    >
+                                    <SelectItem value="therapy"
+                                        >Therapy</SelectItem
+                                    >
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium"
+                            >Reason for Visit</label
+                        >
+                        <Textarea
+                            v-model="form.reason_for_visit"
+                            placeholder="Describe the reason for this appointment..."
+                            rows="3"
+                        />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium"
+                            >Additional Notes</label
+                        >
+                        <Textarea
+                            v-model="form.notes"
+                            placeholder="Any additional notes or special instructions..."
+                            rows="2"
+                        />
+                    </div>
+
                     <div class="space-y-2">
                         <label class="text-sm font-medium">Status</label>
                         <Select v-model="form.status">
@@ -156,13 +241,20 @@ const form = useForm({
                                 <SelectItem value="confirmed"
                                     >Confirmed</SelectItem
                                 >
+                                <SelectItem value="arrived">Arrived</SelectItem>
+                                <SelectItem value="in_progress"
+                                    >In Progress</SelectItem
+                                >
                                 <SelectItem value="completed"
                                     >Completed</SelectItem
                                 >
                                 <SelectItem value="cancelled"
                                     >Cancelled</SelectItem
                                 >
-                                <SelectItem value="no-show">No Show</SelectItem>
+                                <SelectItem value="no_show">No Show</SelectItem>
+                                <SelectItem value="rescheduled"
+                                    >Rescheduled</SelectItem
+                                >
                             </SelectContent>
                         </Select>
                     </div>
@@ -176,6 +268,11 @@ const form = useForm({
                         </Button>
                     </div>
                 </form>
+            </div>
+            <div v-else class="max-w-2xl text-center">
+                <p class="text-muted-foreground">
+                    You do not have permission to edit appointments.
+                </p>
             </div>
         </div>
     </AppLayout>

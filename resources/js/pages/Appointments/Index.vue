@@ -17,8 +17,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
+    calendar,
     create,
     edit,
     show,
@@ -26,7 +28,7 @@ import {
 } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Calendar, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -35,11 +37,15 @@ interface Props {
         patient: { user: { name: string } };
         staff: { user: { name: string } };
         appointment_date_time: string;
+        duration_minutes: number;
+        appointment_type: string;
         status: string;
     }>;
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -112,12 +118,23 @@ const cancelStatusUpdate = () => {
                         Manage your appointments
                     </p>
                 </div>
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="size-4" />
-                        Create Appointment
-                    </Link>
-                </Button>
+                <div class="flex gap-2">
+                    <Button as-child variant="outline">
+                        <Link :href="calendar().url">
+                            <Calendar class="mr-2 size-4" />
+                            Calendar View
+                        </Link>
+                    </Button>
+                    <Button
+                        as-child
+                        v-if="hasPermission('create_appointments')"
+                    >
+                        <Link :href="create().url">
+                            <Plus class="size-4" />
+                            Create Appointment
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div class="rounded-md border">
@@ -127,6 +144,8 @@ const cancelStatusUpdate = () => {
                             <TableHead>Patient</TableHead>
                             <TableHead>Staff</TableHead>
                             <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Duration</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -147,6 +166,21 @@ const cancelStatusUpdate = () => {
                                     appointment.appointment_date_time,
                                 ).toLocaleString()
                             }}</TableCell>
+                            <TableCell>
+                                <Badge variant="outline">
+                                    {{
+                                        appointment?.appointment_type.replace(
+                                            '_',
+                                            ' ',
+                                        )
+                                    }}
+                                </Badge>
+                            </TableCell>
+                            <TableCell
+                                >{{
+                                    appointment.duration_minutes
+                                }}min</TableCell
+                            >
                             <TableCell>
                                 <Badge
                                     :variant="
@@ -178,6 +212,9 @@ const cancelStatusUpdate = () => {
                                         variant="outline"
                                         size="sm"
                                         as-child
+                                        v-if="
+                                            hasPermission('edit_appointments')
+                                        "
                                     >
                                         <Link :href="edit(appointment.id).url"
                                             >Edit</Link
@@ -187,7 +224,9 @@ const cancelStatusUpdate = () => {
                                     <!-- Status-specific action buttons -->
                                     <template
                                         v-if="
-                                            appointment.status === 'scheduled'
+                                            appointment.status ===
+                                                'scheduled' &&
+                                            hasPermission('edit_appointments')
                                         "
                                     >
                                         <Button
@@ -218,9 +257,23 @@ const cancelStatusUpdate = () => {
 
                                     <template
                                         v-else-if="
-                                            appointment.status === 'confirmed'
+                                            appointment.status ===
+                                                'confirmed' &&
+                                            hasPermission('edit_appointments')
                                         "
                                     >
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'arrived',
+                                                )
+                                            "
+                                        >
+                                            Arrived
+                                        </Button>
                                         <Button
                                             variant="default"
                                             size="sm"
@@ -251,7 +304,7 @@ const cancelStatusUpdate = () => {
                                             @click="
                                                 updateStatus(
                                                     appointment,
-                                                    'no-show',
+                                                    'no_show',
                                                 )
                                             "
                                         >
@@ -261,7 +314,61 @@ const cancelStatusUpdate = () => {
 
                                     <template
                                         v-else-if="
-                                            appointment.status === 'no-show'
+                                            appointment.status === 'arrived' &&
+                                            hasPermission('edit_appointments')
+                                        "
+                                    >
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'in_progress',
+                                                )
+                                            "
+                                        >
+                                            Start
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'cancelled',
+                                                )
+                                            "
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </template>
+
+                                    <template
+                                        v-else-if="
+                                            appointment.status ===
+                                                'in_progress' &&
+                                            hasPermission('edit_appointments')
+                                        "
+                                    >
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            @click="
+                                                updateStatus(
+                                                    appointment,
+                                                    'completed',
+                                                )
+                                            "
+                                        >
+                                            Complete
+                                        </Button>
+                                    </template>
+
+                                    <template
+                                        v-else-if="
+                                            appointment.status === 'no-show' &&
+                                            hasPermission('edit_appointments')
                                         "
                                     >
                                         <Button
@@ -280,7 +387,9 @@ const cancelStatusUpdate = () => {
 
                                     <template
                                         v-else-if="
-                                            appointment.status === 'cancelled'
+                                            appointment.status ===
+                                                'cancelled' &&
+                                            hasPermission('edit_appointments')
                                         "
                                     >
                                         <Button
@@ -300,7 +409,10 @@ const cancelStatusUpdate = () => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.appointments.length === 0">
-                            <TableCell colspan="5" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="7"
+                                class="text-center text-muted-foreground"
+                            >
                                 No appointments found
                             </TableCell>
                         </TableRow>

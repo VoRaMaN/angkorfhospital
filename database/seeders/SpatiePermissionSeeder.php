@@ -55,6 +55,8 @@ class SpatiePermissionSeeder extends Seeder
             'view_medical_orders',
             'create_medical_orders',
             'edit_medical_orders',
+            'process_medical_orders',
+            'complete_medical_orders',
             'delete_medical_orders',
 
             // Medications
@@ -135,6 +137,8 @@ class SpatiePermissionSeeder extends Seeder
             'view_medical_orders',
             'create_medical_orders',
             'edit_medical_orders',
+            'process_medical_orders',
+            'complete_medical_orders',
             'view_medications',
             'view_visits',
             'create_visits',
@@ -159,6 +163,8 @@ class SpatiePermissionSeeder extends Seeder
             'view_medical_orders',
             'create_medical_orders',
             'edit_medical_orders',
+            'process_medical_orders',
+            'complete_medical_orders',
             'view_medications',
             'view_visits',
             'create_visits',

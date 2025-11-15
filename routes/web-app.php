@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Appointments
     Route::resource('appointments', AppointmentController::class);
+    Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
 
     // Billings

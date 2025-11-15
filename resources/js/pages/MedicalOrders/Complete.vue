@@ -16,6 +16,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     completeItem,
@@ -81,6 +82,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 // Create a local reactive copy of the medical order data
 const medicalOrder = ref({
@@ -359,6 +362,7 @@ const completeItemAction = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
+            v-if="hasPermission('complete_medical_orders')"
             class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -772,6 +776,16 @@ const completeItemAction = () => {
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to complete medical orders.
+                </p>
             </div>
         </div>
 

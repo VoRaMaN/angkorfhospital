@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('staff_id');
             $table->index('staff_id');
             $table->dateTime('appointment_date_time');
-            $table->enum('status', ['scheduled', 'confirmed', 'completed', 'cancelled']);
+            $table->enum('status', ['scheduled', 'confirmed', 'arrived', 'in_progress', 'completed', 'cancelled', 'no_show', 'rescheduled']);
             $table->text('reason_for_visit')->nullable();
             $table->timestamps();
         });

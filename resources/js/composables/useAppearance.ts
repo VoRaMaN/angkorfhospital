@@ -8,7 +8,12 @@ export function updateTheme(value: Appearance) {
     }
 
     // Remove all theme classes first
-    document.documentElement.classList.remove('dark', 'blue', 'green', 'enterprise');
+    document.documentElement.classList.remove(
+        'dark',
+        'blue',
+        'green',
+        'enterprise',
+    );
 
     if (value === 'system') {
         const mediaQueryList = window.matchMedia(

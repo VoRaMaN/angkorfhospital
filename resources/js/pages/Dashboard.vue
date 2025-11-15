@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarDays, Users, Stethoscope, FileText, AlertTriangle } from 'lucide-vue-next';
+import {
+    AlertTriangle,
+    CalendarDays,
+    FileText,
+    Stethoscope,
+    Users,
+} from 'lucide-vue-next';
 
 interface Props {
     stats: {
@@ -42,57 +48,97 @@ const breadcrumbs: BreadcrumbItem[] = [
             <!-- Stats Cards -->
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle class="text-sm font-medium">Total Patients</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between space-y-0 pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Total Patients</CardTitle
+                        >
                         <Users class="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div class="text-2xl font-bold">{{ stats.total_patients }}</div>
-                        <p class="text-xs text-muted-foreground">Registered patients</p>
+                        <div class="text-2xl font-bold">
+                            {{ stats.total_patients }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Registered patients
+                        </p>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle class="text-sm font-medium">Total Staff</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between space-y-0 pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Total Staff</CardTitle
+                        >
                         <Stethoscope class="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div class="text-2xl font-bold">{{ stats.total_staff }}</div>
-                        <p class="text-xs text-muted-foreground">Active staff members</p>
+                        <div class="text-2xl font-bold">
+                            {{ stats.total_staff }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Active staff members
+                        </p>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle class="text-sm font-medium">Today's Appointments</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between space-y-0 pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Today's Appointments</CardTitle
+                        >
                         <CalendarDays class="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div class="text-2xl font-bold">{{ stats.todays_appointments }}</div>
-                        <p class="text-xs text-muted-foreground">Scheduled for today</p>
+                        <div class="text-2xl font-bold">
+                            {{ stats.todays_appointments }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Scheduled for today
+                        </p>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle class="text-sm font-medium">Pending Orders</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between space-y-0 pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Pending Orders</CardTitle
+                        >
                         <FileText class="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div class="text-2xl font-bold">{{ stats.pending_medical_orders }}</div>
-                        <p class="text-xs text-muted-foreground">Awaiting completion</p>
+                        <div class="text-2xl font-bold">
+                            {{ stats.pending_medical_orders }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Awaiting completion
+                        </p>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle class="text-sm font-medium">Low Stock Items</CardTitle>
+                    <CardHeader
+                        class="flex flex-row items-center justify-between space-y-0 pb-2"
+                    >
+                        <CardTitle class="text-sm font-medium"
+                            >Low Stock Items</CardTitle
+                        >
                         <AlertTriangle class="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div class="text-2xl font-bold">{{ stats.low_stock_items }}</div>
-                        <p class="text-xs text-muted-foreground">Need restocking</p>
+                        <div class="text-2xl font-bold">
+                            {{ stats.low_stock_items }}
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Need restocking
+                        </p>
                     </CardContent>
                 </Card>
             </div>

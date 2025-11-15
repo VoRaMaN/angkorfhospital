@@ -235,7 +235,10 @@ const paginationLinks = computed(() => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.inventories.length === 0">
-                            <TableCell colspan="7" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="7"
+                                class="text-center text-muted-foreground"
+                            >
                                 No inventory items found
                             </TableCell>
                         </TableRow>

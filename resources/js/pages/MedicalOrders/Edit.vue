@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { index, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
@@ -118,6 +119,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -533,6 +536,7 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
+            v-if="hasPermission('edit_medical_orders')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -1914,6 +1918,16 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                     </Button>
                 </div>
             </form>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to edit medical orders.
+                </p>
+            </div>
         </div>
     </AppLayout>
 </template>

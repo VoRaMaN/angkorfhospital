@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
@@ -27,14 +28,19 @@ interface Props {
         };
         staff: { user: { name: string }; role: { name: string } };
         appointment_date_time: string;
+        duration_minutes: number;
+        appointment_type: string;
         status: string;
         reason_for_visit?: string;
+        notes?: string;
         created_at: string;
         updated_at: string;
     };
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -77,6 +83,49 @@ const cancelStatusUpdate = () => {
     confirmModalOpen.value = false;
     selectedNewStatus.value = '';
 };
+
+// Helper functions for colors
+const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+        scheduled:
+            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+        confirmed:
+            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+        arrived:
+            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+        in_progress:
+            'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
+        completed:
+            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+        cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+        no_show:
+            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+        rescheduled:
+            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+};
+
+const getTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+        consultation:
+            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+        emergency: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+        follow_up:
+            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+        procedure:
+            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+        checkup:
+            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+        telemedicine:
+            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+        screening:
+            'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
+        therapy:
+            'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+};
 </script>
 
 <template>
@@ -100,7 +149,10 @@ const cancelStatusUpdate = () => {
                     </p>
                 </div>
                 <div class="ml-auto flex items-center gap-2">
-                    <div class="flex gap-2">
+                    <div
+                        class="flex gap-2"
+                        v-if="hasPermission('edit_appointments')"
+                    >
                         <template
                             v-if="props.appointment.status === 'scheduled'"
                         >
@@ -163,7 +215,11 @@ const cancelStatusUpdate = () => {
                             >
                         </template>
                     </div>
-                    <Button variant="outline" as-child>
+                    <Button
+                        variant="outline"
+                        as-child
+                        v-if="hasPermission('edit_appointments')"
+                    >
                         <Link
                             :href="`/appointments/${props.appointment.id}/edit`"
                         >
@@ -243,21 +299,54 @@ const cancelStatusUpdate = () => {
                             <dt
                                 class="text-sm font-medium text-muted-foreground"
                             >
+                                Duration
+                            </dt>
+                            <dd class="text-sm">
+                                {{ props.appointment.duration_minutes }} minutes
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Type
+                            </dt>
+                            <dd class="text-sm">
+                                <Badge
+                                    :class="
+                                        getTypeColor(
+                                            props.appointment.appointment_type,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        props.appointment.appointment_type.replace(
+                                            '_',
+                                            ' ',
+                                        )
+                                    }}
+                                </Badge>
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
                                 Status
                             </dt>
                             <dd class="text-sm">
                                 <Badge
-                                    :variant="
-                                        props.appointment.status === 'completed'
-                                            ? 'default'
-                                            : 'secondary'
+                                    :class="
+                                        getStatusColor(props.appointment.status)
                                     "
                                 >
                                     {{
-                                        props.appointment.status
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                        props.appointment.status.slice(1)
+                                        props.appointment.status.replace(
+                                            '_',
+                                            ' ',
+                                        )
                                     }}
                                 </Badge>
                             </dd>
@@ -274,6 +363,17 @@ const cancelStatusUpdate = () => {
                             </dt>
                             <dd class="text-sm">
                                 {{ props.appointment.reason_for_visit }}
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2" v-if="props.appointment.notes">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Additional Notes
+                            </dt>
+                            <dd class="text-sm">
+                                {{ props.appointment.notes }}
                             </dd>
                         </div>
 

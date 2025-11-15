@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAppearance } from '@/composables/useAppearance';
-import { Monitor, Moon, Sun, Palette, Building2 } from 'lucide-vue-next';
+import { Building2, Monitor, Moon, Palette, Sun } from 'lucide-vue-next';
 
 const { appearance, updateAppearance } = useAppearance();
 

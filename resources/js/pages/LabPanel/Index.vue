@@ -213,7 +213,10 @@ const paginationLinks = computed(() => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.labPanels.length === 0">
-                            <TableCell colspan="6" class="text-center text-muted-foreground">
+                            <TableCell
+                                colspan="6"
+                                class="text-center text-muted-foreground"
+                            >
                                 No lab panels found
                             </TableCell>
                         </TableRow>
