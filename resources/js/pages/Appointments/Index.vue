@@ -27,7 +27,7 @@ import {
     updateStatus as updateStatusRoute,
 } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Calendar, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -64,37 +64,25 @@ const updateStatus = async (appointment: any, newStatus: string) => {
     confirmModalOpen.value = true;
 };
 
-const confirmStatusUpdate = async () => {
+const confirmStatusUpdate = () => {
     if (!selectedAppointment.value || !selectedNewStatus.value) return;
 
-    try {
-        const route = updateStatusRoute(selectedAppointment.value.id);
-        const response = await fetch(route.url, {
-            method: route.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN':
-                    (
-                        document.querySelector(
-                            'meta[name="csrf-token"]',
-                        ) as HTMLMetaElement
-                    )?.content || '',
+    router.patch(
+        updateStatusRoute(selectedAppointment.value.id).url,
+        {
+            status: selectedNewStatus.value,
+        },
+        {
+            onSuccess: () => {
+                confirmModalOpen.value = false;
+                selectedAppointment.value = null;
+                selectedNewStatus.value = '';
             },
-            body: JSON.stringify({ status: selectedNewStatus.value }),
-        });
-
-        if (response.ok) {
-            confirmModalOpen.value = false;
-            selectedAppointment.value = null;
-            selectedNewStatus.value = '';
-            window.location.reload(); // Refresh to show updated status
-        } else {
-            alert('Failed to update appointment status');
-        }
-    } catch (error) {
-        console.error('Error updating status:', error);
-        alert('An error occurred while updating the status');
-    }
+            onError: () => {
+                alert('Failed to update appointment status');
+            },
+        },
+    );
 };
 
 const cancelStatusUpdate = () => {

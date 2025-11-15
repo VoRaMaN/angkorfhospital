@@ -33,6 +33,8 @@ class DoctorController extends Controller
                 ],
                 'appointment_date' => $appointment->appointment_date_time->format('Y-m-d'),
                 'appointment_time' => $appointment->appointment_date_time->format('H:i'),
+                'appointment_type' => $appointment->appointment_type ?? 'consultation',
+                'duration_minutes' => $appointment->duration_minutes ?? 30,
                 'status' => $appointment->status,
                 'notes' => $appointment->reason_for_visit,
             ];

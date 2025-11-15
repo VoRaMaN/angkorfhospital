@@ -1,12 +1,5 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -15,6 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -92,11 +86,9 @@ const form = useForm({
 
             <div class="max-w-2xl" v-if="hasPermission('edit_appointments')">
                 <form
-                    :action="`/appointments/${props.appointment.id}`"
-                    method="POST"
+                    @submit.prevent="form.put(`/appointments/${props.appointment.id}`)"
                     class="space-y-6"
                 >
-                    <input type="hidden" name="_method" value="PUT" />
 
                     <div class="space-y-2">
                         <label class="text-sm font-medium">Patient</label>
@@ -114,6 +106,12 @@ const form = useForm({
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+                        <div
+                            v-if="form.errors.patient_id"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.patient_id }}
+                        </div>
                     </div>
 
                     <div class="space-y-2">
@@ -136,23 +134,29 @@ const form = useForm({
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+                        <div
+                            v-if="form.errors.staff_id"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.staff_id }}
+                        </div>
                     </div>
 
-                    <FormField
-                        v-slot="{ componentField }"
-                        name="appointment_date_time"
-                    >
-                        <FormItem>
-                            <FormLabel>Appointment Date & Time</FormLabel>
-                            <FormControl>
-                                <Input
-                                    v-bind="componentField"
-                                    type="datetime-local"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    </FormField>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium"
+                            >Appointment Date & Time</label
+                        >
+                        <Input
+                            v-model="form.appointment_date_time"
+                            type="datetime-local"
+                        />
+                        <div
+                            v-if="form.errors.appointment_date_time"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.appointment_date_time }}
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
@@ -166,6 +170,12 @@ const form = useForm({
                                 max="480"
                                 step="15"
                             />
+                            <div
+                                v-if="form.errors.duration_minutes"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.duration_minutes }}
+                            </div>
                         </div>
 
                         <div class="space-y-2">
@@ -203,6 +213,12 @@ const form = useForm({
                                     >
                                 </SelectContent>
                             </Select>
+                            <div
+                                v-if="form.errors.appointment_type"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.appointment_type }}
+                            </div>
                         </div>
                     </div>
 
@@ -215,6 +231,12 @@ const form = useForm({
                             placeholder="Describe the reason for this appointment..."
                             rows="3"
                         />
+                        <div
+                            v-if="form.errors.reason_for_visit"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.reason_for_visit }}
+                        </div>
                     </div>
 
                     <div class="space-y-2">
@@ -226,6 +248,12 @@ const form = useForm({
                             placeholder="Any additional notes or special instructions..."
                             rows="2"
                         />
+                        <div
+                            v-if="form.errors.notes"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.notes }}
+                        </div>
                     </div>
 
                     <div class="space-y-2">
@@ -257,6 +285,12 @@ const form = useForm({
                                 >
                             </SelectContent>
                         </Select>
+                        <div
+                            v-if="form.errors.status"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.status }}
+                        </div>
                     </div>
 
                     <div class="flex gap-4">

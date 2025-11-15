@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { create, index, show } from '@/routes/appointments';
+import { calendar, create, index, show } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight, List, Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -52,7 +52,7 @@ const appointmentsByDate = computed(() => {
     const grouped: Record<string, typeof props.appointments> = {};
 
     props.appointments.forEach((appointment) => {
-        const date = new Date(appointment.appointment_date_time).toDateString();
+        const date = new Date(appointment.appointment_date_time).toISOString().split('T')[0];
         if (!grouped[date]) {
             grouped[date] = [];
         }
@@ -93,7 +93,7 @@ const calendarDays = computed(() => {
 
 // Get appointments for selected date
 const selectedDateAppointments = computed(() => {
-    const dateKey = selectedDate.value.toDateString();
+    const dateKey = selectedDate.value.toISOString().split('T')[0];
     return appointmentsByDate.value[dateKey] || [];
 });
 
@@ -122,16 +122,16 @@ const getStatusColor = (status: string) => {
 // Get type color
 const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-        consultation: 'bg-blue-50 border-blue-200',
-        emergency: 'bg-red-50 border-red-200',
-        follow_up: 'bg-green-50 border-green-200',
-        procedure: 'bg-purple-50 border-purple-200',
-        checkup: 'bg-yellow-50 border-yellow-200',
-        telemedicine: 'bg-indigo-50 border-indigo-200',
-        screening: 'bg-pink-50 border-pink-200',
-        therapy: 'bg-teal-50 border-teal-200',
+        consultation: 'bg-blue-50 border-blue-200 text-blue-900',
+        emergency: 'bg-red-50 border-red-200 text-red-900',
+        follow_up: 'bg-green-50 border-green-200 text-green-900',
+        procedure: 'bg-purple-50 border-purple-200 text-purple-900',
+        checkup: 'bg-yellow-50 border-yellow-200 text-yellow-900',
+        telemedicine: 'bg-indigo-50 border-indigo-200 text-indigo-900',
+        screening: 'bg-pink-50 border-pink-200 text-pink-900',
+        therapy: 'bg-teal-50 border-teal-200 text-teal-900',
     };
-    return colors[type] || 'bg-gray-50 border-gray-200';
+    return colors[type] || 'bg-gray-50 border-gray-200 text-gray-900';
 };
 
 const navigateMonth = (direction: 'prev' | 'next') => {
@@ -141,7 +141,10 @@ const navigateMonth = (direction: 'prev' | 'next') => {
     } else {
         newDate.setMonth(newDate.getMonth() + 1);
     }
-    selectedDate.value = newDate;
+    // Navigate to calendar with new date
+    router.visit(calendar().url, {
+        data: { date: newDate.toISOString().split('T')[0] },
+    });
 };
 
 const viewAppointment = (appointment: any) => {
@@ -203,7 +206,12 @@ const closeAppointmentDialog = () => {
                         class="w-48 justify-center"
                         @click="calendarOpen = !calendarOpen"
                     >
-                        {{ selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}
+                        {{
+                            selectedDate.toLocaleDateString('en-US', {
+                                month: 'long',
+                                year: 'numeric',
+                            })
+                        }}
                     </Button>
                     <Button
                         variant="outline"
@@ -217,7 +225,14 @@ const closeAppointmentDialog = () => {
                     {{ selectedDateAppointments.length }} appointment{{
                         selectedDateAppointments.length !== 1 ? 's' : ''
                     }}
-                    on {{ selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                    on
+                    {{
+                        selectedDate.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                        })
+                    }}
                 </div>
             </div>
 
@@ -253,9 +268,15 @@ const closeAppointmentDialog = () => {
                                     :key="day.toISOString()"
                                     class="min-h-24 border border-border p-1"
                                     :class="{
-                                        'bg-muted': new Date().toDateString() === day.toDateString(),
-                                        'bg-primary/5': selectedDate.toDateString() === day.toDateString(),
-                                        'text-muted-foreground': day.getMonth() !== selectedDate.getMonth(),
+                                        'bg-muted':
+                                            new Date().toDateString() ===
+                                            day.toDateString(),
+                                        'bg-primary/5':
+                                            selectedDate.toDateString() ===
+                                            day.toDateString(),
+                                        'text-muted-foreground':
+                                            day.getMonth() !==
+                                            selectedDate.getMonth(),
                                     }"
                                 >
                                     <div class="mb-1 text-sm font-medium">
@@ -264,7 +285,7 @@ const closeAppointmentDialog = () => {
                                     <div class="space-y-1">
                                         <div
                                             v-for="appointment in appointmentsByDate[
-                                                day.toDateString()
+                                                day.toISOString().split('T')[0]
                                             ] || []"
                                             :key="appointment.id"
                                             class="cursor-pointer rounded border p-1 text-xs hover:opacity-80"
@@ -285,7 +306,26 @@ const closeAppointmentDialog = () => {
                                             </div>
                                             <div class="text-muted-foreground">
                                                 {{
-                                                    new Date(appointment.appointment_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                                                    new Date(
+                                                        appointment.appointment_date_time,
+                                                    ).toLocaleTimeString(
+                                                        'en-US',
+                                                        {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            hour12: false,
+                                                        },
+                                                    )
+                                                }}
+                                            </div>
+                                            <div
+                                                class="text-xs text-muted-foreground"
+                                            >
+                                                {{
+                                                    appointment.appointment_type.replace(
+                                                        '_',
+                                                        ' ',
+                                                    )
                                                 }}
                                             </div>
                                         </div>
@@ -301,7 +341,11 @@ const closeAppointmentDialog = () => {
                     <Card>
                         <CardHeader>
                             <CardTitle>{{
-                                selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                selectedDate.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                })
                             }}</CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -351,7 +395,13 @@ const closeAppointmentDialog = () => {
                                         <div>
                                             Time:
                                             {{
-                                                new Date(appointment.appointment_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                                                new Date(
+                                                    appointment.appointment_date_time,
+                                                ).toLocaleTimeString('en-US', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: false,
+                                                })
                                             }}
                                             ({{
                                                 appointment.duration_minutes
@@ -415,12 +465,14 @@ const closeAppointmentDialog = () => {
                             >
                             <p class="text-sm text-muted-foreground">
                                 {{
-                                    new Date(selectedAppointment.appointment_date_time).toLocaleString('en-US', {
+                                    new Date(
+                                        selectedAppointment.appointment_date_time,
+                                    ).toLocaleString('en-US', {
                                         year: 'numeric',
                                         month: 'long',
                                         day: 'numeric',
                                         hour: '2-digit',
-                                        minute: '2-digit'
+                                        minute: '2-digit',
                                     })
                                 }}
                             </p>
@@ -428,9 +480,7 @@ const closeAppointmentDialog = () => {
                         <div>
                             <label class="text-sm font-medium">Duration</label>
                             <p class="text-sm text-muted-foreground">
-                                {{
-                                    selectedAppointment.duration_minutes
-                                }}
+                                {{ selectedAppointment.duration_minutes }}
                                 minutes
                             </p>
                         </div>

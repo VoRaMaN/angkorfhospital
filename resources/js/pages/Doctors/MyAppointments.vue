@@ -18,7 +18,11 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { show, updateStatus as updateStatusRoute } from '@/routes/appointments';
+import {
+    calendar,
+    show,
+    updateStatus as updateStatusRoute,
+} from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Calendar, Clock, User } from 'lucide-vue-next';
@@ -34,6 +38,8 @@ interface Props {
         };
         appointment_date: string;
         appointment_time: string;
+        appointment_type: string;
+        duration_minutes: number;
         status: string;
         notes?: string;
     }>;
@@ -69,6 +75,20 @@ const getStatusColor = (status: string) => {
         default:
             return 'bg-gray-100 text-gray-800';
     }
+};
+
+const getTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+        consultation: 'bg-blue-50 border-blue-200 text-blue-900',
+        emergency: 'bg-red-50 border-red-200 text-red-900',
+        follow_up: 'bg-green-50 border-green-200 text-green-900',
+        procedure: 'bg-purple-50 border-purple-200 text-purple-900',
+        checkup: 'bg-yellow-50 border-yellow-200 text-yellow-900',
+        telemedicine: 'bg-indigo-50 border-indigo-200 text-indigo-900',
+        screening: 'bg-pink-50 border-pink-200 text-pink-900',
+        therapy: 'bg-teal-50 border-teal-200 text-teal-900',
+    };
+    return colors[type] || 'bg-gray-50 border-gray-200 text-gray-900';
 };
 
 const updateStatus = async (appointment: any, newStatus: string) => {
@@ -120,6 +140,14 @@ const cancelStatusUpdate = () => {
                         View and manage your scheduled appointments
                     </p>
                 </div>
+                <div class="flex gap-2">
+                    <Button as-child variant="outline">
+                        <Link :href="calendar().url">
+                            <Calendar class="mr-2 size-4" />
+                            View Calendar
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div class="rounded-md border">
@@ -128,11 +156,24 @@ const cancelStatusUpdate = () => {
                         <TableRow>
                             <TableHead>Patient</TableHead>
                             <TableHead>Date & Time</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Duration</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
+                        <TableRow v-if="appointments.length === 0">
+                            <TableCell colspan="6" class="text-center py-8">
+                                <div class="flex flex-col items-center gap-2">
+                                    <Calendar class="h-8 w-8 text-muted-foreground" />
+                                    <div class="text-lg font-medium">No appointments scheduled</div>
+                                    <div class="text-sm text-muted-foreground">
+                                        You don't have any appointments scheduled at this time.
+                                    </div>
+                                </div>
+                            </TableCell>
+                        </TableRow>
                         <TableRow
                             v-for="appointment in appointments"
                             :key="appointment.id"
@@ -180,6 +221,25 @@ const cancelStatusUpdate = () => {
                                         </div>
                                     </div>
                                 </div>
+                            </TableCell>
+                            <TableCell>
+                                <Badge
+                                    :class="
+                                        getTypeColor(
+                                            appointment.appointment_type,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        appointment.appointment_type.replace(
+                                            '_',
+                                            ' ',
+                                        )
+                                    }}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                {{ appointment.duration_minutes }} min
                             </TableCell>
                             <TableCell>
                                 <Badge
