@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PatientFileTypeEnum;
 use App\Models\File;
 use App\Models\Patient;
 use App\Models\PatientFile;
@@ -26,9 +27,12 @@ class PatientFileController extends Controller
 
         $patientFiles = $query->get();
 
-        return Inertia::render('PatientFiles/Index', [
-            'patientFiles' => $patientFiles,
-            'patients' => Patient::all(), // for selection
+        return Inertia::render('Files/IndexPatientFile', [
+            'items' => $patientFiles,
+            'title' => 'Patient Files',
+            'createRoute' => route('patient-files.create'),
+            'showRoute' => route('patient-files.show', ':id'),
+            'editRoute' => route('patient-files.edit', ':id'),
         ]);
     }
 
@@ -37,8 +41,11 @@ class PatientFileController extends Controller
      */
     public function create()
     {
-        return Inertia::render('PatientFiles/Create', [
+        return Inertia::render('Files/Create', [
+            'title' => 'Patient Files',
+            'indexRoute' => route('patient-files.index'),
             'patients' => Patient::all(),
+            'typeOptions' => PatientFileTypeEnum::options(),
         ]);
     }
 
@@ -52,6 +59,7 @@ class PatientFileController extends Controller
         $request->validate([
             'file' => 'required|file|max:10240',
             'patient_id' => 'required|exists:patients,id',
+            'type' => 'required|string|in:'.implode(',', array_map(fn ($case) => $case->value, PatientFileTypeEnum::cases())),
         ]);
 
         $file = $request->file('file');
@@ -68,6 +76,7 @@ class PatientFileController extends Controller
         PatientFile::create([
             'patient_id' => $request->patient_id,
             'file_id' => $fileModel->id,
+            'type' => $request->type,
         ]);
 
         return redirect()->route('patient-files.index');
@@ -88,9 +97,12 @@ class PatientFileController extends Controller
      */
     public function edit(PatientFile $patientFile)
     {
-        return Inertia::render('PatientFiles/Edit', [
-            'patientFile' => $patientFile->load('file', 'patient'),
+        return Inertia::render('Files/Edit', [
+            'title' => 'Patient Files',
+            'indexRoute' => route('patient-files.index'),
+            'item' => $patientFile->load('file', 'patient'),
             'patients' => Patient::all(),
+            'typeOptions' => PatientFileTypeEnum::options(),
         ]);
     }
 
@@ -104,6 +116,7 @@ class PatientFileController extends Controller
         $request->validate([
             'file' => 'sometimes|file|max:10240',
             'patient_id' => 'sometimes|exists:patients,id',
+            'type' => 'sometimes|string|in:'.implode(',', array_map(fn ($case) => $case->value, PatientFileTypeEnum::cases())),
         ]);
 
         if ($request->hasFile('file')) {
@@ -121,6 +134,12 @@ class PatientFileController extends Controller
         if ($request->has('patient_id')) {
             $patientFile->update([
                 'patient_id' => $request->patient_id,
+            ]);
+        }
+
+        if ($request->has('type')) {
+            $patientFile->update([
+                'type' => $request->type,
             ]);
         }
 

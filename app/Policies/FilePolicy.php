@@ -12,7 +12,7 @@ class FilePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true; // Authenticated users can view files
+        return $user->can('view_files');
     }
 
     /**
@@ -20,7 +20,7 @@ class FilePolicy
      */
     public function view(User $user, File $file): bool
     {
-        return true; // Authenticated users can view any file
+        return $user->can('view_files');
     }
 
     /**
@@ -28,7 +28,7 @@ class FilePolicy
      */
     public function create(User $user): bool
     {
-        return true; // Authenticated users can create files
+        return $user->can('create_files');
     }
 
     /**
@@ -36,7 +36,7 @@ class FilePolicy
      */
     public function update(User $user, File $file): bool
     {
-        return true; // Authenticated users can update files
+        return $user->can('edit_files');
     }
 
     /**
@@ -44,7 +44,7 @@ class FilePolicy
      */
     public function delete(User $user, File $file): bool
     {
-        return true; // Authenticated users can delete files
+        return $user->can('delete_files');
     }
 
     /**

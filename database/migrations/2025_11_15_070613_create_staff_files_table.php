@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\StaffFileTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('staff_id');
             $table->unsignedBigInteger('file_id');
             // File type enum: StaffFileTypeEnum
+            $table->enum('type', array_map(fn ($case) => $case->value, StaffFileTypeEnum::cases()));
             $table->timestamps();
         });
     }

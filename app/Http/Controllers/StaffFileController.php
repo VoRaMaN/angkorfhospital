@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StaffFileTypeEnum;
 use App\Models\File;
 use App\Models\Staff;
 use App\Models\StaffFile;
@@ -26,9 +27,12 @@ class StaffFileController extends Controller
 
         $staffFiles = $query->get();
 
-        return Inertia::render('StaffFiles/Index', [
-            'staffFiles' => $staffFiles,
-            'staff' => Staff::all(), // for selection
+        return Inertia::render('Files/IndexStaffFiles', [
+            'items' => $staffFiles,
+            'title' => 'Staff Files',
+            'createRoute' => route('staff-files.create'),
+            'showRoute' => route('staff-files.show', ':id'),
+            'editRoute' => route('staff-files.edit', ':id'),
         ]);
     }
 
@@ -37,8 +41,11 @@ class StaffFileController extends Controller
      */
     public function create()
     {
-        return Inertia::render('StaffFiles/Create', [
+        return Inertia::render('Files/Create', [
+            'title' => 'Staff Files',
+            'indexRoute' => route('staff-files.index'),
             'staff' => Staff::all(),
+            'typeOptions' => StaffFileTypeEnum::options(),
         ]);
     }
 
@@ -52,6 +59,7 @@ class StaffFileController extends Controller
         $request->validate([
             'file' => 'required|file|max:10240',
             'staff_id' => 'required|exists:staff,id',
+            'type' => 'required|string|in:'.implode(',', array_map(fn ($case) => $case->value, StaffFileTypeEnum::cases())),
         ]);
 
         $file = $request->file('file');
@@ -68,6 +76,7 @@ class StaffFileController extends Controller
         StaffFile::create([
             'staff_id' => $request->staff_id,
             'file_id' => $fileModel->id,
+            'type' => $request->type,
         ]);
 
         return redirect()->route('staff-files.index');
@@ -88,9 +97,12 @@ class StaffFileController extends Controller
      */
     public function edit(StaffFile $staffFile)
     {
-        return Inertia::render('StaffFiles/Edit', [
-            'staffFile' => $staffFile->load('file', 'staff'),
+        return Inertia::render('Files/Edit', [
+            'title' => 'Staff Files',
+            'indexRoute' => route('staff-files.index'),
+            'item' => $staffFile->load('file', 'staff'),
             'staff' => Staff::all(),
+            'typeOptions' => StaffFileTypeEnum::options(),
         ]);
     }
 
@@ -104,6 +116,7 @@ class StaffFileController extends Controller
         $request->validate([
             'file' => 'sometimes|file|max:10240',
             'staff_id' => 'sometimes|exists:staff,id',
+            'type' => 'sometimes|string|in:'.implode(',', array_map(fn ($case) => $case->value, StaffFileTypeEnum::cases())),
         ]);
 
         if ($request->hasFile('file')) {
@@ -121,6 +134,12 @@ class StaffFileController extends Controller
         if ($request->has('staff_id')) {
             $staffFile->update([
                 'staff_id' => $request->staff_id,
+            ]);
+        }
+
+        if ($request->has('type')) {
+            $staffFile->update([
+                'type' => $request->type,
             ]);
         }
 

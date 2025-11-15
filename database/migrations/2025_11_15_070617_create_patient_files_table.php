@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PatientFileTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('file_id');
-            // File type enum: UserFileTypeEnum
+            // File type enum: PatientFileTypeEnum
+            $table->enum('type', array_map(fn ($case) => $case->value, PatientFileTypeEnum::cases()));
             $table->timestamps();
         });
     }

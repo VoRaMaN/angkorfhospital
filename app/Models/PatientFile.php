@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PatientFileTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -10,6 +11,11 @@ class PatientFile extends Model
     protected $fillable = [
         'patient_id',
         'file_id',
+        'type',
+    ];
+
+    protected $casts = [
+        'type' => PatientFileTypeEnum::class,
     ];
 
     public function patient(): BelongsTo

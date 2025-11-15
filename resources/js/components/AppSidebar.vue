@@ -46,6 +46,9 @@ import { index as billingsIndex } from '@/routes/billings';
 import { index as staffIndex } from '@/routes/staff';
 import { index as rolesIndex } from '@/routes/settings/roles';
 import { index as labPanelIndex } from '@/routes/lab-panels';
+import { index as staffFilesIndex } from "@/routes/staff-files";
+import { index as patientFilesIndex } from "@/routes/patient-files";
+
 import { computed } from 'vue';
 
 import doctor from "@/routes/doctors";
@@ -70,7 +73,9 @@ const patientCareNavItems = computed(() => [
 const medicalResourcesNavItems = computed(() => [
     { title: 'All Inventory', href: inventoryIndex().url, icon: Warehouse, },
     { title: 'RX Medicine', href: rxMedicine().url, icon: Pill, },
-    { title: 'Lab Inventory', href: labInventory().url, icon: Warehouse, }
+    { title: 'Lab Inventory', href: labInventory().url, icon: Warehouse, },
+    { title: 'Patient Files', href: patientFilesIndex().url, icon: ClipboardList },
+    { title: 'Staff Files', href: staffFilesIndex().url, icon: ClipboardList },
 ]);
 
 const financialNavItems = computed(() => [

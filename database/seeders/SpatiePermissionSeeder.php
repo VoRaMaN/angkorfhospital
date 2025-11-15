@@ -108,6 +108,12 @@ class SpatiePermissionSeeder extends Seeder
             // System settings
             'view_settings',
             'edit_settings',
+
+            // File management
+            'view_files',
+            'create_files',
+            'edit_files',
+            'delete_files',
         ];
 
         foreach ($permissions as $permission) {
@@ -143,6 +149,9 @@ class SpatiePermissionSeeder extends Seeder
             'create_visits',
             'edit_visits',
             'view_billing',
+            'view_files',
+            'create_files',
+            'edit_files',
         ]);
 
         $staffRole = Role::firstOrCreate(['name' => 'Nurse']);
@@ -173,6 +182,10 @@ class SpatiePermissionSeeder extends Seeder
             'view_lab_packages',
             'create_lab_packages',
             'edit_lab_packages',
+            'view_files',
+            'create_files',
+            'edit_files',
+            'delete_files',
         ]);
 
         $patientRole = Role::firstOrCreate(['name' => 'Patient']);
@@ -183,6 +196,7 @@ class SpatiePermissionSeeder extends Seeder
             'view_prescriptions', // Can view their own prescriptions
             'view_visits', // Can view their own visits
             'view_billing', // Can view their own billing
+            'view_files', // Can view their own files
         ]);
     }
 }
