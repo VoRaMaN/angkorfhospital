@@ -31,7 +31,7 @@ class PatientController extends Controller
                     'name' => $patient->user->name ?? 'Unknown Patient',
                     'email' => $patient->user->email ?? 'No Email',
                 ] : [
-                    'name' => trim($patient->first_name . ' ' . $patient->last_name),
+                    'name' => trim($patient->first_name.' '.$patient->last_name),
                     'email' => $patient->email ?? 'No Email',
                 ],
                 'date_of_birth' => $patient->date_of_birth,
@@ -80,7 +80,8 @@ class PatientController extends Controller
     {
         $this->authorize('view', $patient);
 
-        $patient->load(['user', 'appointments.staff', 'patientFiles.file']);
+        $patient->load(['user', 'appointments.staff', 'patientFiles.file', 'medicalOrders']);
+
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
         ]);
@@ -108,7 +109,7 @@ class PatientController extends Controller
         $data = $request->validated();
 
         // Handle user account creation (only for patients without existing user accounts)
-        if ($request->boolean('create_user_account') && !$patient->user_id) {
+        if ($request->boolean('create_user_account') && ! $patient->user_id) {
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],

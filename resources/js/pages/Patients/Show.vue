@@ -7,6 +7,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
+import PatientMedicalOrdersTab from '@/pages/Patients/PatientMedicalOrdersTab.vue';
 
 interface Props {
     patient: {
@@ -23,6 +24,7 @@ interface Props {
         created_at: string;
         updated_at: string;
         patient_files?: Array<any>;
+        medical_orders?: Array<any>;
     };
 }
 
@@ -69,9 +71,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="max-w-4xl">
                 <Tabs default-value="details" class="w-full">
-                    <TabsList class="grid w-full grid-cols-2">
+                    <TabsList class="grid w-full grid-cols-3">
                         <TabsTrigger value="details">Patient Details</TabsTrigger>
                         <TabsTrigger value="files">Files</TabsTrigger>
+                        <TabsTrigger value="medical-orders">Medical Orders</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="details" class="mt-6">
@@ -149,6 +152,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <TabsContent value="files" class="mt-6">
                         <PatientFilesTab :patient="props.patient" />
+                    </TabsContent>
+
+                    <TabsContent value="medical-orders" class="mt-6">
+                        <PatientMedicalOrdersTab :patient="props.patient" />
                     </TabsContent>
                 </Tabs>
             </div>
