@@ -184,27 +184,26 @@ const getStatusColor = (status: string) => {
                                             <Button v-if="visit.status === 'pending'" variant="outline" size="sm"
                                                 class="text-blue-600 hover:text-blue-700"
                                                 @click="openAssignModal(visit)">
-                                                <UserCheck class="size-4" />
+                                                <UserCheck class="size-4 mr-1" />
                                                 Assign
                                             </Button>
                                             <Button v-if="visit.status === 'pending' || visit.status === 'in_progress'"
                                                 variant="outline" size="sm" class="text-red-600 hover:text-red-700"
                                                 @click="cancelVisit(visit)">
-                                                <X class="size-4" />
+                                                <X class="size-4 mr-1" />
                                                 Cancel
                                             </Button>
                                             <Button variant="ghost" size="sm" as-child>
                                                 <Link :href="`/visits/${visit.id}`">
-                                                <Eye class="size-4" />
+                                                <Eye class="size-4 mr-1" />
+                                                View
                                                 </Link>
                                             </Button>
                                             <Button variant="ghost" size="sm" as-child>
                                                 <Link :href="`/visits/${visit.id}/edit`">
-                                                <Edit class="size-4" />
+                                                <Edit class="size-4 mr-1" />
+                                                Edit
                                                 </Link>
-                                            </Button>
-                                            <Button variant="ghost" size="sm">
-                                                <Trash2 class="size-4" />
                                             </Button>
                                         </div>
                                     </td>

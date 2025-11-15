@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,12 +12,12 @@ return new class extends Migration
     {
         Schema::create('medical_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('appointment_id');
-            $table->index('appointment_id');
-            $table->text('diagnosis');
+            $table->unsignedBigInteger('appointment_id')->nullable();
+            $table->index('appointment_id')->nullable();
+            $table->text('diagnosis')->nullable();
             $table->text('notes')->nullable();
             $table->text('treatment')->nullable();
-            $table->date('date_of_service');
+            $table->date('date_of_service')->default(null);
             $table->timestamps();
         });
     }

@@ -7,7 +7,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { show } from '@/routes/visits';
 import { processPage } from '@/routes/medical-orders';
-import { Calendar, Clock, User, Play } from 'lucide-vue-next';
+import { Calendar, Clock, User, Play, Eye } from 'lucide-vue-next';
 
 interface Props {
     visits: Array<{
@@ -60,6 +60,7 @@ const getStatusColor = (status: string) => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="My Visits" />
 
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
@@ -112,20 +113,17 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button
-                                        v-if="visit.status === 'in_progress' && visit.medical_orders.length > 0"
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <Link :href="processPage(visit.medical_orders[0].id).url">
-                                            <Play class="h-4 w-4 mr-1" />
-                                            Process
-                                        </Link>
-                                    </Button>
                                     <Button variant="outline" size="sm" as-child>
                                         <Link :href="show(visit.id).url">
-                                            View Details
+                                        <Eye class="h-4 w-4 mr-1" />
+                                        View Details
+                                        </Link>
+                                    </Button>
+                                    <Button v-if="visit.status === 'in_progress' && visit.medical_orders.length > 0"
+                                        variant="outline" class="text-green-600 border-green-600" size="sm" as-child>
+                                        <Link :href="processPage(visit.medical_orders[0].id).url">
+                                        <Play class="h-4 w-4 mr-1" />
+                                        Process Medical Order
                                         </Link>
                                     </Button>
                                 </div>

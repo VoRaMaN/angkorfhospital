@@ -267,8 +267,8 @@ const orderSummary = computed(() => {
                 <div class="ml-auto flex gap-2">
                     <Button v-if="medicalOrder.medical_record_id" variant="outline" as-child>
                         <Link :href="showMedicalRecord(medicalOrder.medical_record_id).url">
-                            <FileText class="size-4 mr-2" />
-                            View Medical Record
+                        <FileText class="size-4 mr-2" />
+                        View Medical Record
                         </Link>
                     </Button>
                     <Button v-if="medicalOrder.status === 'pending'" variant="default" @click="confirmProcess">
@@ -277,8 +277,8 @@ const orderSummary = computed(() => {
                     </Button>
                     <Button v-if="medicalOrder.status === 'processed'" variant="default" as-child>
                         <Link :href="completeRoute(medicalOrder.id).url">
-                            <CheckCircle class="size-4 mr-2" />
-                            Complete Process
+                        <CheckCircle class="size-4 mr-2" />
+                        Confirm Process
                         </Link>
                     </Button>
                     <Button variant="outline" as-child>
