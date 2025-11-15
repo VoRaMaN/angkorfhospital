@@ -6,7 +6,6 @@ enum PatientFileTypeEnum: string
 {
     case MEDICAL_RECORD = 'medical_record';
     case LAB_RESULT = 'lab_result';
-    case PRESCRIPTION = 'prescription';
     case INSURANCE = 'insurance';
     case IDENTIFICATION = 'identification';
     case CONSENT_FORM = 'consent_form';
@@ -17,7 +16,6 @@ enum PatientFileTypeEnum: string
         return match ($this) {
             self::MEDICAL_RECORD => 'Medical Record',
             self::LAB_RESULT => 'Lab Result',
-            self::PRESCRIPTION => 'Prescription',
             self::INSURANCE => 'Insurance Document',
             self::IDENTIFICATION => 'Identification',
             self::CONSENT_FORM => 'Consent Form',
@@ -30,7 +28,6 @@ enum PatientFileTypeEnum: string
         return [
             self::MEDICAL_RECORD->value => self::MEDICAL_RECORD->label(),
             self::LAB_RESULT->value => self::LAB_RESULT->label(),
-            self::PRESCRIPTION->value => self::PRESCRIPTION->label(),
             self::INSURANCE->value => self::INSURANCE->label(),
             self::IDENTIFICATION->value => self::IDENTIFICATION->label(),
             self::CONSENT_FORM->value => self::CONSENT_FORM->label(),

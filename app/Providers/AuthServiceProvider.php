@@ -21,7 +21,6 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Appointment::class => \App\Policies\AppointmentPolicy::class,
         \App\Models\MedicalRecord::class => \App\Policies\MedicalRecordPolicy::class,
         \App\Models\Medication::class => \App\Policies\MedicationPolicy::class,
-        \App\Models\Prescription::class => \App\Policies\PrescriptionPolicy::class,
         \App\Models\Billing::class => \App\Policies\BillingPolicy::class,
         \App\Models\MedicalOrder::class => \App\Policies\MedicalOrderPolicy::class,
         \App\Models\Inventory::class => \App\Policies\InventoryPolicy::class,

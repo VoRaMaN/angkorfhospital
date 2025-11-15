@@ -75,7 +75,6 @@ const submitForm = () => {
                             <SelectContent>
                                 <SelectItem value="medical_record">Medical Record</SelectItem>
                                 <SelectItem value="lab_result">Lab Result</SelectItem>
-                                <SelectItem value="prescription">Prescription</SelectItem>
                                 <SelectItem value="insurance">Insurance Document</SelectItem>
                                 <SelectItem value="identification">Identification</SelectItem>
                                 <SelectItem value="consent_form">Consent Form</SelectItem>

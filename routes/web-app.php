@@ -11,7 +11,6 @@ use App\Http\Controllers\MedicalOrderController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientFileController;
-use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffFileController;
 use App\Http\Controllers\VisitController;
@@ -63,9 +62,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Patients
     Route::resource('patients', PatientController::class);
-
-    // Prescriptions | Disabled for now
-    // Route::resource('prescriptions', PrescriptionController::class);
 
     // Staff
     Route::resource('staff', StaffController::class);

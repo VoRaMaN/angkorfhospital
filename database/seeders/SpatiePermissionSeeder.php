@@ -63,12 +63,6 @@ class SpatiePermissionSeeder extends Seeder
             'edit_medications',
             'delete_medications',
 
-            // Prescriptions
-            'view_prescriptions',
-            'create_prescriptions',
-            'edit_prescriptions',
-            'delete_prescriptions',
-
             // Visits
             'view_visits',
             'create_visits',
@@ -142,9 +136,6 @@ class SpatiePermissionSeeder extends Seeder
             'create_medical_orders',
             'edit_medical_orders',
             'view_medications',
-            'view_prescriptions',
-            'create_prescriptions',
-            'edit_prescriptions',
             'view_visits',
             'create_visits',
             'edit_visits',
@@ -169,7 +160,6 @@ class SpatiePermissionSeeder extends Seeder
             'create_medical_orders',
             'edit_medical_orders',
             'view_medications',
-            'view_prescriptions',
             'view_visits',
             'create_visits',
             'edit_visits',
@@ -193,7 +183,6 @@ class SpatiePermissionSeeder extends Seeder
             'view_appointments', // Can view their own appointments
             'view_medical_records', // Can view their own records
             'view_medical_orders', // Can view their own medical orders
-            'view_prescriptions', // Can view their own prescriptions
             'view_visits', // Can view their own visits
             'view_billing', // Can view their own billing
             'view_files', // Can view their own files

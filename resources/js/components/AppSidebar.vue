@@ -37,7 +37,6 @@ import { index as patientsIndex } from '@/routes/patients';
 import { index as departmentsIndex } from '@/routes/departments';
 import { index as medicalRecordsIndex } from '@/routes/medical-records';
 import { index as medicalOrdersIndex } from '@/routes/medical-orders';
-// import { index as prescriptionsIndex } from '@/routes/prescriptions';
 import { index as visitsIndex } from '@/routes/visits';
 import { index as inventoryIndex } from '@/routes/inventory';
 import { rxMedicine } from '@/routes/inventory';
