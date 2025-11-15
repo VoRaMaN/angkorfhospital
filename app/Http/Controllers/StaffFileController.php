@@ -31,8 +31,6 @@ class StaffFileController extends Controller
             'items' => $staffFiles,
             'title' => 'Staff Files',
             'createRoute' => route('staff-files.create'),
-            'showRoute' => route('staff-files.show', ':id'),
-            'editRoute' => route('staff-files.edit', ':id'),
         ]);
     }
 
@@ -41,11 +39,14 @@ class StaffFileController extends Controller
      */
     public function create()
     {
+        $user = auth()->user()->load('staff');
+
         return Inertia::render('Files/Create', [
             'title' => 'Staff Files',
             'indexRoute' => route('staff-files.index'),
             'staff' => Staff::all(),
             'typeOptions' => StaffFileTypeEnum::options(),
+            'currentStaff' => $user->staff,
         ]);
     }
 
@@ -64,10 +65,12 @@ class StaffFileController extends Controller
 
         $file = $request->file('file');
         // Files are stored locally for confidentiality
-        $path = $file->store('staff_files');
+        $originalName = $file->getClientOriginalName();
+        $uniqueName = time().'_'.$originalName;
+        $path = $file->storeAs('staff_files', $uniqueName);
 
         $fileModel = File::create([
-            'name' => $file->getClientOriginalName(),
+            'name' => $originalName,
             'path' => $path,
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
@@ -83,13 +86,39 @@ class StaffFileController extends Controller
     }
 
     /**
+     * Download the specified resource.
+     */
+    public function download(StaffFile $staffFile)
+    {
+        $this->authorize('view', $staffFile->file);
+
+        if (! Storage::exists($staffFile->file->path)) {
+            abort(404, 'File not found');
+        }
+
+        if (request()->has('inline')) {
+            return Storage::response($staffFile->file->path, $staffFile->file->name, [
+                'Content-Disposition' => 'inline; filename="'.$staffFile->file->name.'"',
+            ]);
+        }
+
+        return Storage::download($staffFile->file->path, $staffFile->file->name);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(StaffFile $staffFile)
     {
         $this->authorize('view', $staffFile->file);
 
-        return response()->download(storage_path('app/'.$staffFile->file->path));
+        return Inertia::render('Files/Show', [
+            'title' => 'Staff Files',
+            'indexRoute' => route('staff-files.index'),
+            'item' => $staffFile->load('file', 'staff'),
+            'isPatient' => false,
+            'fileExists' => Storage::exists($staffFile->file->path),
+        ]);
     }
 
     /**
@@ -97,12 +126,16 @@ class StaffFileController extends Controller
      */
     public function edit(StaffFile $staffFile)
     {
+        $user = auth()->user()->load('staff');
+
         return Inertia::render('Files/Edit', [
             'title' => 'Staff Files',
             'indexRoute' => route('staff-files.index'),
             'item' => $staffFile->load('file', 'staff'),
             'staff' => Staff::all(),
             'typeOptions' => StaffFileTypeEnum::options(),
+            'fileExists' => Storage::exists($staffFile->file->path),
+            'currentStaff' => $user->staff,
         ]);
     }
 
@@ -122,9 +155,11 @@ class StaffFileController extends Controller
         if ($request->hasFile('file')) {
             Storage::delete($staffFile->file->path);
             $uploadedFile = $request->file('file');
-            $path = $uploadedFile->store('staff_files');
+            $originalName = $uploadedFile->getClientOriginalName();
+            $uniqueName = time().'_'.$originalName;
+            $path = $uploadedFile->storeAs('staff_files', $uniqueName);
             $staffFile->file->update([
-                'name' => $uploadedFile->getClientOriginalName(),
+                'name' => $originalName,
                 'path' => $path,
                 'mime_type' => $uploadedFile->getMimeType(),
                 'size' => $uploadedFile->getSize(),

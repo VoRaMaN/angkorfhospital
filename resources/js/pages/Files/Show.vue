@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Download } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { edit as patientEdit } from '@/routes/patient-files';
+import { edit as staffEdit } from '@/routes/staff-files';
 
 interface Props {
     title: string;
     indexRoute: string;
-    editRoute?: string;
     item: Record<string, any>;
+    isPatient?: boolean;
+    fileExists?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    editRoute: '',
+    isPatient: false,
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,14 +26,30 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: props.indexRoute,
     },
     {
-        title: 'Details',
+        title: 'View',
         href: '#',
     },
 ];
+
+const downloadUrl = computed(() => {
+    const base = props.isPatient ? 'patient-files' : 'staff-files';
+    return `/${base}/${props.item.id}/download`;
+});
+
+const inlineUrl = computed(() => `${downloadUrl.value}?inline=1&t=${new Date().getTime()}`);
+
+const editUrl = computed(() => {
+    const editRoute = props.isPatient ? patientEdit(props.item.id) : staffEdit(props.item.id);
+    return editRoute.url;
+});
+
+const isImage = computed(() => props.item.file?.mime_type?.startsWith('image/'));
+const isPdf = computed(() => props.item.file?.mime_type === 'application/pdf');
 </script>
 
 <template>
-    <Head :title="`${title.slice(0, -1)} Details`" />
+
+    <Head :title="`View ${title.slice(0, -1)}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
@@ -42,14 +61,20 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </a>
                 </Button>
                 <div>
-                    <h1 class="text-2xl font-bold">{{ title.slice(0, -1) }} Details</h1>
-                    <p class="text-muted-foreground">View {{ title.slice(0, -1).toLowerCase() }} information</p>
+                    <h1 class="text-2xl font-bold">View {{ title.slice(0, -1) }}</h1>
+                    <p class="text-muted-foreground">View {{ title.slice(0, -1).toLowerCase() }} content</p>
                 </div>
-                <div class="ml-auto">
-                    <Button v-if="editRoute" variant="outline" as-child>
-                        <Link :href="editRoute.replace(':id', item.id)">
-                            <Edit class="size-4" />
-                            Edit
+                <div class="ml-auto flex gap-2">
+                    <Button v-if="fileExists" variant="outline" as-child>
+                        <a :href="downloadUrl" target="_blank">
+                            <Download class="size-4" />
+                            Download
+                        </a>
+                    </Button>
+                    <Button v-if="editUrl" variant="outline" as-child>
+                        <Link :href="editUrl">
+                        <Edit class="size-4" />
+                        Edit
                         </Link>
                     </Button>
                 </div>
@@ -57,20 +82,57 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="max-w-4xl">
                 <div class="rounded-lg border bg-card p-6">
-                    <div class="grid gap-6 md:grid-cols-2">
-                        <div v-for="[key, value] in Object.entries(item)" :key="key" class="space-y-2">
-                            <dt class="text-sm font-medium text-muted-foreground">
-                                {{ key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1') }}
-                            </dt>
-                            <dd class="text-sm">
-                                <Badge v-if="typeof value === 'boolean'" :variant="value ? 'default' : 'secondary'">
-                                    {{ value ? 'Yes' : 'No' }}
-                                </Badge>
-                                <span v-else-if="key === 'file' && value">
-                                    <a :href="`/files/${item.id}/download`" target="_blank" class="text-blue-600 underline">Download {{ value.name }}</a>
-                                </span>
-                                <span v-else>{{ value || 'N/A' }}</span>
-                            </dd>
+                    <div v-if="isImage && fileExists" class="flex justify-center">
+                        <img :src="inlineUrl" :alt="item.file.name" class="max-w-full max-h-96 object-contain" />
+                    </div>
+                    <div v-else-if="isImage && !fileExists" class="flex justify-center">
+                        <div class="w-full max-w-md h-48 bg-gray-200 rounded flex items-center justify-center text-gray-500">
+                            File not found - No Preview Available
+                        </div>
+                    </div>
+                    <div v-else-if="isPdf && fileExists" class="flex justify-center">
+                        <iframe :src="inlineUrl" class="w-full h-96 border" />
+                    </div>
+                    <div v-else-if="isPdf && !fileExists" class="flex justify-center">
+                        <div class="w-full h-96 bg-gray-200 rounded flex items-center justify-center text-gray-500">
+                            File not found - Cannot display PDF
+                        </div>
+                    </div>
+                    <div v-else class="text-center py-8">
+                        <p class="text-muted-foreground">This file type cannot be previewed inline.</p>
+                        <Button v-if="fileExists" class="mt-4" as-child>
+                            <a :href="downloadUrl" target="_blank">
+                                <Download class="size-4 mr-2" />
+                                Download File
+                            </a>
+                        </Button>
+                        <p v-else class="mt-4 text-gray-500">File not found</p>
+                    </div>
+
+                    <div class="mt-6 grid gap-4 md:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-muted-foreground">File Name</dt>
+                            <dd class="text-sm">{{ item.file?.name || 'N/A' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-muted-foreground">File Size</dt>
+                            <dd class="text-sm">{{ item.file?.size ? `${item.file.size} bytes` : 'N/A' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-muted-foreground">MIME Type</dt>
+                            <dd class="text-sm">{{ item.file?.mime_type || 'N/A' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-muted-foreground">Type</dt>
+                            <dd class="text-sm">{{ item.type || 'N/A' }}</dd>
+                        </div>
+                        <div v-if="item.patient">
+                            <dt class="text-sm font-medium text-muted-foreground">Patient</dt>
+                            <dd class="text-sm">{{ item.patient.name }}</dd>
+                        </div>
+                        <div v-if="item.staff">
+                            <dt class="text-sm font-medium text-muted-foreground">Staff</dt>
+                            <dd class="text-sm">{{ item.staff.name }}</dd>
                         </div>
                     </div>
                 </div>

@@ -31,8 +31,6 @@ class PatientFileController extends Controller
             'items' => $patientFiles,
             'title' => 'Patient Files',
             'createRoute' => route('patient-files.create'),
-            'showRoute' => route('patient-files.show', ':id'),
-            'editRoute' => route('patient-files.edit', ':id'),
         ]);
     }
 
@@ -64,10 +62,12 @@ class PatientFileController extends Controller
 
         $file = $request->file('file');
         // Files are stored locally for confidentiality
-        $path = $file->store('patient_files');
+        $originalName = $file->getClientOriginalName();
+        $uniqueName = time().'_'.$originalName;
+        $path = $file->storeAs('patient_files', $uniqueName);
 
         $fileModel = File::create([
-            'name' => $file->getClientOriginalName(),
+            'name' => $originalName,
             'path' => $path,
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
@@ -83,13 +83,39 @@ class PatientFileController extends Controller
     }
 
     /**
+     * Download the specified resource.
+     */
+    public function download(PatientFile $patientFile)
+    {
+        $this->authorize('view', $patientFile->file);
+
+        if (! Storage::exists($patientFile->file->path)) {
+            abort(404, 'File not found');
+        }
+
+        if (request()->has('inline')) {
+            return Storage::response($patientFile->file->path, $patientFile->file->name, [
+                'Content-Disposition' => 'inline; filename="'.$patientFile->file->name.'"',
+            ]);
+        }
+
+        return Storage::download($patientFile->file->path, $patientFile->file->name);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(PatientFile $patientFile)
     {
         $this->authorize('view', $patientFile->file);
 
-        return response()->download(storage_path('app/'.$patientFile->file->path));
+        return Inertia::render('Files/Show', [
+            'title' => 'Patient Files',
+            'indexRoute' => route('patient-files.index'),
+            'item' => $patientFile->load('file', 'patient'),
+            'isPatient' => true,
+            'fileExists' => Storage::exists($patientFile->file->path),
+        ]);
     }
 
     /**
@@ -103,6 +129,7 @@ class PatientFileController extends Controller
             'item' => $patientFile->load('file', 'patient'),
             'patients' => Patient::all(),
             'typeOptions' => PatientFileTypeEnum::options(),
+            'fileExists' => Storage::exists($patientFile->file->path),
         ]);
     }
 
@@ -122,9 +149,11 @@ class PatientFileController extends Controller
         if ($request->hasFile('file')) {
             Storage::delete($patientFile->file->path);
             $uploadedFile = $request->file('file');
-            $path = $uploadedFile->store('patient_files');
+            $originalName = $uploadedFile->getClientOriginalName();
+            $uniqueName = time().'_'.$originalName;
+            $path = $uploadedFile->storeAs('patient_files', $uniqueName);
             $patientFile->file->update([
-                'name' => $uploadedFile->getClientOriginalName(),
+                'name' => $originalName,
                 'path' => $path,
                 'mime_type' => $uploadedFile->getMimeType(),
                 'size' => $uploadedFile->getSize(),

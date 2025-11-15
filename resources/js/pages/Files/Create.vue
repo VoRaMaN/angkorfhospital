@@ -12,6 +12,7 @@ interface Props {
     patients?: Array<Record<string, any>>;
     staff?: Array<Record<string, any>>;
     typeOptions?: Record<string, string>;
+    currentStaff?: Record<string, any>;
 }
 
 const props = defineProps<Props>();
@@ -53,6 +54,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     :patients="patients"
                     :staff="staff"
                     :type-options="typeOptions"
+                    :current-staff="currentStaff"
                 />
             </div>
         </div>

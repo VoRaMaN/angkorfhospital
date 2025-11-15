@@ -73,12 +73,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Files
     Route::resource('files', FileController::class);
     Route::resource('patient-files', PatientFileController::class);
+    Route::get('patient-files/{patient_file}/download', [PatientFileController::class, 'download'])->name('patient-files.download');
     Route::resource('staff-files', StaffFileController::class);
-
+    Route::get('staff-files/{staff_file}/download', [StaffFileController::class, 'download'])->name('staff-files.download');
 
     // Visits
     Route::resource('visits', VisitController::class);
     Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

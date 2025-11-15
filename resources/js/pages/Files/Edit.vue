@@ -13,6 +13,8 @@ interface Props {
     patients?: Array<Record<string, any>>;
     staff?: Array<Record<string, any>>;
     typeOptions?: Record<string, string>;
+    fileExists?: boolean;
+    currentStaff?: Record<string, any>;
 }
 
 const props = defineProps<Props>();
@@ -55,6 +57,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                     :patients="patients"
                     :staff="staff"
                     :type-options="typeOptions"
+                    :file-exists="fileExists"
+                    :current-staff="currentStaff"
                 />
             </div>
         </div>

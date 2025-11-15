@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form';
 import { useForm } from '@inertiajs/vue3';
+import { store as patientStore, update as patientUpdate } from '@/routes/patient-files';
+import { store as staffStore, update as staffUpdate } from '@/routes/staff-files';
 
 interface Props {
     mode: 'create' | 'edit';
@@ -12,6 +15,8 @@ interface Props {
     patients?: Array<Record<string, any>>;
     staff?: Array<Record<string, any>>;
     typeOptions?: Record<string, string>;
+    fileExists?: boolean;
+    currentStaff?: Record<string, any>;
 }
 
 const props = defineProps<Props>();
@@ -22,32 +27,72 @@ const entityLabel = props.patients ? 'Patient' : 'Staff';
 
 const form = useForm({
     file: null as File | null,
-    [entityKey]: props.item?.[entityKey]?.toString() || '',
+    [entityKey]: props.item?.[entityKey]?.toString() || (props.currentStaff ? props.currentStaff.id.toString() : ''),
     type: props.item?.type || '',
 });
 
+const isPatient = !!props.patients;
+
+const fileDownloadUrl = computed(() => {
+    if (!props.item?.id) return '';
+    const base = isPatient ? 'patient-files' : 'staff-files';
+    return `/${base}/${props.item.id}/download`;
+});
+
+const filePreviewUrl = computed(() => `${fileDownloadUrl.value}?inline=1&t=${new Date().getTime()}`);
+
 const submitForm = () => {
     if (props.mode === 'create') {
-        form.post(props.indexRoute, { forceFormData: true });
+        const storeRoute = isPatient ? patientStore() : staffStore();
+        form.post(storeRoute.url, { forceFormData: true });
     } else {
-        form.post(props.indexRoute.replace(':id', props.item!.id), { forceFormData: true, method: 'put' });
+        const updateRoute = isPatient ? patientUpdate(props.item!.id) : staffUpdate(props.item!.id);
+        form.put(updateRoute.url, { forceFormData: true });
     }
 };
 </script>
 
 <template>
     <form @submit.prevent="submitForm" class="space-y-6">
-        <FormField v-slot="{ componentField }" name="file">
+        <div v-if="mode === 'edit' && item?.file" class="space-y-4">
+            <h3 class="text-lg font-medium">Current File</h3>
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center gap-4">
+                    <div v-if="item.file.mime_type.startsWith('image/') && fileExists" class="flex-shrink-0">
+                        <img :src="filePreviewUrl" :alt="item.file.name" class="w-16 h-16 object-cover rounded" />
+                    </div>
+                    <div v-else-if="item.file.mime_type.startsWith('image/') && !fileExists" class="flex-shrink-0">
+                        <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                            No Preview
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium">{{ item.file.name }}</p>
+                        <p class="text-sm text-muted-foreground">
+                            {{ item.file.size }} bytes • {{ item.file.mime_type }}
+                        </p>
+                        <a v-if="fileExists" :href="fileDownloadUrl" target="_blank" class="text-sm text-blue-600 hover:underline">
+                            Download current file
+                        </a>
+                        <span v-else class="text-sm text-gray-500">
+                            File not found
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <FormField v-slot="{}" name="file">
             <FormItem>
                 <FormLabel>File{{ mode === 'edit' ? ' (leave empty to keep current)' : '' }}</FormLabel>
                 <FormControl>
-                    <Input type="file" @input="form.file = $event.target.files[0]" />
+                    <Input type="file" @change="form.file = $event.target.files[0]" />
                 </FormControl>
                 <FormMessage />
             </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" :name="entityKey">
+        <FormField v-if="props.patients" v-slot="{}" :name="entityKey">
             <FormItem>
                 <FormLabel>{{ entityLabel }}</FormLabel>
                 <Select v-model="form[entityKey]">
@@ -66,7 +111,7 @@ const submitForm = () => {
             </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="type">
+        <FormField v-slot="{}" name="type">
             <FormItem>
                 <FormLabel>Type</FormLabel>
                 <Select v-model="form.type">

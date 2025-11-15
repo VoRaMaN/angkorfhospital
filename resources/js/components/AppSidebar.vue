@@ -70,12 +70,15 @@ const patientCareNavItems = computed(() => [
     { title: 'Medical Orders', href: medicalOrdersIndex().url, icon: ClipboardList, },
 ]);
 
+const documentNavItems = computed(() => [
+    { title: 'Patient Files', href: patientFilesIndex().url, icon: ClipboardList, },
+    { title: 'Staff Files', href: staffFilesIndex().url, icon: ClipboardList, },
+]);
+
 const medicalResourcesNavItems = computed(() => [
     { title: 'All Inventory', href: inventoryIndex().url, icon: Warehouse, },
     { title: 'RX Medicine', href: rxMedicine().url, icon: Pill, },
     { title: 'Lab Inventory', href: labInventory().url, icon: Warehouse, },
-    { title: 'Patient Files', href: patientFilesIndex().url, icon: ClipboardList },
-    { title: 'Staff Files', href: staffFilesIndex().url, icon: ClipboardList },
 ]);
 
 const financialNavItems = computed(() => [
@@ -119,6 +122,21 @@ const footerNavItems: NavItem[] = [
                 <SidebarGroupLabel>Core Operations</SidebarGroupLabel>
                 <SidebarMenu>
                     <SidebarMenuItem v-for="item in coreNavItems" :key="item.title">
+                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                            <Link :href="item.href">
+                            <component :is="item.icon" />
+                            <span>{{ item.title }}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarGroup>
+
+            <!-- Documents -->
+            <SidebarGroup class="px-2 py-0">
+                <SidebarGroupLabel>Documents</SidebarGroupLabel>
+                <SidebarMenu>
+                    <SidebarMenuItem v-for="item in documentNavItems" :key="item.title">
                         <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
                             <Link :href="item.href">
                             <component :is="item.icon" />
