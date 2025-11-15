@@ -14,6 +14,7 @@ use App\Http\Controllers\PatientFileController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffFileController;
+use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -73,6 +74,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('files', FileController::class);
     Route::resource('patient-files', PatientFileController::class);
     Route::resource('staff-files', StaffFileController::class);
+
+
+    // Visits
+    Route::resource('visits', VisitController::class);
+    Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
