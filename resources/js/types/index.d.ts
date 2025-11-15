@@ -15,6 +15,12 @@ export interface NavItem {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon;
     isActive?: boolean;
+    /**
+     * Permission(s) required to view this nav item. Accepts a single permission
+     * string or an array of permission strings. If omitted, the item is visible
+     * to all authenticated users.
+     */
+    permissions?: string | string[];
 }
 
 export type AppPageProps<
@@ -34,6 +40,8 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    roles: string[];
+    permissions: string[];
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
