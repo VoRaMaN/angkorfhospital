@@ -1,0 +1,123 @@
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link } from '@inertiajs/vue3';
+import { ArrowLeft, Edit } from 'lucide-vue-next';
+
+interface Props {
+    staff: {
+        id: number;
+        user_id: number;
+        name: string;
+        email: string;
+        role_name: string;
+        department_name: string;
+        hire_date: string;
+        contact_number: string;
+        status: string;
+        created_at: string;
+        updated_at: string;
+    };
+}
+
+const props = defineProps<Props>();
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Staff',
+        href: '/staff',
+    },
+    {
+        title: 'Details',
+        href: '#',
+    },
+];
+</script>
+
+<template>
+    <Head title="Staff Details" />
+
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div class="flex items-center gap-4">
+                <Button variant="outline" as-child>
+                    <a href="/staff">
+                        <ArrowLeft class="size-4" />
+                        Back
+                    </a>
+                </Button>
+                <div>
+                    <h1 class="text-2xl font-bold">Staff Details</h1>
+                    <p class="text-muted-foreground">View staff information</p>
+                </div>
+                <div class="ml-auto">
+                    <Button variant="outline" as-child>
+                        <Link :href="`/staff/${props.staff.id}/edit`">
+                            <Edit class="size-4" />
+                            Edit
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+
+            <div class="max-w-4xl">
+                <div class="rounded-lg border bg-card p-6">
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Full Name</dt>
+                            <dd class="text-sm font-medium">{{ props.staff.name }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Email</dt>
+                            <dd class="text-sm">{{ props.staff.email }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Role</dt>
+                            <dd class="text-sm">
+                                <Badge variant="outline">{{ props.staff.role_name }}</Badge>
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Department</dt>
+                            <dd class="text-sm">{{ props.staff.department_name }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Hire Date</dt>
+                            <dd class="text-sm">{{ new Date(props.staff.hire_date).toLocaleDateString() }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Status</dt>
+                            <dd class="text-sm">
+                                <Badge :variant="props.staff.status === 'active' ? 'default' : 'secondary'">
+                                    {{ props.staff.status }}
+                                </Badge>
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Phone</dt>
+                            <dd class="text-sm">{{ props.staff.contact_number || 'Not provided' }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Created</dt>
+                            <dd class="text-sm">{{ new Date(props.staff.created_at).toLocaleString() }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt class="text-sm font-medium text-muted-foreground">Last Updated</dt>
+                            <dd class="text-sm">{{ new Date(props.staff.updated_at).toLocaleString() }}</dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
+</template>

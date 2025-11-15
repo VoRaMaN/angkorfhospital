@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\MedicalOrderStatusEnum;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class MedicalOrderInventory extends Model
+{
+    protected $table = 'medical_order_inventory';
+
+    protected $fillable = [
+        'medical_order_id',
+        'inventory_id',
+        'item_type',
+        'item_name',
+        'details',
+        'dosage',
+        'frequency',
+        'route',
+        'quantity_required',
+        'status',
+        'notes',
+        'completed_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'completed_at' => 'datetime',
+            'status' => MedicalOrderStatusEnum::class,
+        ];
+    }
+
+    public function medicalOrder(): BelongsTo
+    {
+        return $this->belongsTo(MedicalOrder::class);
+    }
+
+    public function inventory(): BelongsTo
+    {
+        return $this->belongsTo(Inventory::class);
+    }
+}

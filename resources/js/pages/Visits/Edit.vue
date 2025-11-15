@@ -1,0 +1,237 @@
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ArrowLeft, Save } from 'lucide-vue-next';
+
+interface Visit {
+    id: number;
+    appointment_id: number | null;
+    patient_id: number;
+    staff_id: number | null;
+    visit_date_time: string;
+    status: string;
+    notes: string;
+}
+
+interface Patient {
+    id: number;
+    user: {
+        name: string;
+    };
+}
+
+interface Staff {
+    id: number;
+    user: {
+        name: string;
+    };
+}
+
+interface Appointment {
+    id: number;
+    patient: Patient;
+    staff: Staff | null;
+    appointment_date_time: string;
+    status: string;
+}
+
+interface Props {
+    visit: Visit;
+    patients: Patient[];
+    staff: Staff[];
+    appointments: Appointment[];
+}
+
+const props = defineProps<Props>();
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Visits',
+        href: '/visits',
+    },
+    {
+        title: 'Edit Visit',
+        href: '#',
+    },
+];
+
+const form = useForm({
+    appointment_id: props.visit.appointment_id?.toString() || 'none',
+    patient_id: props.visit.patient_id.toString(),
+    staff_id: props.visit.staff_id?.toString() || 'none',
+    visit_date_time: new Date(props.visit.visit_date_time).toISOString().slice(0, 16),
+    status: props.visit.status,
+    notes: props.visit.notes || '',
+});
+
+const submit = () => {
+    // Transform form data before submission
+    const transformedData = {
+        appointment_id: form.appointment_id === 'none' ? null : form.appointment_id,
+        patient_id: form.patient_id,
+        staff_id: form.staff_id === 'none' ? null : form.staff_id,
+        visit_date_time: form.visit_date_time,
+        status: form.status,
+        notes: form.notes,
+    };
+
+    form.transform(() => transformedData).put(`/visits/${props.visit.id}`, {
+        onSuccess: () => {
+            // Handle success
+        },
+    });
+};
+</script>
+
+<template>
+    <Head title="Edit Visit" />
+
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div class="flex items-center gap-4">
+                <Button variant="outline" as-child>
+                    <Link href="/visits">
+                        <ArrowLeft class="size-4" />
+                        Back to Visits
+                    </Link>
+                </Button>
+                <div>
+                    <h1 class="text-2xl font-bold">Edit Visit</h1>
+                    <p class="text-muted-foreground">Update visit information</p>
+                </div>
+            </div>
+
+            <div class="max-w-2xl">
+                <form @submit.prevent="submit">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Visit Information</CardTitle>
+                        </CardHeader>
+                        <CardContent class="space-y-6">
+                            <div class="space-y-2">
+                                <Label for="appointment_id">Related Appointment (Optional)</Label>
+                                <Select v-model="form.appointment_id">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select an appointment" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">None</SelectItem>
+                                        <SelectItem
+                                            v-for="appointment in appointments"
+                                            :key="appointment.id"
+                                            :value="appointment.id.toString()"
+                                        >
+                                            #{{ appointment.id }} - {{ appointment.patient.user.name }} -
+                                            {{ new Date(appointment.appointment_date_time).toLocaleDateString() }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="patient_id">Patient *</Label>
+                                <Select v-model="form.patient_id" required>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a patient" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem
+                                            v-for="patient in patients"
+                                            :key="patient.id"
+                                            :value="patient.id.toString()"
+                                        >
+                                            {{ patient.user.name }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <div v-if="form.errors.patient_id" class="text-sm text-red-600">
+                                    {{ form.errors.patient_id }}
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="staff_id">Assigned Staff (Optional)</Label>
+                                <Select v-model="form.staff_id">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select staff member" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Unassigned</SelectItem>
+                                        <SelectItem
+                                            v-for="staffMember in staff"
+                                            :key="staffMember.id"
+                                            :value="staffMember.id.toString()"
+                                        >
+                                            {{ staffMember.user.name }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="visit_date_time">Visit Date & Time *</Label>
+                                <Input
+                                    id="visit_date_time"
+                                    v-model="form.visit_date_time"
+                                    type="datetime-local"
+                                    required
+                                />
+                                <div v-if="form.errors.visit_date_time" class="text-sm text-red-600">
+                                    {{ form.errors.visit_date_time }}
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="status">Status *</Label>
+                                <Select v-model="form.status" required>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="in_progress">In Progress</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <div v-if="form.errors.status" class="text-sm text-red-600">
+                                    {{ form.errors.status }}
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="notes">Notes</Label>
+                                <Textarea
+                                    id="notes"
+                                    v-model="form.notes"
+                                    placeholder="Additional notes about the visit..."
+                                    rows="3"
+                                />
+                                <div v-if="form.errors.notes" class="text-sm text-red-600">
+                                    {{ form.errors.notes }}
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end space-x-2">
+                                <Button variant="outline" as-child>
+                                    <Link href="/visits">Cancel</Link>
+                                </Button>
+                                <Button type="submit" :disabled="form.processing">
+                                    <Save class="size-4" />
+                                    Update Visit
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </form>
+            </div>
+        </div>
+    </AppLayout>
+</template>
