@@ -117,6 +117,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </div>
                             </TableCell>
                         </TableRow>
+                        <TableRow v-if="props.files.length === 0">
+                            <TableCell colspan="6" class="text-center text-muted-foreground">
+                                No files found
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
             </div>

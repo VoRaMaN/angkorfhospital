@@ -299,6 +299,11 @@ const cancelStatusUpdate = () => {
                                 </div>
                             </TableCell>
                         </TableRow>
+                        <TableRow v-if="props.appointments.length === 0">
+                            <TableCell colspan="5" class="text-center text-muted-foreground">
+                                No appointments found
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
             </div>

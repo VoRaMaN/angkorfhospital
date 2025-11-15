@@ -1,11 +1,14 @@
 import { onMounted, ref } from 'vue';
 
-type Appearance = 'light' | 'dark' | 'system';
+type Appearance = 'light' | 'dark' | 'blue' | 'green' | 'enterprise' | 'system';
 
 export function updateTheme(value: Appearance) {
     if (typeof window === 'undefined') {
         return;
     }
+
+    // Remove all theme classes first
+    document.documentElement.classList.remove('dark', 'blue', 'green', 'enterprise');
 
     if (value === 'system') {
         const mediaQueryList = window.matchMedia(
@@ -13,13 +16,19 @@ export function updateTheme(value: Appearance) {
         );
         const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
 
-        document.documentElement.classList.toggle(
-            'dark',
-            systemTheme === 'dark',
-        );
-    } else {
-        document.documentElement.classList.toggle('dark', value === 'dark');
+        if (systemTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    } else if (value === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else if (value === 'blue') {
+        document.documentElement.classList.add('blue');
+    } else if (value === 'green') {
+        document.documentElement.classList.add('green');
+    } else if (value === 'enterprise') {
+        document.documentElement.classList.add('enterprise');
     }
+    // For 'light', we don't add any class (it's the default)
 }
 
 const setCookie = (name: string, value: string, days = 365) => {

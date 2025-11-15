@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class([
+    'dark' => ($appearance ?? 'system') == 'dark',
+    'blue' => ($appearance ?? 'system') == 'blue',
+    'green' => ($appearance ?? 'system') == 'green',
+    'enterprise' => ($appearance ?? 'system') == 'enterprise'
+])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +20,14 @@
                     if (prefersDark) {
                         document.documentElement.classList.add('dark');
                     }
+                } else if (appearance === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else if (appearance === 'blue') {
+                    document.documentElement.classList.add('blue');
+                } else if (appearance === 'green') {
+                    document.documentElement.classList.add('green');
+                } else if (appearance === 'enterprise') {
+                    document.documentElement.classList.add('enterprise');
                 }
             })();
         </script>
@@ -27,6 +40,18 @@
 
             html.dark {
                 background-color: oklch(0.145 0 0);
+            }
+
+            html.blue {
+                background-color: hsl(210 40% 98%);
+            }
+
+            html.green {
+                background-color: hsl(120 40% 98%);
+            }
+
+            html.enterprise {
+                background-color: hsl(0 0% 92%);
             }
         </style>
 

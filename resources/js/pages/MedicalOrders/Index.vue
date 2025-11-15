@@ -204,6 +204,11 @@ const getPriorityColor = (priority: string) => {
                                 </div>
                             </TableCell>
                         </TableRow>
+                        <TableRow v-if="props.medicalOrders.length === 0">
+                            <TableCell colspan="8" class="text-center text-muted-foreground">
+                                No medical orders found
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
             </div>
