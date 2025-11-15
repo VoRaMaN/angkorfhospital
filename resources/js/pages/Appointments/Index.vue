@@ -5,8 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import { create, show, edit, updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { Plus } from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
     appointments: Array<{
@@ -27,30 +29,48 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const updateStatus = async (appointment: any, newStatus: string) => {
-    if (confirm(`Are you sure you want to ${newStatus} this appointment?`)) {
-        try {
-            const route = updateStatusRoute(appointment.id);
-            const response = await fetch(route.url, {
-                method: route.method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-                },
-                body: JSON.stringify({ status: newStatus }),
-            });
+const confirmModalOpen = ref(false);
+const selectedAppointment = ref<any>(null);
+const selectedNewStatus = ref('');
 
-            if (response.ok) {
-                alert(`Appointment status updated to: ${newStatus}`);
-                window.location.reload(); // Refresh to show updated status
-            } else {
-                alert('Failed to update appointment status');
-            }
-        } catch (error) {
-            console.error('Error updating status:', error);
-            alert('An error occurred while updating the status');
+const updateStatus = async (appointment: any, newStatus: string) => {
+    selectedAppointment.value = appointment;
+    selectedNewStatus.value = newStatus;
+    confirmModalOpen.value = true;
+};
+
+const confirmStatusUpdate = async () => {
+    if (!selectedAppointment.value || !selectedNewStatus.value) return;
+
+    try {
+        const route = updateStatusRoute(selectedAppointment.value.id);
+        const response = await fetch(route.url, {
+            method: route.method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+            },
+            body: JSON.stringify({ status: selectedNewStatus.value }),
+        });
+
+        if (response.ok) {
+            confirmModalOpen.value = false;
+            selectedAppointment.value = null;
+            selectedNewStatus.value = '';
+            window.location.reload(); // Refresh to show updated status
+        } else {
+            alert('Failed to update appointment status');
         }
+    } catch (error) {
+        console.error('Error updating status:', error);
+        alert('An error occurred while updating the status');
     }
+};
+
+const cancelStatusUpdate = () => {
+    confirmModalOpen.value = false;
+    selectedAppointment.value = null;
+    selectedNewStatus.value = '';
 };
 </script>
 
@@ -124,6 +144,17 @@ const updateStatus = async (appointment: any, newStatus: string) => {
                                             @click="updateStatus(appointment, 'cancelled')">
                                             Cancel
                                         </Button>
+                                        <Button variant="outline" size="sm"
+                                            @click="updateStatus(appointment, 'no-show')">
+                                            No Show
+                                        </Button>
+                                    </template>
+
+                                    <template v-else-if="appointment.status === 'no-show'">
+                                        <Button variant="outline" size="sm"
+                                            @click="updateStatus(appointment, 'scheduled')">
+                                            Reschedule
+                                        </Button>
                                     </template>
 
                                     <template v-else-if="appointment.status === 'cancelled'">
@@ -139,5 +170,30 @@ const updateStatus = async (appointment: any, newStatus: string) => {
                 </Table>
             </div>
         </div>
+
+        <Dialog v-model:open="confirmModalOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Confirm Status Update</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to update the status of this appointment to "{{ selectedNewStatus }}"?
+                        <br><br>
+                        <strong>Patient:</strong> {{ selectedAppointment?.patient?.user?.name || 'Unknown' }}
+                        <br>
+                        <strong>Current Status:</strong> {{ selectedAppointment?.status || 'Unknown' }}
+                        <br>
+                        <strong>New Status:</strong> {{ selectedNewStatus }}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button variant="outline" @click="cancelStatusUpdate">
+                        Cancel
+                    </Button>
+                    <Button @click="confirmStatusUpdate">
+                        Confirm
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

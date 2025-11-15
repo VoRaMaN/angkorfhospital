@@ -8,6 +8,7 @@ enum AppointmentStatusEnum: string
     case CONFIRMED = 'confirmed';
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
+    case NO_SHOW = 'no-show';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum AppointmentStatusEnum: string
             self::CONFIRMED => 'Confirmed',
             self::COMPLETED => 'Completed',
             self::CANCELLED => 'Cancelled',
+            self::NO_SHOW => 'No Show',
         };
     }
 
@@ -26,6 +28,7 @@ enum AppointmentStatusEnum: string
             self::CONFIRMED->value => self::CONFIRMED->label(),
             self::COMPLETED->value => self::COMPLETED->label(),
             self::CANCELLED->value => self::CANCELLED->label(),
+            self::NO_SHOW->value => self::NO_SHOW->label(),
         ];
     }
 }

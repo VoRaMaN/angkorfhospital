@@ -5,8 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { show } from '@/routes/appointments';
+import { show, updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { Calendar, Clock, User } from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ref } from 'vue';
 
 interface Props {
     appointments: Array<{
@@ -36,6 +38,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const confirmModalOpen = ref(false);
+const selectedAppointment = ref<any>(null);
+const selectedNewStatus = ref('');
+
 const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
         case 'scheduled':
@@ -49,6 +55,46 @@ const getStatusColor = (status: string) => {
         default:
             return 'bg-gray-100 text-gray-800';
     }
+};
+
+const updateStatus = async (appointment: any, newStatus: string) => {
+    selectedAppointment.value = appointment;
+    selectedNewStatus.value = newStatus;
+    confirmModalOpen.value = true;
+};
+
+const confirmStatusUpdate = async () => {
+    if (!selectedAppointment.value || !selectedNewStatus.value) return;
+
+    try {
+        const route = updateStatusRoute(selectedAppointment.value.id);
+        const response = await fetch(route.url, {
+            method: route.method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+            },
+            body: JSON.stringify({ status: selectedNewStatus.value }),
+        });
+
+        if (response.ok) {
+            confirmModalOpen.value = false;
+            selectedAppointment.value = null;
+            selectedNewStatus.value = '';
+            window.location.reload(); // Refresh to show updated status
+        } else {
+            alert('Failed to update appointment status');
+        }
+    } catch (error) {
+        console.error('Error updating status:', error);
+        alert('An error occurred while updating the status');
+    }
+};
+
+const cancelStatusUpdate = () => {
+    confirmModalOpen.value = false;
+    selectedAppointment.value = null;
+    selectedNewStatus.value = '';
 };
 </script>
 
@@ -105,16 +151,84 @@ const getStatusColor = (status: string) => {
                                 </Badge>
                             </TableCell>
                             <TableCell>
-                                <Button variant="outline" size="sm" as-child>
-                                    <Link :href="show(appointment.id).url">
-                                        View Details
-                                    </Link>
-                                </Button>
+                                <div class="flex gap-2">
+                                    <Button variant="outline" size="sm" as-child>
+                                        <Link :href="show(appointment.id).url">
+                                            View Details
+                                        </Link>
+                                    </Button>
+
+                                    <!-- Status-specific action buttons -->
+                                    <template v-if="appointment.status === 'scheduled'">
+                                        <Button variant="default" size="sm"
+                                            @click="updateStatus(appointment, 'confirmed')">
+                                            Confirm
+                                        </Button>
+                                        <Button variant="destructive" size="sm"
+                                            @click="updateStatus(appointment, 'cancelled')">
+                                            Cancel
+                                        </Button>
+                                    </template>
+
+                                    <template v-else-if="appointment.status === 'confirmed'">
+                                        <Button variant="default" size="sm"
+                                            @click="updateStatus(appointment, 'completed')">
+                                            Complete
+                                        </Button>
+                                        <Button variant="destructive" size="sm"
+                                            @click="updateStatus(appointment, 'cancelled')">
+                                            Cancel
+                                        </Button>
+                                        <Button variant="outline" size="sm"
+                                            @click="updateStatus(appointment, 'no-show')">
+                                            No Show
+                                        </Button>
+                                    </template>
+
+                                    <template v-else-if="appointment.status === 'cancelled'">
+                                        <Button variant="outline" size="sm"
+                                            @click="updateStatus(appointment, 'scheduled')">
+                                            Reschedule
+                                        </Button>
+                                    </template>
+
+                                    <template v-else-if="appointment.status === 'no-show'">
+                                        <Button variant="outline" size="sm"
+                                            @click="updateStatus(appointment, 'scheduled')">
+                                            Reschedule
+                                        </Button>
+                                    </template>
+                                </div>
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
             </div>
         </div>
+
+        <Dialog v-model:open="confirmModalOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Confirm Status Update</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to update the status of this appointment to "{{ selectedNewStatus }}"?
+                        <br><br>
+                        <strong>Patient:</strong> {{ selectedAppointment?.patient?.name || 'Unknown' }}
+                        <br>
+                        <strong>Current Status:</strong> {{ selectedAppointment?.status || 'Unknown' }}
+                        <br>
+                        <strong>New Status:</strong> {{ selectedNewStatus }}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button variant="outline" @click="cancelStatusUpdate">
+                        Cancel
+                    </Button>
+                    <Button @click="confirmStatusUpdate">
+                        Confirm
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

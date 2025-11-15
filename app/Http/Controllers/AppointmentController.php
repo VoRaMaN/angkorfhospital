@@ -118,7 +118,7 @@ class AppointmentController extends Controller
         $this->authorize('update', $appointment);
 
         $request->validate([
-            'status' => 'required|in:scheduled,confirmed,completed,cancelled',
+            'status' => 'required|in:scheduled,confirmed,completed,cancelled,no-show',
         ]);
 
         $appointment->update([

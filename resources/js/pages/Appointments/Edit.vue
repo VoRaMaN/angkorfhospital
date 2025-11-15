@@ -112,6 +112,7 @@ const form = useForm({
                                 <SelectItem value="confirmed">Confirmed</SelectItem>
                                 <SelectItem value="completed">Completed</SelectItem>
                                 <SelectItem value="cancelled">Cancelled</SelectItem>
+                                <SelectItem value="no-show">No Show</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
