@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 
 interface Props {
     patient: {
@@ -21,6 +23,7 @@ interface Props {
         phone_number: string;
         email?: string;
         insurance_info: string;
+        patientFiles?: Array<any>;
     };
 }
 
@@ -71,164 +74,176 @@ const form = useForm({
             </div>
 
             <div class="max-w-2xl">
-                <form @submit.prevent="form.put(`/patients/${props.patient.id}`)" class="space-y-6">
+                <Tabs default-value="information" class="w-full">
+                    <TabsList class="grid w-full grid-cols-2">
+                        <TabsTrigger value="information">Patient Information</TabsTrigger>
+                        <TabsTrigger value="files">Files</TabsTrigger>
+                    </TabsList>
 
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <Label for="first_name">First Name</Label>
-                            <Input
-                                id="first_name"
-                                v-model="form.first_name"
-                                placeholder="Enter first name"
-                            />
-                            <div v-if="form.errors.first_name" class="text-sm text-destructive">
-                                {{ form.errors.first_name }}
+                    <TabsContent value="information" class="mt-6">
+                        <form @submit.prevent="form.put(`/patients/${props.patient.id}`)" class="space-y-6">
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <Label for="first_name">First Name</Label>
+                                    <Input
+                                        id="first_name"
+                                        v-model="form.first_name"
+                                        placeholder="Enter first name"
+                                    />
+                                    <div v-if="form.errors.first_name" class="text-sm text-destructive">
+                                        {{ form.errors.first_name }}
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <Label for="last_name">Last Name</Label>
+                                    <Input
+                                        id="last_name"
+                                        v-model="form.last_name"
+                                        placeholder="Enter last name"
+                                    />
+                                    <div v-if="form.errors.last_name" class="text-sm text-destructive">
+                                        {{ form.errors.last_name }}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="space-y-2">
-                            <Label for="last_name">Last Name</Label>
-                            <Input
-                                id="last_name"
-                                v-model="form.last_name"
-                                placeholder="Enter last name"
-                            />
-                            <div v-if="form.errors.last_name" class="text-sm text-destructive">
-                                {{ form.errors.last_name }}
-                            </div>
-                        </div>
-                    </div>
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <Label for="date_of_birth">Date of Birth</Label>
+                                    <Input
+                                        id="date_of_birth"
+                                        v-model="form.date_of_birth"
+                                        type="date"
+                                    />
+                                    <div v-if="form.errors.date_of_birth" class="text-sm text-destructive">
+                                        {{ form.errors.date_of_birth }}
+                                    </div>
+                                </div>
 
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <Label for="date_of_birth">Date of Birth</Label>
-                            <Input
-                                id="date_of_birth"
-                                v-model="form.date_of_birth"
-                                type="date"
-                            />
-                            <div v-if="form.errors.date_of_birth" class="text-sm text-destructive">
-                                {{ form.errors.date_of_birth }}
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="text-sm font-medium">Gender</label>
-                            <Select v-model="form.gender">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <Label for="phone_number">Phone Number</Label>
-                        <Input
-                            id="phone_number"
-                            v-model="form.phone_number"
-                            placeholder="Enter phone number"
-                        />
-                        <div v-if="form.errors.phone_number" class="text-sm text-destructive">
-                            {{ form.errors.phone_number }}
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <Label for="patient_email">Email</Label>
-                        <Input
-                            id="patient_email"
-                            v-model="form.patient_email"
-                            type="email"
-                            placeholder="Enter email address"
-                        />
-                        <div v-if="form.errors.patient_email" class="text-sm text-destructive">
-                            {{ form.errors.patient_email }}
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <Label for="address">Address</Label>
-                        <Input
-                            id="address"
-                            v-model="form.address"
-                            placeholder="Enter address"
-                        />
-                        <div v-if="form.errors.address" class="text-sm text-destructive">
-                            {{ form.errors.address }}
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <Label for="insurance_info">Insurance Information</Label>
-                        <Input
-                            id="insurance_info"
-                            v-model="form.insurance_info"
-                            placeholder="Enter insurance info"
-                        />
-                        <div v-if="form.errors.insurance_info" class="text-sm text-destructive">
-                            {{ form.errors.insurance_info }}
-                        </div>
-                    </div>
-
-                    <div class="flex items-center space-x-2" v-if="!props.patient.user">
-                        <Checkbox
-                            id="create_user_account"
-                            v-model:checked="form.create_user_account"
-                        />
-                        <label
-                            for="create_user_account"
-                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                            Create user account for self-service
-                        </label>
-                    </div>
-
-                    <template v-if="form.create_user_account && !props.patient.user">
-                        <div class="border-t pt-6">
-                            <h3 class="text-lg font-medium mb-4">User Account Information</h3>
-
-                            <div class="space-y-2">
-                                <Label for="user_name">Full Name</Label>
-                                <Input
-                                    id="user_name"
-                                    v-model="form.name"
-                                    placeholder="Enter full name for user account"
-                                />
-                                <div v-if="form.errors.name" class="text-sm text-destructive">
-                                    {{ form.errors.name }}
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium">Gender</label>
+                                    <Select v-model="form.gender">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select gender" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="male">Male</SelectItem>
+                                            <SelectItem value="female">Female</SelectItem>
+                                            <SelectItem value="other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="user_email">Email</Label>
+                                <Label for="phone_number">Phone Number</Label>
                                 <Input
-                                    id="user_email"
-                                    v-model="form.email"
+                                    id="phone_number"
+                                    v-model="form.phone_number"
+                                    placeholder="Enter phone number"
+                                />
+                                <div v-if="form.errors.phone_number" class="text-sm text-destructive">
+                                    {{ form.errors.phone_number }}
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="patient_email">Email</Label>
+                                <Input
+                                    id="patient_email"
+                                    v-model="form.patient_email"
                                     type="email"
-                                    placeholder="Enter email for user account"
+                                    placeholder="Enter email address"
                                 />
-                                <div v-if="form.errors.email" class="text-sm text-destructive">
-                                    {{ form.errors.email }}
+                                <div v-if="form.errors.patient_email" class="text-sm text-destructive">
+                                    {{ form.errors.patient_email }}
                                 </div>
                             </div>
-                        </div>
-                    </template>
 
-                    <div class="flex gap-4">
-                        <Button type="submit" :disabled="form.processing">
-                            Update Patient
-                        </Button>
-                        <Button variant="outline" as-child>
-                            <a href="/patients">Cancel</a>
-                        </Button>
-                    </div>
-                </form>
+                            <div class="space-y-2">
+                                <Label for="address">Address</Label>
+                                <Input
+                                    id="address"
+                                    v-model="form.address"
+                                    placeholder="Enter address"
+                                />
+                                <div v-if="form.errors.address" class="text-sm text-destructive">
+                                    {{ form.errors.address }}
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="insurance_info">Insurance Information</Label>
+                                <Input
+                                    id="insurance_info"
+                                    v-model="form.insurance_info"
+                                    placeholder="Enter insurance info"
+                                />
+                                <div v-if="form.errors.insurance_info" class="text-sm text-destructive">
+                                    {{ form.errors.insurance_info }}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2" v-if="!props.patient.user">
+                                <Checkbox
+                                    id="create_user_account"
+                                    v-model:checked="form.create_user_account"
+                                />
+                                <label
+                                    for="create_user_account"
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Create user account for self-service
+                                </label>
+                            </div>
+
+                            <template v-if="form.create_user_account && !props.patient.user">
+                                <div class="border-t pt-6">
+                                    <h3 class="text-lg font-medium mb-4">User Account Information</h3>
+
+                                    <div class="space-y-2">
+                                        <Label for="user_name">Full Name</Label>
+                                        <Input
+                                            id="user_name"
+                                            v-model="form.name"
+                                            placeholder="Enter full name for user account"
+                                        />
+                                        <div v-if="form.errors.name" class="text-sm text-destructive">
+                                            {{ form.errors.name }}
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <Label for="user_email">Email</Label>
+                                        <Input
+                                            id="user_email"
+                                            v-model="form.email"
+                                            type="email"
+                                            placeholder="Enter email for user account"
+                                        />
+                                        <div v-if="form.errors.email" class="text-sm text-destructive">
+                                            {{ form.errors.email }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="flex gap-4">
+                                <Button type="submit" :disabled="form.processing">
+                                    Update Patient
+                                </Button>
+                                <Button variant="outline" as-child>
+                                    <a href="/patients">Cancel</a>
+                                </Button>
+                            </div>
+                        </form>
+                    </TabsContent>
+
+                    <TabsContent value="files" class="mt-6">
+                        <PatientFilesTab :patient="props.patient" />
+                    </TabsContent>
+                </Tabs>
             </div>
         </div>
     </AppLayout>

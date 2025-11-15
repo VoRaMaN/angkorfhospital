@@ -69,7 +69,7 @@ class StaffController extends Controller
 
         // Create User associated with Staff
         $user = \App\Models\User::create([
-            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'name' => $validated['first_name'].' '.$validated['last_name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
         ]);
@@ -93,7 +93,7 @@ class StaffController extends Controller
     {
         $this->authorize('view', $staff);
 
-        $staff->load(['role', 'user', 'department']);
+        $staff->load(['role', 'user', 'department', 'staffFiles.file']);
 
         $transformedStaff = [
             'id' => $staff->id,
@@ -107,6 +107,7 @@ class StaffController extends Controller
             'status' => $staff->status ?? 'active',
             'created_at' => $staff->created_at,
             'updated_at' => $staff->updated_at,
+            'staffFiles' => $staff->staffFiles,
         ];
 
         return Inertia::render('Staff/Show', [
@@ -121,18 +122,19 @@ class StaffController extends Controller
     {
         $this->authorize('update', $staff);
 
-        $staff->load(['role', 'user', 'department']);
+        $staff->load(['role', 'user', 'department', 'staffFiles.file']);
 
         $transformedStaff = [
             'id' => $staff->id,
             'user_id' => $staff->user_id,
             'first_name' => $staff->first_name,
             'last_name' => $staff->last_name,
-            'name' => $staff->user?->name ?? $staff->first_name . ' ' . $staff->last_name,
+            'name' => $staff->user?->name ?? $staff->first_name.' '.$staff->last_name,
             'email' => $staff->user?->email ?? '',
             'role_id' => $staff->role_id,
             'department_id' => $staff->department_id,
             'contact_number' => $staff->contact_number,
+            'staffFiles' => $staff->staffFiles,
         ];
 
         return Inertia::render('Staff/Edit', [
@@ -155,7 +157,7 @@ class StaffController extends Controller
             if (isset($validated['email'])) {
                 $userData['email'] = $validated['email'];
             }
-            if (!empty($userData)) {
+            if (! empty($userData)) {
                 $staff->user->update($userData);
             }
         }
@@ -167,13 +169,13 @@ class StaffController extends Controller
             'role_id' => $validated['role_id'] ?? null,
             'department_id' => $validated['department_id'] ?? null,
             'contact_number' => $validated['contact_number'] ?? null,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
 
         $staff->update($staffData);
 
         // Update user name if first_name or last_name changed
         if ($staff->user && (isset($validated['first_name']) || isset($validated['last_name']))) {
-            $newName = ($validated['first_name'] ?? $staff->first_name) . ' ' . ($validated['last_name'] ?? $staff->last_name);
+            $newName = ($validated['first_name'] ?? $staff->first_name).' '.($validated['last_name'] ?? $staff->last_name);
             $staff->user->update(['name' => $newName]);
         }
 

@@ -79,7 +79,7 @@ class PatientFileController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect()->route('patient-files.index');
+        return redirect()->route('patients.show', $request->patient_id);
     }
 
     /**

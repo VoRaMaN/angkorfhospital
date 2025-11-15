@@ -22,11 +22,18 @@ class Patient extends Model
         'insurance_info',
     ];
 
+    protected $appends = ['name'];
+
     protected function casts(): array
     {
         return [
             'date_of_birth' => 'date',
         ];
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 
     public function appointments()

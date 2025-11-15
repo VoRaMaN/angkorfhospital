@@ -82,7 +82,7 @@ class StaffFileController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect()->route('staff-files.index');
+        return redirect()->route('staff.show', $request->staff_id);
     }
 
     /**

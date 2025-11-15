@@ -20,11 +20,18 @@ class Staff extends Model
         'hire_date',
     ];
 
+    protected $appends = ['name'];
+
     protected function casts(): array
     {
         return [
             'hire_date' => 'date',
         ];
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 
     public function role()
