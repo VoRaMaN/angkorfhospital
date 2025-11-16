@@ -170,6 +170,12 @@ const doctorNavItems = computed(() => [
         icon: Calendar,
         permissions: 'view_visits',
     },
+    {
+        title: 'My Visits to Process',
+        href: doctor.myToBeProcessVisits().url,
+        icon: Users2Icon,
+        permissions: 'process_medical_orders',
+    },
 ]);
 
 const managementNavItems = computed(() => [

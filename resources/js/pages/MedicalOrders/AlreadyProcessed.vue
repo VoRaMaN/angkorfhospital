@@ -11,17 +11,16 @@ import {
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
-    complete as completeRoute,
-    edit,
     index,
     processWithUpdate as processRoute,
+    complete as completeRoute,
+    edit,
 } from '@/routes/medical-orders';
 import { show as showMedicalRecord } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
     Activity,
-    ArrowLeft,
     CheckCircle,
     ChevronDown,
     ChevronRight,
@@ -102,7 +101,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: index().url,
     },
     {
-        title: 'Details',
+        title: 'Confirm Details',
         href: '#',
     },
 ];
@@ -281,22 +280,16 @@ const orderSummary = computed(() => {
 
 <template>
 
-    <Head title="Medical Order Details" />
+    <Head title="Confirm Medical Order Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div v-if="hasPermission('view_medical_orders')"
             class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center gap-4">
-                <Button variant="outline" as-child>
-                    <a :href="index().url">
-                        <ArrowLeft class="size-4" />
-                        Back
-                    </a>
-                </Button>
                 <div>
-                    <h1 class="text-2xl font-bold">Medical Order Details</h1>
+                    <h1 class="text-2xl font-bold">Confirm Medical Order Details</h1>
                     <p class="text-muted-foreground">
-                        View comprehensive medical order information
+                        Review all order details before confirming processing
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
@@ -475,7 +468,7 @@ const orderSummary = computed(() => {
                     <CardHeader>
                         <CardTitle>Order Items ({{
                             medicalOrder.order_items.length
-                        }})</CardTitle>
+                            }})</CardTitle>
                         <CardDescription>Lab tests, procedures, imaging, and
                             supplies</CardDescription>
                     </CardHeader>
@@ -623,7 +616,7 @@ const orderSummary = computed(() => {
                                                     <span class="text-muted-foreground">Dosage:</span>
                                                     <span class="ml-1 font-medium">{{
                                                         itemData.item.dosage
-                                                    }}</span>
+                                                        }}</span>
                                                 </div>
                                                 <div v-if="
                                                     itemData.item.frequency
@@ -638,7 +631,7 @@ const orderSummary = computed(() => {
                                                     <span class="text-muted-foreground">Route:</span>
                                                     <span class="ml-1 font-medium">{{
                                                         itemData.item.route
-                                                    }}</span>
+                                                        }}</span>
                                                 </div>
                                             </div>
 

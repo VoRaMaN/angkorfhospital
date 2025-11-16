@@ -367,25 +367,70 @@ class MedicalOrderController extends Controller
     }
 
     /**
-     * Process a medical order using the FlowService.
+     * Process a medical order with updates.
      */
-    public function process(MedicalOrder $medicalOrder): RedirectResponse
+    public function processWithUpdate(UpdateMedicalOrderRequest $request, MedicalOrder $medicalOrder): RedirectResponse
     {
         $this->authorize('update', $medicalOrder);
 
-        $flowService = app(\App\Services\FlowService::class);
-        $flowService->processMedicalOrder($medicalOrder->id);
+        // Only allow processing if the order is pending
+        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PENDING) {
+            return redirect()->back()->with('error', 'This medical order cannot be processed.');
+        }
 
-        return redirect()->route('medical-orders.complete-page', $medicalOrder->id)
-            ->with('success', 'Medical order processing initiated.');
+        // Update the medical order details
+        $medicalOrder->update($request->validated());
+
+        // Sync order items if provided
+        if ($request->has('order_items') && is_array($request->order_items)) {
+            // Delete existing items
+            $medicalOrder->orderItems()->delete();
+
+            // Create new items
+            foreach ($request->order_items as $item) {
+                $medicalOrder->orderItems()->create([
+                    'inventory_id' => $item['inventory_id'] ?? null,
+                    'item_type' => $item['item_type'],
+                    'item_name' => $item['item_name'],
+                    'details' => $item['details'] ?? null,
+                    'dosage' => $item['dosage'] ?? null,
+                    'frequency' => $item['frequency'] ?? null,
+                    'route' => $item['route'] ?? null,
+                    'quantity_required' => $item['quantity_required'] ?? 1,
+                    'status' => $item['status'] ?? 'pending',
+                    'notes' => $item['notes'] ?? null,
+                ]);
+            }
+        }
+
+        $medicalOrder->load('orderItems');
+
+        // Check if the medical order has any items
+        if ($medicalOrder->orderItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Cannot process medical order with no items. Please add at least one item before processing.');
+        }
+
+        // Update the status to processed
+        $medicalOrder->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSED,
+        ]);
+
+        return redirect()->route('medical-orders.already-processed', $medicalOrder->id)
+            ->with('success', 'Medical order processed successfully.');
     }
 
     /**
      * Show the process page for a medical order.
      */
-    public function processPage(MedicalOrder $medicalOrder): Response
+    public function processPage(MedicalOrder $medicalOrder)
     {
         $this->authorize('update', $medicalOrder);
+
+        // If the order is already processed or completed, redirect to already processed page
+        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PENDING) {
+            return redirect()->route('medical-orders.already-processed', $medicalOrder);
+        }
+
         $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory']);
 
         $labPanels = \App\Models\LabPanel::where('is_active', true)
@@ -480,6 +525,81 @@ class MedicalOrderController extends Controller
     }
 
     /**
+     * Show the already processed page for a medical order.
+     */
+    public function alreadyProcessedPage(MedicalOrder $medicalOrder): Response
+    {
+        $this->authorize('view', $medicalOrder);
+        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.medicalRecord']);
+
+        $labPanels = \App\Models\LabPanel::where('is_active', true)
+            ->with(['labPanelItems.inventory'])
+            ->get()
+            ->map(function ($panel) {
+                return [
+                    'id' => $panel->id,
+                    'name' => $panel->name,
+                    'description' => $panel->description,
+                    'price' => $panel->price,
+                    'items' => $panel->labPanelItems->map(function ($item) {
+                        return [
+                            'id' => $item->inventory_id,
+                            'item_name' => $item->inventory->item_name ?? 'Unknown',
+                            'quantity_required' => $item->quantity_required,
+                            'notes' => $item->notes,
+                        ];
+                    }),
+                ];
+            });
+
+        $transformedOrder = [
+            'id' => $medicalOrder->id,
+            'patient_id' => $medicalOrder->patient_id,
+            'patient_name' => $medicalOrder->patient?->user?->name ?? 'Unknown Patient',
+            'staff_id' => $medicalOrder->staff_id,
+            'staff_name' => $medicalOrder->staff?->user?->name ?? 'Unknown Staff',
+            'order_details' => $medicalOrder->order_details,
+            'status' => $medicalOrder->status->value,
+            'status_label' => $medicalOrder->status->label(),
+            'priority' => $medicalOrder->priority->value,
+            'priority_label' => $medicalOrder->priority->label(),
+            'notes' => $medicalOrder->notes,
+            'ordered_at' => $medicalOrder->ordered_at->toDateString(),
+            'completed_at' => $medicalOrder->completed_at?->toDateString(),
+            'created_at' => $medicalOrder->created_at,
+            'updated_at' => $medicalOrder->updated_at,
+            'medical_record_id' => $medicalOrder->visit?->medicalRecord?->id,
+            'order_items' => $medicalOrder->orderItems->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'item_type' => $item->item_type,
+                    'item_name' => $item->item_name,
+                    'details' => $item->details,
+                    'dosage' => $item->dosage,
+                    'frequency' => $item->frequency,
+                    'route' => $item->route,
+                    'quantity_required' => $item->quantity_required,
+                    'selling_price' => $item->inventory?->selling_price,
+                    'status' => $item->status->value,
+                    'status_label' => $item->status->label(),
+                    'notes' => $item->notes,
+                    'completed_at' => $item->completed_at?->toDateString(),
+                    'inventory_item' => $item->inventory ? [
+                        'id' => $item->inventory->id,
+                        'item_name' => $item->inventory->item_name,
+                        'quantity' => $item->inventory->quantity,
+                    ] : null,
+                ];
+            }),
+        ];
+
+        return Inertia::render('MedicalOrders/AlreadyProcessed', [
+            'medicalOrder' => $transformedOrder,
+            'labPanels' => $labPanels,
+        ]);
+    }
+
+    /**
      * Show the complete process page for a medical order.
      */
     public function completePage(MedicalOrder $medicalOrder): Response
@@ -539,8 +659,10 @@ class MedicalOrderController extends Controller
     {
         $this->authorize('update', $medicalOrder);
 
-        $flowService = app(\App\Services\FlowService::class);
-        $flowService->completeMedicalOrder($medicalOrder->id);
+        $medicalOrder->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
+            'completed_at' => now(),
+        ]);
 
         return redirect()->route('medical-orders.show', $medicalOrder)->with('success', 'Medical order completed successfully.');
     }

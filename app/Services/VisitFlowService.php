@@ -10,26 +10,28 @@ use App\Models\MedicalOrder;
 use App\Models\MedicalRecord;
 use App\Models\Visit;
 
-class FlowService
+class VisitFlowService
 {
     /**
-     * Create a new class instance.
+     * Get the next status in the visit flow.
      */
-    public function __construct()
+    public function getNextStatus(string $currentStatus): ?string
     {
-        /**
-         * Workflow for Visit and Medical Order Processing:
-         * 1. Create Visit records using existing appointment data or independently.
-         * 2. Generate Medical Orders associated with the Visit records.
-         * 3. Assign staff members to Visits and Medical Orders.
-         * 4. Notify assigned staff to begin processing the Medical Orders.
-         * 5. Staff initiate processing by clicking the process button, updating status accordingly.
-         * 6. Notify Accounting staff upon processing completion.
-         * 7. Accounting staff mark as complete after payment, then generate invoices for the Medical Orders.
-         * 8. Finally, mark the Medical Orders as completed.
-         */
+        $statusFlow = [
+            Visit::STATUS_PENDING => Visit::STATUS_AWAITING_ASSIGNMENT,
+            Visit::STATUS_AWAITING_ASSIGNMENT => Visit::STATUS_ASSIGNED,
+            Visit::STATUS_ASSIGNED => Visit::STATUS_IN_PROGRESS,
+            Visit::STATUS_IN_PROGRESS => Visit::STATUS_COMPLETED,
+            Visit::STATUS_COMPLETED => null,
+            Visit::STATUS_CANCELLED => null,
+        ];
+
+        return $statusFlow[$currentStatus] ?? null;
     }
 
+    /**
+     * Create visits for the given appointment.
+     */
     public function createVisits(int $appointmentId): void
     {
         $appointment = Appointment::with('patient')->findOrFail($appointmentId);
@@ -39,11 +41,14 @@ class FlowService
             'appointment_id' => $appointment->id,
             'patient_id' => $appointment->patient_id,
             'visit_date_time' => $appointment->appointment_date_time,
-            'status' => 'pending',
+            'status' => Visit::STATUS_PENDING,
             'notes' => $appointment->reason_for_visit,
         ]);
     }
 
+    /**
+     * Generate medical orders for the given visit.
+     */
     public function generateMedicalOrders(int $visitId): void
     {
         $visit = Visit::with('patient')->findOrFail($visitId);
@@ -57,7 +62,7 @@ class FlowService
         MedicalOrder::create([
             'visit_id' => $visit->id,
             'patient_id' => $visit->patient_id,
-            'staff_id' => $visit->staff_id,
+            'staff_id' => $visit->staff_id, // Use the assigned staff
             'order_type' => MedicalOrderTypeEnum::LAB,
             'order_details' => 'Initial assessment and basic labs',
             'status' => MedicalOrderStatusEnum::PENDING,
@@ -67,6 +72,11 @@ class FlowService
         ]);
     }
 
+    /**
+     * Process the medical order.
+     *
+     * @throws \InvalidArgumentException
+     */
     public function processMedicalOrder(int $medicalOrderId): void
     {
         $medicalOrder = MedicalOrder::with('orderItems')->findOrFail($medicalOrderId);
@@ -84,22 +94,9 @@ class FlowService
         // Here you could add logic to notify staff, update inventory, etc.
     }
 
-    public function assignStaffToOrder(int $medicalOrderId, int $staffId): void
-    {
-        $medicalOrder = MedicalOrder::findOrFail($medicalOrderId);
-
-        $medicalOrder->update([
-            'staff_id' => $staffId,
-        ]);
-
-        // Also assign staff to the visit if not already assigned
-        if ($medicalOrder->visit && !$medicalOrder->visit->staff_id) {
-            $medicalOrder->visit->update([
-                'staff_id' => $staffId,
-            ]);
-        }
-    }
-
+    /**
+     * Complete the medical order and potentially the visit.
+     */
     public function completeMedicalOrder(int $medicalOrderId): void
     {
         $medicalOrder = MedicalOrder::findOrFail($medicalOrderId);
@@ -118,10 +115,10 @@ class FlowService
 
             if ($allOrdersCompleted) {
                 // Mark the visit as completed
-                $visit->update(['status' => 'completed']);
+                $visit->update(['status' => Visit::STATUS_COMPLETED]);
 
                 // Create medical record for the visit if it doesn't exist
-                if (!$visit->medicalRecord) {
+                if (! $visit->medicalRecord) {
                     $appointment = $visit->appointment;
                     // Generate diagnosis and treatment based on completed orders
                     $diagnosis = $this->generateDiagnosisFromOrders($visit);
@@ -142,7 +139,7 @@ class FlowService
     }
 
     /**
-     * Generate diagnosis based on completed medical orders
+     * Generate diagnosis based on completed medical orders.
      */
     private function generateDiagnosisFromOrders(Visit $visit): string
     {
@@ -166,7 +163,7 @@ class FlowService
     }
 
     /**
-     * Generate treatment information based on completed medical orders
+     * Generate treatment information based on completed medical orders.
      */
     private function generateTreatmentFromOrders(Visit $visit): string
     {
@@ -203,14 +200,14 @@ class FlowService
     }
 
     /**
-     * Generate notes based on completed medical orders
+     * Generate notes based on completed medical orders.
      */
     private function generateNotesFromOrders(Visit $visit): string
     {
         $completedOrders = $visit->medicalOrders()->where('status', MedicalOrderStatusEnum::COMPLETED)->get();
         $notes = [];
 
-        $notes[] = "Visit completed on " . $visit->visit_date_time->format('M j, Y \a\t g:i A');
+        $notes[] = 'Visit completed on '.$visit->visit_date_time->format('M j, Y \a\t g:i A');
 
         foreach ($completedOrders as $order) {
             $orderNotes = [];
@@ -235,5 +232,56 @@ class FlowService
         }
 
         return implode("\n\n", $notes);
+    }
+
+    /**
+     * Update the status of a visit.
+     */
+    public function updateVisitStatus(int $visitId, string $status): void
+    {
+        $visit = Visit::findOrFail($visitId);
+        $visit->update([
+            'status' => $status,
+        ]);
+
+        $visit->refresh();
+    }
+
+    /**
+     * Assign staff to process the visit via medical order.
+     */
+    public function assignStaffToProcessVisit(int $medicalOrderId, int $staffId): void
+    {
+        $medicalOrder = MedicalOrder::findOrFail($medicalOrderId);
+
+        $medicalOrder->update([
+            'staff_id' => $staffId,
+        ]);
+
+        // Also assign staff to the visit if not already assigned
+        if ($medicalOrder->visit && ! $medicalOrder->visit->staff_id) {
+            $medicalOrder->visit->update([
+                'staff_id' => $staffId,
+                'status' => Visit::STATUS_ASSIGNED,
+            ]);
+        }
+    }
+
+    /**
+     * Get visits awaiting assignment.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Visit>
+     */
+    public function getAwaitingToBeAssignVisits(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Visit::with(['patient.user', 'appointment', 'medicalOrders'])->get();
+    }
+
+    /**
+     * Notify staff that the visit is ready for assignment.
+     */
+    public function notifyStaffForAssignment(int $visitId): void
+    {
+        $this->updateVisitStatus($visitId, Visit::STATUS_AWAITING_ASSIGNMENT);
     }
 }

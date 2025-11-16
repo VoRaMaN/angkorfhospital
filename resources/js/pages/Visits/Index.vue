@@ -1,23 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -27,20 +11,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { assignProcess, create, edit, show, update } from '@/routes/visits';
+import { create, edit, show, update } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import {
-    Edit,
-    Eye,
-    Loader2,
-    Plus,
-    Search,
-    UserCheck,
-    X,
-} from 'lucide-vue-next';
-
-import { ref } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Edit, Eye, Plus, Search, X } from 'lucide-vue-next';
 
 interface Visit {
     id: number;
@@ -85,35 +59,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Modal state
-const showAssignModal = ref(false);
-const selectedVisit = ref<Visit | null>(null);
-
-// Form for assigning staff
-const assignForm = useForm({
-    staff_id: '',
-});
-
-// Functions
-const openAssignModal = (visit: Visit) => {
-    selectedVisit.value = visit;
-    assignForm.reset();
-    showAssignModal.value = true;
-};
-
-const assignVisit = () => {
-    if (!selectedVisit.value) return;
-
-    assignForm.patch(assignProcess(selectedVisit.value.id).url, {
-        onSuccess: () => {
-            showAssignModal.value = false;
-            selectedVisit.value = null;
-            // Refresh the page or update the list
-            window.location.reload();
-        },
-    });
-};
-
 const cancelVisit = (visit: Visit) => {
     if (confirm('Are you sure you want to cancel this visit?')) {
         router.patch(
@@ -131,12 +76,26 @@ const cancelVisit = (visit: Visit) => {
     }
 };
 
+const notifyStaff = (visit: Visit) => {
+    router.patch(`/visits/${visit.id}/notify-staff`, {}, {
+        onSuccess: () => {
+            window.location.reload();
+        },
+    });
+};
+
 const getStatusColor = (status: string) => {
     switch (status) {
         case 'pending':
             return 'bg-yellow-100 text-yellow-800';
+        case 'awaiting_assignment':
+            return 'bg-orange-100 text-orange-800';
+        case 'assigned':
+            return 'bg-purple-100 text-purple-800';
         case 'in_progress':
             return 'bg-blue-100 text-blue-800';
+        case 'awaiting_accountant':
+            return 'bg-cyan-100 text-cyan-800';
         case 'completed':
             return 'bg-green-100 text-green-800';
         case 'cancelled':
@@ -249,12 +208,11 @@ const getStatusColor = (status: string) => {
                                     </Button>
                                     <Button
                                         v-if="visit.status === 'pending'"
-                                        variant="default"
+                                        variant="outline"
                                         size="sm"
-                                        @click="openAssignModal(visit)"
+                                        @click="notifyStaff(visit)"
                                     >
-                                        <UserCheck class="size-4" />
-                                        Assign
+                                        Notify Staff
                                     </Button>
                                     <Button
                                         v-if="
@@ -283,59 +241,5 @@ const getStatusColor = (status: string) => {
                 </Table>
             </div>
         </div>
-
-        <!-- Assign Staff Modal -->
-        <Dialog v-model:open="showAssignModal">
-            <DialogContent class="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Assign Staff to Visit</DialogTitle>
-                    <DialogDescription>
-                        Select a staff member to assign to this visit. This will
-                        also initiate the medical order process.
-                    </DialogDescription>
-                </DialogHeader>
-                <div class="grid gap-4 py-4">
-                    <div class="grid grid-cols-4 items-center gap-4">
-                        <Label for="staff" class="text-right"> Staff </Label>
-                        <Select v-model="assignForm.staff_id">
-                            <SelectTrigger class="col-span-3">
-                                <SelectValue
-                                    placeholder="Select staff member"
-                                />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem
-                                    v-for="staff in props.staff"
-                                    :key="staff.id"
-                                    :value="staff.id.toString()"
-                                >
-                                    {{ staff.name }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        @click="showAssignModal = false"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        @click="assignVisit"
-                        :disabled="assignForm.processing"
-                    >
-                        <Loader2
-                            v-if="assignForm.processing"
-                            class="mr-2 h-4 w-4 animate-spin"
-                        />
-                        Assign & Process
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
     </AppLayout>
 </template>

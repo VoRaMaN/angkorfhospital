@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained('patients');
             $table->foreignId('staff_id')->nullable()->constrained('staff');
             $table->datetime('visit_date_time');
-            $table->enum('status', ['pending', 'in_progress', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'awaiting_assignment', 'assigned', 'in_progress', 'awaiting_accountant', 'completed', 'cancelled'])->default('pending');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

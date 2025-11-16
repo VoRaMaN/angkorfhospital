@@ -93,5 +93,4 @@ $user->givePermissionTo('view_billing');
 - Admins see everything (override in `isAllowed`).
 - Permissions are granular; roles bundle permissions.
 - Extend `NavItem` for roles if needed: `roles?: string | string[]`.
-- For guest pages, auth data is empty arrays.</content>
-<parameter name="filePath">/home/khid/development/offshore/draft/cyno/AUTH_REFERENCE.md
+- For guest pages, auth data is empty arrays.

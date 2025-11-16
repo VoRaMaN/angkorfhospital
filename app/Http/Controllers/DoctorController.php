@@ -91,46 +91,4 @@ class DoctorController extends Controller
             'patients' => $patients,
         ]);
     }
-
-    /**
-     * Show doctor's visits.
-     */
-    public function myVisits(): Response
-    {
-        $currentUser = auth()->user();
-
-        $visits = \App\Models\Visit::with(['patient.user', 'appointment', 'medicalOrders'])
-            ->whereHas('staff', function ($query) use ($currentUser) {
-                $query->where('user_id', $currentUser->id);
-            })
-            ->orderBy('visit_date_time', 'desc')
-            ->paginate(15);
-
-        // Transform visits for the frontend
-        $transformedVisits = $visits->getCollection()->map(function ($visit) {
-            return [
-                'id' => $visit->id,
-                'patient' => $visit->patient ? [
-                    'user' => $visit->patient->user ? [
-                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name.' '.$visit->patient->last_name),
-                    ] : ['name' => trim($visit->patient->first_name.' '.$visit->patient->last_name)],
-                ] : ['user' => ['name' => 'Unknown Patient']],
-                'appointment' => $visit->appointment,
-                'visit_date_time' => $visit->visit_date_time,
-                'status' => $visit->status,
-                'notes' => $visit->notes,
-                'created_at' => $visit->created_at,
-                'medical_orders' => $visit->medicalOrders->map(function ($order) {
-                    return [
-                        'id' => $order->id,
-                        'status' => $order->status->value,
-                    ];
-                }),
-            ];
-        });
-
-        return Inertia::render('Doctors/MyVisits', [
-            'visits' => $transformedVisits,
-        ]);
-    }
 }

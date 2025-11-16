@@ -10,6 +10,30 @@ class Visit extends Model
     /** @use HasFactory<\Database\Factories\VisitFactory> */
     use HasFactory;
 
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_AWAITING_ASSIGNMENT = 'awaiting_assignment';
+
+    public const STATUS_ASSIGNED = 'assigned';
+
+    public const STATUS_IN_PROGRESS = 'in_progress';
+
+    public const STATUS_AWAITING_ACCOUNTANT = 'awaiting_accountant';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUSES = [
+        self::STATUS_PENDING,
+        self::STATUS_AWAITING_ASSIGNMENT,
+        self::STATUS_ASSIGNED,
+        self::STATUS_IN_PROGRESS,
+        self::STATUS_AWAITING_ACCOUNTANT,
+        self::STATUS_COMPLETED,
+        self::STATUS_CANCELLED,
+    ];
+
     protected $fillable = [
         'appointment_id',
         'patient_id',

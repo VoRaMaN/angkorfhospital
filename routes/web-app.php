@@ -40,7 +40,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Doctors
     Route::get('doctors/my-appointments', [DoctorController::class, 'myAppointments'])->name('doctors.my-appointments');
     Route::get('doctors/my-patients', [DoctorController::class, 'myPatients'])->name('doctors.my-patients');
-    Route::get('doctors/my-visits', [DoctorController::class, 'myVisits'])->name('doctors.my-visits');
+    Route::get('doctors/my-visits', [VisitController::class, 'myVisits'])->name('doctors.my-visits');
+    Route::get('doctors/my-to-be-process-visits', [VisitController::class, 'myToBeProcessVisits'])->name('doctors.my-to-be-process-visits');
 
     // Inventory
     Route::resource('inventory', InventoryController::class);
@@ -53,7 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Medical Orders
     Route::resource('medical-orders', MedicalOrderController::class);
     Route::get('medical-orders/{medical_order}/process', [MedicalOrderController::class, 'processPage'])->name('medical-orders.process-page');
-    Route::patch('medical-orders/{medical_order}/process', [MedicalOrderController::class, 'process'])->name('medical-orders.process');
+    Route::get('medical-orders/{medical_order}/already-processed', [MedicalOrderController::class, 'alreadyProcessedPage'])->name('medical-orders.already-processed');
+    Route::patch('medical-orders/{medical_order}/process-with-update', [MedicalOrderController::class, 'processWithUpdate'])->name('medical-orders.process-with-update');
     Route::get('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'completePage'])->name('medical-orders.complete-page');
     Route::patch('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'complete'])->name('medical-orders.complete');
     Route::patch('medical-orders/{medical_order}/items/{item}/complete', [MedicalOrderController::class, 'completeItem'])->name('medical-orders.complete-item');
@@ -77,6 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Visits
     Route::resource('visits', VisitController::class);
     Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
+    Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');
 });
 
 require __DIR__.'/settings.php';
