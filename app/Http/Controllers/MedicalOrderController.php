@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMedicalOrderRequest;
 use App\Http\Requests\UpdateMedicalOrderRequest;
 use App\Models\MedicalOrder;
+use App\Services\MedicalOrderBillingService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -687,6 +688,81 @@ class MedicalOrderController extends Controller
         ]);
 
         return redirect()->route('medical-orders.show', $medicalOrder)->with('success', 'Medical order completed successfully.');
+    }
+
+    /**
+     * Process and bill a medical order.
+     */
+    public function processAndBill(MedicalOrder $medicalOrder): RedirectResponse
+    {
+        $this->authorize('update', $medicalOrder);
+
+        // Only allow processing if the order is pending or processed
+        if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
+            return redirect()->back()->with('error', 'This medical order cannot be processed for billing.');
+        }
+
+        $billingService = app(MedicalOrderBillingService::class);
+
+        // Check if order can be processed (sufficient inventory)
+        $canProcess = $billingService->canProcessOrder($medicalOrder);
+        if (! $canProcess['can_process']) {
+            $issues = implode(', ', $canProcess['issues']);
+
+            return redirect()->back()->with('error', "Cannot process order due to inventory issues: {$issues}");
+        }
+
+        try {
+            // Process the order and create billing
+            $billing = $billingService->processOrderAndCreateBilling(
+                $medicalOrder,
+                'Processed and billed on '.now()->format('Y-m-d H:i')
+            );
+
+            return redirect()->route('medical-orders.show', $medicalOrder)
+                ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to process medical order: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Get order cost breakdown.
+     */
+    public function getCostBreakdown(MedicalOrder $medicalOrder): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('view', $medicalOrder);
+
+        $billingService = app(MedicalOrderBillingService::class);
+        $breakdown = $billingService->getOrderCostBreakdown($medicalOrder);
+
+        return response()->json($breakdown);
+    }
+
+    /**
+     * Cancel a processed medical order and restore inventory.
+     */
+    public function cancelProcessed(MedicalOrder $medicalOrder): RedirectResponse
+    {
+        $this->authorize('update', $medicalOrder);
+
+        $billingService = app(MedicalOrderBillingService::class);
+
+        try {
+            $result = $billingService->cancelProcessedOrder(
+                $medicalOrder,
+                'Cancelled via web interface'
+            );
+
+            if ($result) {
+                return redirect()->route('medical-orders.show', $medicalOrder)
+                    ->with('success', 'Medical order cancelled successfully. Inventory restored.');
+            } else {
+                return redirect()->back()->with('error', 'Failed to cancel medical order. Only completed orders can be cancelled.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to cancel medical order: '.$e->getMessage());
+        }
     }
 
     /**

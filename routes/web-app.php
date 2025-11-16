@@ -60,6 +60,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'completePage'])->name('medical-orders.complete-page');
     Route::patch('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'complete'])->name('medical-orders.complete');
     Route::patch('medical-orders/{medical_order}/items/{item}/complete', [MedicalOrderController::class, 'completeItem'])->name('medical-orders.complete-item');
+    Route::patch('medical-orders/{medical_order}/process-and-bill', [MedicalOrderController::class, 'processAndBill'])->name('medical-orders.process-and-bill');
+    Route::get('medical-orders/{medical_order}/cost-breakdown', [MedicalOrderController::class, 'getCostBreakdown'])->name('medical-orders.cost-breakdown');
+    Route::patch('medical-orders/{medical_order}/cancel-processed', [MedicalOrderController::class, 'cancelProcessed'])->name('medical-orders.cancel-processed');
 
     // Medical Records
     Route::resource('medical-records', MedicalRecordController::class);
