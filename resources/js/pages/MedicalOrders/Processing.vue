@@ -11,9 +11,9 @@ import {
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
+    confirmProcessed,
     edit,
     index,
-    processAndBill as processAndBillRoute,
 } from '@/routes/medical-orders';
 import { show as showMedicalRecord } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
@@ -259,7 +259,7 @@ const orderSummary = computed(() => {
 
 const processOrder = () => {
     if (confirm('Are you sure you want to mark this medical order as processed?')) {
-        router.patch(processAndBillRoute(props.medicalOrder.id).url, {}, {
+        router.patch(confirmProcessed(props.medicalOrder.id).url, {}, {
             onSuccess: () => {
                 // Redirect or refresh handled by Inertia
             },

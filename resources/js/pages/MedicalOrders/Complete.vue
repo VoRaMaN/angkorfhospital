@@ -115,7 +115,7 @@ const getStatusColor = (status: string) => {
         pending: 'bg-yellow-100 text-yellow-800',
         processing: 'bg-blue-100 text-blue-800',
         processed: 'bg-orange-100 text-orange-800',
-        complete: 'bg-green-100 text-green-800',
+        completed: 'bg-green-100 text-green-800',
         cancel: 'bg-gray-100 text-gray-800',
         rejected: 'bg-red-100 text-red-800',
     };
@@ -182,7 +182,7 @@ const orderSummary = computed(() => {
     };
 
     medicalOrder.value.order_items.forEach((item) => {
-        if (item.status === 'complete') summary.completed++;
+        if (item.status === 'completed') summary.completed++;
         else summary.pending++;
 
         if (item.item_type === 'lab') summary.lab++;
@@ -248,7 +248,7 @@ const completeAllItems = async () => {
     showCompleteAllDialog.value = false;
 
     const pendingItems = medicalOrder.value.order_items.filter(
-        (item) => item.status !== 'complete',
+        (item) => item.status !== 'completed',
     );
     let completedCount = 0;
 
@@ -272,10 +272,10 @@ const completeAllItems = async () => {
                             if (itemIndex !== -1) {
                                 medicalOrder.value.order_items[
                                     itemIndex
-                                ].status = 'complete';
+                                ].status = 'completed';
                                 medicalOrder.value.order_items[
                                     itemIndex
-                                ].status_label = 'Complete';
+                                ].status_label = 'Completed';
                                 medicalOrder.value.order_items[
                                     itemIndex
                                 ].completed_at = new Date()
@@ -332,9 +332,9 @@ const completeItemAction = () => {
                     );
                     if (itemIndex !== -1) {
                         medicalOrder.value.order_items[itemIndex].status =
-                            'complete';
+                            'completed';
                         medicalOrder.value.order_items[itemIndex].status_label =
-                            'Complete';
+                            'Completed';
                         medicalOrder.value.order_items[itemIndex].completed_at =
                             new Date()
                                 .toISOString()
@@ -588,7 +588,7 @@ const completeItemAction = () => {
                                         <Badge :class="getStatusColor(item.status)">
                                             {{ item.status_label }}
                                         </Badge>
-                                        <Button v-if="item.status !== 'complete'" size="sm"
+                                        <Button v-if="item.status !== 'completed'" size="sm"
                                             @click="confirmCompleteItem(item)" class="ml-2" :disabled="completingItem">
                                             <CheckCircle class="mr-1 size-4" />
                                             {{

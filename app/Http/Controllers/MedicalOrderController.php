@@ -732,7 +732,7 @@ class MedicalOrderController extends Controller
 
             // Update the status to processed
             $medicalOrder->update([
-                'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSED,
+                'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
             ]);
 
             return redirect()->route('medical-orders.show', $medicalOrder)
@@ -740,6 +740,27 @@ class MedicalOrderController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to process medical order: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Confirm a medical order as processed (without billing).
+     */
+    public function confirmProcessed(MedicalOrder $medicalOrder): RedirectResponse
+    {
+        $this->authorize('update', $medicalOrder);
+
+        // Only allow confirming if the order is processing
+        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PROCESSING) {
+            return redirect()->back()->with('error', 'This medical order cannot be confirmed as processed.');
+        }
+
+        // Update the status to processed
+        $medicalOrder->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSED,
+        ]);
+
+        return redirect()->route('medical-orders.complete-page', $medicalOrder)
+            ->with('success', 'Medical order confirmed as processed successfully.');
     }
 
     /**
