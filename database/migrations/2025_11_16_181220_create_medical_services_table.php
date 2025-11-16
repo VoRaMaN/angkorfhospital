@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('files', function (Blueprint $table) {
+        Schema::create('medical_services', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('path');
-            $table->string('mime_type');
-            $table->unsignedBigInteger('size');
+            $table->text('description')->nullable();
+            $table->enum('type', ['procedure', 'imaging', 'consultation', 'therapy']);
+            $table->decimal('price', 10, 2)->default(0);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('files');
+        Schema::dropIfExists('medical_services');
     }
 };

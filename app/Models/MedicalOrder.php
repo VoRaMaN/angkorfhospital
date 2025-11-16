@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\MedicalOrderPriorityEnum;
 use App\Enums\MedicalOrderStatusEnum;
-use App\Enums\MedicalOrderTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LabPanelController;
 use App\Http\Controllers\MedicalOrderController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\MedicalServiceController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientFileController;
 use App\Http\Controllers\StaffController;
@@ -62,6 +63,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Medical Records
     Route::resource('medical-records', MedicalRecordController::class);
+
+    // Medical Services
+    Route::resource('medical-services', MedicalServiceController::class);
 
     // Patients
     Route::resource('patients', PatientController::class);

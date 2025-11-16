@@ -280,12 +280,13 @@ const orderSummary = computed(() => {
 </script>
 
 <template>
-
     <Head title="Medical Order Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div v-if="hasPermission('view_medical_orders')"
-            class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+        <div
+            v-if="hasPermission('view_medical_orders')"
+            class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a :href="index().url">
@@ -300,35 +301,54 @@ const orderSummary = computed(() => {
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
-                    <Button v-if="medicalOrder.medical_record_id" variant="outline" as-child>
-                        <Link :href="showMedicalRecord(
-                            medicalOrder.medical_record_id,
-                        ).url
-                            ">
-                        <FileText class="mr-2 size-4" />
-                        View Medical Record
+                    <Button
+                        v-if="medicalOrder.medical_record_id"
+                        variant="outline"
+                        as-child
+                    >
+                        <Link
+                            :href="
+                                showMedicalRecord(
+                                    medicalOrder.medical_record_id,
+                                ).url
+                            "
+                        >
+                            <FileText class="mr-2 size-4" />
+                            View Medical Record
                         </Link>
                     </Button>
-                    <Button v-if="
-                        medicalOrder.status === 'pending' &&
-                        hasPermission('process_medical_orders')
-                    " variant="default" @click="confirmProcess">
+                    <Button
+                        v-if="
+                            medicalOrder.status === 'pending' &&
+                            hasPermission('process_medical_orders')
+                        "
+                        variant="default"
+                        @click="confirmProcess"
+                    >
                         <Play class="mr-2 size-4" />
                         Confirm Process
                     </Button>
-                    <Button v-if="
-                        medicalOrder.status === 'processed' &&
-                        hasPermission('complete_medical_orders')
-                    " variant="default" as-child>
+                    <Button
+                        v-if="
+                            medicalOrder.status === 'processed' &&
+                            hasPermission('complete_medical_orders')
+                        "
+                        variant="default"
+                        as-child
+                    >
                         <Link :href="completeRoute(medicalOrder.id).url">
-                        <CheckCircle class="mr-2 size-4" />
-                        Complete Order
+                            <CheckCircle class="mr-2 size-4" />
+                            Complete Order
                         </Link>
                     </Button>
-                    <Button v-if="hasPermission('edit_medical_orders')" variant="outline" as-child>
+                    <Button
+                        v-if="hasPermission('edit_medical_orders')"
+                        variant="outline"
+                        as-child
+                    >
                         <Link :href="edit(medicalOrder.id).url">
-                        <Edit class="size-4" />
-                        Edit
+                            <Edit class="size-4" />
+                            Edit
                         </Link>
                     </Button>
                 </div>
@@ -339,13 +359,17 @@ const orderSummary = computed(() => {
                 <Card>
                     <CardHeader>
                         <CardTitle>Order Information</CardTitle>
-                        <CardDescription>Basic details about this medical
-                            order</CardDescription>
+                        <CardDescription
+                            >Basic details about this medical
+                            order</CardDescription
+                        >
                     </CardHeader>
                     <CardContent>
                         <div class="grid gap-6 md:grid-cols-2">
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Patient
                                 </dt>
                                 <dd class="text-sm font-medium">
@@ -354,7 +378,9 @@ const orderSummary = computed(() => {
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Ordering Staff
                                 </dt>
                                 <dd class="text-sm font-medium">
@@ -363,33 +389,45 @@ const orderSummary = computed(() => {
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Status
                                 </dt>
                                 <dd class="text-sm">
-                                    <Badge :class="getStatusColor(medicalOrder.status)
-                                        ">
+                                    <Badge
+                                        :class="
+                                            getStatusColor(medicalOrder.status)
+                                        "
+                                    >
                                         {{ medicalOrder.status_label }}
                                     </Badge>
                                 </dd>
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Priority
                                 </dt>
                                 <dd class="text-sm">
-                                    <Badge :class="getPriorityColor(
-                                        medicalOrder.priority,
-                                    )
-                                        ">
+                                    <Badge
+                                        :class="
+                                            getPriorityColor(
+                                                medicalOrder.priority,
+                                            )
+                                        "
+                                    >
                                         {{ medicalOrder.priority_label }}
                                     </Badge>
                                 </dd>
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Ordered At
                                 </dt>
                                 <dd class="text-sm">
@@ -397,8 +435,13 @@ const orderSummary = computed(() => {
                                 </dd>
                             </div>
 
-                            <div v-if="medicalOrder.completed_at" class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                            <div
+                                v-if="medicalOrder.completed_at"
+                                class="space-y-2"
+                            >
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Completed At
                                 </dt>
                                 <dd class="text-sm">
@@ -407,7 +450,9 @@ const orderSummary = computed(() => {
                             </div>
 
                             <div class="space-y-2 md:col-span-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Order Details
                                 </dt>
                                 <dd class="text-sm">
@@ -415,8 +460,13 @@ const orderSummary = computed(() => {
                                 </dd>
                             </div>
 
-                            <div v-if="medicalOrder.notes" class="space-y-2 md:col-span-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                            <div
+                                v-if="medicalOrder.notes"
+                                class="space-y-2 md:col-span-2"
+                            >
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Notes
                                 </dt>
                                 <dd class="text-sm">
@@ -428,41 +478,67 @@ const orderSummary = computed(() => {
                 </Card>
 
                 <!-- Order Summary -->
-                <Card v-if="orderSummary.total > 0"
-                    class="border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20">
+                <Card
+                    v-if="orderSummary.total > 0"
+                    class="border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20"
+                >
                     <CardContent class="pt-6">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <Package class="size-5 text-green-600 dark:text-green-400" />
-                                <span class="font-medium text-green-800 dark:text-green-200">Order Summary</span>
+                                <Package
+                                    class="size-5 text-green-600 dark:text-green-400"
+                                />
+                                <span
+                                    class="font-medium text-green-800 dark:text-green-200"
+                                    >Order Summary</span
+                                >
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-green-800 dark:text-green-200">
+                                <div
+                                    class="text-2xl font-bold text-green-800 dark:text-green-200"
+                                >
                                     {{ orderSummary.total }}
                                 </div>
-                                <div class="text-sm text-green-600 dark:text-green-400">
+                                <div
+                                    class="text-sm text-green-600 dark:text-green-400"
+                                >
                                     {{ formatPrice(orderTotalPrice) }}
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3 grid grid-cols-5 gap-4 text-sm">
-                            <div v-if="orderSummary.lab > 0" class="flex items-center gap-1">
+                            <div
+                                v-if="orderSummary.lab > 0"
+                                class="flex items-center gap-1"
+                            >
                                 <FlaskConical class="size-4 text-blue-600" />
                                 <span>{{ orderSummary.lab }} Lab</span>
                             </div>
-                            <div v-if="orderSummary.rx_medicine > 0" class="flex items-center gap-1">
+                            <div
+                                v-if="orderSummary.rx_medicine > 0"
+                                class="flex items-center gap-1"
+                            >
                                 <Pill class="size-4 text-purple-600" />
                                 <span>{{ orderSummary.rx_medicine }} RX</span>
                             </div>
-                            <div v-if="orderSummary.procedure > 0" class="flex items-center gap-1">
+                            <div
+                                v-if="orderSummary.procedure > 0"
+                                class="flex items-center gap-1"
+                            >
                                 <Syringe class="size-4 text-orange-600" />
                                 <span>{{ orderSummary.procedure }} Proc</span>
                             </div>
-                            <div v-if="orderSummary.imaging > 0" class="flex items-center gap-1">
+                            <div
+                                v-if="orderSummary.imaging > 0"
+                                class="flex items-center gap-1"
+                            >
                                 <Scan class="size-4 text-red-600" />
                                 <span>{{ orderSummary.imaging }} Imaging</span>
                             </div>
-                            <div v-if="orderSummary.supply > 0" class="flex items-center gap-1">
+                            <div
+                                v-if="orderSummary.supply > 0"
+                                class="flex items-center gap-1"
+                            >
                                 <Package class="size-4 text-gray-600" />
                                 <span>{{ orderSummary.supply }} Supply</span>
                             </div>
@@ -473,30 +549,46 @@ const orderSummary = computed(() => {
                 <!-- Order Items Card -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Order Items ({{
-                            medicalOrder.order_items.length
-                        }})</CardTitle>
-                        <CardDescription>Lab tests, procedures, imaging, and
-                            supplies</CardDescription>
+                        <CardTitle
+                            >Order Items ({{
+                                medicalOrder.order_items.length
+                            }})</CardTitle
+                        >
+                        <CardDescription
+                            >Lab tests, procedures, imaging, and
+                            supplies</CardDescription
+                        >
                     </CardHeader>
                     <CardContent>
-                        <div v-if="medicalOrder.order_items.length === 0"
-                            class="py-12 text-center text-muted-foreground">
+                        <div
+                            v-if="medicalOrder.order_items.length === 0"
+                            class="py-12 text-center text-muted-foreground"
+                        >
                             <p>No items in this order</p>
                         </div>
 
                         <div v-else class="space-y-6">
-                            <div v-for="[type, items] in Object.entries(
-                                groupedOrderItems,
-                            )" :key="type" class="space-y-3">
+                            <div
+                                v-for="[type, items] in Object.entries(
+                                    groupedOrderItems,
+                                )"
+                                :key="type"
+                                class="space-y-3"
+                            >
                                 <!-- Group Header -->
-                                <div class="flex items-center gap-3 border-b pb-2">
-                                    <component :is="getItemTypeIcon(
-                                        items[0]?.panelName
-                                            ? 'lab'
-                                            : type,
-                                    )
-                                        " class="size-5 text-primary" />
+                                <div
+                                    class="flex items-center gap-3 border-b pb-2"
+                                >
+                                    <component
+                                        :is="
+                                            getItemTypeIcon(
+                                                items[0]?.panelName
+                                                    ? 'lab'
+                                                    : type,
+                                            )
+                                        "
+                                        class="size-5 text-primary"
+                                    />
                                     <h3 class="text-lg font-semibold">
                                         {{
                                             getItemTypeDisplayName(
@@ -505,33 +597,56 @@ const orderSummary = computed(() => {
                                             )
                                         }}
                                     </h3>
-                                    <Badge variant="secondary" class="ml-auto">{{ items.length }}</Badge>
+                                    <Badge
+                                        variant="secondary"
+                                        class="ml-auto"
+                                        >{{ items.length }}</Badge
+                                    >
                                 </div>
 
                                 <!-- Items in this group -->
                                 <div class="ml-8 space-y-2">
-                                    <div v-for="itemData in items" :key="itemData.item.id"
-                                        class="overflow-hidden rounded-lg border">
+                                    <div
+                                        v-for="itemData in items"
+                                        :key="itemData.item.id"
+                                        class="overflow-hidden rounded-lg border"
+                                    >
                                         <!-- Collapsible Header -->
-                                        <div class="flex cursor-pointer items-center justify-between p-4 transition-colors hover:bg-muted/50"
+                                        <div
+                                            class="flex cursor-pointer items-center justify-between p-4 transition-colors hover:bg-muted/50"
                                             @click="
                                                 toggleItemExpansion(
                                                     itemData.item.id,
                                                 )
-                                                ">
-                                            <div class="flex items-center gap-3">
-                                                <component :is="getItemTypeIcon(
-                                                    itemData.item
-                                                        .item_type,
-                                                )
-                                                    " class="size-6 text-primary" />
-                                                <div>
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="font-medium">{{
+                                            "
+                                        >
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
+                                                <component
+                                                    :is="
+                                                        getItemTypeIcon(
                                                             itemData.item
-                                                                .item_name
-                                                        }}</span>
-                                                        <Badge variant="outline" class="text-xs">
+                                                                .item_type,
+                                                        )
+                                                    "
+                                                    class="size-6 text-primary"
+                                                />
+                                                <div>
+                                                    <div
+                                                        class="flex items-center gap-2"
+                                                    >
+                                                        <span
+                                                            class="font-medium"
+                                                            >{{
+                                                                itemData.item
+                                                                    .item_name
+                                                            }}</span
+                                                        >
+                                                        <Badge
+                                                            variant="outline"
+                                                            class="text-xs"
+                                                        >
                                                             {{
                                                                 getItemTypeLabel(
                                                                     itemData
@@ -540,19 +655,27 @@ const orderSummary = computed(() => {
                                                                 )
                                                             }}
                                                         </Badge>
-                                                        <Badge v-if="
-                                                            hasAdditionalInfo(
-                                                                itemData.item,
-                                                            )
-                                                        " variant="secondary" class="text-xs">
+                                                        <Badge
+                                                            v-if="
+                                                                hasAdditionalInfo(
+                                                                    itemData.item,
+                                                                )
+                                                            "
+                                                            variant="secondary"
+                                                            class="text-xs"
+                                                        >
                                                             Has Details
                                                         </Badge>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-3">
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
                                                 <div class="text-right">
-                                                    <div class="text-sm font-medium">
+                                                    <div
+                                                        class="text-sm font-medium"
+                                                    >
                                                         {{
                                                             formatPrice(
                                                                 getItemPrice(
@@ -561,11 +684,14 @@ const orderSummary = computed(() => {
                                                             )
                                                         }}
                                                     </div>
-                                                    <div v-if="
-                                                        itemData.item
-                                                            .quantity_required >
-                                                        1
-                                                    " class="text-xs text-muted-foreground">
+                                                    <div
+                                                        v-if="
+                                                            itemData.item
+                                                                .quantity_required >
+                                                            1
+                                                        "
+                                                        class="text-xs text-muted-foreground"
+                                                    >
                                                         {{
                                                             itemData.item
                                                                 .quantity_required
@@ -575,97 +701,160 @@ const orderSummary = computed(() => {
                                                             formatPrice(
                                                                 itemData.item
                                                                     .selling_price ||
-                                                                0,
+                                                                    0,
                                                             )
                                                         }}
                                                     </div>
                                                 </div>
-                                                <Badge :class="getStatusColor(
-                                                    itemData.item
-                                                        .status,
-                                                )
-                                                    ">
+                                                <Badge
+                                                    :class="
+                                                        getStatusColor(
+                                                            itemData.item
+                                                                .status,
+                                                        )
+                                                    "
+                                                >
                                                     {{
                                                         itemData.item
                                                             .status_label
                                                     }}
                                                 </Badge>
-                                                <component :is="expandedItems.has(
-                                                    itemData.item.id,
-                                                )
-                                                    ? ChevronDown
-                                                    : ChevronRight
-                                                    " class="size-4 text-muted-foreground" />
+                                                <component
+                                                    :is="
+                                                        expandedItems.has(
+                                                            itemData.item.id,
+                                                        )
+                                                            ? ChevronDown
+                                                            : ChevronRight
+                                                    "
+                                                    class="size-4 text-muted-foreground"
+                                                />
                                             </div>
                                         </div>
 
                                         <!-- Collapsible Content -->
-                                        <div v-if="
-                                            expandedItems.has(
-                                                itemData.item.id,
-                                            )
-                                        " class="space-y-3 border-t bg-muted/20 px-4 py-3">
+                                        <div
+                                            v-if="
+                                                expandedItems.has(
+                                                    itemData.item.id,
+                                                )
+                                            "
+                                            class="space-y-3 border-t bg-muted/20 px-4 py-3"
+                                        >
                                             <!-- Details -->
-                                            <div v-if="itemData.item.details" class="text-sm">
-                                                <span class="text-muted-foreground">Details:</span>
+                                            <div
+                                                v-if="itemData.item.details"
+                                                class="text-sm"
+                                            >
+                                                <span
+                                                    class="text-muted-foreground"
+                                                    >Details:</span
+                                                >
                                                 <p class="mt-1">
                                                     {{ itemData.item.details }}
                                                 </p>
                                             </div>
 
                                             <!-- Medical Details -->
-                                            <div v-if="
-                                                itemData.item.dosage ||
-                                                itemData.item.frequency ||
-                                                itemData.item.route
-                                            " class="grid gap-4 text-sm md:grid-cols-3">
-                                                <div v-if="itemData.item.dosage">
-                                                    <span class="text-muted-foreground">Dosage:</span>
-                                                    <span class="ml-1 font-medium">{{
-                                                        itemData.item.dosage
-                                                    }}</span>
+                                            <div
+                                                v-if="
+                                                    itemData.item.dosage ||
+                                                    itemData.item.frequency ||
+                                                    itemData.item.route
+                                                "
+                                                class="grid gap-4 text-sm md:grid-cols-3"
+                                            >
+                                                <div
+                                                    v-if="itemData.item.dosage"
+                                                >
+                                                    <span
+                                                        class="text-muted-foreground"
+                                                        >Dosage:</span
+                                                    >
+                                                    <span
+                                                        class="ml-1 font-medium"
+                                                        >{{
+                                                            itemData.item.dosage
+                                                        }}</span
+                                                    >
                                                 </div>
-                                                <div v-if="
-                                                    itemData.item.frequency
-                                                ">
-                                                    <span class="text-muted-foreground">Frequency:</span>
-                                                    <span class="ml-1 font-medium">{{
-                                                        itemData.item
-                                                            .frequency
-                                                    }}</span>
+                                                <div
+                                                    v-if="
+                                                        itemData.item.frequency
+                                                    "
+                                                >
+                                                    <span
+                                                        class="text-muted-foreground"
+                                                        >Frequency:</span
+                                                    >
+                                                    <span
+                                                        class="ml-1 font-medium"
+                                                        >{{
+                                                            itemData.item
+                                                                .frequency
+                                                        }}</span
+                                                    >
                                                 </div>
                                                 <div v-if="itemData.item.route">
-                                                    <span class="text-muted-foreground">Route:</span>
-                                                    <span class="ml-1 font-medium">{{
-                                                        itemData.item.route
-                                                    }}</span>
+                                                    <span
+                                                        class="text-muted-foreground"
+                                                        >Route:</span
+                                                    >
+                                                    <span
+                                                        class="ml-1 font-medium"
+                                                        >{{
+                                                            itemData.item.route
+                                                        }}</span
+                                                    >
                                                 </div>
                                             </div>
 
                                             <!-- Quantity & Inventory -->
-                                            <div class="flex items-center gap-6 text-sm">
+                                            <div
+                                                class="flex items-center gap-6 text-sm"
+                                            >
                                                 <div>
-                                                    <span class="text-muted-foreground">Quantity:</span>
-                                                    <span class="ml-1 font-medium">{{
-                                                        itemData.item
-                                                            .quantity_required
-                                                    }}</span>
+                                                    <span
+                                                        class="text-muted-foreground"
+                                                        >Quantity:</span
+                                                    >
+                                                    <span
+                                                        class="ml-1 font-medium"
+                                                        >{{
+                                                            itemData.item
+                                                                .quantity_required
+                                                        }}</span
+                                                    >
                                                 </div>
-                                                <div v-if="
-                                                    itemData.item
-                                                        .completed_at
-                                                ">
-                                                    <span class="text-muted-foreground">Completed:</span>
-                                                    <span class="ml-1 font-medium">{{
+                                                <div
+                                                    v-if="
                                                         itemData.item
                                                             .completed_at
-                                                    }}</span>
+                                                    "
+                                                >
+                                                    <span
+                                                        class="text-muted-foreground"
+                                                        >Completed:</span
+                                                    >
+                                                    <span
+                                                        class="ml-1 font-medium"
+                                                        >{{
+                                                            itemData.item
+                                                                .completed_at
+                                                        }}</span
+                                                    >
                                                 </div>
                                             </div>
 
                                             <!-- Notes -->
-                                            <div v-if="itemData.item.notes" class="text-sm">
-                                                <span class="text-muted-foreground">Notes:</span>
+                                            <div
+                                                v-if="itemData.item.notes"
+                                                class="text-sm"
+                                            >
+                                                <span
+                                                    class="text-muted-foreground"
+                                                    >Notes:</span
+                                                >
                                                 <p class="mt-1 italic">
                                                     {{ itemData.item.notes }}
                                                 </p>
@@ -686,7 +875,9 @@ const orderSummary = computed(() => {
                     <CardContent>
                         <div class="grid gap-4 md:grid-cols-2">
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Created At
                                 </dt>
                                 <dd class="text-sm">
@@ -699,7 +890,9 @@ const orderSummary = computed(() => {
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Last Updated
                                 </dt>
                                 <dd class="text-sm">

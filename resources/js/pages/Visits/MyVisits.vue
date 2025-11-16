@@ -31,8 +31,8 @@ import {
     UserCheck,
 } from 'lucide-vue-next';
 
-import { computed, ref } from 'vue';
 import SearchableSelect from '@/components/SearchableSelect.vue';
+import { computed, ref } from 'vue';
 
 interface Visit {
     id: number;
@@ -79,7 +79,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const staffOptions = computed(() =>
-    props.staff.map(s => ({ value: s.id.toString(), label: s.name }))
+    props.staff.map((s) => ({ value: s.id.toString(), label: s.name })),
 );
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -179,7 +179,10 @@ const getStatusColor = (status: string) => {
                                     />
                                     <div>
                                         <div class="font-medium">
-                                            {{ visit.patient?.user?.name || 'Unknown Patient' }}
+                                            {{
+                                                visit.patient?.user?.name ||
+                                                'Unknown Patient'
+                                            }}
                                         </div>
                                         <div
                                             v-if="visit.appointment"
@@ -234,7 +237,10 @@ const getStatusColor = (status: string) => {
                                         </Link>
                                     </Button>
                                     <Button
-                                        v-if="visit.status === 'awaiting_assignment'"
+                                        v-if="
+                                            visit.status ===
+                                            'awaiting_assignment'
+                                        "
                                         variant="outline"
                                         size="sm"
                                         class="border-blue-600 text-blue-600"

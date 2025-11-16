@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -21,7 +22,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import SearchableSelect from '@/components/SearchableSelect.vue';
 import { index, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -158,12 +158,37 @@ const form = useForm<{
 
 const patientValue = computed({
     get: () => form.patient_id?.toString() || 'null',
-    set: (value) => { form.patient_id = value === 'null' ? null : Number(value); }
+    set: (value) => {
+        form.patient_id = value === 'null' ? null : Number(value);
+    },
 });
 
 const staffValue = computed({
     get: () => form.staff_id?.toString() || 'null',
-    set: (value) => { form.staff_id = value === 'null' ? null : Number(value); }
+    set: (value) => {
+        form.staff_id = value === 'null' ? null : Number(value);
+    },
+});
+
+const patientOptions = computed(() => {
+    const base = [{ value: 'null', label: 'None' }];
+    if (!props.patients) return base;
+    return [
+        ...base,
+        ...props.patients.map((p) => ({
+            value: p.id.toString(),
+            label: p.name,
+        })),
+    ];
+});
+
+const staffOptions = computed(() => {
+    const base = [{ value: 'null', label: 'None' }];
+    if (!props.staff) return base;
+    return [
+        ...base,
+        ...props.staff.map((s) => ({ value: s.id.toString(), label: s.name })),
+    ];
 });
 
 const submitForm = () => {

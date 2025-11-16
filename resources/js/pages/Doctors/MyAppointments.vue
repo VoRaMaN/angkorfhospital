@@ -164,12 +164,17 @@ const cancelStatusUpdate = () => {
                     </TableHeader>
                     <TableBody>
                         <TableRow v-if="appointments.length === 0">
-                            <TableCell colspan="6" class="text-center py-8">
+                            <TableCell colspan="6" class="py-8 text-center">
                                 <div class="flex flex-col items-center gap-2">
-                                    <Calendar class="h-8 w-8 text-muted-foreground" />
-                                    <div class="text-lg font-medium">No appointments scheduled</div>
+                                    <Calendar
+                                        class="h-8 w-8 text-muted-foreground"
+                                    />
+                                    <div class="text-lg font-medium">
+                                        No appointments scheduled
+                                    </div>
                                     <div class="text-sm text-muted-foreground">
-                                        You don't have any appointments scheduled at this time.
+                                        You don't have any appointments
+                                        scheduled at this time.
                                     </div>
                                 </div>
                             </TableCell>

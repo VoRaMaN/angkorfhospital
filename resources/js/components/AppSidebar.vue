@@ -43,6 +43,7 @@ import {
 import { index as labPanelIndex } from '@/routes/lab-panels';
 import { index as medicalOrdersIndex } from '@/routes/medical-orders';
 import { index as medicalRecordsIndex } from '@/routes/medical-records';
+import { index as medicalServicesIndex } from '@/routes/medical-services';
 import { index as patientFilesIndex } from '@/routes/patient-files';
 import { index as patientsIndex } from '@/routes/patients';
 import { index as rolesIndex } from '@/routes/settings/roles';
@@ -51,8 +52,8 @@ import { index as staffFilesIndex } from '@/routes/staff-files';
 import { index as visitsIndex } from '@/routes/visits';
 
 import { useAuth } from '@/composables/useAuth';
-import { computed, ref, onMounted, nextTick } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 import doctor from '@/routes/doctors';
 
@@ -98,6 +99,12 @@ const patientCareNavItems = computed(() => [
         href: patientsIndex().url,
         icon: Heart,
         permissions: 'view_patients',
+    },
+    {
+        title: 'Medical Services',
+        href: medicalServicesIndex().url,
+        icon: ClipboardList,
+        permissions: 'view_medical_services',
     },
     {
         title: 'Medical Records',
@@ -214,9 +221,14 @@ onMounted(() => {
     router.on('success', () => {
         nextTick(() => {
             if (sidebarContentRef.value && sidebarContentRef.value.$el) {
-                const activeItem = sidebarContentRef.value.$el.querySelector('[data-active="true"]') as HTMLElement;
+                const activeItem = sidebarContentRef.value.$el.querySelector(
+                    '[data-active="true"]',
+                ) as HTMLElement;
                 if (activeItem) {
-                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    activeItem.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                    });
                 }
             }
         });
@@ -276,24 +288,33 @@ const footerNavItems: NavItem[] = [];
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="dashboard()">
-                        <AppLogo />
+                            <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarHeader>
 
-        <SidebarContent ref="sidebarContentRef"
-            class="scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-transparent scrollbar-thumb-rounded hover:scrollbar-thumb-slate-500 dark:scrollbar-thumb-slate-600 dark:hover:scrollbar-thumb-slate-500">
+        <SidebarContent
+            ref="sidebarContentRef"
+            class="scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-transparent scrollbar-thumb-rounded hover:scrollbar-thumb-slate-500 dark:scrollbar-thumb-slate-600 dark:hover:scrollbar-thumb-slate-500"
+        >
             <!-- Core Operations -->
             <SidebarGroup class="px-2 py-0">
                 <SidebarGroupLabel>Core Operations</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredCoreNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredCoreNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -304,11 +325,18 @@ const footerNavItems: NavItem[] = [];
             <SidebarGroup class="px-2 py-0" v-if="showDoctorsSection">
                 <SidebarGroupLabel>Doctors</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredDoctorNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredDoctorNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -319,11 +347,18 @@ const footerNavItems: NavItem[] = [];
             <SidebarGroup class="px-2 py-0" v-if="showDocuments">
                 <SidebarGroupLabel>Documents</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredDocumentNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredDocumentNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -334,11 +369,18 @@ const footerNavItems: NavItem[] = [];
             <SidebarGroup class="px-2 py-0" v-if="showPatientCare">
                 <SidebarGroupLabel>Patient Care</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredPatientCareNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredPatientCareNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -349,11 +391,18 @@ const footerNavItems: NavItem[] = [];
             <SidebarGroup class="px-2 py-0" v-if="showMedicalResources">
                 <SidebarGroupLabel>Medical Resources</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredMedicalResourcesNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredMedicalResourcesNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -364,11 +413,18 @@ const footerNavItems: NavItem[] = [];
             <SidebarGroup class="px-2 py-0" v-if="showFinancial">
                 <SidebarGroupLabel>Financial</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredFinancialNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredFinancialNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -379,11 +435,18 @@ const footerNavItems: NavItem[] = [];
             <SidebarGroup class="px-2 py-0" v-if="showManagement">
                 <SidebarGroupLabel>Management</SidebarGroupLabel>
                 <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredManagementNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                    <SidebarMenuItem
+                        v-for="item in filteredManagementNavItems"
+                        :key="item.title"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="urlIsActive(item.href, page.url)"
+                            :tooltip="item.title"
+                        >
                             <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
+                                <component :is="item.icon" />
+                                <span>{{ item.title }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

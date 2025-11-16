@@ -52,7 +52,9 @@ const appointmentsByDate = computed(() => {
     const grouped: Record<string, typeof props.appointments> = {};
 
     props.appointments.forEach((appointment) => {
-        const date = new Date(appointment.appointment_date_time).toISOString().split('T')[0];
+        const date = new Date(appointment.appointment_date_time)
+            .toISOString()
+            .split('T')[0];
         if (!grouped[date]) {
             grouped[date] = [];
         }

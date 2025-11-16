@@ -356,12 +356,13 @@ const completeItemAction = () => {
 </script>
 
 <template>
-
     <Head title="Complete Medical Order" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div v-if="hasPermission('complete_medical_orders')"
-            class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+        <div
+            v-if="hasPermission('complete_medical_orders')"
+            class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">Complete Medical Order</h1>
@@ -370,8 +371,12 @@ const completeItemAction = () => {
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
-                    <Button v-if="orderSummary.pending > 0" variant="outline" @click="confirmCompleteAllItems"
-                        :disabled="completingAllItems || completingItem">
+                    <Button
+                        v-if="orderSummary.pending > 0"
+                        variant="outline"
+                        @click="confirmCompleteAllItems"
+                        :disabled="completingAllItems || completingItem"
+                    >
                         <CheckCircle class="mr-2 size-4" />
                         {{
                             completingAllItems
@@ -379,8 +384,11 @@ const completeItemAction = () => {
                                 : `Complete All (${orderSummary.pending})`
                         }}
                     </Button>
-                    <Button variant="default" @click="confirmCompleteOrder"
-                        :disabled="!allItemsCompleted || completingOrder">
+                    <Button
+                        variant="default"
+                        @click="confirmCompleteOrder"
+                        :disabled="!allItemsCompleted || completingOrder"
+                    >
                         <CheckCircle2 class="mr-2 size-4" />
                         {{
                             completingOrder ? 'Completing...' : 'Complete Order'
@@ -394,13 +402,17 @@ const completeItemAction = () => {
                 <Card>
                     <CardHeader>
                         <CardTitle>Order Information</CardTitle>
-                        <CardDescription>Basic details about this medical
-                            order</CardDescription>
+                        <CardDescription
+                            >Basic details about this medical
+                            order</CardDescription
+                        >
                     </CardHeader>
                     <CardContent>
                         <div class="grid gap-6 md:grid-cols-2">
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Patient
                                 </dt>
                                 <dd class="text-sm font-medium">
@@ -409,7 +421,9 @@ const completeItemAction = () => {
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Ordering Staff
                                 </dt>
                                 <dd class="text-sm font-medium">
@@ -418,33 +432,45 @@ const completeItemAction = () => {
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Status
                                 </dt>
                                 <dd class="text-sm">
-                                    <Badge :class="getStatusColor(medicalOrder.status)
-                                        ">
+                                    <Badge
+                                        :class="
+                                            getStatusColor(medicalOrder.status)
+                                        "
+                                    >
                                         {{ medicalOrder.status_label }}
                                     </Badge>
                                 </dd>
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Priority
                                 </dt>
                                 <dd class="text-sm">
-                                    <Badge :class="getPriorityColor(
-                                        medicalOrder.priority,
-                                    )
-                                        ">
+                                    <Badge
+                                        :class="
+                                            getPriorityColor(
+                                                medicalOrder.priority,
+                                            )
+                                        "
+                                    >
                                         {{ medicalOrder.priority_label }}
                                     </Badge>
                                 </dd>
                             </div>
 
                             <div class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Ordered At
                                 </dt>
                                 <dd class="text-sm">
@@ -452,8 +478,13 @@ const completeItemAction = () => {
                                 </dd>
                             </div>
 
-                            <div v-if="medicalOrder.completed_at" class="space-y-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                            <div
+                                v-if="medicalOrder.completed_at"
+                                class="space-y-2"
+                            >
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Completed At
                                 </dt>
                                 <dd class="text-sm">
@@ -462,7 +493,9 @@ const completeItemAction = () => {
                             </div>
 
                             <div class="space-y-2 md:col-span-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Order Details
                                 </dt>
                                 <dd class="text-sm">
@@ -470,8 +503,13 @@ const completeItemAction = () => {
                                 </dd>
                             </div>
 
-                            <div v-if="medicalOrder.notes" class="space-y-2 md:col-span-2">
-                                <dt class="text-sm font-medium text-muted-foreground">
+                            <div
+                                v-if="medicalOrder.notes"
+                                class="space-y-2 md:col-span-2"
+                            >
+                                <dt
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
                                     Notes
                                 </dt>
                                 <dd class="text-sm">
@@ -483,24 +521,35 @@ const completeItemAction = () => {
                 </Card>
 
                 <!-- Progress Summary -->
-                <Card class="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/20">
+                <Card
+                    class="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/20"
+                >
                     <CardContent class="pt-6">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <CheckCircle class="size-5 text-blue-600 dark:text-blue-400" />
-                                <span class="font-medium text-blue-800 dark:text-blue-200">Completion Progress</span>
+                                <CheckCircle
+                                    class="size-5 text-blue-600 dark:text-blue-400"
+                                />
+                                <span
+                                    class="font-medium text-blue-800 dark:text-blue-200"
+                                    >Completion Progress</span
+                                >
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-blue-800 dark:text-blue-200">
+                                <div
+                                    class="text-2xl font-bold text-blue-800 dark:text-blue-200"
+                                >
                                     {{ orderSummary.completed }} /
                                     {{ orderSummary.total }}
                                 </div>
-                                <div class="text-sm text-blue-600 dark:text-blue-400">
+                                <div
+                                    class="text-sm text-blue-600 dark:text-blue-400"
+                                >
                                     {{
                                         Math.round(
                                             (orderSummary.completed /
                                                 orderSummary.total) *
-                                            100,
+                                                100,
                                         )
                                     }}% Complete
                                 </div>
@@ -508,12 +557,18 @@ const completeItemAction = () => {
                         </div>
                         <div class="mt-4">
                             <div class="h-2 w-full rounded-full bg-gray-200">
-                                <div class="h-2 rounded-full bg-blue-600 transition-all duration-300" :style="{
-                                    width: `${(orderSummary.completed / orderSummary.total) * 100}%`,
-                                }"></div>
+                                <div
+                                    class="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                    :style="{
+                                        width: `${(orderSummary.completed / orderSummary.total) * 100}%`,
+                                    }"
+                                ></div>
                             </div>
                         </div>
-                        <div v-if="!allItemsCompleted" class="mt-3 text-sm text-blue-600 dark:text-blue-400">
+                        <div
+                            v-if="!allItemsCompleted"
+                            class="mt-3 text-sm text-blue-600 dark:text-blue-400"
+                        >
                             Complete all {{ orderSummary.pending }} remaining
                             items to finalize the order
                         </div>
@@ -523,44 +578,71 @@ const completeItemAction = () => {
                 <!-- Order Items Card -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Order Items ({{
-                            medicalOrder.order_items.length
-                        }})</CardTitle>
-                        <CardDescription>Mark individual items as completed</CardDescription>
+                        <CardTitle
+                            >Order Items ({{
+                                medicalOrder.order_items.length
+                            }})</CardTitle
+                        >
+                        <CardDescription
+                            >Mark individual items as completed</CardDescription
+                        >
                     </CardHeader>
                     <CardContent>
-                        <div v-if="medicalOrder.order_items.length === 0"
-                            class="py-12 text-center text-muted-foreground">
+                        <div
+                            v-if="medicalOrder.order_items.length === 0"
+                            class="py-12 text-center text-muted-foreground"
+                        >
                             <p>No items in this order</p>
                         </div>
 
                         <div v-else class="space-y-4">
-                            <div v-for="item in medicalOrder.order_items" :key="item.id"
-                                class="overflow-hidden rounded-lg border">
+                            <div
+                                v-for="item in medicalOrder.order_items"
+                                :key="item.id"
+                                class="overflow-hidden rounded-lg border"
+                            >
                                 <!-- Item Header -->
-                                <div class="flex items-center justify-between p-4 transition-colors hover:bg-muted/50">
+                                <div
+                                    class="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
+                                >
                                     <div class="flex items-center gap-3">
-                                        <component :is="getItemTypeIcon(item.item_type)
-                                            " class="size-6 text-primary" />
+                                        <component
+                                            :is="
+                                                getItemTypeIcon(item.item_type)
+                                            "
+                                            class="size-6 text-primary"
+                                        />
                                         <div>
-                                            <div class="flex items-center gap-2">
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
                                                 <span class="font-medium">{{
                                                     item.item_name
-                                                    }}</span>
-                                                <Badge variant="outline" class="text-xs">
+                                                }}</span>
+                                                <Badge
+                                                    variant="outline"
+                                                    class="text-xs"
+                                                >
                                                     {{
                                                         getItemTypeLabel(
                                                             item.item_type,
                                                         )
                                                     }}
                                                 </Badge>
-                                                <Badge v-if="
-                                                    hasAdditionalInfo(item)
-                                                " variant="secondary" class="text-xs">
+                                                <Badge
+                                                    v-if="
+                                                        hasAdditionalInfo(item)
+                                                    "
+                                                    variant="secondary"
+                                                    class="text-xs"
+                                                >
                                                     Has Details
                                                 </Badge>
                                             </div>
-                                            <div v-if="item.details" class="mt-1 text-sm text-muted-foreground">
+                                            <div
+                                                v-if="item.details"
+                                                class="mt-1 text-sm text-muted-foreground"
+                                            >
                                                 {{ item.details }}
                                             </div>
                                         </div>
@@ -574,9 +656,12 @@ const completeItemAction = () => {
                                                     )
                                                 }}
                                             </div>
-                                            <div v-if="
-                                                item.quantity_required > 1
-                                            " class="text-xs text-muted-foreground">
+                                            <div
+                                                v-if="
+                                                    item.quantity_required > 1
+                                                "
+                                                class="text-xs text-muted-foreground"
+                                            >
                                                 {{ item.quantity_required }} ×
                                                 {{
                                                     formatPrice(
@@ -585,11 +670,18 @@ const completeItemAction = () => {
                                                 }}
                                             </div>
                                         </div>
-                                        <Badge :class="getStatusColor(item.status)">
+                                        <Badge
+                                            :class="getStatusColor(item.status)"
+                                        >
                                             {{ item.status_label }}
                                         </Badge>
-                                        <Button v-if="item.status !== 'complete'" size="sm"
-                                            @click="confirmCompleteItem(item)" class="ml-2" :disabled="completingItem">
+                                        <Button
+                                            v-if="item.status !== 'complete'"
+                                            size="sm"
+                                            @click="confirmCompleteItem(item)"
+                                            class="ml-2"
+                                            :disabled="completingItem"
+                                        >
                                             <CheckCircle class="mr-1 size-4" />
                                             {{
                                                 completingItem
@@ -601,52 +693,72 @@ const completeItemAction = () => {
                                 </div>
 
                                 <!-- Item Details (if expanded) -->
-                                <div v-if="expandedItems.has(item.id)" class="space-y-3 border-t bg-muted/20 px-4 py-3">
+                                <div
+                                    v-if="expandedItems.has(item.id)"
+                                    class="space-y-3 border-t bg-muted/20 px-4 py-3"
+                                >
                                     <!-- Medical Details -->
-                                    <div v-if="
-                                        item.dosage ||
-                                        item.frequency ||
-                                        item.route
-                                    " class="grid gap-4 text-sm md:grid-cols-3">
+                                    <div
+                                        v-if="
+                                            item.dosage ||
+                                            item.frequency ||
+                                            item.route
+                                        "
+                                        class="grid gap-4 text-sm md:grid-cols-3"
+                                    >
                                         <div v-if="item.dosage">
-                                            <span class="text-muted-foreground">Dosage:</span>
+                                            <span class="text-muted-foreground"
+                                                >Dosage:</span
+                                            >
                                             <span class="ml-1 font-medium">{{
                                                 item.dosage
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div v-if="item.frequency">
-                                            <span class="text-muted-foreground">Frequency:</span>
+                                            <span class="text-muted-foreground"
+                                                >Frequency:</span
+                                            >
                                             <span class="ml-1 font-medium">{{
                                                 item.frequency
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div v-if="item.route">
-                                            <span class="text-muted-foreground">Route:</span>
+                                            <span class="text-muted-foreground"
+                                                >Route:</span
+                                            >
                                             <span class="ml-1 font-medium">{{
                                                 item.route
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
 
                                     <!-- Quantity & Completion Info -->
-                                    <div class="flex items-center gap-6 text-sm">
+                                    <div
+                                        class="flex items-center gap-6 text-sm"
+                                    >
                                         <div>
-                                            <span class="text-muted-foreground">Quantity:</span>
+                                            <span class="text-muted-foreground"
+                                                >Quantity:</span
+                                            >
                                             <span class="ml-1 font-medium">{{
                                                 item.quantity_required
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div v-if="item.completed_at">
-                                            <span class="text-muted-foreground">Completed:</span>
+                                            <span class="text-muted-foreground"
+                                                >Completed:</span
+                                            >
                                             <span class="ml-1 font-medium">{{
                                                 item.completed_at
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
 
                                     <!-- Notes -->
                                     <div v-if="item.notes" class="text-sm">
-                                        <span class="text-muted-foreground">Notes:</span>
+                                        <span class="text-muted-foreground"
+                                            >Notes:</span
+                                        >
                                         <p class="mt-1 italic">
                                             {{ item.notes }}
                                         </p>
@@ -678,13 +790,19 @@ const completeItemAction = () => {
                         Are you sure you want to mark this medical order as
                         completed? This action cannot be undone.
                         <br /><br />
-                        <strong>All {{ orderSummary.total }} items have been
-                            completed.</strong>
+                        <strong
+                            >All {{ orderSummary.total }} items have been
+                            completed.</strong
+                        >
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="showCompleteDialog = false"
-                        :disabled="completingOrder">Cancel</Button>
+                    <Button
+                        variant="outline"
+                        @click="showCompleteDialog = false"
+                        :disabled="completingOrder"
+                        >Cancel</Button
+                    >
                     <Button @click="completeOrder" :disabled="completingOrder">
                         <CheckCircle2 class="mr-2 size-4" />
                         {{
@@ -703,14 +821,23 @@ const completeItemAction = () => {
                     <DialogDescription>
                         Mark "{{ itemToComplete?.item_name }}" as completed?
                         <br /><br />
-                        <strong>This will update the item status to
-                            "Completed".</strong>
+                        <strong
+                            >This will update the item status to
+                            "Completed".</strong
+                        >
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="showItemCompleteDialog = false"
-                        :disabled="completingItem">Cancel</Button>
-                    <Button @click="completeItemAction" :disabled="completingItem">
+                    <Button
+                        variant="outline"
+                        @click="showItemCompleteDialog = false"
+                        :disabled="completingItem"
+                        >Cancel</Button
+                    >
+                    <Button
+                        @click="completeItemAction"
+                        :disabled="completingItem"
+                    >
                         <CheckCircle class="mr-2 size-4" />
                         {{ completingItem ? 'Completing...' : 'Complete Item' }}
                     </Button>
@@ -727,14 +854,23 @@ const completeItemAction = () => {
                         Are you sure you want to mark all
                         {{ orderSummary.pending }} pending items as completed?
                         <br /><br />
-                        <strong>This will update all pending items to "Completed"
-                            status.</strong>
+                        <strong
+                            >This will update all pending items to "Completed"
+                            status.</strong
+                        >
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="showCompleteAllDialog = false"
-                        :disabled="completingAllItems">Cancel</Button>
-                    <Button @click="completeAllItems" :disabled="completingAllItems">
+                    <Button
+                        variant="outline"
+                        @click="showCompleteAllDialog = false"
+                        :disabled="completingAllItems"
+                        >Cancel</Button
+                    >
+                    <Button
+                        @click="completeAllItems"
+                        :disabled="completingAllItems"
+                    >
                         <CheckCircle class="mr-2 size-4" />
                         {{
                             completingAllItems

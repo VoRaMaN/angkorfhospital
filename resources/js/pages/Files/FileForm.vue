@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import {
     FormControl,
@@ -15,7 +16,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import SearchableSelect from '@/components/SearchableSelect.vue';
 import {
     store as patientStore,
     update as patientUpdate,
@@ -52,11 +52,15 @@ const form = useForm({
     type: props.item?.type || '',
 });
 
-const entityOptions = computed(() => entities.map(e => ({ value: e.id.toString(), label: e.name })));
+const entityOptions = computed(() =>
+    entities.map((e) => ({ value: e.id.toString(), label: e.name })),
+);
 
 const entityValue = computed({
     get: () => form[entityKey] || '',
-    set: (value) => { form[entityKey] = value; }
+    set: (value) => {
+        form[entityKey] = value;
+    },
 });
 
 const isPatient = !!props.patients;

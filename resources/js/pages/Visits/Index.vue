@@ -77,11 +77,15 @@ const cancelVisit = (visit: Visit) => {
 };
 
 const notifyStaff = (visit: Visit) => {
-    router.patch(`/visits/${visit.id}/notify-staff`, {}, {
-        onSuccess: () => {
-            window.location.reload();
+    router.patch(
+        `/visits/${visit.id}/notify-staff`,
+        {},
+        {
+            onSuccess: () => {
+                window.location.reload();
+            },
         },
-    });
+    );
 };
 
 const getStatusColor = (status: string) => {

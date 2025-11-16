@@ -28,7 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index, show, processWithUpdate } from '@/routes/medical-orders';
+import { index, processWithUpdate, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import {
@@ -280,8 +280,8 @@ const filteredRxMedicines = computed(() => {
         activeRxCategory.value === 'All' || !activeRxCategory.value
             ? props.rxMedicines
             : props.rxMedicines.filter(
-                (med) => med.category === activeRxCategory.value,
-            );
+                  (med) => med.category === activeRxCategory.value,
+              );
 
     return baseMedicines.filter(
         (medicine) =>
@@ -524,12 +524,13 @@ const submitForm = () => {
 </script>
 
 <template>
-
     <Head title="Process Medical Order" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div v-if="hasPermission('process_medical_orders')"
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            v-if="hasPermission('process_medical_orders')"
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
                     <a :href="show(props.medicalOrder.id).url">
@@ -550,39 +551,56 @@ const submitForm = () => {
                 <CardHeader>
                     <CardTitle class="flex items-center gap-2">
                         Order #{{ medicalOrder.id }}
-                        <Badge :class="medicalOrder.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : medicalOrder.status === 'in_progress'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            ">
+                        <Badge
+                            :class="
+                                medicalOrder.status === 'completed'
+                                    ? 'bg-green-100 text-green-800'
+                                    : medicalOrder.status === 'in_progress'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-yellow-100 text-yellow-800'
+                            "
+                        >
                             {{ medicalOrder.status_label }}
                         </Badge>
                     </CardTitle>
-                    <CardDescription>Order details and patient information</CardDescription>
+                    <CardDescription
+                        >Order details and patient information</CardDescription
+                    >
                 </CardHeader>
                 <CardContent class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <Label class="text-sm font-medium text-muted-foreground">Patient</Label>
+                            <Label
+                                class="text-sm font-medium text-muted-foreground"
+                                >Patient</Label
+                            >
                             <p class="text-sm font-medium">
                                 {{ medicalOrder.patient_name }}
                             </p>
                         </div>
                         <div>
-                            <Label class="text-sm font-medium text-muted-foreground">Staff</Label>
+                            <Label
+                                class="text-sm font-medium text-muted-foreground"
+                                >Staff</Label
+                            >
                             <p class="text-sm font-medium">
                                 {{ medicalOrder.staff_name || 'Unassigned' }}
                             </p>
                         </div>
                         <div>
-                            <Label class="text-sm font-medium text-muted-foreground">Priority</Label>
+                            <Label
+                                class="text-sm font-medium text-muted-foreground"
+                                >Priority</Label
+                            >
                             <p class="text-sm font-medium">
                                 {{ medicalOrder.priority_label }}
                             </p>
                         </div>
                         <div>
-                            <Label class="text-sm font-medium text-muted-foreground">Ordered Date</Label>
+                            <Label
+                                class="text-sm font-medium text-muted-foreground"
+                                >Ordered Date</Label
+                            >
                             <p class="text-sm font-medium">
                                 {{
                                     new Date(
@@ -593,53 +611,90 @@ const submitForm = () => {
                         </div>
                     </div>
                     <div>
-                        <Label class="text-sm font-medium text-muted-foreground">Order Details</Label>
-                        <Textarea v-model="form.order_details" placeholder="Enter order details..."
-                            class="min-h-[80px]" />
+                        <Label class="text-sm font-medium text-muted-foreground"
+                            >Order Details</Label
+                        >
+                        <Textarea
+                            v-model="form.order_details"
+                            placeholder="Enter order details..."
+                            class="min-h-[80px]"
+                        />
                     </div>
                     <div>
-                        <Label class="text-sm font-medium text-muted-foreground">Notes</Label>
-                        <Textarea v-model="form.notes" placeholder="Enter additional notes..." class="min-h-[60px]" />
+                        <Label class="text-sm font-medium text-muted-foreground"
+                            >Notes</Label
+                        >
+                        <Textarea
+                            v-model="form.notes"
+                            placeholder="Enter additional notes..."
+                            class="min-h-[60px]"
+                        />
                     </div>
                 </CardContent>
             </Card>
 
             <!-- Order Summary -->
-            <Card v-if="orderSummary.total > 0"
-                class="border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20">
+            <Card
+                v-if="orderSummary.total > 0"
+                class="border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20"
+            >
                 <CardContent class="pt-6">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <Package class="size-5 text-green-600 dark:text-green-400" />
-                            <span class="font-medium text-green-800 dark:text-green-200">Order Summary</span>
+                            <Package
+                                class="size-5 text-green-600 dark:text-green-400"
+                            />
+                            <span
+                                class="font-medium text-green-800 dark:text-green-200"
+                                >Order Summary</span
+                            >
                         </div>
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-green-800 dark:text-green-200">
+                            <div
+                                class="text-2xl font-bold text-green-800 dark:text-green-200"
+                            >
                                 {{ orderSummary.total }}
                             </div>
-                            <div class="text-sm text-green-600 dark:text-green-400">
+                            <div
+                                class="text-sm text-green-600 dark:text-green-400"
+                            >
                                 {{ formatPrice(orderTotalPrice) }}
                             </div>
                         </div>
                     </div>
                     <div class="mt-3 grid grid-cols-5 gap-4 text-sm">
-                        <div v-if="orderSummary.lab > 0" class="flex items-center gap-1">
+                        <div
+                            v-if="orderSummary.lab > 0"
+                            class="flex items-center gap-1"
+                        >
                             <FlaskConical class="size-4 text-blue-600" />
                             <span>{{ orderSummary.lab }} Lab</span>
                         </div>
-                        <div v-if="orderSummary.rx_medicine > 0" class="flex items-center gap-1">
+                        <div
+                            v-if="orderSummary.rx_medicine > 0"
+                            class="flex items-center gap-1"
+                        >
                             <Pill class="size-4 text-purple-600" />
                             <span>{{ orderSummary.rx_medicine }} RX</span>
                         </div>
-                        <div v-if="orderSummary.procedure > 0" class="flex items-center gap-1">
+                        <div
+                            v-if="orderSummary.procedure > 0"
+                            class="flex items-center gap-1"
+                        >
                             <Syringe class="size-4 text-orange-600" />
                             <span>{{ orderSummary.procedure }} Proc</span>
                         </div>
-                        <div v-if="orderSummary.imaging > 0" class="flex items-center gap-1">
+                        <div
+                            v-if="orderSummary.imaging > 0"
+                            class="flex items-center gap-1"
+                        >
                             <Scan class="size-4 text-red-600" />
                             <span>{{ orderSummary.imaging }} Imaging</span>
                         </div>
-                        <div v-if="orderSummary.supply > 0" class="flex items-center gap-1">
+                        <div
+                            v-if="orderSummary.supply > 0"
+                            class="flex items-center gap-1"
+                        >
                             <Package class="size-4 text-gray-600" />
                             <span>{{ orderSummary.supply }} Supply</span>
                         </div>
@@ -653,12 +708,21 @@ const submitForm = () => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <CardTitle>Order Items</CardTitle>
-                                <CardDescription>Add and manage lab tests, procedures,
+                                <CardDescription
+                                    >Add and manage lab tests, procedures,
                                     imaging, and supplies
                                 </CardDescription>
                             </div>
-                            <div v-if="form.order_items.length > 0" class="flex gap-2">
-                                <Button type="button" variant="outline" size="sm" @click="clearAllItems">
+                            <div
+                                v-if="form.order_items.length > 0"
+                                class="flex gap-2"
+                            >
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    @click="clearAllItems"
+                                >
                                     <Trash2 class="size-4" />
                                     Clear All
                                 </Button>
@@ -667,34 +731,64 @@ const submitForm = () => {
                     </CardHeader>
                     <CardContent class="space-y-4">
                         <div class="flex flex-wrap gap-2">
-                            <Button type="button" variant="outline" size="sm" @click="showLabDialog = true">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                @click="showLabDialog = true"
+                            >
                                 <FlaskConical class="size-4" />
                                 Add Lab Tests
                             </Button>
-                            <Button type="button" variant="outline" size="sm" @click="showRxDialog = true">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                @click="showRxDialog = true"
+                            >
                                 <Pill class="size-4" />
                                 Add RX Medicines
                             </Button>
-                            <Button type="button" variant="outline" size="sm" @click="addProcedureItem">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                @click="addProcedureItem"
+                            >
                                 <Syringe class="size-4" />
                                 Add Procedure
                             </Button>
-                            <Button type="button" variant="outline" size="sm" @click="addImagingItem">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                @click="addImagingItem"
+                            >
                                 <Scan class="size-4" />
                                 Add Imaging
                             </Button>
-                            <Button type="button" variant="outline" size="sm" @click="addSupplyItem">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                @click="addSupplyItem"
+                            >
                                 <Package class="size-4" />
                                 Add Supply
                             </Button>
                         </div>
 
-                        <div v-if="form.errors.order_items" class="text-sm text-destructive">
+                        <div
+                            v-if="form.errors.order_items"
+                            class="text-sm text-destructive"
+                        >
                             {{ form.errors.order_items }}
                         </div>
 
-                        <div v-if="form.order_items.length === 0"
-                            class="rounded-md border border-dashed p-8 text-center text-muted-foreground">
+                        <div
+                            v-if="form.order_items.length === 0"
+                            class="rounded-md border border-dashed p-8 text-center text-muted-foreground"
+                        >
                             No items added yet. Click the buttons above to add
                             items to this order.
                         </div>
@@ -705,16 +799,26 @@ const submitForm = () => {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <CardTitle>Select Lab Tests</CardTitle>
-                                        <CardDescription>Choose tests from available lab
-                                            panels</CardDescription>
+                                        <CardDescription
+                                            >Choose tests from available lab
+                                            panels</CardDescription
+                                        >
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm"
-                                            @click="showLabDialog = false">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            @click="showLabDialog = false"
+                                        >
                                             Cancel
                                         </Button>
-                                        <Button type="button" size="sm" @click="addSelectedLabItems"
-                                            :disabled="selectedCount === 0">
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            @click="addSelectedLabItems"
+                                            :disabled="selectedCount === 0"
+                                        >
                                             Add
                                             {{
                                                 selectedCount > 0
@@ -730,48 +834,82 @@ const submitForm = () => {
                                 <div class="mb-4">
                                     <div class="relative">
                                         <Search
-                                            class="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-muted-foreground" />
-                                        <Input v-model="labSearchQuery" placeholder="Search lab tests..."
-                                            class="pl-10" />
+                                            class="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-muted-foreground"
+                                        />
+                                        <Input
+                                            v-model="labSearchQuery"
+                                            placeholder="Search lab tests..."
+                                            class="pl-10"
+                                        />
                                     </div>
                                 </div>
                                 <Tabs v-model="activeLabPanel">
-                                    <TabsList class="grid w-full"
-                                        :style="`grid-template-columns: repeat(${labPanels.length}, 1fr)`">
-                                        <TabsTrigger v-for="panel in labPanels" :key="panel.id"
-                                            :value="panel.id.toString()">
+                                    <TabsList
+                                        class="grid w-full"
+                                        :style="`grid-template-columns: repeat(${labPanels.length}, 1fr)`"
+                                    >
+                                        <TabsTrigger
+                                            v-for="panel in labPanels"
+                                            :key="panel.id"
+                                            :value="panel.id.toString()"
+                                        >
                                             {{ panel.name }}
                                         </TabsTrigger>
                                     </TabsList>
-                                    <TabsContent v-for="panel in labPanels" :key="panel.id" :value="panel.id.toString()"
-                                        class="space-y-4">
-                                        <div class="text-sm text-muted-foreground">
+                                    <TabsContent
+                                        v-for="panel in labPanels"
+                                        :key="panel.id"
+                                        :value="panel.id.toString()"
+                                        class="space-y-4"
+                                    >
+                                        <div
+                                            class="text-sm text-muted-foreground"
+                                        >
                                             {{ panel.description }}
                                         </div>
-                                        <div class="max-h-96 space-y-2 overflow-y-auto">
-                                            <div v-for="item in filteredLabItems" :key="item.id"
-                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent">
-                                                <input type="checkbox" :id="`lab-item-${item.id}`" :checked="selectedLabItems.includes(
-                                                    item.id,
-                                                )
-                                                    " @change="
+                                        <div
+                                            class="max-h-96 space-y-2 overflow-y-auto"
+                                        >
+                                            <div
+                                                v-for="item in filteredLabItems"
+                                                :key="item.id"
+                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :id="`lab-item-${item.id}`"
+                                                    :checked="
+                                                        selectedLabItems.includes(
+                                                            item.id,
+                                                        )
+                                                    "
+                                                    @change="
                                                         toggleLabItem(
                                                             item.id,
                                                             (
                                                                 $event.target as HTMLInputElement
                                                             ).checked,
                                                         )
-                                                        "
-                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-                                                <label :for="`lab-item-${item.id}`"
-                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                    "
+                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                />
+                                                <label
+                                                    :for="`lab-item-${item.id}`"
+                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
                                                     {{ item.item_name }}
-                                                    <span v-if="item.notes" class="ml-2 text-muted-foreground">({{
-                                                        item.notes
-                                                    }})</span>
+                                                    <span
+                                                        v-if="item.notes"
+                                                        class="ml-2 text-muted-foreground"
+                                                        >({{
+                                                            item.notes
+                                                        }})</span
+                                                    >
                                                 </label>
                                                 <div class="text-right text-xs">
-                                                    <div class="font-medium text-green-600 dark:text-green-400">
+                                                    <div
+                                                        class="font-medium text-green-600 dark:text-green-400"
+                                                    >
                                                         {{
                                                             formatPrice(
                                                                 getLabItemPrice(
@@ -780,16 +918,22 @@ const submitForm = () => {
                                                             )
                                                         }}
                                                     </div>
-                                                    <span class="text-muted-foreground">Qty:
+                                                    <span
+                                                        class="text-muted-foreground"
+                                                        >Qty:
                                                         {{
                                                             item.quantity_required
-                                                        }}</span>
+                                                        }}</span
+                                                    >
                                                 </div>
                                             </div>
-                                            <div v-if="
-                                                filteredLabItems.length ===
-                                                0
-                                            " class="py-8 text-center text-muted-foreground">
+                                            <div
+                                                v-if="
+                                                    filteredLabItems.length ===
+                                                    0
+                                                "
+                                                class="py-8 text-center text-muted-foreground"
+                                            >
                                                 No lab tests found matching "{{
                                                     labSearchQuery
                                                 }}"
@@ -805,16 +949,29 @@ const submitForm = () => {
                             <CardHeader>
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <CardTitle>Select RX Medicines</CardTitle>
-                                        <CardDescription>Choose medicines from
-                                            inventory</CardDescription>
+                                        <CardTitle
+                                            >Select RX Medicines</CardTitle
+                                        >
+                                        <CardDescription
+                                            >Choose medicines from
+                                            inventory</CardDescription
+                                        >
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm" @click="showRxDialog = false">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            @click="showRxDialog = false"
+                                        >
                                             Cancel
                                         </Button>
-                                        <Button type="button" size="sm" @click="addSelectedRxItems"
-                                            :disabled="selectedRxCount === 0">
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            @click="addSelectedRxItems"
+                                            :disabled="selectedRxCount === 0"
+                                        >
                                             Add
                                             {{
                                                 selectedRxCount > 0
@@ -830,113 +987,187 @@ const submitForm = () => {
                                 <div class="mb-4">
                                     <div class="relative">
                                         <Search
-                                            class="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-muted-foreground" />
-                                        <Input v-model="rxSearchQuery" placeholder="Search medicines..."
-                                            class="pl-10" />
+                                            class="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-muted-foreground"
+                                        />
+                                        <Input
+                                            v-model="rxSearchQuery"
+                                            placeholder="Search medicines..."
+                                            class="pl-10"
+                                        />
                                     </div>
                                 </div>
                                 <Tabs v-model="activeRxCategory">
-                                    <TabsList class="grid w-full"
-                                        :style="`grid-template-columns: repeat(${rxCategories.length || 1}, 1fr)`">
-                                        <TabsTrigger value="All">All Medicines</TabsTrigger>
-                                        <TabsTrigger v-for="category in rxCategories" :key="category" :value="category">
+                                    <TabsList
+                                        class="grid w-full"
+                                        :style="`grid-template-columns: repeat(${rxCategories.length || 1}, 1fr)`"
+                                    >
+                                        <TabsTrigger value="All"
+                                            >All Medicines</TabsTrigger
+                                        >
+                                        <TabsTrigger
+                                            v-for="category in rxCategories"
+                                            :key="category"
+                                            :value="category"
+                                        >
                                             {{ category }}
                                         </TabsTrigger>
                                     </TabsList>
                                     <TabsContent value="All" class="space-y-4">
-                                        <div class="max-h-96 space-y-2 overflow-y-auto">
-                                            <div v-for="medicine in filteredRxMedicines" :key="medicine.id"
-                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent">
-                                                <input type="checkbox" :id="`rx-item-${medicine.id}`" :checked="selectedRxItems.includes(
-                                                    medicine.id,
-                                                )
-                                                    " @change="
+                                        <div
+                                            class="max-h-96 space-y-2 overflow-y-auto"
+                                        >
+                                            <div
+                                                v-for="medicine in filteredRxMedicines"
+                                                :key="medicine.id"
+                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :id="`rx-item-${medicine.id}`"
+                                                    :checked="
+                                                        selectedRxItems.includes(
+                                                            medicine.id,
+                                                        )
+                                                    "
+                                                    @change="
                                                         toggleRxItem(
                                                             medicine.id,
                                                             (
                                                                 $event.target as HTMLInputElement
                                                             ).checked,
                                                         )
-                                                        "
-                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-                                                <label :for="`rx-item-${medicine.id}`"
-                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                    "
+                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                />
+                                                <label
+                                                    :for="`rx-item-${medicine.id}`"
+                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
                                                     {{ medicine.item_name }}
-                                                    <span v-if="
-                                                        medicine.description
-                                                    " class="mt-1 ml-2 block text-xs text-muted-foreground">{{
-                                                        medicine.description
-                                                        }}</span>
-                                                    <span v-if="
-                                                        medicine.dose_unit
-                                                    " class="ml-2 text-xs text-muted-foreground">({{
-                                                        medicine.dose_unit
-                                                        }})</span>
+                                                    <span
+                                                        v-if="
+                                                            medicine.description
+                                                        "
+                                                        class="mt-1 ml-2 block text-xs text-muted-foreground"
+                                                        >{{
+                                                            medicine.description
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        v-if="
+                                                            medicine.dose_unit
+                                                        "
+                                                        class="ml-2 text-xs text-muted-foreground"
+                                                        >({{
+                                                            medicine.dose_unit
+                                                        }})</span
+                                                    >
                                                 </label>
                                                 <div class="text-right text-xs">
-                                                    <div class="text-muted-foreground">
+                                                    <div
+                                                        class="text-muted-foreground"
+                                                    >
                                                         Stock:
                                                         {{ medicine.quantity }}
                                                     </div>
-                                                    <div class="font-medium text-green-600 dark:text-green-400">
+                                                    <div
+                                                        class="font-medium text-green-600 dark:text-green-400"
+                                                    >
                                                         {{
                                                             formatPrice(
                                                                 medicine.selling_price,
                                                             )
                                                         }}
                                                     </div>
-                                                    <div v-if="medicine.category" class="text-muted-foreground">
+                                                    <div
+                                                        v-if="medicine.category"
+                                                        class="text-muted-foreground"
+                                                    >
                                                         {{ medicine.category }}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-if="
-                                                filteredRxMedicines.length ===
-                                                0
-                                            " class="py-8 text-center text-muted-foreground">
+                                            <div
+                                                v-if="
+                                                    filteredRxMedicines.length ===
+                                                    0
+                                                "
+                                                class="py-8 text-center text-muted-foreground"
+                                            >
                                                 No medicines found matching "{{
                                                     rxSearchQuery
                                                 }}"
                                             </div>
                                         </div>
                                     </TabsContent>
-                                    <TabsContent v-for="category in rxCategories" :key="category" :value="category"
-                                        class="space-y-4">
-                                        <div class="max-h-96 space-y-2 overflow-y-auto">
-                                            <div v-for="medicine in filteredRxMedicines" :key="medicine.id"
-                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent">
-                                                <input type="checkbox" :id="`rx-item-cat-${medicine.id}`" :checked="selectedRxItems.includes(
-                                                    medicine.id,
-                                                )
-                                                    " @change="
+                                    <TabsContent
+                                        v-for="category in rxCategories"
+                                        :key="category"
+                                        :value="category"
+                                        class="space-y-4"
+                                    >
+                                        <div
+                                            class="max-h-96 space-y-2 overflow-y-auto"
+                                        >
+                                            <div
+                                                v-for="medicine in filteredRxMedicines"
+                                                :key="medicine.id"
+                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :id="`rx-item-cat-${medicine.id}`"
+                                                    :checked="
+                                                        selectedRxItems.includes(
+                                                            medicine.id,
+                                                        )
+                                                    "
+                                                    @change="
                                                         toggleRxItem(
                                                             medicine.id,
                                                             (
                                                                 $event.target as HTMLInputElement
                                                             ).checked,
                                                         )
-                                                        "
-                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-                                                <label :for="`rx-item-cat-${medicine.id}`"
-                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                    "
+                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                />
+                                                <label
+                                                    :for="`rx-item-cat-${medicine.id}`"
+                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
                                                     {{ medicine.item_name }}
-                                                    <span v-if="
-                                                        medicine.description
-                                                    " class="mt-1 ml-2 block text-xs text-muted-foreground">{{
-                                                        medicine.description
-                                                        }}</span>
-                                                    <span v-if="
-                                                        medicine.dose_unit
-                                                    " class="ml-2 text-xs text-muted-foreground">({{
-                                                        medicine.dose_unit
-                                                        }})</span>
+                                                    <span
+                                                        v-if="
+                                                            medicine.description
+                                                        "
+                                                        class="mt-1 ml-2 block text-xs text-muted-foreground"
+                                                        >{{
+                                                            medicine.description
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        v-if="
+                                                            medicine.dose_unit
+                                                        "
+                                                        class="ml-2 text-xs text-muted-foreground"
+                                                        >({{
+                                                            medicine.dose_unit
+                                                        }})</span
+                                                    >
                                                 </label>
-                                                <div class="text-right text-xs text-muted-foreground">
-                                                    <div class="text-muted-foreground">
+                                                <div
+                                                    class="text-right text-xs text-muted-foreground"
+                                                >
+                                                    <div
+                                                        class="text-muted-foreground"
+                                                    >
                                                         Stock:
                                                         {{ medicine.quantity }}
                                                     </div>
-                                                    <div class="font-medium text-green-600 dark:text-green-400">
+                                                    <div
+                                                        class="font-medium text-green-600 dark:text-green-400"
+                                                    >
                                                         {{
                                                             formatPrice(
                                                                 medicine.selling_price,
@@ -945,10 +1176,13 @@ const submitForm = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-if="
-                                                filteredRxMedicines.length ===
-                                                0
-                                            " class="py-8 text-center text-muted-foreground">
+                                            <div
+                                                v-if="
+                                                    filteredRxMedicines.length ===
+                                                    0
+                                                "
+                                                class="py-8 text-center text-muted-foreground"
+                                            >
                                                 No medicines found matching "{{
                                                     rxSearchQuery
                                                 }}"
@@ -959,11 +1193,14 @@ const submitForm = () => {
                             </CardContent>
                         </Card>
 
-                        <div v-if="
-                            form.order_items.length === 0 &&
-                            !showLabDialog &&
-                            !showRxDialog
-                        " class="rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground">
+                        <div
+                            v-if="
+                                form.order_items.length === 0 &&
+                                !showLabDialog &&
+                                !showRxDialog
+                            "
+                            class="rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground"
+                        >
                             <p class="mb-2">No items added yet</p>
                             <p class="text-sm">
                                 Click the buttons above to add lab tests,
@@ -973,17 +1210,27 @@ const submitForm = () => {
 
                         <!-- Grouped Order Items Display -->
                         <div v-else class="space-y-6">
-                            <div v-for="[type, items] in Object.entries(
-                                groupedOrderItems,
-                            )" :key="type" class="space-y-3">
+                            <div
+                                v-for="[type, items] in Object.entries(
+                                    groupedOrderItems,
+                                )"
+                                :key="type"
+                                class="space-y-3"
+                            >
                                 <!-- Group Header -->
-                                <div class="flex items-center gap-3 border-b pb-2">
-                                    <component :is="getItemTypeIcon(
-                                        items[0]?.panelName
-                                            ? 'lab'
-                                            : type,
-                                    )
-                                        " class="size-5 text-primary" />
+                                <div
+                                    class="flex items-center gap-3 border-b pb-2"
+                                >
+                                    <component
+                                        :is="
+                                            getItemTypeIcon(
+                                                items[0]?.panelName
+                                                    ? 'lab'
+                                                    : type,
+                                            )
+                                        "
+                                        class="size-5 text-primary"
+                                    />
                                     <h3 class="text-lg font-semibold">
                                         {{
                                             getItemTypeDisplayName(
@@ -992,59 +1239,93 @@ const submitForm = () => {
                                             )
                                         }}
                                     </h3>
-                                    <Badge variant="secondary" class="ml-auto">{{ items.length }}</Badge>
+                                    <Badge
+                                        variant="secondary"
+                                        class="ml-auto"
+                                        >{{ items.length }}</Badge
+                                    >
                                 </div>
 
                                 <!-- Items in this group -->
                                 <div class="ml-8 space-y-2">
-                                    <div v-for="itemData in items" :key="itemData.index"
-                                        class="overflow-hidden rounded-lg border">
+                                    <div
+                                        v-for="itemData in items"
+                                        :key="itemData.index"
+                                        class="overflow-hidden rounded-lg border"
+                                    >
                                         <!-- Item Header -->
-                                        <div class="flex cursor-pointer items-center justify-between bg-muted/30 p-3 hover:bg-muted/50"
+                                        <div
+                                            class="flex cursor-pointer items-center justify-between bg-muted/30 p-3 hover:bg-muted/50"
                                             @click="
                                                 toggleItemExpansion(
                                                     itemData.index,
                                                 )
-                                                ">
-                                            <div class="flex items-center gap-3">
-                                                <Button type="button" variant="ghost" size="sm" class="h-6 w-6 p-0"
+                                            "
+                                        >
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    class="h-6 w-6 p-0"
                                                     @click.stop="
                                                         toggleItemExpansion(
                                                             itemData.index,
                                                         )
-                                                        ">
-                                                    <component :is="expandedItems.has(
-                                                        itemData.index,
-                                                    )
-                                                        ? ChevronDown
-                                                        : ChevronRight
-                                                        " class="size-4" />
-                                                </Button>
-                                                <component :is="getStatusIcon(
-                                                    itemData.item
-                                                        .status ||
-                                                    'pending',
-                                                )
                                                     "
-                                                    :class="`size-4 ${getStatusColor(itemData.item.status || 'pending')}`" />
+                                                >
+                                                    <component
+                                                        :is="
+                                                            expandedItems.has(
+                                                                itemData.index,
+                                                            )
+                                                                ? ChevronDown
+                                                                : ChevronRight
+                                                        "
+                                                        class="size-4"
+                                                    />
+                                                </Button>
+                                                <component
+                                                    :is="
+                                                        getStatusIcon(
+                                                            itemData.item
+                                                                .status ||
+                                                                'pending',
+                                                        )
+                                                    "
+                                                    :class="`size-4 ${getStatusColor(itemData.item.status || 'pending')}`"
+                                                />
                                                 <div class="flex flex-col">
-                                                    <span class="text-sm font-medium">{{
-                                                        itemData.item
-                                                            .item_name ||
-                                                        'Unnamed item'
-                                                    }}</span>
-                                                    <span v-if="
-                                                        itemData.item
-                                                            .details
-                                                    " class="max-w-xs truncate text-xs text-muted-foreground">{{
-                                                        itemData.item
-                                                            .details
-                                                    }}</span>
+                                                    <span
+                                                        class="text-sm font-medium"
+                                                        >{{
+                                                            itemData.item
+                                                                .item_name ||
+                                                            'Unnamed item'
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        v-if="
+                                                            itemData.item
+                                                                .details
+                                                        "
+                                                        class="max-w-xs truncate text-xs text-muted-foreground"
+                                                        >{{
+                                                            itemData.item
+                                                                .details
+                                                        }}</span
+                                                    >
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-3">
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
                                                 <div class="text-right">
-                                                    <div class="text-sm font-medium">
+                                                    <div
+                                                        class="text-sm font-medium"
+                                                    >
                                                         {{
                                                             formatPrice(
                                                                 getItemPrice(
@@ -1053,11 +1334,14 @@ const submitForm = () => {
                                                             )
                                                         }}
                                                     </div>
-                                                    <div v-if="
-                                                        itemData.item
-                                                            .quantity_required >
-                                                        1
-                                                    " class="text-xs text-muted-foreground">
+                                                    <div
+                                                        v-if="
+                                                            itemData.item
+                                                                .quantity_required >
+                                                            1
+                                                        "
+                                                        class="text-xs text-muted-foreground"
+                                                    >
                                                         {{
                                                             itemData.item
                                                                 .quantity_required
@@ -1067,199 +1351,386 @@ const submitForm = () => {
                                                             formatPrice(
                                                                 itemData.item
                                                                     .selling_price ||
-                                                                0,
+                                                                    0,
                                                             )
                                                         }}
                                                     </div>
                                                 </div>
                                                 <div class="flex gap-1">
-                                                    <Button type="button" variant="ghost" size="sm" @click.stop="
-                                                        duplicateOrderItem(
-                                                            itemData.index,
-                                                        )
-                                                        " title="Duplicate item">
-                                                        <Plus class="size-4 text-muted-foreground" />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        @click.stop="
+                                                            duplicateOrderItem(
+                                                                itemData.index,
+                                                            )
+                                                        "
+                                                        title="Duplicate item"
+                                                    >
+                                                        <Plus
+                                                            class="size-4 text-muted-foreground"
+                                                        />
                                                     </Button>
-                                                    <Button type="button" variant="ghost" size="sm" @click.stop="
-                                                        removeOrderItem(
-                                                            itemData.index,
-                                                        )
-                                                        ">
-                                                        <Trash2 class="size-4 text-destructive" />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        @click.stop="
+                                                            removeOrderItem(
+                                                                itemData.index,
+                                                            )
+                                                        "
+                                                    >
+                                                        <Trash2
+                                                            class="size-4 text-destructive"
+                                                        />
                                                     </Button>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Item Content (Collapsible) -->
-                                        <div v-if="
-                                            expandedItems.has(
-                                                itemData.index,
-                                            )
-                                        " class="space-y-3 border-t p-3">
+                                        <div
+                                            v-if="
+                                                expandedItems.has(
+                                                    itemData.index,
+                                                )
+                                            "
+                                            class="space-y-3 border-t p-3"
+                                        >
                                             <!-- Lab Test Fields -->
-                                            <div v-if="
-                                                itemData.item.item_type ===
-                                                'lab'
-                                            " class="flex items-end gap-3">
+                                            <div
+                                                v-if="
+                                                    itemData.item.item_type ===
+                                                    'lab'
+                                                "
+                                                class="flex items-end gap-3"
+                                            >
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Test Name</Label>
-                                                    <Input v-model="itemData.item
-                                                        .item_name
-                                                        " placeholder="Test name" readonly class="h-8 bg-muted" />
+                                                    <Label class="text-xs"
+                                                        >Test Name</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .item_name
+                                                        "
+                                                        placeholder="Test name"
+                                                        readonly
+                                                        class="h-8 bg-muted"
+                                                    />
                                                 </div>
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Details</Label>
-                                                    <Input v-model="itemData.item
-                                                        .details
-                                                        " placeholder="Test parameters, instructions" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Details</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .details
+                                                        "
+                                                        placeholder="Test parameters, instructions"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                                 <div class="w-32">
-                                                    <Label class="text-xs">Notes</Label>
-                                                    <Input v-model="itemData.item.notes
-                                                        " placeholder="Additional notes" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Notes</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item.notes
+                                                        "
+                                                        placeholder="Additional notes"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                             </div>
 
                                             <!-- RX Medicine Fields -->
-                                            <div v-if="
-                                                itemData.item.item_type ===
-                                                'rx_medicine'
-                                            " class="space-y-2">
-                                                <div class="flex items-end gap-3">
+                                            <div
+                                                v-if="
+                                                    itemData.item.item_type ===
+                                                    'rx_medicine'
+                                                "
+                                                class="space-y-2"
+                                            >
+                                                <div
+                                                    class="flex items-end gap-3"
+                                                >
                                                     <div class="flex-1">
-                                                        <Label class="text-xs">Medicine
-                                                            Name</Label>
-                                                        <Input v-model="itemData.item
-                                                            .item_name
-                                                            " placeholder="Medicine name" readonly
-                                                            class="h-8 bg-muted" />
+                                                        <Label class="text-xs"
+                                                            >Medicine
+                                                            Name</Label
+                                                        >
+                                                        <Input
+                                                            v-model="
+                                                                itemData.item
+                                                                    .item_name
+                                                            "
+                                                            placeholder="Medicine name"
+                                                            readonly
+                                                            class="h-8 bg-muted"
+                                                        />
                                                     </div>
                                                     <div class="w-24">
-                                                        <Label class="text-xs">Dosage</Label>
-                                                        <Input v-model="itemData.item
-                                                            .dosage
-                                                            " placeholder="500mg" class="h-8" />
+                                                        <Label class="text-xs"
+                                                            >Dosage</Label
+                                                        >
+                                                        <Input
+                                                            v-model="
+                                                                itemData.item
+                                                                    .dosage
+                                                            "
+                                                            placeholder="500mg"
+                                                            class="h-8"
+                                                        />
                                                     </div>
                                                     <div class="w-32">
-                                                        <Label class="text-xs">Frequency</Label>
-                                                        <Input v-model="itemData.item
-                                                            .frequency
-                                                            " placeholder="Twice daily" class="h-8" />
+                                                        <Label class="text-xs"
+                                                            >Frequency</Label
+                                                        >
+                                                        <Input
+                                                            v-model="
+                                                                itemData.item
+                                                                    .frequency
+                                                            "
+                                                            placeholder="Twice daily"
+                                                            class="h-8"
+                                                        />
                                                     </div>
                                                     <div class="w-32">
-                                                        <Label class="text-xs">Route</Label>
-                                                        <Select v-model="itemData.item
-                                                            .route
-                                                            ">
-                                                            <SelectTrigger class="h-8">
-                                                                <SelectValue placeholder="Route" />
+                                                        <Label class="text-xs"
+                                                            >Route</Label
+                                                        >
+                                                        <Select
+                                                            v-model="
+                                                                itemData.item
+                                                                    .route
+                                                            "
+                                                        >
+                                                            <SelectTrigger
+                                                                class="h-8"
+                                                            >
+                                                                <SelectValue
+                                                                    placeholder="Route"
+                                                                />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                <SelectItem value="oral">Oral</SelectItem>
-                                                                <SelectItem value="iv">IV</SelectItem>
-                                                                <SelectItem value="im">IM</SelectItem>
-                                                                <SelectItem value="subcutaneous">Subcutaneous
+                                                                <SelectItem
+                                                                    value="oral"
+                                                                    >Oral</SelectItem
+                                                                >
+                                                                <SelectItem
+                                                                    value="iv"
+                                                                    >IV</SelectItem
+                                                                >
+                                                                <SelectItem
+                                                                    value="im"
+                                                                    >IM</SelectItem
+                                                                >
+                                                                <SelectItem
+                                                                    value="subcutaneous"
+                                                                    >Subcutaneous
                                                                 </SelectItem>
-                                                                <SelectItem value="topical">Topical</SelectItem>
-                                                                <SelectItem value="inhalation">Inhalation</SelectItem>
-                                                                <SelectItem value="rectal">Rectal</SelectItem>
+                                                                <SelectItem
+                                                                    value="topical"
+                                                                    >Topical</SelectItem
+                                                                >
+                                                                <SelectItem
+                                                                    value="inhalation"
+                                                                    >Inhalation</SelectItem
+                                                                >
+                                                                <SelectItem
+                                                                    value="rectal"
+                                                                    >Rectal</SelectItem
+                                                                >
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
                                                     <div class="w-20">
-                                                        <Label class="text-xs">Qty</Label>
-                                                        <Input v-model="itemData.item
-                                                            .quantity_required
-                                                            " type="number" min="1" placeholder="1" class="h-8" />
+                                                        <Label class="text-xs"
+                                                            >Qty</Label
+                                                        >
+                                                        <Input
+                                                            v-model="
+                                                                itemData.item
+                                                                    .quantity_required
+                                                            "
+                                                            type="number"
+                                                            min="1"
+                                                            placeholder="1"
+                                                            class="h-8"
+                                                        />
                                                     </div>
                                                 </div>
-                                                <div class="flex items-end gap-3">
+                                                <div
+                                                    class="flex items-end gap-3"
+                                                >
                                                     <div class="flex-1">
-                                                        <Label class="text-xs">Instructions</Label>
-                                                        <Input v-model="itemData.item
-                                                            .details
-                                                            " placeholder="Special instructions" class="h-8" />
+                                                        <Label class="text-xs"
+                                                            >Instructions</Label
+                                                        >
+                                                        <Input
+                                                            v-model="
+                                                                itemData.item
+                                                                    .details
+                                                            "
+                                                            placeholder="Special instructions"
+                                                            class="h-8"
+                                                        />
                                                     </div>
                                                     <div class="w-32">
-                                                        <Label class="text-xs">Notes</Label>
-                                                        <Input v-model="itemData.item
-                                                            .notes
-                                                            " placeholder="Additional notes" class="h-8" />
+                                                        <Label class="text-xs"
+                                                            >Notes</Label
+                                                        >
+                                                        <Input
+                                                            v-model="
+                                                                itemData.item
+                                                                    .notes
+                                                            "
+                                                            placeholder="Additional notes"
+                                                            class="h-8"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- Procedure Fields -->
-                                            <div v-if="
-                                                itemData.item.item_type ===
-                                                'procedure'
-                                            " class="flex items-end gap-3">
+                                            <div
+                                                v-if="
+                                                    itemData.item.item_type ===
+                                                    'procedure'
+                                                "
+                                                class="flex items-end gap-3"
+                                            >
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Procedure Name *</Label>
-                                                    <Input v-model="itemData.item
-                                                        .item_name
-                                                        " placeholder="Enter procedure name" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Procedure Name *</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .item_name
+                                                        "
+                                                        placeholder="Enter procedure name"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Details</Label>
-                                                    <Input v-model="itemData.item
-                                                        .details
-                                                        " placeholder="Procedure details, requirements" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Details</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .details
+                                                        "
+                                                        placeholder="Procedure details, requirements"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                                 <div class="w-32">
-                                                    <Label class="text-xs">Notes</Label>
-                                                    <Input v-model="itemData.item.notes
-                                                        " placeholder="Additional notes" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Notes</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item.notes
+                                                        "
+                                                        placeholder="Additional notes"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                             </div>
 
                                             <!-- Imaging Fields -->
-                                            <div v-if="
-                                                itemData.item.item_type ===
-                                                'imaging'
-                                            " class="flex items-end gap-3">
+                                            <div
+                                                v-if="
+                                                    itemData.item.item_type ===
+                                                    'imaging'
+                                                "
+                                                class="flex items-end gap-3"
+                                            >
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Imaging Type *</Label>
-                                                    <Input v-model="itemData.item
-                                                        .item_name
-                                                        " placeholder="e.g., Chest X-Ray, CT Scan, MRI" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Imaging Type *</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .item_name
+                                                        "
+                                                        placeholder="e.g., Chest X-Ray, CT Scan, MRI"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Details</Label>
-                                                    <Input v-model="itemData.item
-                                                        .details
-                                                        " placeholder="Body part, with/without contrast, views"
-                                                        class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Details</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .details
+                                                        "
+                                                        placeholder="Body part, with/without contrast, views"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                                 <div class="w-32">
-                                                    <Label class="text-xs">Notes</Label>
-                                                    <Input v-model="itemData.item.notes
-                                                        " placeholder="Additional notes" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Notes</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item.notes
+                                                        "
+                                                        placeholder="Additional notes"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                             </div>
 
                                             <!-- Supply Fields -->
-                                            <div v-if="
-                                                itemData.item.item_type ===
-                                                'supply'
-                                            " class="flex items-end gap-3">
+                                            <div
+                                                v-if="
+                                                    itemData.item.item_type ===
+                                                    'supply'
+                                                "
+                                                class="flex items-end gap-3"
+                                            >
                                                 <div class="flex-1">
-                                                    <Label class="text-xs">Supply Item</Label>
-                                                    <Select @update:modelValue="
-                                                        (val) =>
-                                                            selectInventoryItem(
-                                                                itemData.item,
-                                                                Number(val),
-                                                            )
-                                                    ">
-                                                        <SelectTrigger class="h-8">
-                                                            <SelectValue placeholder="Select from inventory" />
+                                                    <Label class="text-xs"
+                                                        >Supply Item</Label
+                                                    >
+                                                    <Select
+                                                        @update:modelValue="
+                                                            (val) =>
+                                                                selectInventoryItem(
+                                                                    itemData.item,
+                                                                    Number(val),
+                                                                )
+                                                        "
+                                                    >
+                                                        <SelectTrigger
+                                                            class="h-8"
+                                                        >
+                                                            <SelectValue
+                                                                placeholder="Select from inventory"
+                                                            />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem v-for="invItem in inventoryItems" :key="invItem.id
-                                                                " :value="invItem.id
-                                                                    ">
+                                                            <SelectItem
+                                                                v-for="invItem in inventoryItems"
+                                                                :key="
+                                                                    invItem.id
+                                                                "
+                                                                :value="
+                                                                    invItem.id
+                                                                "
+                                                            >
                                                                 {{
                                                                     invItem.item_name
                                                                 }}
@@ -1271,15 +1742,31 @@ const submitForm = () => {
                                                     </Select>
                                                 </div>
                                                 <div class="w-20">
-                                                    <Label class="text-xs">Qty</Label>
-                                                    <Input v-model="itemData.item
-                                                        .quantity_required
-                                                        " type="number" min="1" placeholder="1" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Qty</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .quantity_required
+                                                        "
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="1"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                                 <div class="w-32">
-                                                    <Label class="text-xs">Notes</Label>
-                                                    <Input v-model="itemData.item.notes
-                                                        " placeholder="Additional notes" class="h-8" />
+                                                    <Label class="text-xs"
+                                                        >Notes</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item.notes
+                                                        "
+                                                        placeholder="Additional notes"
+                                                        class="h-8"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1290,8 +1777,10 @@ const submitForm = () => {
                     </CardContent>
                 </Card>
 
-                <div v-if="form.order_items.length === 0"
-                    class="rounded-md border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                <div
+                    v-if="form.order_items.length === 0"
+                    class="rounded-md border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                >
                     <div class="flex items-center gap-2">
                         <AlertCircle class="size-5" />
                         <strong>No items added</strong>
@@ -1303,8 +1792,13 @@ const submitForm = () => {
                 </div>
 
                 <div class="flex gap-4">
-                    <Button type="button" @click="showConfirmDialog = true" :disabled="form.processing || form.order_items.length === 0
-                        ">
+                    <Button
+                        type="button"
+                        @click="showConfirmDialog = true"
+                        :disabled="
+                            form.processing || form.order_items.length === 0
+                        "
+                    >
                         {{
                             form.processing
                                 ? 'Processing...'
@@ -1336,14 +1830,22 @@ const submitForm = () => {
                         Are you sure you want to process this medical order?
                         This action cannot be undone.
                         <br /><br />
-                        <strong>Items to be processed:
-                            {{ form.order_items.length }}</strong>
+                        <strong
+                            >Items to be processed:
+                            {{ form.order_items.length }}</strong
+                        >
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="showConfirmDialog = false">Cancel</Button>
-                    <Button @click="submitForm" :disabled="form.processing || form.order_items.length === 0
-                        ">
+                    <Button variant="outline" @click="showConfirmDialog = false"
+                        >Cancel</Button
+                    >
+                    <Button
+                        @click="submitForm"
+                        :disabled="
+                            form.processing || form.order_items.length === 0
+                        "
+                    >
                         {{ form.processing ? 'Processing...' : 'Confirm' }}
                     </Button>
                 </DialogFooter>

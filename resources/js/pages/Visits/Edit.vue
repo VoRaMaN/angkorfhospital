@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import SearchableSelect from '@/components/SearchableSelect.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
@@ -88,17 +88,26 @@ const form = useForm<{
     notes: props.visit.notes || '',
 });
 
-const patientOptions = computed(() => props.patients.map(p => ({ value: p.id.toString(), label: p.user.name })));
-const staffOptions = computed(() => [{ value: 'none', label: 'Unassigned' }, ...props.staff.map(s => ({ value: s.id.toString(), label: s.user.name }))]);
+const patientOptions = computed(() =>
+    props.patients.map((p) => ({ value: p.id.toString(), label: p.user.name })),
+);
+const staffOptions = computed(() => [
+    { value: 'none', label: 'Unassigned' },
+    ...props.staff.map((s) => ({ value: s.id.toString(), label: s.user.name })),
+]);
 
 const patientValue = computed({
     get: () => form.patient_id,
-    set: (value) => { form.patient_id = value; }
+    set: (value) => {
+        form.patient_id = value;
+    },
 });
 
 const staffValue = computed({
     get: () => form.staff_id,
-    set: (value) => { form.staff_id = value; }
+    set: (value) => {
+        form.staff_id = value;
+    },
 });
 
 const submit = () => {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -21,7 +22,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import SearchableSelect from '@/components/SearchableSelect.vue';
 import { index, store } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -89,6 +89,13 @@ interface Props {
         unit_price: number;
         selling_price: number;
     }>;
+    medicalServices: Array<{
+        id: number;
+        name: string;
+        description: string | null;
+        type: string;
+        price: number;
+    }>;
 }
 
 const props = defineProps<Props>();
@@ -138,17 +145,38 @@ const form = useForm<{
     order_items: [] as OrderItem[],
 });
 
-const patientOptions = computed(() => [{ value: 'null', label: 'None' }, ...props.patients.map(p => ({ value: p.id.toString(), label: p.name }))]);
-const staffOptions = computed(() => [{ value: 'null', label: 'None' }, ...props.staff.map(s => ({ value: s.id.toString(), label: s.name }))]);
+const patientOptions = computed(() => {
+    const base = [{ value: 'null', label: 'None' }];
+    if (!props.patients) return base;
+    return [
+        ...base,
+        ...props.patients.map((p) => ({
+            value: p.id.toString(),
+            label: p.name,
+        })),
+    ];
+});
+const staffOptions = computed(() => {
+    const base = [{ value: 'null', label: 'None' }];
+    if (!props.staff) return base;
+    return [
+        ...base,
+        ...props.staff.map((s) => ({ value: s.id.toString(), label: s.name })),
+    ];
+});
 
 const patientValue = computed({
     get: () => form.patient_id?.toString() || 'null',
-    set: (value) => { form.patient_id = value === 'null' ? null : Number(value); }
+    set: (value) => {
+        form.patient_id = value === 'null' ? null : Number(value);
+    },
 });
 
 const staffValue = computed({
     get: () => form.staff_id?.toString() || 'null',
-    set: (value) => { form.staff_id = value === 'null' ? null : Number(value); }
+    set: (value) => {
+        form.staff_id = value === 'null' ? null : Number(value);
+    },
 });
 
 const submitForm = () => {
@@ -304,6 +332,79 @@ const filteredRxMedicines = computed(() => {
                 medicine.category
                     .toLowerCase()
                     .includes(rxSearchQuery.value.toLowerCase())),
+    );
+});
+
+// Medical Services selection state
+const showMedicalServiceDialog = ref(false);
+const selectedMedicalServiceItems = ref<number[]>([]);
+const medicalServiceSearchQuery = ref('');
+const activeMedicalServiceType = ref<string>('All');
+
+const medicalServiceTypes = computed(() => {
+    const types = new Set<string>();
+    props.medicalServices.forEach((service) => {
+        types.add(service.type);
+    });
+    return Array.from(types).sort();
+});
+
+const toggleMedicalServiceItem = (itemId: number, checked: boolean) => {
+    if (checked) {
+        if (!selectedMedicalServiceItems.value.includes(itemId)) {
+            selectedMedicalServiceItems.value.push(itemId);
+        }
+    } else {
+        selectedMedicalServiceItems.value =
+            selectedMedicalServiceItems.value.filter((id) => id !== itemId);
+    }
+};
+
+const addSelectedMedicalServiceItems = () => {
+    selectedMedicalServiceItems.value.forEach((itemId) => {
+        const service = props.medicalServices.find(
+            (item) => item.id === itemId,
+        );
+        if (service) {
+            form.order_items.push({
+                item_type: service.type,
+                item_name: service.name,
+                details: service.description || '',
+                quantity_required: 1,
+                notes: '',
+                unit_price: service.price,
+                selling_price: service.price,
+            });
+        }
+    });
+
+    selectedMedicalServiceItems.value = [];
+    showMedicalServiceDialog.value = false;
+};
+
+const selectedMedicalServiceCount = computed(
+    () => selectedMedicalServiceItems.value.length,
+);
+
+// Filtered medical services
+const filteredMedicalServices = computed(() => {
+    const baseServices =
+        activeMedicalServiceType.value === 'All' ||
+        !activeMedicalServiceType.value
+            ? props.medicalServices
+            : props.medicalServices.filter(
+                  (service) => service.type === activeMedicalServiceType.value,
+              );
+
+    return baseServices.filter(
+        (service) =>
+            service.name
+                .toLowerCase()
+                .includes(medicalServiceSearchQuery.value.toLowerCase()) ||
+            (service.description &&
+                service.description
+                    .toLowerCase()
+                    .includes(medicalServiceSearchQuery.value.toLowerCase())),
     );
 });
 
@@ -748,19 +849,10 @@ const getLabItemPrice = (inventoryId: number) => {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                @click="addProcedureItem"
+                                @click="showMedicalServiceDialog = true"
                             >
-                                <Syringe class="size-4" />
-                                Add Procedure
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                @click="addImagingItem"
-                            >
-                                <Scan class="size-4" />
-                                Add Imaging
+                                <Activity class="size-4" />
+                                Add Procedures/Imaging
                             </Button>
                             <Button
                                 type="button"
@@ -1181,11 +1273,238 @@ const getLabItemPrice = (inventoryId: number) => {
                             </CardContent>
                         </Card>
 
+                        <!-- Medical Services Selection Dialog -->
+                        <Card
+                            v-if="showMedicalServiceDialog"
+                            class="border-primary"
+                        >
+                            <CardHeader>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle
+                                            >Select Medical Services</CardTitle
+                                        >
+                                        <CardDescription
+                                            >Choose procedures and imaging
+                                            services</CardDescription
+                                        >
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            @click="
+                                                showMedicalServiceDialog = false
+                                            "
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            @click="
+                                                addSelectedMedicalServiceItems
+                                            "
+                                            :disabled="
+                                                selectedMedicalServiceCount ===
+                                                0
+                                            "
+                                        >
+                                            Add
+                                            {{
+                                                selectedMedicalServiceCount > 0
+                                                    ? `(${selectedMedicalServiceCount})`
+                                                    : ''
+                                            }}
+                                            Selected
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div class="mb-4">
+                                    <div class="relative">
+                                        <Search
+                                            class="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-muted-foreground"
+                                        />
+                                        <Input
+                                            v-model="medicalServiceSearchQuery"
+                                            placeholder="Search services..."
+                                            class="pl-10"
+                                        />
+                                    </div>
+                                </div>
+                                <Tabs v-model="activeMedicalServiceType">
+                                    <TabsList
+                                        class="grid w-full"
+                                        :style="`grid-template-columns: repeat(${medicalServiceTypes.length || 1}, 1fr)`"
+                                    >
+                                        <TabsTrigger value="All"
+                                            >All Services</TabsTrigger
+                                        >
+                                        <TabsTrigger
+                                            v-for="type in medicalServiceTypes"
+                                            :key="type"
+                                            :value="type"
+                                        >
+                                            {{ type }}
+                                        </TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="All" class="space-y-4">
+                                        <div
+                                            class="max-h-96 space-y-2 overflow-y-auto"
+                                        >
+                                            <div
+                                                v-for="service in filteredMedicalServices"
+                                                :key="service.id"
+                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :id="`service-item-${service.id}`"
+                                                    :checked="
+                                                        selectedMedicalServiceItems.includes(
+                                                            service.id,
+                                                        )
+                                                    "
+                                                    @change="
+                                                        toggleMedicalServiceItem(
+                                                            service.id,
+                                                            (
+                                                                $event.target as HTMLInputElement
+                                                            ).checked,
+                                                        )
+                                                    "
+                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                />
+                                                <label
+                                                    :for="`service-item-${service.id}`"
+                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
+                                                    {{ service.name }}
+                                                    <span
+                                                        v-if="
+                                                            service.description
+                                                        "
+                                                        class="mt-1 ml-2 block text-xs text-muted-foreground"
+                                                        >{{
+                                                            service.description
+                                                        }}</span
+                                                    >
+                                                </label>
+                                                <div class="text-right text-xs">
+                                                    <div
+                                                        class="font-medium text-green-600 dark:text-green-400"
+                                                    >
+                                                        {{
+                                                            formatPrice(
+                                                                service.price,
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-muted-foreground capitalize"
+                                                    >
+                                                        {{ service.type }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                v-if="
+                                                    filteredMedicalServices.length ===
+                                                    0
+                                                "
+                                                class="py-8 text-center text-muted-foreground"
+                                            >
+                                                No services found matching "{{
+                                                    medicalServiceSearchQuery
+                                                }}"
+                                            </div>
+                                        </div>
+                                    </TabsContent>
+                                    <TabsContent
+                                        v-for="type in medicalServiceTypes"
+                                        :key="type"
+                                        :value="type"
+                                        class="space-y-4"
+                                    >
+                                        <div
+                                            class="max-h-96 space-y-2 overflow-y-auto"
+                                        >
+                                            <div
+                                                v-for="service in filteredMedicalServices"
+                                                :key="service.id"
+                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    :id="`service-item-type-${service.id}`"
+                                                    :checked="
+                                                        selectedMedicalServiceItems.includes(
+                                                            service.id,
+                                                        )
+                                                    "
+                                                    @change="
+                                                        toggleMedicalServiceItem(
+                                                            service.id,
+                                                            (
+                                                                $event.target as HTMLInputElement
+                                                            ).checked,
+                                                        )
+                                                    "
+                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                />
+                                                <label
+                                                    :for="`service-item-type-${service.id}`"
+                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
+                                                    {{ service.name }}
+                                                    <span
+                                                        v-if="
+                                                            service.description
+                                                        "
+                                                        class="mt-1 ml-2 block text-xs text-muted-foreground"
+                                                        >{{
+                                                            service.description
+                                                        }}</span
+                                                    >
+                                                </label>
+                                                <div class="text-right text-xs">
+                                                    <div
+                                                        class="font-medium text-green-600 dark:text-green-400"
+                                                    >
+                                                        {{
+                                                            formatPrice(
+                                                                service.price,
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                v-if="
+                                                    filteredMedicalServices.length ===
+                                                    0
+                                                "
+                                                class="py-8 text-center text-muted-foreground"
+                                            >
+                                                No services found matching "{{
+                                                    medicalServiceSearchQuery
+                                                }}"
+                                            </div>
+                                        </div>
+                                    </TabsContent>
+                                </Tabs>
+                            </CardContent>
+                        </Card>
+
                         <div
                             v-if="
                                 form.order_items.length === 0 &&
                                 !showLabDialog &&
-                                !showRxDialog
+                                !showRxDialog &&
+                                !showMedicalServiceDialog
                             "
                             class="rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground"
                         >

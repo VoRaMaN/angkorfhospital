@@ -14,7 +14,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { ChevronsUpDown, Check } from 'lucide-vue-next';
+import { Check, ChevronsUpDown } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Option {
@@ -23,7 +23,7 @@ interface Option {
 }
 
 interface Props {
-    options: Option[];
+    options?: Option[];
     modelValue: string;
     placeholder?: string;
     searchPlaceholder?: string;
@@ -33,6 +33,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    options: () => [],
     placeholder: 'Select...',
     searchPlaceholder: 'Search...',
     emptyText: 'No results found.',
@@ -45,7 +46,7 @@ const emit = defineEmits<{
 const open = ref(false);
 
 const selectedOption = computed(() => {
-    return props.options.find(option => option.value === props.modelValue);
+    return props.options.find((option) => option.value === props.modelValue);
 });
 
 const selectedLabel = computed(() => {
@@ -72,7 +73,10 @@ const handleSelect = (value: string) => {
                 <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
         </PopoverTrigger>
-        <PopoverContent class="w-full p-0" :class="cn('w-[--radix-popover-trigger-width]')">
+        <PopoverContent
+            class="w-full p-0"
+            :class="cn('w-[--radix-popover-trigger-width]')"
+        >
             <Command>
                 <CommandInput :placeholder="searchPlaceholder" />
                 <CommandList>
@@ -85,10 +89,14 @@ const handleSelect = (value: string) => {
                             @select="handleSelect(option.value)"
                         >
                             <Check
-                                :class="cn(
-                                    'mr-2 h-4 w-4',
-                                    selectedOption?.value === option.value ? 'opacity-100' : 'opacity-0'
-                                )"
+                                :class="
+                                    cn(
+                                        'mr-2 h-4 w-4',
+                                        selectedOption?.value === option.value
+                                            ? 'opacity-100'
+                                            : 'opacity-0',
+                                    )
+                                "
                             />
                             {{ option.label }}
                         </CommandItem>

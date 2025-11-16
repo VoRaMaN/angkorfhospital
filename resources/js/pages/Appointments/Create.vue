@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +12,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import SearchableSelect from '@/components/SearchableSelect.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
@@ -80,7 +80,12 @@ const form = useForm({
                         <Label for="patient_id">Patient</Label>
                         <SearchableSelect
                             v-model="form.patient_id"
-                            :options="props.patients.map(p => ({ value: p.id.toString(), label: p.user?.name || 'Unknown Patient' }))"
+                            :options="
+                                props.patients.map((p) => ({
+                                    value: p.id.toString(),
+                                    label: p.user?.name || 'Unknown Patient',
+                                }))
+                            "
                             placeholder="Select a patient"
                             search-placeholder="Search patients..."
                             empty-text="No patients found."
@@ -97,7 +102,12 @@ const form = useForm({
                         <Label for="staff_id">Staff</Label>
                         <SearchableSelect
                             v-model="form.staff_id"
-                            :options="props.staff.map(s => ({ value: s.id.toString(), label: `${s.user?.name || 'Unknown Staff'} (${s.role?.name || 'Staff'})` }))"
+                            :options="
+                                props.staff.map((s) => ({
+                                    value: s.id.toString(),
+                                    label: `${s.user?.name || 'Unknown Staff'} (${s.role?.name || 'Staff'})`,
+                                }))
+                            "
                             placeholder="Select staff"
                             search-placeholder="Search staff..."
                             empty-text="No staff found."

@@ -26,13 +26,13 @@ class AppointmentController extends Controller
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name),
-                    ] : ['name' => trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name)],
+                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
+                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
-                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name),
-                    ] : ['name' => trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name)],
+                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
+                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'duration_minutes' => $appointment->duration_minutes ?? 30,
@@ -66,7 +66,7 @@ class AppointmentController extends Controller
 
         // Filter appointments based on user role
         $user = auth()->user();
-        if ($user->hasRole('Doctor') && $user->staff && !$user->hasRole('admin') && !$user->can('view_appointments')) {
+        if ($user->hasRole('Doctor') && $user->staff && ! $user->hasRole('admin') && ! $user->can('view_appointments')) {
             // Doctors can only see their own appointments unless they have broader permissions
             $query->where('staff_id', $user->staff->id);
         }
@@ -79,13 +79,13 @@ class AppointmentController extends Controller
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name),
-                    ] : ['name' => trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name)],
+                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
+                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
-                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name),
-                    ] : ['name' => trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name)],
+                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
+                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'duration_minutes' => $appointment->duration_minutes ?? 30,

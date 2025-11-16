@@ -118,12 +118,23 @@ class MedicalOrderController extends Controller
                 ];
             });
 
+        $medicalServices = \App\Models\MedicalService::all()->map(function ($service) {
+            return [
+                'id' => $service->id,
+                'name' => $service->name,
+                'description' => $service->description,
+                'type' => $service->type,
+                'price' => $service->price,
+            ];
+        });
+
         return Inertia::render('MedicalOrders/Create', [
             'patients' => $patients,
             'staff' => $staff,
             'labPanels' => $labPanels,
             'inventoryItems' => $inventoryItems,
             'rxMedicines' => $rxMedicines,
+            'medicalServices' => $medicalServices,
         ]);
     }
 
@@ -292,6 +303,16 @@ class MedicalOrderController extends Controller
                 ];
             });
 
+        $medicalServices = \App\Models\MedicalService::all()->map(function ($service) {
+            return [
+                'id' => $service->id,
+                'name' => $service->name,
+                'description' => $service->description,
+                'type' => $service->type,
+                'price' => $service->price,
+            ];
+        });
+
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
@@ -326,6 +347,7 @@ class MedicalOrderController extends Controller
             'labPanels' => $labPanels,
             'inventoryItems' => $inventoryItems,
             'rxMedicines' => $rxMedicines,
+            'medicalServices' => $medicalServices,
         ]);
     }
 
