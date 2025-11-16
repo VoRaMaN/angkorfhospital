@@ -11,26 +11,43 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin user
-        $admin = \App\Models\User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@clinic.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-        ]);
+        $users = [
+            [
+                'name' => 'Admin User',
+                'email' => 'admin@clinic.com',
+                'role' => 'admin',
+            ],
+            [
+                'name' => 'Doctor User',
+                'email' => 'doctor@clinic.com',
+                'role' => 'doctor',
+            ],
+            [
+                'name' => 'Nurse User',
+                'email' => 'nurse@clinic.com',
+                'role' => 'nurse',
+            ],
+            [
+                'name' => 'Receptionist User',
+                'email' => 'receptionist@clinic.com',
+                'role' => 'receptionist',
+            ],
+            [
+                'name' => 'Accountant User',
+                'email' => 'accountant@clinic.com',
+                'role' => 'accountant',
+            ],
+        ];
 
-        // Assign admin role
-        $admin->assignRole('admin');
+        foreach ($users as $userData) {
+            $user = \App\Models\User::create([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]);
 
-        // Create test user
-        $testUser = \App\Models\User::create([
-            'name' => 'Doctor User',
-            'email' => 'doctor@clinic.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-        ]);
-
-        // Assign staff role to test user
-        $testUser->assignRole('Doctor');
+            $user->assignRole($userData['role']);
+        }
     }
 }

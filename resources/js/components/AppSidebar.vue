@@ -70,12 +70,6 @@ const coreNavItems = computed(() => [
         permissions: 'view_appointments',
     },
     {
-        title: 'Lab Panels',
-        href: labPanelIndex().url,
-        icon: Heart,
-        permissions: 'view_lab_packages',
-    },
-    {
         title: 'Visits',
         href: visitsIndex().url,
         icon: Calendar,
@@ -135,6 +129,12 @@ const documentNavItems = computed(() => [
 ]);
 
 const medicalResourcesNavItems = computed(() => [
+    {
+        title: 'Lab Panels',
+        href: labPanelIndex().url,
+        icon: Heart,
+        permissions: 'view_lab_packages',
+    },
     {
         title: 'All Inventory',
         href: inventoryIndex().url,
@@ -300,6 +300,21 @@ const footerNavItems: NavItem[] = [];
                 </SidebarMenu>
             </SidebarGroup>
 
+            <!-- Doctors Section -->
+            <SidebarGroup class="px-2 py-0" v-if="showDoctorsSection">
+                <SidebarGroupLabel>Doctors</SidebarGroupLabel>
+                <SidebarMenu>
+                    <SidebarMenuItem v-for="item in filteredDoctorNavItems" :key="item.title">
+                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                            <Link :href="item.href" :preserve-scroll="true">
+                            <component :is="item.icon" />
+                            <span>{{ item.title }}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarGroup>
+
             <!-- Documents -->
             <SidebarGroup class="px-2 py-0" v-if="showDocuments">
                 <SidebarGroupLabel>Documents</SidebarGroupLabel>
@@ -350,21 +365,6 @@ const footerNavItems: NavItem[] = [];
                 <SidebarGroupLabel>Financial</SidebarGroupLabel>
                 <SidebarMenu>
                     <SidebarMenuItem v-for="item in filteredFinancialNavItems" :key="item.title">
-                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
-                            <Link :href="item.href" :preserve-scroll="true">
-                            <component :is="item.icon" />
-                            <span>{{ item.title }}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarGroup>
-
-            <!-- Doctors Section -->
-            <SidebarGroup class="px-2 py-0" v-if="showDoctorsSection">
-                <SidebarGroupLabel>Doctors</SidebarGroupLabel>
-                <SidebarMenu>
-                    <SidebarMenuItem v-for="item in filteredDoctorNavItems" :key="item.title">
                         <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
                             <Link :href="item.href" :preserve-scroll="true">
                             <component :is="item.icon" />

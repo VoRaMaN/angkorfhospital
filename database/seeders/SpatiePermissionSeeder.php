@@ -193,5 +193,33 @@ class SpatiePermissionSeeder extends Seeder
             'view_billing', // Can view their own billing
             'view_files', // Can view their own files
         ]);
+
+        $accountantRole = Role::firstOrCreate(['name' => 'accountant']);
+        $accountantRole->syncPermissions([
+            'view_billing',
+            'create_billing',
+            'edit_billing',
+            'delete_billing',
+            'view_inventory',
+            'view_visits',
+        ]);
+
+        $receptionistRole = Role::firstOrCreate(['name' => 'receptionist']);
+        $receptionistRole->syncPermissions([
+            'view_users',
+            'view_patients',
+            'create_patients',
+            'edit_patients',
+            'view_appointments',
+            'create_appointments',
+            'edit_appointments',
+            'view_visits',
+            'create_visits',
+            'edit_visits',
+            'view_billing',
+            'view_files',
+            'create_files',
+            'edit_files',
+        ]);
     }
 }
