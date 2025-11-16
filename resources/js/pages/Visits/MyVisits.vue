@@ -11,13 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
     Table,
     TableBody,
     TableCell,
@@ -38,7 +31,8 @@ import {
     UserCheck,
 } from 'lucide-vue-next';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import SearchableSelect from '@/components/SearchableSelect.vue';
 
 interface Visit {
     id: number;
@@ -82,7 +76,11 @@ interface Props {
     }>;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const staffOptions = computed(() =>
+    props.staff.map(s => ({ value: s.id.toString(), label: s.name }))
+);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -266,22 +264,12 @@ const getStatusColor = (status: string) => {
                 <div class="grid gap-4 py-4">
                     <div class="grid grid-cols-4 items-center gap-4">
                         <Label for="staff" class="text-right"> Staff </Label>
-                        <Select v-model="assignForm.staff_id">
-                            <SelectTrigger class="col-span-3">
-                                <SelectValue
-                                    placeholder="Select staff member"
-                                />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem
-                                    v-for="staff in $props.staff"
-                                    :key="staff.id"
-                                    :value="staff.id.toString()"
-                                >
-                                    {{ staff.name }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            v-model="assignForm.staff_id"
+                            :options="staffOptions"
+                            placeholder="Select staff member"
+                            class="col-span-3"
+                        />
                     </div>
                 </div>
                 <DialogFooter>
