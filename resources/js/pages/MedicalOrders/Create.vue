@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SearchableSelect from '@/components/SearchableSelect.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
