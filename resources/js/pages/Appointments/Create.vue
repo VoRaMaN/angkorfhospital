@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
@@ -77,22 +78,13 @@ const form = useForm({
                 >
                     <div class="space-y-2">
                         <Label for="patient_id">Patient</Label>
-                        <Select v-model="form.patient_id">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a patient" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem
-                                    v-for="patient in props.patients"
-                                    :key="patient.id"
-                                    :value="patient.id.toString()"
-                                >
-                                    {{
-                                        patient.user?.name || 'Unknown Patient'
-                                    }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            v-model="form.patient_id"
+                            :options="props.patients.map(p => ({ value: p.id.toString(), label: p.user?.name || 'Unknown Patient' }))"
+                            placeholder="Select a patient"
+                            search-placeholder="Search patients..."
+                            empty-text="No patients found."
+                        />
                         <div
                             v-if="form.errors.patient_id"
                             class="text-sm text-destructive"
@@ -103,24 +95,13 @@ const form = useForm({
 
                     <div class="space-y-2">
                         <Label for="staff_id">Staff</Label>
-                        <Select v-model="form.staff_id">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select staff" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem
-                                    v-for="staffMember in props.staff"
-                                    :key="staffMember.id"
-                                    :value="staffMember.id.toString()"
-                                >
-                                    {{
-                                        staffMember.user?.name ||
-                                        'Unknown Staff'
-                                    }}
-                                    ({{ staffMember.role?.name || 'Staff' }})
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            v-model="form.staff_id"
+                            :options="props.staff.map(s => ({ value: s.id.toString(), label: `${s.user?.name || 'Unknown Staff'} (${s.role?.name || 'Staff'})` }))"
+                            placeholder="Select staff"
+                            search-placeholder="Search staff..."
+                            empty-text="No staff found."
+                        />
                         <div
                             v-if="form.errors.staff_id"
                             class="text-sm text-destructive"

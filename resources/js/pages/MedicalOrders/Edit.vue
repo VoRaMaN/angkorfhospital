@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { index, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -155,6 +156,16 @@ const form = useForm<{
     order_items: props.medicalOrder.order_items.map((item) => ({ ...item })),
 });
 
+const patientValue = computed({
+    get: () => form.patient_id?.toString() || 'null',
+    set: (value) => { form.patient_id = value === 'null' ? null : Number(value); }
+});
+
+const staffValue = computed({
+    get: () => form.staff_id?.toString() || 'null',
+    set: (value) => { form.staff_id = value === 'null' ? null : Number(value); }
+});
+
 const submitForm = () => {
     console.log('Submitting form data:', form.data());
     form.put(update(props.medicalOrder.id).url);
@@ -255,15 +266,6 @@ const rxCategories = computed(() => {
 });
 
 const activeRxCategory = ref<string>('All');
-
-const rxMedicinesByCategory = computed(() => {
-    if (!activeRxCategory.value || activeRxCategory.value === 'All') {
-        return props.rxMedicines;
-    }
-    return props.rxMedicines.filter(
-        (med) => med.category === activeRxCategory.value,
-    );
-});
 
 const toggleRxItem = (itemId: number, checked: boolean) => {
     if (checked) {
@@ -471,19 +473,6 @@ const getItemTypeIcon = (type: string) => {
     return icons[type] || Package;
 };
 
-const getItemTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-        lab: 'Lab Test',
-        rx_medicine: 'RX Medicine',
-        procedure: 'Procedure',
-        imaging: 'Imaging',
-        consultation: 'Consultation',
-        therapy: 'Therapy',
-        supply: 'Supply',
-    };
-    return labels[type] || type;
-};
-
 const groupedOrderItems = computed(() => {
     const groups: Record<
         string,
@@ -568,27 +557,11 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                             <FormField name="patient_id">
                                 <FormItem>
                                     <Label>Patient</Label>
-                                    <FormControl>
-                                        <Select v-model="form.patient_id">
-                                            <SelectTrigger>
-                                                <SelectValue
-                                                    placeholder="Select a patient (optional)"
-                                                />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem :value="null"
-                                                    >None</SelectItem
-                                                >
-                                                <SelectItem
-                                                    v-for="patient in patients"
-                                                    :key="patient.id"
-                                                    :value="patient.id"
-                                                >
-                                                    {{ patient.name }}
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
+                                    <SearchableSelect
+                                        v-model="patientValue"
+                                        :options="patientOptions"
+                                        placeholder="Select a patient (optional)"
+                                    />
                                     <div
                                         v-if="form.errors.patient_id"
                                         class="text-sm text-destructive"
@@ -601,27 +574,11 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                             <FormField name="staff_id">
                                 <FormItem>
                                     <Label>Ordering Staff</Label>
-                                    <FormControl>
-                                        <Select v-model="form.staff_id">
-                                            <SelectTrigger>
-                                                <SelectValue
-                                                    placeholder="Select staff member (optional)"
-                                                />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem :value="null"
-                                                    >None</SelectItem
-                                                >
-                                                <SelectItem
-                                                    v-for="staff in staff"
-                                                    :key="staff.id"
-                                                    :value="staff.id"
-                                                >
-                                                    {{ staff.name }}
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
+                                    <SearchableSelect
+                                        v-model="staffValue"
+                                        :options="staffOptions"
+                                        placeholder="Select a staff member (optional)"
+                                    />
                                     <div
                                         v-if="form.errors.staff_id"
                                         class="text-sm text-destructive"

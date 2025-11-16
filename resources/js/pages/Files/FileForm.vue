@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import {
     store as patientStore,
     update as patientUpdate,
@@ -49,6 +50,13 @@ const form = useForm({
         props.item?.[entityKey]?.toString() ||
         (props.currentStaff ? props.currentStaff.id.toString() : ''),
     type: props.item?.type || '',
+});
+
+const entityOptions = computed(() => entities.map(e => ({ value: e.id.toString(), label: e.name })));
+
+const entityValue = computed({
+    get: () => form[entityKey] || '',
+    set: (value) => { form[entityKey] = value; }
 });
 
 const isPatient = !!props.patients;
@@ -150,24 +158,11 @@ const submitForm = () => {
         <FormField v-if="props.patients" v-slot="{}" :name="entityKey">
             <FormItem>
                 <FormLabel>{{ entityLabel }}</FormLabel>
-                <Select v-model="form[entityKey]">
-                    <FormControl>
-                        <SelectTrigger>
-                            <SelectValue
-                                :placeholder="`Select a ${entityLabel.toLowerCase()}`"
-                            />
-                        </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        <SelectItem
-                            v-for="entity in entities"
-                            :key="entity.id"
-                            :value="entity.id.toString()"
-                        >
-                            {{ entity.name }}
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
+                <SearchableSelect
+                    v-model="entityValue"
+                    :options="entityOptions"
+                    :placeholder="`Select a ${entityLabel.toLowerCase()}`"
+                />
                 <FormMessage />
             </FormItem>
         </FormField>

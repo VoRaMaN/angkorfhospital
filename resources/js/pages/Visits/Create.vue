@@ -12,9 +12,11 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 interface Patient {
     id: number;
@@ -57,7 +59,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const form = useForm({
+const form = useForm<{
+    appointment_id: string | null;
+    patient_id: string;
+    staff_id: string | null;
+    visit_date_time: string;
+    status: string;
+    notes: string;
+}>({
     appointment_id: null,
     patient_id: '',
     staff_id: null,
@@ -66,13 +75,26 @@ const form = useForm({
     notes: '',
 });
 
+const patientOptions = computed(() => [{ value: 'null', label: 'Select a patient' }, ...props.patients.map(p => ({ value: p.id.toString(), label: p.user.name }))]);
+const staffOptions = computed(() => [{ value: 'null', label: 'Unassigned' }, ...props.staff.map(s => ({ value: s.id.toString(), label: s.user.name }))]);
+
+const patientValue = computed({
+    get: () => form.patient_id || 'null',
+    set: (value) => { form.patient_id = value === 'null' ? '' : value; }
+});
+
+const staffValue = computed({
+    get: () => (form.staff_id ? String(form.staff_id) : 'null'),
+    set: (value) => { form.staff_id = value === 'null' ? null : value; }
+});
+
 const submit = () => {
     // Transform form data before submission
     const transformedData = {
         appointment_id:
             form.appointment_id === 'none' ? null : form.appointment_id,
-        patient_id: form.patient_id,
-        staff_id: form.staff_id === 'none' ? null : form.staff_id,
+        patient_id: form.patient_id === '' ? null : form.patient_id,
+        staff_id: form.staff_id,
         visit_date_time: form.visit_date_time,
         status: form.status,
         notes: form.notes,
@@ -149,22 +171,11 @@ const submit = () => {
 
                             <div class="space-y-2">
                                 <Label for="patient_id">Patient *</Label>
-                                <Select v-model="form.patient_id" required>
-                                    <SelectTrigger>
-                                        <SelectValue
-                                            placeholder="Select a patient"
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem
-                                            v-for="patient in patients"
-                                            :key="patient.id"
-                                            :value="patient.id.toString()"
-                                        >
-                                            {{ patient.user.name }}
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    v-model="patientValue"
+                                    :options="patientOptions"
+                                    placeholder="Select a patient"
+                                />
                                 <div
                                     v-if="form.errors.patient_id"
                                     class="text-sm text-red-600"
@@ -177,25 +188,11 @@ const submit = () => {
                                 <Label for="staff_id"
                                     >Assigned Staff (Optional)</Label
                                 >
-                                <Select v-model="form.staff_id">
-                                    <SelectTrigger>
-                                        <SelectValue
-                                            placeholder="Select staff member"
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none"
-                                            >Unassigned</SelectItem
-                                        >
-                                        <SelectItem
-                                            v-for="staffMember in staff"
-                                            :key="staffMember.id"
-                                            :value="staffMember.id.toString()"
-                                        >
-                                            {{ staffMember.user.name }}
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    v-model="staffValue"
+                                    :options="staffOptions"
+                                    placeholder="Select staff member (optional)"
+                                />
                             </div>
 
                             <div class="space-y-2">
