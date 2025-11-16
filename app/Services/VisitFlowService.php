@@ -73,28 +73,6 @@ class VisitFlowService
     }
 
     /**
-     * Process the medical order.
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function processMedicalOrder(int $medicalOrderId): void
-    {
-        $medicalOrder = MedicalOrder::with('orderItems')->findOrFail($medicalOrderId);
-
-        // Check if the medical order has any items
-        if ($medicalOrder->orderItems->isEmpty()) {
-            throw new \InvalidArgumentException('Cannot process medical order with no items. Please add at least one item before processing.');
-        }
-
-        // Update the status to processing
-        $medicalOrder->update([
-            'status' => MedicalOrderStatusEnum::PROCESSED,
-        ]);
-
-        // Here you could add logic to notify staff, update inventory, etc.
-    }
-
-    /**
      * Complete the medical order and potentially the visit.
      */
     public function completeMedicalOrder(int $medicalOrderId): void
@@ -118,7 +96,7 @@ class VisitFlowService
                 $visit->update(['status' => Visit::STATUS_COMPLETED]);
 
                 // Create medical record for the visit if it doesn't exist
-                if (! $visit->medicalRecord) {
+                if (!$visit->medicalRecord) {
                     $appointment = $visit->appointment;
                     // Generate diagnosis and treatment based on completed orders
                     $diagnosis = $this->generateDiagnosisFromOrders($visit);
@@ -207,7 +185,7 @@ class VisitFlowService
         $completedOrders = $visit->medicalOrders()->where('status', MedicalOrderStatusEnum::COMPLETED)->get();
         $notes = [];
 
-        $notes[] = 'Visit completed on '.$visit->visit_date_time->format('M j, Y \a\t g:i A');
+        $notes[] = 'Visit completed on ' . $visit->visit_date_time->format('M j, Y \a\t g:i A');
 
         foreach ($completedOrders as $order) {
             $orderNotes = [];
@@ -259,7 +237,7 @@ class VisitFlowService
         ]);
 
         // Also assign staff to the visit if not already assigned
-        if ($medicalOrder->visit && ! $medicalOrder->visit->staff_id) {
+        if ($medicalOrder->visit && !$medicalOrder->visit->staff_id) {
             $medicalOrder->visit->update([
                 'staff_id' => $staffId,
                 'status' => Visit::STATUS_ASSIGNED,

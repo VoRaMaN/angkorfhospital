@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Medical Orders
     Route::resource('medical-orders', MedicalOrderController::class);
     Route::get('medical-orders/{medical_order}/process', [MedicalOrderController::class, 'processPage'])->name('medical-orders.process-page');
-    Route::get('medical-orders/{medical_order}/already-processed', [MedicalOrderController::class, 'alreadyProcessedPage'])->name('medical-orders.already-processed');
+    Route::get('medical-orders/{medical_order}/processing', [MedicalOrderController::class, 'processingPage'])->name('medical-orders.processing-page');
     Route::patch('medical-orders/{medical_order}/process-with-update', [MedicalOrderController::class, 'processWithUpdate'])->name('medical-orders.process-with-update');
     Route::get('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'completePage'])->name('medical-orders.complete-page');
     Route::patch('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'complete'])->name('medical-orders.complete');
@@ -89,4 +89,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

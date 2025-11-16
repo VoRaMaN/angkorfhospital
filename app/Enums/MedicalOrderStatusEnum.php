@@ -7,7 +7,7 @@ enum MedicalOrderStatusEnum: string
     case PENDING = 'pending';
     case PROCESSING = 'processing';
     case PROCESSED = 'processed';
-    case COMPLETED = 'complete';
+    case COMPLETED = 'completed';
     case CANCEL = 'cancel';
     case REJECTED = 'rejected';
 

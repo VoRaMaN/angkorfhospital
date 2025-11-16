@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MedicalOrderStatusEnum;
 use App\Models\Billing;
 use App\Models\Inventory;
 use App\Models\MedicalOrder;
@@ -101,7 +102,7 @@ class MedicalOrderBillingService
 
             // Update order status to completed
             $medicalOrder->update([
-                'status' => 'completed',
+                'status' => MedicalOrderStatusEnum::COMPLETED,
                 'completed_at' => now(),
             ]);
 
@@ -163,7 +164,7 @@ class MedicalOrderBillingService
                 $inventory = $orderItem->inventory;
                 $quantity = $orderItem->quantity_required ?? 1;
 
-                if (! $inventory) {
+                if (!$inventory) {
                     $issues[] = "Inventory item not found for: {$orderItem->item_name}";
                 } elseif ($inventory->quantity < $quantity) {
                     $issues[] = "Insufficient stock for {$orderItem->item_name}. Available: {$inventory->quantity}, Required: {$quantity}";
@@ -234,8 +235,8 @@ class MedicalOrderBillingService
             // Update order status
             $medicalOrder->update([
                 'status' => 'cancelled',
-                'notes' => ($medicalOrder->notes ? $medicalOrder->notes."\n" : '').
-                          'Cancelled: '.($reason ?? 'No reason provided').' - '.now()->format('Y-m-d H:i'),
+                'notes' => ($medicalOrder->notes ? $medicalOrder->notes . "\n" : '') .
+                    'Cancelled: ' . ($reason ?? 'No reason provided') . ' - ' . now()->format('Y-m-d H:i'),
             ]);
 
             // Update order items status
@@ -252,8 +253,8 @@ class MedicalOrderBillingService
             if ($billing) {
                 $billing->update([
                     'status' => 'cancelled',
-                    'notes' => ($billing->notes ? $billing->notes."\n" : '').
-                              'Cancelled due to order cancellation: '.($reason ?? 'No reason provided'),
+                    'notes' => ($billing->notes ? $billing->notes . "\n" : '') .
+                        'Cancelled due to order cancellation: ' . ($reason ?? 'No reason provided'),
                 ]);
             }
 

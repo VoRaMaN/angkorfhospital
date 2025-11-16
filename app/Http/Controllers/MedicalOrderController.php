@@ -435,10 +435,10 @@ class MedicalOrderController extends Controller
 
         // Update the status to processed
         $medicalOrder->update([
-            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSED,
+            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
         ]);
 
-        return redirect()->route('medical-orders.already-processed', $medicalOrder->id)
+        return redirect()->route('medical-orders.processing-page', $medicalOrder->id)
             ->with('success', 'Medical order processed successfully.');
     }
 
@@ -451,7 +451,7 @@ class MedicalOrderController extends Controller
 
         // If the order is already processed or completed, redirect to already processed page
         if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PENDING) {
-            return redirect()->route('medical-orders.already-processed', $medicalOrder);
+            return redirect()->route('medical-orders.processing-page', $medicalOrder);
         }
 
         $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory']);
@@ -504,6 +504,16 @@ class MedicalOrderController extends Controller
                 ];
             });
 
+        $medicalServices = \App\Models\MedicalService::all()->map(function ($service) {
+            return [
+                'id' => $service->id,
+                'name' => $service->name,
+                'description' => $service->description,
+                'type' => $service->type,
+                'price' => $service->price,
+            ];
+        });
+
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
@@ -544,13 +554,14 @@ class MedicalOrderController extends Controller
             'labPanels' => $labPanels,
             'inventoryItems' => $inventoryItems,
             'rxMedicines' => $rxMedicines,
+            'medicalServices' => $medicalServices,
         ]);
     }
 
     /**
      * Show the already processed page for a medical order.
      */
-    public function alreadyProcessedPage(MedicalOrder $medicalOrder): Response
+    public function processingPage(MedicalOrder $medicalOrder): Response
     {
         $this->authorize('view', $medicalOrder);
         $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.medicalRecord']);
@@ -616,7 +627,7 @@ class MedicalOrderController extends Controller
             }),
         ];
 
-        return Inertia::render('MedicalOrders/AlreadyProcessed', [
+        return Inertia::render('MedicalOrders/Processing', [
             'medicalOrder' => $transformedOrder,
             'labPanels' => $labPanels,
         ]);
@@ -698,7 +709,7 @@ class MedicalOrderController extends Controller
         $this->authorize('update', $medicalOrder);
 
         // Only allow processing if the order is pending or processed
-        if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
+        if (!in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
             return redirect()->back()->with('error', 'This medical order cannot be processed for billing.');
         }
 
@@ -706,7 +717,7 @@ class MedicalOrderController extends Controller
 
         // Check if order can be processed (sufficient inventory)
         $canProcess = $billingService->canProcessOrder($medicalOrder);
-        if (! $canProcess['can_process']) {
+        if (!$canProcess['can_process']) {
             $issues = implode(', ', $canProcess['issues']);
 
             return redirect()->back()->with('error', "Cannot process order due to inventory issues: {$issues}");
@@ -716,13 +727,18 @@ class MedicalOrderController extends Controller
             // Process the order and create billing
             $billing = $billingService->processOrderAndCreateBilling(
                 $medicalOrder,
-                'Processed and billed on '.now()->format('Y-m-d H:i')
+                'Processed and billed on ' . now()->format('Y-m-d H:i')
             );
 
+            // Update the status to processed
+            $medicalOrder->update([
+                'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSED,
+            ]);
+
             return redirect()->route('medical-orders.show', $medicalOrder)
-                ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
+                ->with('success', 'Medical order processed successfully. Billing created with total amount: $' . number_format((float) $billing->amount, 2));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to process medical order: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Failed to process medical order: ' . $e->getMessage());
         }
     }
 
@@ -761,7 +777,7 @@ class MedicalOrderController extends Controller
                 return redirect()->back()->with('error', 'Failed to cancel medical order. Only completed orders can be cancelled.');
             }
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to cancel medical order: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Failed to cancel medical order: ' . $e->getMessage());
         }
     }
 
