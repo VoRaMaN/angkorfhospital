@@ -113,6 +113,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const expandedItems = ref<Set<number>>(new Set());
+const showConfirmDialog = ref(false);
 
 const toggleItemExpansion = (itemId: number) => {
     const newExpanded = new Set(expandedItems.value);
@@ -265,14 +266,17 @@ const orderSummary = computed(() => {
     return summary;
 });
 
-const processOrder = () => {
-    if (confirm('Are you sure you want to mark this medical order as processed?')) {
-        router.patch(confirmProcessed(props.medicalOrder.id).url, {}, {
-            onSuccess: () => {
-                // Redirect or refresh handled by Inertia
-            },
-        });
-    }
+const confirmProcessOrder = () => {
+    showConfirmDialog.value = true;
+};
+
+const executeProcessOrder = () => {
+    showConfirmDialog.value = false;
+    router.patch(confirmProcessed(props.medicalOrder.id).url, {}, {
+        onSuccess: () => {
+            // Redirect or refresh handled by Inertia
+        },
+    });
 };
 </script>
 
@@ -305,7 +309,7 @@ const processOrder = () => {
                     <Button v-if="
                         medicalOrder.status === 'processing' &&
                         hasPermission('process_medical_orders')
-                    " variant="default" @click="processOrder">
+                    " variant="default" @click="confirmProcessOrder">
                         <Play class="mr-2 size-4" />
                         Confirm Processed
                     </Button>
@@ -710,4 +714,24 @@ const processOrder = () => {
             </div>
         </div>
     </AppLayout>
+
+    <Dialog v-model:open="showConfirmDialog">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Confirm Process Order</DialogTitle>
+                <DialogDescription>
+                    Are you sure you want to mark this medical order as processed?
+                    <br /><br />
+                    <strong>This action cannot be undone.</strong>
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                <Button variant="outline" @click="showConfirmDialog = false">Cancel</Button>
+                <Button @click="executeProcessOrder">
+                    <Play class="mr-2 size-4" />
+                    Confirm Processed
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

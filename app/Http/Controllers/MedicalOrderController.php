@@ -474,6 +474,11 @@ class MedicalOrderController extends Controller
             'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
         ]);
 
+        // Update visit status to in_progress when medical order is processing
+        if ($medicalOrder->visit) {
+            $medicalOrder->visit->update(['status' => \App\Models\Visit::STATUS_IN_PROGRESS]);
+        }
+
         return redirect()->route('medical-orders.processing-page', $medicalOrder->id)
             ->with('success', 'Medical order processed successfully.');
     }
@@ -805,6 +810,11 @@ class MedicalOrderController extends Controller
             'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSED,
         ]);
 
+        // Update visit status to awaiting_accountant when medical order is processed
+        if ($medicalOrder->visit) {
+            $medicalOrder->visit->update(['status' => \App\Models\Visit::STATUS_AWAITING_ACCOUNTANT]);
+        }
+
         return redirect()->route('medical-orders.complete-page', $medicalOrder)
             ->with('success', 'Medical order confirmed as processed successfully.');
     }
@@ -829,26 +839,31 @@ class MedicalOrderController extends Controller
     {
         $this->authorize('update', $medicalOrder);
 
-        // Only allow sending back if the order is in processing status
-        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PROCESSING) {
-            return redirect()->back()->with('error', 'This medical order cannot be sent back for revision.');
-        }
-
         $request->validate([
             'reason' => 'required|string|max:1000',
         ]);
 
-        // Update the status back to pending and add the reason to notes
+        // Update the status back to processing and add the reason to notes
         $currentNotes = $medicalOrder->notes ? $medicalOrder->notes."\n\n" : '';
         $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason;
 
         $medicalOrder->update([
-            'status' => \App\Enums\MedicalOrderStatusEnum::PENDING,
+            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
             'notes' => $currentNotes.$revisionNote,
         ]);
 
-        return redirect()->route('medical-orders.index')
-            ->with('success', 'Medical order has been sent back for revision.');
+        // Reset all order items back to pending status when sent back for revision
+        $medicalOrder->orderItems()->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::PENDING->value,
+            'completed_at' => null,
+        ]);
+
+        // Update visit status to sent_back when medical order is sent back to processing
+        if ($medicalOrder->visit) {
+            $medicalOrder->visit->update(['status' => \App\Enums\VisitStatusEnum::SENT_BACK]);
+        }
+
+        return redirect()->back()->with('success', 'Medical order has been sent back for revision.');
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\VisitStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained('patients');
             $table->foreignId('staff_id')->nullable()->constrained('staff');
             $table->datetime('visit_date_time');
-            $table->enum('status', ['pending', 'awaiting_assignment', 'assigned', 'in_progress', 'awaiting_accountant', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', array_column(VisitStatusEnum::cases(), 'value'))->default(VisitStatusEnum::PENDING->value);
             $table->text('notes')->nullable();
             $table->timestamps();
         });

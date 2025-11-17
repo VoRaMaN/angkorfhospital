@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,25 +11,28 @@ class Visit extends Model
     /** @use HasFactory<\Database\Factories\VisitFactory> */
     use HasFactory;
 
-    public const STATUS_PENDING = 'pending';
+    public const STATUS_PENDING = VisitStatusEnum::PENDING->value;
 
-    public const STATUS_AWAITING_ASSIGNMENT = 'awaiting_assignment';
+    public const STATUS_AWAITING_ASSIGNMENT = VisitStatusEnum::AWAITING_ASSIGNMENT->value;
 
-    public const STATUS_ASSIGNED = 'assigned';
+    public const STATUS_ASSIGNED = VisitStatusEnum::ASSIGNED->value;
 
-    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_IN_PROGRESS = VisitStatusEnum::IN_PROGRESS->value;
 
-    public const STATUS_AWAITING_ACCOUNTANT = 'awaiting_accountant';
+    public const STATUS_SENT_BACK = VisitStatusEnum::SENT_BACK->value;
 
-    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_AWAITING_ACCOUNTANT = VisitStatusEnum::AWAITING_ACCOUNTANT->value;
 
-    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_COMPLETED = VisitStatusEnum::COMPLETED->value;
+
+    public const STATUS_CANCELLED = VisitStatusEnum::CANCELLED->value;
 
     public const STATUSES = [
         self::STATUS_PENDING,
         self::STATUS_AWAITING_ASSIGNMENT,
         self::STATUS_ASSIGNED,
         self::STATUS_IN_PROGRESS,
+        self::STATUS_SENT_BACK,
         self::STATUS_AWAITING_ACCOUNTANT,
         self::STATUS_COMPLETED,
         self::STATUS_CANCELLED,
@@ -47,6 +51,7 @@ class Visit extends Model
     {
         return [
             'visit_date_time' => 'datetime',
+            'status' => VisitStatusEnum::class,
         ];
     }
 

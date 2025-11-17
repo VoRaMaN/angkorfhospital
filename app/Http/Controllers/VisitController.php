@@ -254,7 +254,7 @@ class VisitController extends Controller
         // Get visits assigned to the current user that are in progress
         $visits = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders'])
             ->where('staff_id', auth()->user()->staff->id ?? null)
-            ->where('status', Visit::STATUS_ASSIGNED)
+            // ->where('status', Visit::STATUS_ASSIGNED)
             ->get();
 
         return Inertia::render('Visits/MyVisitProcess', [

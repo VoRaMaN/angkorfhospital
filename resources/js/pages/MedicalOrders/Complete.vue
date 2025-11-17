@@ -382,6 +382,8 @@ const sendBackOrder = () => {
             onSuccess: () => {
                 showSendBackDialog.value = false;
                 sendBackReason.value = '';
+                // Reload the page to reflect the updated item statuses
+                window.location.reload();
             },
         });
     }
