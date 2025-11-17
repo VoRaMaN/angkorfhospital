@@ -59,36 +59,91 @@ class MedicalOrderBillingService
     }
 
     /**
-     * Get detailed breakdown of order costs
+     * Get detailed breakdown of order costs grouped by panels/services
      */
     public function getOrderCostBreakdown(MedicalOrder $medicalOrder): array
     {
-        $breakdown = [
-            'items' => [],
-            'subtotal' => 0,
-            'total' => 0,
-        ];
+        $groups = [];
+        $total = 0;
+
+        // Load lab panels for grouping
+        $labPanels = \App\Models\LabPanel::where('is_active', true)
+            ->with(['labPanelItems.inventory'])
+            ->get()
+            ->keyBy('id');
 
         foreach ($medicalOrder->orderItems as $orderItem) {
             $itemTotal = $this->calculateItemTotal($orderItem);
             $quantity = $orderItem->quantity_required ?? 1;
+            $unitPrice = $itemTotal / $quantity;
 
-            $breakdown['items'][] = [
+            $groupKey = $orderItem->item_type;
+            $groupName = $this->getGroupDisplayName($orderItem->item_type);
+            $panelName = null;
+
+            // For lab items, check if they belong to a panel
+            if ($orderItem->item_type === 'lab' && $orderItem->inventory_id) {
+                foreach ($labPanels as $panel) {
+                    foreach ($panel->labPanelItems as $panelItem) {
+                        if ($panelItem->inventory_id === $orderItem->inventory_id) {
+                            $groupKey = "lab-{$panel->id}";
+                            $groupName = $panel->name;
+                            $panelName = $panel->name;
+                            break 2; // Break out of both loops
+                        }
+                    }
+                }
+            }
+
+            // Initialize group if it doesn't exist
+            if (! isset($groups[$groupKey])) {
+                $groups[$groupKey] = [
+                    'name' => $groupName,
+                    'type' => $orderItem->item_type,
+                    'panel_name' => $panelName,
+                    'items' => [],
+                    'subtotal' => 0,
+                    'item_count' => 0,
+                ];
+            }
+
+            // Add item to group
+            $groups[$groupKey]['items'][] = [
                 'id' => $orderItem->id,
                 'item_name' => $orderItem->item_name,
                 'item_type' => $orderItem->item_type,
                 'quantity' => $quantity,
-                'unit_price' => $itemTotal / $quantity,
+                'unit_price' => $unitPrice,
                 'total' => $itemTotal,
                 'details' => $orderItem->details,
             ];
 
-            $breakdown['subtotal'] += $itemTotal;
+            $groups[$groupKey]['subtotal'] += $itemTotal;
+            $groups[$groupKey]['item_count']++;
+            $total += $itemTotal;
         }
 
-        $breakdown['total'] = $breakdown['subtotal'];
+        return [
+            'groups' => array_values($groups),
+            'total' => $total,
+        ];
+    }
 
-        return $breakdown;
+    /**
+     * Get display name for item type groups
+     */
+    private function getGroupDisplayName(string $itemType): string
+    {
+        return match ($itemType) {
+            'lab' => 'Lab Tests',
+            'rx_medicine' => 'Prescription Medicines',
+            'procedure' => 'Procedures',
+            'imaging' => 'Imaging',
+            'supply' => 'Supplies',
+            'therapy' => 'Therapy',
+            'consultation' => 'Consultations',
+            default => ucfirst($itemType),
+        };
     }
 
     /**
@@ -115,11 +170,13 @@ class MedicalOrderBillingService
             // Reduce inventory stock for used items
             $this->reduceInventoryStock($medicalOrder);
 
-            // Create billing record
+            // Create billing record with updated structure
             $billing = Billing::create([
                 'appointment_id' => $medicalOrder->visit?->appointment_id,
+                'visit_id' => $medicalOrder->visit_id,
+                'medical_order_id' => $medicalOrder->id,
                 'amount' => $totalAmount,
-                'status' => 'pending', // Can be 'pending', 'paid', 'cancelled', etc.
+                'status' => 'pending',
                 'billing_date' => now()->toDateString(),
                 'notes' => $notes ?? "Medical Order #{$medicalOrder->id} - {$medicalOrder->order_details}",
             ]);
@@ -164,7 +221,7 @@ class MedicalOrderBillingService
                 $inventory = $orderItem->inventory;
                 $quantity = $orderItem->quantity_required ?? 1;
 
-                if (!$inventory) {
+                if (! $inventory) {
                     $issues[] = "Inventory item not found for: {$orderItem->item_name}";
                 } elseif ($inventory->quantity < $quantity) {
                     $issues[] = "Insufficient stock for {$orderItem->item_name}. Available: {$inventory->quantity}, Required: {$quantity}";
@@ -235,8 +292,8 @@ class MedicalOrderBillingService
             // Update order status
             $medicalOrder->update([
                 'status' => 'cancelled',
-                'notes' => ($medicalOrder->notes ? $medicalOrder->notes . "\n" : '') .
-                    'Cancelled: ' . ($reason ?? 'No reason provided') . ' - ' . now()->format('Y-m-d H:i'),
+                'notes' => ($medicalOrder->notes ? $medicalOrder->notes."\n" : '').
+                    'Cancelled: '.($reason ?? 'No reason provided').' - '.now()->format('Y-m-d H:i'),
             ]);
 
             // Update order items status
@@ -245,16 +302,15 @@ class MedicalOrderBillingService
             ]);
 
             // Cancel related billing if exists
-            $billing = Billing::where('appointment_id', $medicalOrder->visit?->appointment_id)
-                ->where('notes', 'like', "%Medical Order #{$medicalOrder->id}%")
+            $billing = Billing::where('medical_order_id', $medicalOrder->id)
                 ->where('status', 'pending')
                 ->first();
 
             if ($billing) {
                 $billing->update([
                     'status' => 'cancelled',
-                    'notes' => ($billing->notes ? $billing->notes . "\n" : '') .
-                        'Cancelled due to order cancellation: ' . ($reason ?? 'No reason provided'),
+                    'notes' => ($billing->notes ? $billing->notes."\n" : '').
+                        'Cancelled due to order cancellation: '.($reason ?? 'No reason provided'),
                 ]);
             }
 

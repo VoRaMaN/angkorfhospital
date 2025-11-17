@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateMedicalOrderRequest;
 use App\Models\MedicalOrder;
 use App\Services\MedicalOrderBillingService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -167,7 +168,7 @@ class MedicalOrderController extends Controller
     public function show(MedicalOrder $medicalOrder): Response
     {
         $this->authorize('view', $medicalOrder);
-        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.medicalRecord']);
+        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.medicalRecord', 'billings']);
 
         $labPanels = \App\Models\LabPanel::where('is_active', true)
             ->with(['labPanelItems.inventory'])
@@ -206,6 +207,27 @@ class MedicalOrderController extends Controller
             'created_at' => $medicalOrder->created_at,
             'updated_at' => $medicalOrder->updated_at,
             'medical_record_id' => $medicalOrder->visit?->medicalRecord?->id,
+            'billing' => $medicalOrder->billings->isNotEmpty() ? (function ($billing) {
+                return [
+                    'id' => $billing->id,
+                    'amount' => $billing->amount,
+                    'status' => $billing->status,
+                    'status_label' => ucfirst($billing->status),
+                    'status_color' => match ($billing->status) {
+                        'pending' => 'text-yellow-600',
+                        'paid' => 'text-green-600',
+                        'overdue' => 'text-red-600',
+                        'partial' => 'text-blue-600',
+                        'written_off' => 'text-gray-600',
+                        'cancelled' => 'text-gray-600',
+                        default => 'text-gray-600',
+                    },
+                    'billed_at' => $billing->billing_date?->toDateString(),
+                    'due_date' => $billing->due_date?->toDateString(),
+                    'paid_at' => $billing->paid_at?->toDateString(),
+                    'notes' => $billing->notes,
+                ];
+            })($medicalOrder->billings->sortByDesc('created_at')->first()) : null,
             'order_items' => $medicalOrder->orderItems->map(function ($item) {
                 return [
                     'id' => $item->id,
@@ -325,6 +347,18 @@ class MedicalOrderController extends Controller
             'ordered_at' => $medicalOrder->ordered_at->toDateString(),
             'completed_at' => $medicalOrder->completed_at?->toDateString(),
             'order_items' => $medicalOrder->orderItems->map(function ($item) {
+                $unitPrice = $item->inventory?->unit_price;
+                $sellingPrice = $item->inventory?->selling_price;
+
+                // For medical services without inventory, look up price from MedicalService
+                if (! $item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
+                    $medicalService = \App\Models\MedicalService::where('name', $item->item_name)->first();
+                    if ($medicalService) {
+                        $unitPrice = $medicalService->price;
+                        $sellingPrice = $medicalService->price;
+                    }
+                }
+
                 return [
                     'id' => $item->id,
                     'inventory_id' => $item->inventory_id,
@@ -337,6 +371,8 @@ class MedicalOrderController extends Controller
                     'quantity_required' => $item->quantity_required,
                     'status' => $item->status->value,
                     'notes' => $item->notes,
+                    'unit_price' => $unitPrice,
+                    'selling_price' => $sellingPrice,
                 ];
             }),
         ];
@@ -636,9 +672,22 @@ class MedicalOrderController extends Controller
     /**
      * Show the complete process page for a medical order.
      */
-    public function completePage(MedicalOrder $medicalOrder): Response
+    public function completePage(MedicalOrder $medicalOrder): Response|\Illuminate\Http\RedirectResponse
     {
         $this->authorize('update', $medicalOrder);
+
+        // Only allow access if the order is processed (not already completed)
+        if ($medicalOrder->status === \App\Enums\MedicalOrderStatusEnum::COMPLETED) {
+            return redirect()->route('medical-orders.show', $medicalOrder)
+                ->with('error', 'This medical order has already been completed.');
+        }
+
+        // Only allow access if the order is in processed status
+        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PROCESSED) {
+            return redirect()->route('medical-orders.show', $medicalOrder)
+                ->with('error', 'This medical order is not ready for completion.');
+        }
+
         $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory']);
 
         $transformedOrder = [
@@ -709,7 +758,7 @@ class MedicalOrderController extends Controller
         $this->authorize('update', $medicalOrder);
 
         // Only allow processing if the order is pending or processed
-        if (!in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
+        if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
             return redirect()->back()->with('error', 'This medical order cannot be processed for billing.');
         }
 
@@ -717,7 +766,7 @@ class MedicalOrderController extends Controller
 
         // Check if order can be processed (sufficient inventory)
         $canProcess = $billingService->canProcessOrder($medicalOrder);
-        if (!$canProcess['can_process']) {
+        if (! $canProcess['can_process']) {
             $issues = implode(', ', $canProcess['issues']);
 
             return redirect()->back()->with('error', "Cannot process order due to inventory issues: {$issues}");
@@ -727,18 +776,15 @@ class MedicalOrderController extends Controller
             // Process the order and create billing
             $billing = $billingService->processOrderAndCreateBilling(
                 $medicalOrder,
-                'Processed and billed on ' . now()->format('Y-m-d H:i')
+                'Processed and billed on '.now()->format('Y-m-d H:i')
             );
 
-            // Update the status to processed
-            $medicalOrder->update([
-                'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
-            ]);
+            // Status is already updated in the service, no need to update again
 
             return redirect()->route('medical-orders.show', $medicalOrder)
-                ->with('success', 'Medical order processed successfully. Billing created with total amount: $' . number_format((float) $billing->amount, 2));
+                ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to process medical order: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to process medical order: '.$e->getMessage());
         }
     }
 
@@ -777,29 +823,32 @@ class MedicalOrderController extends Controller
     }
 
     /**
-     * Cancel a processed medical order and restore inventory.
+     * Send back a medical order for revision before processing.
      */
-    public function cancelProcessed(MedicalOrder $medicalOrder): RedirectResponse
+    public function sendBack(Request $request, MedicalOrder $medicalOrder): RedirectResponse
     {
         $this->authorize('update', $medicalOrder);
 
-        $billingService = app(MedicalOrderBillingService::class);
-
-        try {
-            $result = $billingService->cancelProcessedOrder(
-                $medicalOrder,
-                'Cancelled via web interface'
-            );
-
-            if ($result) {
-                return redirect()->route('medical-orders.show', $medicalOrder)
-                    ->with('success', 'Medical order cancelled successfully. Inventory restored.');
-            } else {
-                return redirect()->back()->with('error', 'Failed to cancel medical order. Only completed orders can be cancelled.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to cancel medical order: ' . $e->getMessage());
+        // Only allow sending back if the order is in processing status
+        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PROCESSING) {
+            return redirect()->back()->with('error', 'This medical order cannot be sent back for revision.');
         }
+
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        // Update the status back to pending and add the reason to notes
+        $currentNotes = $medicalOrder->notes ? $medicalOrder->notes."\n\n" : '';
+        $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason;
+
+        $medicalOrder->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::PENDING,
+            'notes' => $currentNotes.$revisionNote,
+        ]);
+
+        return redirect()->route('medical-orders.index')
+            ->with('success', 'Medical order has been sent back for revision.');
     }
 
     /**

@@ -16,17 +16,21 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     completeItem,
     index,
     processAndBill as processAndBillRoute,
+    sendBack,
 } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import {
     Activity,
+    ArrowLeft,
     CheckCircle,
     CheckCircle2,
     FlaskConical,
@@ -82,6 +86,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
+const page = usePage();
+
+// Check for flash messages
+const flashError = computed(() => (page.props as any)?.flash?.error);
+const flashSuccess = computed(() => (page.props as any)?.flash?.success);
 
 // Create a local reactive copy of the medical order data
 const medicalOrder = ref({
@@ -94,7 +103,9 @@ const showCompleteDialog = ref(false);
 const showItemCompleteDialog = ref(false);
 const showSuccessDialog = ref(false);
 const showCompleteAllDialog = ref(false);
+const showSendBackDialog = ref(false);
 const successMessage = ref('');
+const sendBackReason = ref('');
 const itemToComplete = ref<OrderItem | null>(null);
 const completingOrder = ref(false);
 const completingItem = ref(false);
@@ -227,8 +238,12 @@ const processBill = () => {
                     'Medical order has been processed and billed successfully!';
                 showSuccessDialog.value = true;
             },
-            onError: () => {
+            onError: (errors) => {
                 completingOrder.value = false;
+                console.error('Process bill error:', errors);
+                // Show a generic error message
+                successMessage.value = 'Failed to process bill. Please check the order status and try again.';
+                showSuccessDialog.value = true;
             },
         },
     );
@@ -353,6 +368,24 @@ const completeItemAction = () => {
         },
     );
 };
+
+const sendBackOrder = () => {
+    if (!sendBackReason.value.trim()) {
+        alert('Please provide a reason for sending back the order.');
+        return;
+    }
+
+    if (confirm('Are you sure you want to send this medical order back for revision?')) {
+        router.patch(sendBack(medicalOrder.value.id).url, {
+            reason: sendBackReason.value.trim(),
+        }, {
+            onSuccess: () => {
+                showSendBackDialog.value = false;
+                sendBackReason.value = '';
+            },
+        });
+    }
+};
 </script>
 
 <template>
@@ -360,8 +393,35 @@ const completeItemAction = () => {
     <Head :title="allItemsCompleted ? 'Process Bill' : 'Complete Order'" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div v-if="hasPermission('complete_medical_orders')"
+        <div v-if="hasPermission('edit_medical_orders') || hasPermission('view_medical_orders')"
             class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+            
+            <!-- Flash Messages -->
+            <div v-if="flashError" class="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/20">
+                <div class="flex">
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+                            Error
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                            <p>{{ flashError }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div v-if="flashSuccess" class="rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/20">
+                <div class="flex">
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800 dark:text-green-200">
+                            Success
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700 dark:text-green-300">
+                            <p>{{ flashSuccess }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">{{ allItemsCompleted ? 'Process Bill' : 'Complete Order' }}</h1>
@@ -370,6 +430,13 @@ const completeItemAction = () => {
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
+                    <Button v-if="hasPermission('process_medical_orders')"
+                        variant="destructive"
+                        @click="showSendBackDialog = true"
+                    >
+                        <ArrowLeft class="mr-2 size-4" />
+                        Send Back
+                    </Button>
                     <Button v-if="orderSummary.pending > 0" variant="outline" @click="confirmCompleteAllItems"
                         :disabled="completingAllItems || completingItem">
                         <CheckCircle class="mr-2 size-4" />
@@ -757,6 +824,48 @@ const completeItemAction = () => {
                 </DialogHeader>
                 <DialogFooter>
                     <Button @click="showSuccessDialog = false">OK</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Send Back Dialog -->
+        <Dialog v-model:open="showSendBackDialog">
+            <DialogContent class="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Send Order Back for Revision</DialogTitle>
+                    <DialogDescription>
+                        Provide a reason for sending this medical order back. The order will be returned to pending status for corrections.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="grid gap-4 py-4">
+                    <div class="grid gap-2">
+                        <Label for="send-back-reason" class="text-right">
+                            Reason *
+                        </Label>
+                        <Textarea
+                            id="send-back-reason"
+                            v-model="sendBackReason"
+                            placeholder="Please explain why this order needs revision..."
+                            rows="4"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="showSendBackDialog = false"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        @click="sendBackOrder"
+                        :disabled="!sendBackReason.trim()"
+                    >
+                        Send Back
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

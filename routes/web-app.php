@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('medical-orders/{medical_order}/confirm-processed', [MedicalOrderController::class, 'confirmProcessed'])->name('medical-orders.confirm-processed');
     Route::get('medical-orders/{medical_order}/cost-breakdown', [MedicalOrderController::class, 'getCostBreakdown'])->name('medical-orders.cost-breakdown');
     Route::patch('medical-orders/{medical_order}/cancel-processed', [MedicalOrderController::class, 'cancelProcessed'])->name('medical-orders.cancel-processed');
+    Route::patch('medical-orders/{medical_order}/send-back', [MedicalOrderController::class, 'sendBack'])->name('medical-orders.send-back');
 
     // Medical Records
     Route::resource('medical-records', MedicalRecordController::class);

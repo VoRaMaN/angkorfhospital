@@ -28,16 +28,22 @@ interface Props {
         updated_at: string;
     };
     costBreakdown?: {
-        items: Array<{
-            id: number;
-            item_name: string;
-            item_type: string;
-            quantity: number;
-            unit_price: number;
-            total: number;
-            details?: string;
+        groups: Array<{
+            name: string;
+            type: string;
+            panel_name?: string;
+            items: Array<{
+                id: number;
+                item_name: string;
+                item_type: string;
+                quantity: number;
+                unit_price: number;
+                total: number;
+                details?: string;
+            }>;
+            subtotal: number;
+            item_count: number;
         }>;
-        subtotal: number;
         total: number;
     };
 }
@@ -272,21 +278,63 @@ const getStatusVariant = (status: string) => {
                 <!-- Cost Breakdown -->
                 <div v-if="props.costBreakdown" class="rounded-lg border bg-card p-6">
                     <h3 class="text-lg font-semibold mb-4">Cost Breakdown</h3>
-                    <div class="space-y-4">
-                        <div v-for="item in props.costBreakdown.items" :key="item.id" class="flex justify-between items-center py-2 border-b">
-                            <div>
-                                <p class="font-medium">{{ item.item_name }}</p>
-                                <p class="text-sm text-muted-foreground">{{ item.item_type }} - Quantity: {{ item.quantity }}</p>
-                                <p v-if="item.details" class="text-sm text-muted-foreground">{{ item.details }}</p>
+                    <div class="space-y-6">
+                        <div
+                            v-for="group in props.costBreakdown.groups"
+                            :key="group.name"
+                            class="rounded-lg border bg-muted/20 p-4"
+                        >
+                            <!-- Group Header -->
+                            <div class="flex items-center justify-between border-b pb-3 mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-lg font-semibold">
+                                        {{ group.name }}
+                                    </div>
+                                    <Badge variant="secondary">
+                                        {{ group.item_count }} item{{ group.item_count !== 1 ? 's' : '' }}
+                                    </Badge>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold">
+                                        {{ formatCurrency(group.subtotal) }}
+                                    </div>
+                                    <div class="text-sm text-muted-foreground">Subtotal</div>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <p class="font-medium">${{ item.total.toFixed(2) }}</p>
-                                <p class="text-sm text-muted-foreground">${{ item.unit_price.toFixed(2) }} each</p>
+
+                            <!-- Group Items -->
+                            <div class="space-y-2">
+                                <div
+                                    v-for="item in group.items"
+                                    :key="item.id"
+                                    class="flex items-center justify-between py-2 px-3 rounded-md bg-background"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div>
+                                            <div class="font-medium">{{ item.item_name }}</div>
+                                            <div v-if="item.details" class="text-sm text-muted-foreground">
+                                                {{ item.details }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">{{ formatCurrency(item.total) }}</div>
+                                        <div v-if="item.quantity > 1" class="text-sm text-muted-foreground">
+                                            {{ item.quantity }} × {{ formatCurrency(item.unit_price) }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center pt-4 border-t font-semibold">
-                            <span>Total</span>
-                            <span>${{ props.costBreakdown.total.toFixed(2) }}</span>
+
+                        <!-- Total -->
+                        <div class="border-t pt-4 mt-6">
+                            <div class="flex items-center justify-between">
+                                <div class="text-lg font-semibold">Total Amount</div>
+                                <div class="text-2xl font-bold">
+                                    {{ formatCurrency(props.costBreakdown.total) }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

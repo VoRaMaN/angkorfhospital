@@ -65,4 +65,9 @@ class MedicalOrder extends Model
     {
         return $this->hasMany(Billing::class);
     }
+
+    public function latestBilling()
+    {
+        return $this->hasOne(Billing::class)->latestOfMany();
+    }
 }

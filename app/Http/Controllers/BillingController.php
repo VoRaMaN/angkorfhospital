@@ -175,8 +175,32 @@ class BillingController extends Controller
             $costBreakdown = $billingService->getOrderCostBreakdown($billing->medicalOrder);
         }
 
+        // Get patient name from related records
+        $patientName = 'Unknown Patient';
+        if ($billing->appointment && $billing->appointment->patient && $billing->appointment->patient->user) {
+            $patientName = $billing->appointment->patient->first_name.' '.$billing->appointment->patient->last_name;
+        } elseif ($billing->visit && $billing->visit->patient && $billing->visit->patient->user) {
+            $patientName = $billing->visit->patient->first_name.' '.$billing->visit->patient->last_name;
+        } elseif ($billing->medicalOrder && $billing->medicalOrder->patient && $billing->medicalOrder->patient->user) {
+            $patientName = $billing->medicalOrder->patient->first_name.' '.$billing->medicalOrder->patient->last_name;
+        }
+
+        $transformedBilling = [
+            'id' => $billing->id,
+            'patient_name' => $patientName,
+            'appointment_id' => $billing->appointment_id,
+            'visit_id' => $billing->visit_id,
+            'medical_order_id' => $billing->medical_order_id,
+            'amount' => $billing->amount,
+            'status' => $billing->status,
+            'billing_date' => $billing->billing_date ? \Carbon\Carbon::parse($billing->billing_date)->toDateString() : null,
+            'notes' => $billing->notes,
+            'created_at' => $billing->created_at->toISOString(),
+            'updated_at' => $billing->updated_at->toISOString(),
+        ];
+
         return Inertia::render('Billings/Show', [
-            'billing' => $billing,
+            'billing' => $transformedBilling,
             'costBreakdown' => $costBreakdown,
         ]);
     }
