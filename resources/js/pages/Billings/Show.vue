@@ -16,20 +16,29 @@ import {
 interface Props {
     billing: {
         id: number;
-        patient_id: number;
         patient_name: string;
         appointment_id?: number;
-        appointment_date?: string;
-        total_amount: number;
-        paid_amount: number;
-        outstanding_amount: number;
+        visit_id?: number;
+        medical_order_id?: number;
+        amount: number;
         status: string;
         billing_date: string;
-        due_date: string;
-        description: string;
         notes: string;
         created_at: string;
         updated_at: string;
+    };
+    costBreakdown?: {
+        items: Array<{
+            id: number;
+            item_name: string;
+            item_type: string;
+            quantity: number;
+            unit_price: number;
+            total: number;
+            details?: string;
+        }>;
+        subtotal: number;
+        total: number;
     };
 }
 
@@ -63,6 +72,10 @@ const getStatusVariant = (status: string) => {
         case 'overdue':
             return 'destructive';
         case 'partial':
+            return 'outline';
+        case 'written_off':
+            return 'destructive';
+        case 'cancelled':
             return 'outline';
         default:
             return 'secondary';
@@ -102,52 +115,18 @@ const getStatusVariant = (status: string) => {
 
             <div class="max-w-4xl space-y-6">
                 <!-- Status and Summary Cards -->
-                <div class="grid gap-4 md:grid-cols-4">
+                <div class="grid gap-4 md:grid-cols-2">
                     <div class="rounded-lg border bg-card p-4">
                         <div class="flex items-center gap-2">
                             <DollarSign class="size-5 text-muted-foreground" />
                             <div>
                                 <p class="text-sm text-muted-foreground">
-                                    Total Amount
+                                    Amount
                                 </p>
                                 <p class="text-2xl font-bold">
                                     {{
                                         formatCurrency(
-                                            props.billing.total_amount,
-                                        )
-                                    }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rounded-lg border bg-card p-4">
-                        <div class="flex items-center gap-2">
-                            <DollarSign class="size-5 text-green-600" />
-                            <div>
-                                <p class="text-sm text-muted-foreground">
-                                    Paid Amount
-                                </p>
-                                <p class="text-2xl font-bold text-green-600">
-                                    {{
-                                        formatCurrency(
-                                            props.billing.paid_amount,
-                                        )
-                                    }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rounded-lg border bg-card p-4">
-                        <div class="flex items-center gap-2">
-                            <DollarSign class="size-5 text-red-600" />
-                            <div>
-                                <p class="text-sm text-muted-foreground">
-                                    Outstanding
-                                </p>
-                                <p class="text-2xl font-bold text-red-600">
-                                    {{
-                                        formatCurrency(
-                                            props.billing.outstanding_amount,
+                                            props.billing.amount,
                                         )
                                     }}
                                 </p>
@@ -194,11 +173,37 @@ const getStatusVariant = (status: string) => {
                                 Related Appointment
                             </dt>
                             <dd class="text-sm">
-                                {{
-                                    new Date(
-                                        props.billing.appointment_date!,
-                                    ).toLocaleDateString()
-                                }}
+                                Yes
+                            </dd>
+                        </div>
+
+                        <div
+                            v-if="props.billing.visit_id"
+                            class="space-y-2"
+                        >
+                            <dt
+                                class="flex items-center gap-2 text-sm font-medium text-muted-foreground"
+                            >
+                                <Calendar class="size-4" />
+                                Related Visit
+                            </dt>
+                            <dd class="text-sm">
+                                Yes
+                            </dd>
+                        </div>
+
+                        <div
+                            v-if="props.billing.medical_order_id"
+                            class="space-y-2"
+                        >
+                            <dt
+                                class="flex items-center gap-2 text-sm font-medium text-muted-foreground"
+                            >
+                                <FileText class="size-4" />
+                                Related Medical Order
+                            </dt>
+                            <dd class="text-sm">
+                                Yes
                             </dd>
                         </div>
 
@@ -214,37 +219,6 @@ const getStatusVariant = (status: string) => {
                                     new Date(
                                         props.billing.billing_date,
                                     ).toLocaleDateString()
-                                }}
-                            </dd>
-                        </div>
-
-                        <div class="space-y-2">
-                            <dt
-                                class="flex items-center gap-2 text-sm font-medium text-muted-foreground"
-                            >
-                                <Calendar class="size-4" />
-                                Due Date
-                            </dt>
-                            <dd class="text-sm">
-                                {{
-                                    new Date(
-                                        props.billing.due_date,
-                                    ).toLocaleDateString()
-                                }}
-                            </dd>
-                        </div>
-
-                        <div class="space-y-2 md:col-span-2">
-                            <dt
-                                class="flex items-center gap-2 text-sm font-medium text-muted-foreground"
-                            >
-                                <FileText class="size-4" />
-                                Description
-                            </dt>
-                            <dd class="text-sm">
-                                {{
-                                    props.billing.description ||
-                                    'No description provided'
                                 }}
                             </dd>
                         </div>
@@ -291,6 +265,28 @@ const getStatusVariant = (status: string) => {
                                     ).toLocaleString()
                                 }}
                             </dd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div v-if="props.costBreakdown" class="rounded-lg border bg-card p-6">
+                    <h3 class="text-lg font-semibold mb-4">Cost Breakdown</h3>
+                    <div class="space-y-4">
+                        <div v-for="item in props.costBreakdown.items" :key="item.id" class="flex justify-between items-center py-2 border-b">
+                            <div>
+                                <p class="font-medium">{{ item.item_name }}</p>
+                                <p class="text-sm text-muted-foreground">{{ item.item_type }} - Quantity: {{ item.quantity }}</p>
+                                <p v-if="item.details" class="text-sm text-muted-foreground">{{ item.details }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">${{ item.total.toFixed(2) }}</p>
+                                <p class="text-sm text-muted-foreground">${{ item.unit_price.toFixed(2) }} each</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t font-semibold">
+                            <span>Total</span>
+                            <span>${{ props.costBreakdown.total.toFixed(2) }}</span>
                         </div>
                     </div>
                 </div>

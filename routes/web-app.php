@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Billings
     Route::resource('billings', BillingController::class);
+    Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
 
     // Departments
     Route::resource('departments', DepartmentController::class);
@@ -90,4 +91,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

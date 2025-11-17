@@ -2,13 +2,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -19,36 +14,37 @@ import { computed } from 'vue';
 interface Props {
     billing: {
         id: number;
-        patient_id: number;
         appointment_id?: number;
-        total_amount: number;
-        paid_amount: number;
+        visit_id?: number;
+        medical_order_id?: number;
+        amount: number;
+        status: string;
         billing_date: string;
-        due_date: string;
-        description: string;
         notes: string;
     };
-    patients: {
+    appointments: {
         id: number;
-        name: string;
+        label: string;
     }[];
-    appointments?: {
+    visits: {
         id: number;
-        appointment_date: string;
-        patient: { name: string };
+        label: string;
+    }[];
+    medicalOrders: {
+        id: number;
+        label: string;
     }[];
 }
 
 const props = defineProps<Props>();
 
 const form = useForm({
-    patient_id: props.billing.patient_id.toString(),
     appointment_id: props.billing.appointment_id?.toString() || '',
-    total_amount: props.billing.total_amount.toString(),
-    paid_amount: props.billing.paid_amount.toString(),
+    visit_id: props.billing.visit_id?.toString() || '',
+    medical_order_id: props.billing.medical_order_id?.toString() || '',
+    amount: props.billing.amount.toString(),
+    status: props.billing.status,
     billing_date: props.billing.billing_date.split('T')[0],
-    due_date: props.billing.due_date.split('T')[0],
-    description: props.billing.description,
     notes: props.billing.notes,
 });
 
@@ -65,9 +61,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // Calculate outstanding amount
 const outstandingAmount = computed(() => {
-    const total = parseFloat(form.total_amount) || 0;
-    const paid = parseFloat(form.paid_amount) || 0;
-    return Math.max(0, total - paid);
+    const total = parseFloat(form.amount) || 0;
+    return total;
 });
 
 const submit = () => {
@@ -106,78 +101,64 @@ const submit = () => {
                     @submit.prevent="submit"
                     class="space-y-6 rounded-lg border bg-card p-6"
                 >
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <Label for="patient_id">Patient</Label>
-                            <Select v-model="form.patient_id">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select patient" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem
-                                        v-for="patient in props.patients"
-                                        :key="patient.id"
-                                        :value="patient.id.toString()"
-                                    >
-                                        {{ patient.name }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <div
-                                v-if="form.errors.patient_id"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.patient_id }}
-                            </div>
+                    <div class="space-y-2">
+                        <Label for="appointment_id">Appointment (Optional)</Label>
+                        <SearchableSelect
+                            v-model="form.appointment_id"
+                            :options="props.appointments.map(a => ({ value: a.id.toString(), label: a.label }))"
+                            placeholder="Select appointment"
+                            search-placeholder="Search appointments..."
+                        />
+                        <div
+                            v-if="form.errors.appointment_id"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.appointment_id }}
                         </div>
+                    </div>
 
-                        <div class="space-y-2">
-                            <Label for="appointment_id"
-                                >Related Appointment (Optional)</Label
-                            >
-                            <Select v-model="form.appointment_id">
-                                <SelectTrigger>
-                                    <SelectValue
-                                        placeholder="Select appointment"
-                                    />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value=""
-                                        >No appointment</SelectItem
-                                    >
-                                    <SelectItem
-                                        v-for="appointment in props.appointments"
-                                        :key="appointment.id"
-                                        :value="appointment.id.toString()"
-                                    >
-                                        {{ appointment.patient.name }} -
-                                        {{
-                                            new Date(
-                                                appointment.appointment_date,
-                                            ).toLocaleDateString()
-                                        }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <div
-                                v-if="form.errors.appointment_id"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.appointment_id }}
-                            </div>
+                    <div class="space-y-2">
+                        <Label for="visit_id">Visit (Optional)</Label>
+                        <SearchableSelect
+                            v-model="form.visit_id"
+                            :options="props.visits.map(v => ({ value: v.id.toString(), label: v.label }))"
+                            placeholder="Select visit"
+                            search-placeholder="Search visits..."
+                        />
+                        <div
+                            v-if="form.errors.visit_id"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.visit_id }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <Label for="medical_order_id">Medical Order (Optional)</Label>
+                        <SearchableSelect
+                            v-model="form.medical_order_id"
+                            :options="props.medicalOrders.map(o => ({ value: o.id.toString(), label: o.label }))"
+                            placeholder="Select medical order"
+                            search-placeholder="Search medical orders..."
+                        />
+                        <div
+                            v-if="form.errors.medical_order_id"
+                            class="text-sm text-destructive"
+                        >
+                            {{ form.errors.medical_order_id }}
                         </div>
                     </div>
 
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
-                            <Label for="total_amount">Total Amount</Label>
+                            <Label for="amount">Amount</Label>
                             <div class="relative">
                                 <DollarSign
                                     class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                                 />
                                 <Input
-                                    id="total_amount"
-                                    v-model="form.total_amount"
+                                    id="amount"
+                                    v-model="form.amount"
                                     type="number"
                                     step="0.01"
                                     min="0"
@@ -187,96 +168,50 @@ const submit = () => {
                                 />
                             </div>
                             <div
-                                v-if="form.errors.total_amount"
+                                v-if="form.errors.amount"
                                 class="text-sm text-destructive"
                             >
-                                {{ form.errors.total_amount }}
+                                {{ form.errors.amount }}
                             </div>
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="paid_amount">Paid Amount</Label>
-                            <div class="relative">
-                                <DollarSign
-                                    class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                                />
-                                <Input
-                                    id="paid_amount"
-                                    v-model="form.paid_amount"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    placeholder="0.00"
-                                    class="pl-9"
-                                />
-                            </div>
+                            <Label for="status">Status</Label>
+                            <Select v-model="form.status">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="paid">Paid</SelectItem>
+                                    <SelectItem value="overdue">Overdue</SelectItem>
+                                    <SelectItem value="partial">Partial</SelectItem>
+                                    <SelectItem value="written_off">Written Off</SelectItem>
+                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <div
-                                v-if="form.errors.paid_amount"
+                                v-if="form.errors.status"
                                 class="text-sm text-destructive"
                             >
-                                {{ form.errors.paid_amount }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="rounded-lg bg-muted p-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium"
-                                >Outstanding Amount:</span
-                            >
-                            <span class="text-lg font-bold text-red-600">
-                                ${{ outstandingAmount.toFixed(2) }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <Label for="billing_date">Billing Date</Label>
-                            <Input
-                                id="billing_date"
-                                v-model="form.billing_date"
-                                type="date"
-                                required
-                            />
-                            <div
-                                v-if="form.errors.billing_date"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.billing_date }}
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <Label for="due_date">Due Date</Label>
-                            <Input
-                                id="due_date"
-                                v-model="form.due_date"
-                                type="date"
-                                required
-                            />
-                            <div
-                                v-if="form.errors.due_date"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.due_date }}
+                                {{ form.errors.status }}
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="description">Description</Label>
-                        <Textarea
-                            id="description"
-                            v-model="form.description"
-                            placeholder="Billing description..."
-                            rows="3"
+                        <Label for="billing_date">Billing Date</Label>
+                        <Input
+                            id="billing_date"
+                            v-model="form.billing_date"
+                            type="date"
+                            required
                         />
                         <div
-                            v-if="form.errors.description"
+                            v-if="form.errors.billing_date"
                             class="text-sm text-destructive"
                         >
-                            {{ form.errors.description }}
+                            {{ form.errors.billing_date }}
                         </div>
                     </div>
 

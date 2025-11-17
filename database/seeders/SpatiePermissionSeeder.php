@@ -82,6 +82,7 @@ class SpatiePermissionSeeder extends Seeder
             'create_billing',
             'edit_billing',
             'delete_billing',
+            'update_billing_status',
 
             // Inventory
             'view_inventory',
@@ -212,6 +213,7 @@ class SpatiePermissionSeeder extends Seeder
             'create_billing',
             'edit_billing',
             'delete_billing',
+            'update_billing_status',
             'view_inventory',
             'view_visits',
         ]);

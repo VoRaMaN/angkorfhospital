@@ -12,6 +12,8 @@ class Billing extends Model
 
     protected $fillable = [
         'appointment_id',
+        'visit_id',
+        'medical_order_id',
         'amount',
         'status',
         'billing_date',
@@ -29,6 +31,16 @@ class Billing extends Model
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    public function visit()
+    {
+        return $this->belongsTo(Visit::class);
+    }
+
+    public function medicalOrder()
+    {
+        return $this->belongsTo(MedicalOrder::class);
     }
 
     public function patient()

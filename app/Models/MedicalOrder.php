@@ -60,4 +60,9 @@ class MedicalOrder extends Model
             ->withPivot('item_type', 'item_name', 'details', 'dosage', 'frequency', 'route', 'quantity_required', 'status', 'notes', 'completed_at')
             ->withTimestamps();
     }
+
+    public function billings()
+    {
+        return $this->hasMany(Billing::class);
+    }
 }

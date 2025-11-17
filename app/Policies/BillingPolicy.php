@@ -60,11 +60,11 @@ class BillingPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine whether the user can update the billing status.
      */
-    public function delete(User $user, Billing $billing): bool
+    public function updateStatus(User $user, Billing $billing): bool
     {
-        return $user->can('delete_billing') || $user->hasRole('admin');
+        return $user->can('update_billing_status') || $user->hasRole('admin');
     }
 
     /**
