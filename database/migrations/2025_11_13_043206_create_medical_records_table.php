@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('medical_records', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('appointment_id')->nullable();
-            $table->index('appointment_id')->nullable();
+            $table->unsignedBigInteger('visit_id')->nullable();
+            $table->unsignedBigInteger('medical_order_id')->nullable();
+            $table->index(['appointment_id', 'visit_id', 'medical_order_id']);
             $table->text('diagnosis')->nullable();
             $table->text('notes')->nullable();
             $table->text('treatment')->nullable();

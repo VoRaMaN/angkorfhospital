@@ -161,12 +161,11 @@ const formatPrice = (price: number) => {
 </script>
 
 <template>
+
     <Head title="Medical Services" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Medical Services</h1>
@@ -174,10 +173,7 @@ const formatPrice = (price: number) => {
                         Manage medical services for procedures and imaging
                     </p>
                 </div>
-                <Button
-                    @click="openCreateModal"
-                    v-if="hasPermission('create_medical_services') || true"
-                >
+                <Button @click="openCreateModal" v-if="hasPermission('create_medical_services') || true">
                     <Plus class="size-4" />
                     Create Medical Service
                 </Button>
@@ -195,10 +191,7 @@ const formatPrice = (price: number) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow
-                            v-for="service in props.medicalServices"
-                            :key="service.id"
-                        >
+                        <TableRow v-for="service in props.medicalServices" :key="service.id">
                             <TableCell class="font-medium">
                                 {{ service.name }}
                             </TableCell>
@@ -215,18 +208,10 @@ const formatPrice = (price: number) => {
                             </TableCell>
                             <TableCell class="text-right">
                                 <div class="flex justify-end gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        @click="openViewModal(service)"
-                                    >
+                                    <Button variant="outline" size="sm" @click="openViewModal(service)">
                                         View
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        @click="openEditModal(service)"
-                                    >
+                                    <Button variant="outline" size="sm" @click="openEditModal(service)">
                                         Edit
                                     </Button>
                                 </div>
@@ -235,16 +220,6 @@ const formatPrice = (price: number) => {
                         <TableRow v-if="props.medicalServices.length === 0">
                             <TableCell colspan="5" class="py-8 text-center">
                                 No medical services found.
-                                <Button
-                                    @click="openCreateModal"
-                                    class="mt-4"
-                                    v-if="
-                                        hasPermission('create_medical_services')
-                                    "
-                                >
-                                    <Plus class="mr-2 size-4" />
-                                    Create Medical Service
-                                </Button>
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -278,14 +253,8 @@ const formatPrice = (price: number) => {
                     </div>
                     <div>
                         <Label for="description">Description</Label>
-                        <Textarea
-                            id="description"
-                            v-model="formData.description"
-                        />
-                        <p
-                            v-if="errors.description"
-                            class="text-sm text-red-500"
-                        >
+                        <Textarea id="description" v-model="formData.description" />
+                        <p v-if="errors.description" class="text-sm text-red-500">
                             {{ errors.description[0] }}
                         </p>
                     </div>
@@ -296,13 +265,9 @@ const formatPrice = (price: number) => {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="procedure"
-                                    >Procedure</SelectItem
-                                >
+                                <SelectItem value="procedure">Procedure</SelectItem>
                                 <SelectItem value="imaging">Imaging</SelectItem>
-                                <SelectItem value="consultation"
-                                    >Consultation</SelectItem
-                                >
+                                <SelectItem value="consultation">Consultation</SelectItem>
                                 <SelectItem value="therapy">Therapy</SelectItem>
                             </SelectContent>
                         </Select>
@@ -312,21 +277,14 @@ const formatPrice = (price: number) => {
                     </div>
                     <div>
                         <Label for="price">Price</Label>
-                        <Input
-                            id="price"
-                            type="number"
-                            step="0.01"
-                            v-model.number="formData.price"
-                        />
+                        <Input id="price" type="number" step="0.01" v-model.number="formData.price" />
                         <p v-if="errors.price" class="text-sm text-red-500">
                             {{ errors.price[0] }}
                         </p>
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" @click="showModal = false"
-                        >Cancel</Button
-                    >
+                    <Button variant="outline" @click="showModal = false">Cancel</Button>
                     <Button @click="submitForm">{{
                         editingService ? 'Update' : 'Create'
                     }}</Button>
@@ -387,9 +345,7 @@ const formatPrice = (price: number) => {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" @click="showViewModal = false"
-                        >Close</Button
-                    >
+                    <Button variant="outline" @click="showViewModal = false">Close</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

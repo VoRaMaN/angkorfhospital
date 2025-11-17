@@ -363,3 +363,8 @@
 .enterprise tbody tr:nth-child(even):hover {
     background: hsl(210 45% 85%) !important;
 }
+
+table,
+td {
+    border: 2px solid rgb(189, 189, 189);
+}

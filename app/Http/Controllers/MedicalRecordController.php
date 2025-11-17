@@ -19,16 +19,24 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('viewAny', MedicalRecord::class);
 
-        $medicalRecords = MedicalRecord::with(['appointment.patient.user', 'appointment.staff.user'])->paginate(15);
+        $medicalRecords = MedicalRecord::with(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user'])->paginate(15);
 
         // Transform medical records for the frontend
         $transformedRecords = $medicalRecords->getCollection()->map(function ($record) {
+            // Try to get patient from appointment first, then from visit
+            $patient = $record->appointment?->patient ?? $record->visit?->patient;
+            $patientName = $patient?->user?->name ?? 'Unknown Patient';
+
+            // Try to get staff/doctor from appointment first, then from visit
+            $staff = $record->appointment?->staff ?? $record->visit?->staff;
+            $doctorName = $staff?->user?->name ?? 'Unknown Doctor';
+
             return [
                 'id' => $record->id,
-                'patient_id' => $record->appointment?->patient_id,
-                'patient_name' => $record->appointment?->patient?->user?->name ?? 'Unknown Patient',
-                'doctor_id' => $record->appointment?->staff_id,
-                'doctor_name' => $record->appointment?->staff?->user?->name ?? 'Unknown Doctor',
+                'patient_id' => $patient?->id,
+                'patient_name' => $patientName,
+                'doctor_id' => $staff?->id,
+                'doctor_name' => $doctorName,
                 'diagnosis' => $record->diagnosis,
                 'treatment' => $record->treatment,
                 'notes' => $record->notes,
@@ -88,14 +96,22 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('view', $medicalRecord);
 
-        $medicalRecord->load(['appointment.patient.user', 'appointment.staff.user']);
+        $medicalRecord->load(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user']);
+
+        // Try to get patient from appointment first, then from visit
+        $patient = $medicalRecord->appointment?->patient ?? $medicalRecord->visit?->patient;
+        $patientName = $patient?->user?->name ?? 'Unknown Patient';
+
+        // Try to get staff/doctor from appointment first, then from visit
+        $staff = $medicalRecord->appointment?->staff ?? $medicalRecord->visit?->staff;
+        $doctorName = $staff?->user?->name ?? 'Unknown Doctor';
 
         $transformedRecord = [
             'id' => $medicalRecord->id,
-            'patient_id' => $medicalRecord->appointment?->patient_id,
-            'patient_name' => $medicalRecord->appointment?->patient?->user?->name ?? 'Unknown Patient',
-            'doctor_id' => $medicalRecord->appointment?->staff_id,
-            'doctor_name' => $medicalRecord->appointment?->staff?->user?->name ?? 'Unknown Doctor',
+            'patient_id' => $patient?->id,
+            'patient_name' => $patientName,
+            'doctor_id' => $staff?->id,
+            'doctor_name' => $doctorName,
             'diagnosis' => $medicalRecord->diagnosis,
             'treatment' => $medicalRecord->treatment,
             'notes' => $medicalRecord->notes,

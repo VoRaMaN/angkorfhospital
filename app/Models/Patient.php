@@ -60,4 +60,9 @@ class Patient extends Model
     {
         return $this->hasMany(MedicalOrder::class);
     }
+
+    public function medicalRecords()
+    {
+        return $this->hasManyThrough(MedicalRecord::class, Appointment::class, 'patient_id', 'appointment_id');
+    }
 }

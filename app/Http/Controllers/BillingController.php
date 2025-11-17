@@ -284,7 +284,18 @@ class BillingController extends Controller
 
         $this->authorize('updateStatus', $billing);
 
+        $oldStatus = $billing->status;
         $billing->update(['status' => $request->status]);
+
+        // Generate medical record when billing is marked as paid
+        if ($request->status === 'paid' && $oldStatus !== 'paid') {
+            $billingService = app(MedicalOrderBillingService::class);
+            $medicalRecord = $billingService->generateMedicalRecordOnPayment($billing);
+
+            if ($medicalRecord) {
+                return redirect()->back()->with('success', 'Billing status updated successfully. Medical record generated.');
+            }
+        }
 
         return redirect()->back()->with('success', 'Billing status updated successfully.');
     }

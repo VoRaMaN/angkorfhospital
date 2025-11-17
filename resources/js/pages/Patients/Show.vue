@@ -25,6 +25,25 @@ interface Props {
         updated_at: string;
         patient_files?: Array<any>;
         medical_orders?: Array<any>;
+        medical_records?: Array<{
+            id: number;
+            diagnosis: string;
+            treatment: string;
+            notes: string;
+            date_of_service: string;
+            created_at: string;
+        }>;
+        medical_orders_data?: Array<{
+            id: number;
+            type: string;
+            order_details: string;
+            status: string;
+            priority: string;
+            ordered_at: string;
+            completed_at: string | null;
+            staff_name: string | null;
+            notes: string | null;
+        }>;
     };
 }
 
@@ -74,13 +93,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="max-w-4xl">
                 <Tabs default-value="details" class="w-full">
-                    <TabsList class="grid w-full grid-cols-3">
+                    <TabsList class="grid w-full grid-cols-4">
                         <TabsTrigger value="details"
                             >Patient Details</TabsTrigger
                         >
                         <TabsTrigger value="files">Files</TabsTrigger>
                         <TabsTrigger value="medical-orders"
                             >Medical Orders</TabsTrigger
+                        >
+                        <TabsTrigger value="medical-records"
+                            >Medical Records</TabsTrigger
                         >
                     </TabsList>
 
@@ -256,7 +278,186 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </TabsContent>
 
                     <TabsContent value="medical-orders" class="mt-6">
-                        <PatientMedicalOrdersTab :patient="props.patient" />
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Medical Orders</h3>
+                                    <p class="text-sm text-muted-foreground">
+                                        All medical orders and their current status
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div v-if="!props.patient.medical_orders_data || props.patient.medical_orders_data.length === 0"
+                                 class="rounded-lg border bg-card p-8 text-center">
+                                <p class="text-muted-foreground">No medical orders found.</p>
+                            </div>
+
+                            <div v-else class="space-y-4">
+                                <div v-for="order in props.patient.medical_orders_data"
+                                     :key="order.id"
+                                     class="rounded-lg border bg-card p-6">
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Order Date
+                                            </dt>
+                                            <dd class="text-sm">
+                                                {{ new Date(order.ordered_at).toLocaleString() }}
+                                            </dd>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Status
+                                            </dt>
+                                            <dd class="text-sm">
+                                                <Badge :variant="order.status === 'completed' ? 'default' : order.status === 'processing' ? 'secondary' : 'outline'">
+                                                    {{ order.status.charAt(0).toUpperCase() + order.status.slice(1) }}
+                                                </Badge>
+                                            </dd>
+                                        </div>
+
+                                        <div v-if="order.priority" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Priority
+                                            </dt>
+                                            <dd class="text-sm">
+                                                <Badge variant="destructive" v-if="order.priority === 'high'">
+                                                    High Priority
+                                                </Badge>
+                                                <Badge variant="secondary" v-else>
+                                                    {{ order.priority.charAt(0).toUpperCase() + order.priority.slice(1) }}
+                                                </Badge>
+                                            </dd>
+                                        </div>
+
+                                        <div v-if="order.staff_name" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Ordered By
+                                            </dt>
+                                            <dd class="text-sm">
+                                                {{ order.staff_name }}
+                                            </dd>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 space-y-4">
+                                        <div class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Order Details
+                                            </dt>
+                                            <dd class="text-sm whitespace-pre-line">
+                                                {{ order.order_details }}
+                                            </dd>
+                                        </div>
+
+                                        <div v-if="order.notes" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Notes
+                                            </dt>
+                                            <dd class="text-sm whitespace-pre-line">
+                                                {{ order.notes }}
+                                            </dd>
+                                        </div>
+
+                                        <div v-if="order.completed_at" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Completed At
+                                            </dt>
+                                            <dd class="text-sm">
+                                                {{ new Date(order.completed_at).toLocaleString() }}
+                                            </dd>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 pt-4 border-t">
+                                        <p class="text-xs text-muted-foreground">
+                                            Order ID: #{{ order.id }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="medical-records" class="mt-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Medical Records</h3>
+                                    <p class="text-sm text-muted-foreground">
+                                        Complete medical history and treatment records
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div v-if="!props.patient.medical_records || props.patient.medical_records.length === 0"
+                                 class="rounded-lg border bg-card p-8 text-center">
+                                <p class="text-muted-foreground">No medical records found.</p>
+                            </div>
+
+                            <div v-else class="space-y-4">
+                                <div v-for="record in props.patient.medical_records"
+                                     :key="record.id"
+                                     class="rounded-lg border bg-card p-6">
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Date of Service
+                                            </dt>
+                                            <dd class="text-sm">
+                                                {{ new Date(record.date_of_service).toLocaleDateString() }}
+                                            </dd>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Record ID
+                                            </dt>
+                                            <dd class="text-sm font-mono">
+                                                #{{ record.id }}
+                                            </dd>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 space-y-4">
+                                        <div v-if="record.diagnosis" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Diagnosis
+                                            </dt>
+                                            <dd class="text-sm whitespace-pre-line">
+                                                {{ record.diagnosis }}
+                                            </dd>
+                                        </div>
+
+                                        <div v-if="record.treatment" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Treatment
+                                            </dt>
+                                            <dd class="text-sm whitespace-pre-line">
+                                                {{ record.treatment }}
+                                            </dd>
+                                        </div>
+
+                                        <div v-if="record.notes" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Notes
+                                            </dt>
+                                            <dd class="text-sm whitespace-pre-line">
+                                                {{ record.notes }}
+                                            </dd>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 pt-4 border-t">
+                                        <p class="text-xs text-muted-foreground">
+                                            Created: {{ new Date(record.created_at).toLocaleString() }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </TabsContent>
                 </Tabs>
             </div>

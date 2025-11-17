@@ -80,10 +80,57 @@ class PatientController extends Controller
     {
         $this->authorize('view', $patient);
 
-        $patient->load(['user', 'appointments.staff', 'patientFiles.file', 'medicalOrders']);
+        $patient->load([
+            'user',
+            'appointments.staff',
+            'patientFiles.file',
+            'medicalOrders',
+            'appointments.visits.medicalRecord',
+            'medicalOrders.medicalRecords',
+        ]);
+
+        // Collect all medical records from different sources
+        $medicalRecords = collect();
+
+        // Records linked to appointments through visits
+        foreach ($patient->appointments as $appointment) {
+            if ($appointment->visits) {
+                foreach ($appointment->visits as $visit) {
+                    if ($visit->medicalRecord) {
+                        $medicalRecords->push($visit->medicalRecord);
+                    }
+                }
+            }
+        }
+
+        // Records linked directly to medical orders
+        foreach ($patient->medicalOrders as $medicalOrder) {
+            $medicalRecords = $medicalRecords->merge($medicalOrder->medicalRecords ?? []);
+        }
+
+        // Remove duplicates based on ID and sort by date
+        $uniqueRecords = $medicalRecords->unique('id')->sortByDesc('date_of_service')->values();
+
+        // Also collect medical orders for display
+        $medicalOrdersData = $patient->medicalOrders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'type' => 'medical_order',
+                'order_details' => $order->order_details,
+                'status' => $order->status,
+                'priority' => $order->priority,
+                'ordered_at' => $order->ordered_at,
+                'completed_at' => $order->completed_at,
+                'staff_name' => $order->staff ? $order->staff->first_name.' '.$order->staff->last_name : null,
+                'notes' => $order->notes,
+            ];
+        })->sortByDesc('ordered_at')->values();
 
         return Inertia::render('Patients/Show', [
-            'patient' => $patient,
+            'patient' => array_merge($patient->toArray(), [
+                'medical_records' => $uniqueRecords->toArray(),
+                'medical_orders_data' => $medicalOrdersData->toArray(),
+            ]),
         ]);
     }
 

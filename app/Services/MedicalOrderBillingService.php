@@ -7,6 +7,7 @@ use App\Models\Billing;
 use App\Models\Inventory;
 use App\Models\MedicalOrder;
 use App\Models\MedicalOrderInventory;
+use App\Models\MedicalRecord;
 use App\Models\MedicalService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -316,5 +317,174 @@ class MedicalOrderBillingService
 
             return true;
         });
+    }
+
+    /**
+     * Generate medical record data when billing is paid
+     */
+    public function generateMedicalRecordOnPayment(Billing $billing): ?MedicalRecord
+    {
+        // Only generate record if billing has a medical order and is being paid
+        if (! $billing->medicalOrder || $billing->status !== 'paid') {
+            return null;
+        }
+
+        $medicalOrder = $billing->medicalOrder;
+
+        // Check if medical record already exists for this billing/medical order
+        $existingRecord = MedicalRecord::where('medical_order_id', $medicalOrder->id)->first();
+        if ($existingRecord) {
+            return $existingRecord;
+        }
+
+        // Generate diagnosis from visit/appointment notes or order details
+        $diagnosis = $this->generateDiagnosis($medicalOrder);
+
+        // Generate treatment summary from order items
+        $treatment = $this->generateTreatmentSummary($medicalOrder);
+
+        // Generate notes combining order details and billing info
+        $notes = $this->generateMedicalNotes($medicalOrder, $billing);
+
+        // Create medical record
+        return MedicalRecord::create([
+            'appointment_id' => $billing->appointment_id,
+            'visit_id' => $billing->visit_id,
+            'medical_order_id' => $medicalOrder->id,
+            'diagnosis' => $diagnosis,
+            'treatment' => $treatment,
+            'notes' => $notes,
+            'date_of_service' => $medicalOrder->completed_at?->toDateString() ?? now()->toDateString(),
+        ]);
+    }
+
+    /**
+     * Generate diagnosis information from medical order context
+     */
+    private function generateDiagnosis(MedicalOrder $medicalOrder): string
+    {
+        $diagnosisParts = [];
+
+        // Try to get diagnosis from visit notes
+        if ($medicalOrder->visit && $medicalOrder->visit->notes) {
+            $diagnosisParts[] = "Visit Notes: {$medicalOrder->visit->notes}";
+        }
+
+        // Try to get diagnosis from appointment notes
+        if ($medicalOrder->visit?->appointment && $medicalOrder->visit->appointment->notes) {
+            $diagnosisParts[] = "Appointment Notes: {$medicalOrder->visit->appointment->notes}";
+        }
+
+        // Extract diagnosis from order details if it contains diagnostic information
+        if ($medicalOrder->order_details) {
+            $diagnosisParts[] = "Order Details: {$medicalOrder->order_details}";
+        }
+
+        // If no specific diagnosis found, generate based on ordered items
+        if (empty($diagnosisParts)) {
+            $itemTypes = $medicalOrder->orderItems->pluck('item_type')->unique();
+            $diagnosisParts[] = 'Diagnostic workup including: '.implode(', ', $itemTypes->toArray());
+        }
+
+        return implode('; ', $diagnosisParts);
+    }
+
+    /**
+     * Generate treatment summary from medical order items
+     */
+    private function generateTreatmentSummary(MedicalOrder $medicalOrder): string
+    {
+        $treatmentParts = [];
+
+        // Group items by type for better organization
+        $groupedItems = $medicalOrder->orderItems->groupBy('item_type');
+
+        foreach ($groupedItems as $itemType => $items) {
+            $typeLabel = $this->getTreatmentTypeLabel($itemType);
+            $itemDescriptions = [];
+
+            foreach ($items as $item) {
+                $description = $item->item_name;
+
+                // Add dosage/frequency/route for medicines
+                if ($itemType === 'rx_medicine' && ($item->dosage || $item->frequency || $item->route)) {
+                    $medicationDetails = [];
+                    if ($item->dosage) {
+                        $medicationDetails[] = $item->dosage;
+                    }
+                    if ($item->frequency) {
+                        $medicationDetails[] = $item->frequency;
+                    }
+                    if ($item->route) {
+                        $medicationDetails[] = "via {$item->route}";
+                    }
+                    if (! empty($medicationDetails)) {
+                        $description .= ' ('.implode(', ', $medicationDetails).')';
+                    }
+                }
+
+                // Add quantity for relevant items
+                if ($item->quantity_required && $item->quantity_required > 1) {
+                    $description .= " x{$item->quantity_required}";
+                }
+
+                $itemDescriptions[] = $description;
+            }
+
+            $treatmentParts[] = "{$typeLabel}: ".implode(', ', $itemDescriptions);
+        }
+
+        return implode('; ', $treatmentParts);
+    }
+
+    /**
+     * Get human-readable label for treatment type
+     */
+    private function getTreatmentTypeLabel(string $itemType): string
+    {
+        return match ($itemType) {
+            'lab' => 'Laboratory Tests',
+            'rx_medicine' => 'Prescribed Medications',
+            'procedure' => 'Medical Procedures',
+            'imaging' => 'Imaging Studies',
+            'supply' => 'Medical Supplies',
+            'therapy' => 'Therapy Services',
+            'consultation' => 'Consultations',
+            default => ucfirst($itemType),
+        };
+    }
+
+    /**
+     * Generate comprehensive medical notes
+     */
+    private function generateMedicalNotes(MedicalOrder $medicalOrder, Billing $billing): string
+    {
+        $notes = [];
+
+        // Add order priority if high
+        if ($medicalOrder->priority && $medicalOrder->priority->value === 'high') {
+            $notes[] = 'High Priority Order';
+        }
+
+        // Add completion information
+        if ($medicalOrder->completed_at) {
+            $notes[] = "Order completed on {$medicalOrder->completed_at->format('M j, Y \a\t g:i A')}";
+        }
+
+        // Add billing information
+        $notes[] = "Billing Amount: \${$billing->amount}";
+        $notes[] = "Payment Status: {$billing->status}";
+
+        // Add any additional order notes
+        if ($medicalOrder->notes) {
+            $notes[] = "Additional Notes: {$medicalOrder->notes}";
+        }
+
+        // Add staff information if available
+        if ($medicalOrder->staff) {
+            $notes[] = "Ordered by: {$medicalOrder->staff->first_name} {$medicalOrder->staff->last_name}";
+        }
+
+        return implode('; ', $notes);
     }
 }
