@@ -3,11 +3,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -20,7 +28,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { DollarSign, Edit, Eye, MoreHorizontal, Plus, Search, Trash2 } from 'lucide-vue-next';
+import { DollarSign, Edit, Eye, Plus, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -49,6 +57,10 @@ const props = defineProps<Props>();
 
 const searchQuery = ref(props.filters.search);
 const statusFilter = ref(props.filters.status || '');
+
+const isDialogOpen = ref(false);
+const selectedBilling = ref<Props['billings'][0] | null>(null);
+const selectedStatus = ref('');
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -83,14 +95,12 @@ const getStatusVariant = (status: string) => {
 };
 
 const updateStatus = (billingId: number, newStatus: string) => {
-    if (confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
-        router.patch(`/billings/${billingId}/status`, { status: newStatus }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Status updated successfully
-            },
-        });
-    }
+    router.patch(`/billings/${billingId}/status`, { status: newStatus }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            isDialogOpen.value = false;
+        },
+    });
 };
 
 const getAvailableStatuses = (currentStatus: string) => {
@@ -107,15 +117,20 @@ const performSearch = () => {
         preserveState: true,
     });
 };
+
+const openStatusDialog = (billing: Props['billings'][0]) => {
+    selectedBilling.value = billing;
+    selectedStatus.value = '';
+    isDialogOpen.value = true;
+};
 </script>
 
 <template>
+
     <Head title="Billings" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">Billings</h1>
@@ -126,8 +141,8 @@ const performSearch = () => {
                 <div class="ml-auto">
                     <Button as-child>
                         <Link :href="create().url">
-                            <Plus class="size-4" />
-                            Add Billing
+                        <Plus class="size-4" />
+                        Add Billing
                         </Link>
                     </Button>
                 </div>
@@ -135,15 +150,9 @@ const performSearch = () => {
 
             <div class="flex items-center gap-4">
                 <div class="relative max-w-sm flex-1">
-                    <Search
-                        class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                    />
-                    <Input
-                        v-model="searchQuery"
-                        placeholder="Search billings..."
-                        class="pl-9"
-                        @keyup.enter="performSearch"
-                    />
+                    <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input v-model="searchQuery" placeholder="Search billings..." class="pl-9"
+                        @keyup.enter="performSearch" />
                 </div>
                 <Button @click="performSearch" variant="outline">
                     Search
@@ -152,60 +161,32 @@ const performSearch = () => {
 
             <!-- Status Filter Buttons -->
             <div class="flex flex-wrap gap-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': !statusFilter }"
-                    as-child
-                >
+                <Button variant="outline" size="sm" :class="{ 'bg-primary text-primary-foreground': !statusFilter }"
+                    as-child>
                     <Link href="/billings">All</Link>
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'pending' }"
-                    as-child
-                >
+                <Button variant="outline" size="sm"
+                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'pending' }" as-child>
                     <Link href="/billings?status=pending">Pending</Link>
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'paid' }"
-                    as-child
-                >
+                <Button variant="outline" size="sm"
+                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'paid' }" as-child>
                     <Link href="/billings?status=paid">Paid</Link>
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'overdue' }"
-                    as-child
-                >
+                <Button variant="outline" size="sm"
+                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'overdue' }" as-child>
                     <Link href="/billings?status=overdue">Overdue</Link>
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'partial' }"
-                    as-child
-                >
+                <Button variant="outline" size="sm"
+                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'partial' }" as-child>
                     <Link href="/billings?status=partial">Partial</Link>
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'written_off' }"
-                    as-child
-                >
+                <Button variant="outline" size="sm"
+                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'written_off' }" as-child>
                     <Link href="/billings?status=written_off">Written Off</Link>
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'cancelled' }"
-                    as-child
-                >
+                <Button variant="outline" size="sm"
+                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'cancelled' }" as-child>
                     <Link href="/billings?status=cancelled">Cancelled</Link>
                 </Button>
             </div>
@@ -228,21 +209,16 @@ const performSearch = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow
-                            v-for="billing in props.billings"
-                            :key="billing.id"
-                        >
+                        <TableRow v-for="billing in props.billings" :key="billing.id">
                             <TableCell class="font-medium">{{
                                 billing.patient_name
-                            }}</TableCell>
+                                }}</TableCell>
                             <TableCell>{{ billing.appointment_id ? 'Yes' : 'No' }}</TableCell>
                             <TableCell>{{ billing.visit_id ? 'Yes' : 'No' }}</TableCell>
                             <TableCell>{{ billing.medical_order_id ? 'Yes' : 'No' }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-1">
-                                    <DollarSign
-                                        class="size-4 text-muted-foreground"
-                                    />
+                                    <DollarSign class="size-4 text-muted-foreground" />
                                     {{ formatCurrency(billing.total_amount) }}
                                 </div>
                             </TableCell>
@@ -263,9 +239,7 @@ const performSearch = () => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Badge
-                                    :variant="getStatusVariant(billing.status)"
-                                >
+                                <Badge :variant="getStatusVariant(billing.status)">
                                     {{ billing.status }}
                                 </Badge>
                             </TableCell>
@@ -276,44 +250,27 @@ const performSearch = () => {
                             }}</TableCell>
                             <TableCell>{{
                                 new Date(billing.due_date).toLocaleDateString()
-                            }}</TableCell>
+                                }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
                                     <Button variant="ghost" size="sm" as-child>
                                         <Link :href="show(billing.id).url">
-                                            <Eye class="size-4" />
+                                        <Eye class="size-4" />
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
                                         <Link :href="edit(billing.id).url">
-                                            <Edit class="size-4" />
+                                        <Edit class="size-4" />
                                         </Link>
                                     </Button>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger as-child>
-                                            <Button variant="ghost" size="sm">
-                                                <MoreHorizontal class="size-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem
-                                                v-for="status in getAvailableStatuses(billing.status)"
-                                                :key="status"
-                                                @click="updateStatus(billing.id, status)"
-                                                class="capitalize"
-                                            >
-                                                Mark as {{ status.replace('_', ' ') }}
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                    <Button variant="ghost" size="sm" @click="openStatusDialog(billing)">
+                                        Update Status
+                                    </Button>
                                 </div>
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.billings.length === 0">
-                            <TableCell
-                                colspan="11"
-                                class="text-center text-muted-foreground"
-                            >
+                            <TableCell colspan="11" class="text-center text-muted-foreground">
                                 No billings found
                             </TableCell>
                         </TableRow>
@@ -322,4 +279,36 @@ const performSearch = () => {
             </div>
         </div>
     </AppLayout>
+
+    <Dialog v-model:open="isDialogOpen">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Update Billing Status</DialogTitle>
+            </DialogHeader>
+            <div v-if="selectedBilling" class="py-4">
+                <p>Current Status: <Badge :variant="getStatusVariant(selectedBilling.status)">{{ selectedBilling.status
+                        }}</Badge>
+                </p>
+                <div class="mt-4">
+                    <label for="status-select" class="block text-sm font-medium">New Status</label>
+                    <Select v-model="selectedStatus">
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select new status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem v-for="status in getAvailableStatuses(selectedBilling.status)" :key="status"
+                                :value="status" class="capitalize">
+                                {{ status.replace('_', ' ') }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" @click="isDialogOpen = false">Cancel</Button>
+                <Button @click="updateStatus(selectedBilling!.id, selectedStatus)"
+                    :disabled="!selectedStatus">Update</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>
