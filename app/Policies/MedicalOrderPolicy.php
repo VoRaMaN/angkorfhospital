@@ -97,4 +97,142 @@ class MedicalOrderPolicy
     {
         return false;
     }
+
+    /**
+     * Determine whether the user can process the medical order.
+     */
+    public function process(User $user, MedicalOrder $medicalOrder): bool
+    {
+        // Admin can process all medical orders
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Users with permission can process medical orders
+        if ($user->can('process_medical_orders')) {
+            return true;
+        }
+
+        // Only the ordering staff can process
+        if ($user->hasRole('Doctor')) {
+            return $medicalOrder->staff_id === $user->staff->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can process and bill the medical order.
+     */
+    public function processAndBill(User $user, MedicalOrder $medicalOrder): bool
+    {
+        // Admin can process and bill all medical orders
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Users with permission can process and bill medical orders
+        if ($user->can('process_and_bill_medical_orders')) {
+            return true;
+        }
+
+        // Only the ordering staff can process and bill
+        if ($user->hasRole('Doctor')) {
+            return $medicalOrder->staff_id === $user->staff->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can confirm processed medical order.
+     */
+    public function confirmProcessed(User $user, MedicalOrder $medicalOrder): bool
+    {
+        // Admin can confirm all medical orders
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Users with permission can confirm processed medical orders
+        if ($user->can('confirm_processed_medical_orders')) {
+            return true;
+        }
+
+        // Only the ordering staff can confirm
+        if ($user->hasRole('Doctor')) {
+            return $medicalOrder->staff_id === $user->staff->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can complete the medical order.
+     */
+    public function complete(User $user, MedicalOrder $medicalOrder): bool
+    {
+        // Admin can complete all medical orders
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Users with permission can complete medical orders
+        if ($user->can('complete_medical_orders')) {
+            return true;
+        }
+
+        // Only the ordering staff can complete
+        if ($user->hasRole('Doctor')) {
+            return $medicalOrder->staff_id === $user->staff->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can complete individual order items.
+     */
+    public function completeItem(User $user, MedicalOrder $medicalOrder): bool
+    {
+        // Admin can complete all order items
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Users with permission can complete order items
+        if ($user->can('complete_medical_order_items')) {
+            return true;
+        }
+
+        // Only the ordering staff can complete items
+        if ($user->hasRole('Doctor')) {
+            return $medicalOrder->staff_id === $user->staff->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can send back the medical order for revision.
+     */
+    public function sendBack(User $user, MedicalOrder $medicalOrder): bool
+    {
+        // Admin can send back all medical orders
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Users with permission can send back medical orders
+        if ($user->can('send_back_medical_orders')) {
+            return true;
+        }
+
+        // Only the ordering staff can send back
+        if ($user->hasRole('Doctor')) {
+            return $medicalOrder->staff_id === $user->staff->id;
+        }
+
+        return false;
+    }
 }

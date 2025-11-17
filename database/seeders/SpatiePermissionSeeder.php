@@ -62,7 +62,11 @@ class SpatiePermissionSeeder extends Seeder
             'create_medical_orders',
             'edit_medical_orders',
             'process_medical_orders',
+            'process_and_bill_medical_orders',
+            'confirm_processed_medical_orders',
             'complete_medical_orders',
+            'complete_medical_order_items',
+            'send_back_medical_orders',
             'delete_medical_orders',
 
             // Medications
@@ -145,7 +149,11 @@ class SpatiePermissionSeeder extends Seeder
             'create_medical_orders',
             'edit_medical_orders',
             'process_medical_orders',
+            'process_and_bill_medical_orders',
+            'confirm_processed_medical_orders',
             'complete_medical_orders',
+            'complete_medical_order_items',
+            'send_back_medical_orders',
             'view_medical_services',
             'create_medical_services',
             'edit_medical_services',
@@ -174,7 +182,11 @@ class SpatiePermissionSeeder extends Seeder
             'create_medical_orders',
             'edit_medical_orders',
             'process_medical_orders',
+            'process_and_bill_medical_orders',
+            'confirm_processed_medical_orders',
             'complete_medical_orders',
+            'complete_medical_order_items',
+            'send_back_medical_orders',
             'view_medical_services',
             'create_medical_services',
             'edit_medical_services',
@@ -216,6 +228,10 @@ class SpatiePermissionSeeder extends Seeder
             'update_billing_status',
             'view_inventory',
             'view_visits',
+            'view_medical_orders',
+            'process_and_bill_medical_orders',
+            'confirm_processed_medical_orders',
+            'complete_medical_orders',
         ]);
 
         $receptionistRole = Role::firstOrCreate(['name' => 'receptionist']);

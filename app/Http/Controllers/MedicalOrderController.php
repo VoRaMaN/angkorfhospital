@@ -425,12 +425,9 @@ class MedicalOrderController extends Controller
         return redirect()->route('medical-orders.index')->with('success', 'Medical order deleted successfully.');
     }
 
-    /**
-     * Process a medical order with updates.
-     */
     public function processWithUpdate(UpdateMedicalOrderRequest $request, MedicalOrder $medicalOrder): RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('process', $medicalOrder);
 
         // Only allow processing if the order is pending
         if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PENDING) {
@@ -483,12 +480,9 @@ class MedicalOrderController extends Controller
             ->with('success', 'Medical order processed successfully.');
     }
 
-    /**
-     * Show the process page for a medical order.
-     */
     public function processPage(MedicalOrder $medicalOrder)
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('process', $medicalOrder);
 
         // If the order is already processed or completed, redirect to already processed page
         if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PENDING) {
@@ -674,12 +668,9 @@ class MedicalOrderController extends Controller
         ]);
     }
 
-    /**
-     * Show the complete process page for a medical order.
-     */
     public function completePage(MedicalOrder $medicalOrder): Response|\Illuminate\Http\RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('complete', $medicalOrder);
 
         // Only allow access if the order is processed (not already completed)
         if ($medicalOrder->status === \App\Enums\MedicalOrderStatusEnum::COMPLETED) {
@@ -740,12 +731,9 @@ class MedicalOrderController extends Controller
         ]);
     }
 
-    /**
-     * Complete a medical order.
-     */
     public function complete(MedicalOrder $medicalOrder): RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('complete', $medicalOrder);
 
         $medicalOrder->update([
             'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
@@ -755,12 +743,9 @@ class MedicalOrderController extends Controller
         return redirect()->route('medical-orders.show', $medicalOrder)->with('success', 'Medical order completed successfully.');
     }
 
-    /**
-     * Process and bill a medical order.
-     */
     public function processAndBill(MedicalOrder $medicalOrder): RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('processAndBill', $medicalOrder);
 
         // Only allow processing if the order is pending or processed
         if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
@@ -793,12 +778,9 @@ class MedicalOrderController extends Controller
         }
     }
 
-    /**
-     * Confirm a medical order as processed (without billing).
-     */
     public function confirmProcessed(MedicalOrder $medicalOrder): RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('confirmProcessed', $medicalOrder);
 
         // Only allow confirming if the order is processing
         if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PROCESSING) {
@@ -832,12 +814,9 @@ class MedicalOrderController extends Controller
         return response()->json($breakdown);
     }
 
-    /**
-     * Send back a medical order for revision before processing.
-     */
     public function sendBack(Request $request, MedicalOrder $medicalOrder): RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('sendBack', $medicalOrder);
 
         $request->validate([
             'reason' => 'required|string|max:1000',
@@ -866,12 +845,9 @@ class MedicalOrderController extends Controller
         return redirect()->back()->with('success', 'Medical order has been sent back for revision.');
     }
 
-    /**
-     * Complete an individual order item.
-     */
     public function completeItem(MedicalOrder $medicalOrder, \App\Models\MedicalOrderInventory $item): RedirectResponse
     {
-        $this->authorize('update', $medicalOrder);
+        $this->authorize('completeItem', $medicalOrder);
 
         // Ensure the item belongs to this medical order
         if ($item->medical_order_id !== $medicalOrder->id) {
