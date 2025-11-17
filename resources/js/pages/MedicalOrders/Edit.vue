@@ -212,9 +212,11 @@ const priorities = [
 
 const statuses = [
     { value: 'pending', label: 'Pending' },
-    { value: 'in_progress', label: 'In Progress' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'processed', label: 'Processed' },
     { value: 'completed', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'cancel', label: 'Cancel' },
+    { value: 'rejected', label: 'Rejected' },
 ];
 
 // Lab selection state

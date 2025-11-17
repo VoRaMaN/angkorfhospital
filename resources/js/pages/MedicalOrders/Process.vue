@@ -558,7 +558,7 @@ const getStatusIcon = (status: string) => {
     switch (status) {
         case 'completed':
             return CheckCircle;
-        case 'in_progress':
+        case 'processing':
             return Clock;
         case 'pending':
             return AlertCircle;
@@ -571,7 +571,7 @@ const getStatusColor = (status: string) => {
     switch (status) {
         case 'completed':
             return 'text-green-600';
-        case 'in_progress':
+        case 'processing':
             return 'text-blue-600';
         case 'pending':
             return 'text-yellow-600';
@@ -619,7 +619,7 @@ const submitForm = () => {
                         Order #{{ medicalOrder.id }}
                         <Badge :class="medicalOrder.status === 'completed'
                                 ? 'bg-green-100 text-green-800'
-                                : medicalOrder.status === 'in_progress'
+                                : medicalOrder.status === 'processing'
                                     ? 'bg-blue-100 text-blue-800'
                                     : 'bg-yellow-100 text-yellow-800'
                             ">
