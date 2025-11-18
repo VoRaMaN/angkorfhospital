@@ -9,6 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -24,6 +25,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+const { hasPermission } = useAuth();
 
 const form = useForm({
     first_name: '',
@@ -41,7 +44,7 @@ const form = useForm({
     <Head title="Create Patient" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('create_patients')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -207,6 +210,16 @@ const form = useForm({
                         </Button>
                     </div>
                 </form>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to create patients.
+                </p>
             </div>
         </div>
     </AppLayout>

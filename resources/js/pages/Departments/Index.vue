@@ -13,6 +13,7 @@ import { create, edit, show } from '@/routes/departments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     departments: Array<{
@@ -31,13 +32,15 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+const { hasPermission } = useAuth();
 </script>
 
 <template>
     <Head title="Departments" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_departments')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center justify-between">
@@ -47,7 +50,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         Manage hospital departments
                     </p>
                 </div>
-                <Button as-child>
+                <Button v-if="hasPermission('create_departments')" as-child>
                     <Link :href="create().url">
                         <Plus class="size-4" />
                         Add Department
@@ -110,6 +113,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view departments.
+                </p>
             </div>
         </div>
     </AppLayout>

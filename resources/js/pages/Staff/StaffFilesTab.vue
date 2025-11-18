@@ -26,6 +26,7 @@ import {
 import { show, store } from '@/routes/staff-files';
 import { useForm } from '@inertiajs/vue3';
 import { Download, Eye, Plus } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     staff: {
@@ -45,6 +46,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { hasPermission } = useAuth();
+
 const form = useForm({
     file: null as File | null,
     staff_id: props.staff.id.toString(),
@@ -59,7 +62,7 @@ const submitForm = () => {
 <template>
     <div class="space-y-6">
         <!-- Upload Form -->
-        <div class="rounded-lg border bg-card p-6">
+        <div v-if="hasPermission('create_files')" class="rounded-lg border bg-card p-6">
             <h3 class="mb-4 text-lg font-medium">Upload New File</h3>
             <form @submit.prevent="submitForm" class="space-y-4">
                 <FormField v-slot="{}" name="file">
@@ -88,14 +91,10 @@ const submitForm = () => {
                             </FormControl>
                             <SelectContent>
                                 <SelectItem value="cv">CV</SelectItem>
-                                <SelectItem value="certificate"
-                                    >Certificate</SelectItem
-                                >
+                                <SelectItem value="certificate">Certificate</SelectItem>
                                 <SelectItem value="license">License</SelectItem>
                                 <SelectItem value="photo">Photo</SelectItem>
-                                <SelectItem value="contract"
-                                    >Contract</SelectItem
-                                >
+                                <SelectItem value="contract">Contract</SelectItem>
                             </SelectContent>
                         </Select>
                         <FormMessage />
@@ -109,8 +108,17 @@ const submitForm = () => {
             </form>
         </div>
 
+        <div v-else-if="!hasPermission('create_files')" class="rounded-lg border bg-card p-6">
+            <div class="text-center">
+                <h3 class="text-lg font-medium text-muted-foreground">Upload Access Denied</h3>
+                <p class="text-sm text-muted-foreground">
+                    You don't have permission to upload files.
+                </p>
+            </div>
+        </div>
+
         <!-- Files List -->
-        <div class="rounded-lg border bg-card p-6">
+        <div v-if="hasPermission('view_files')" class="rounded-lg border bg-card p-6">
             <h3 class="mb-4 text-lg font-medium">Staff Files</h3>
             <div class="rounded-md border">
                 <Table>
@@ -174,6 +182,15 @@ const submitForm = () => {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+
+        <div v-else-if="!hasPermission('view_files')" class="rounded-lg border bg-card p-6">
+            <div class="text-center">
+                <h3 class="text-lg font-medium text-muted-foreground">Files Access Denied</h3>
+                <p class="text-sm text-muted-foreground">
+                    You don't have permission to view staff files.
+                </p>
             </div>
         </div>
     </div>

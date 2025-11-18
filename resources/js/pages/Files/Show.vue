@@ -7,6 +7,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Download, Edit } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     title: string;
@@ -19,6 +20,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     isPatient: false,
 });
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -57,7 +60,7 @@ const isPdf = computed(() => props.item.file?.mime_type === 'application/pdf');
     <Head :title="`View ${title.slice(0, -1)}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_files')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -82,7 +85,7 @@ const isPdf = computed(() => props.item.file?.mime_type === 'application/pdf');
                             Download
                         </a>
                     </Button>
-                    <Button v-if="editUrl" variant="outline" as-child>
+                    <Button v-if="editUrl && hasPermission('edit_files')" variant="outline" as-child>
                         <Link :href="editUrl">
                             <Edit class="size-4" />
                             Edit
@@ -203,6 +206,15 @@ const isPdf = computed(() => props.item.file?.mime_type === 'application/pdf');
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view files.
+                </p>
             </div>
         </div>
     </AppLayout>

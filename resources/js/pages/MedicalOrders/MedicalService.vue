@@ -165,7 +165,7 @@ const formatPrice = (price: number) => {
     <Head title="Medical Services" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div v-if="hasPermission('view_medical_services')" class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Medical Services</h1>
@@ -173,7 +173,7 @@ const formatPrice = (price: number) => {
                         Manage medical services for procedures and imaging
                     </p>
                 </div>
-                <Button @click="openCreateModal" v-if="hasPermission('create_medical_services') || true">
+                <Button @click="openCreateModal" v-if="hasPermission('create_medical_services')">
                     <Plus class="size-4" />
                     Create Medical Service
                 </Button>
@@ -211,7 +211,7 @@ const formatPrice = (price: number) => {
                                     <Button variant="outline" size="sm" @click="openViewModal(service)">
                                         View
                                     </Button>
-                                    <Button variant="outline" size="sm" @click="openEditModal(service)">
+                                    <Button variant="outline" size="sm" @click="openEditModal(service)" v-if="hasPermission('edit_medical_services')">
                                         Edit
                                     </Button>
                                 </div>
@@ -224,6 +224,16 @@ const formatPrice = (price: number) => {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to view medical services.
+                </p>
             </div>
         </div>
 

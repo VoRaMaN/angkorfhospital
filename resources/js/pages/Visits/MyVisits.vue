@@ -18,6 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { assignProcess, show } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
@@ -77,6 +78,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { hasPermission } = useAuth();
 
 const staffOptions = computed(() =>
     props.staff.map((s) => ({ value: s.id.toString(), label: s.name })),
@@ -146,11 +148,11 @@ const getStatusColor = (status: string) => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="My Visits" />
 
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
+        <div v-if="hasPermission('view_visits')"
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">My Visits</h1>
@@ -174,9 +176,7 @@ const getStatusColor = (status: string) => {
                         <TableRow v-for="visit in visits" :key="visit.id">
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <User
-                                        class="h-4 w-4 text-muted-foreground"
-                                    />
+                                    <User class="h-4 w-4 text-muted-foreground" />
                                     <div>
                                         <div class="font-medium">
                                             {{
@@ -184,10 +184,7 @@ const getStatusColor = (status: string) => {
                                                 'Unknown Patient'
                                             }}
                                         </div>
-                                        <div
-                                            v-if="visit.appointment"
-                                            class="text-sm text-muted-foreground"
-                                        >
+                                        <div v-if="visit.appointment" class="text-sm text-muted-foreground">
                                             From appointment
                                         </div>
                                     </div>
@@ -195,9 +192,7 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <Calendar
-                                        class="h-4 w-4 text-muted-foreground"
-                                    />
+                                    <Calendar class="h-4 w-4 text-muted-foreground" />
                                     <div>
                                         <div>
                                             {{
@@ -206,9 +201,7 @@ const getStatusColor = (status: string) => {
                                                 ).toLocaleDateString()
                                             }}
                                         </div>
-                                        <div
-                                            class="flex items-center gap-1 text-sm text-muted-foreground"
-                                        >
+                                        <div class="flex items-center gap-1 text-sm text-muted-foreground">
                                             <Clock class="h-3 w-3" />
                                             {{
                                                 new Date(
@@ -226,26 +219,18 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
+                                    <Button variant="outline" size="sm" as-child>
                                         <Link :href="show(visit.id).url">
-                                            <Eye class="mr-1 h-4 w-4" />
-                                            View Details
+                                        <Eye class="mr-1 h-4 w-4" />
+                                        View Details
                                         </Link>
                                     </Button>
-                                    <Button
-                                        v-if="
-                                            visit.status ===
-                                            'awaiting_assignment'
-                                        "
-                                        variant="outline"
-                                        size="sm"
-                                        class="border-blue-600 text-blue-600"
-                                        @click="openAssignModal(visit)"
-                                    >
+                                    <Button v-if="
+                                        visit.status ===
+                                        'awaiting_assignment' &&
+                                        hasPermission('assign_visits')
+                                    " variant="outline" size="sm" class="border-blue-600 text-blue-600"
+                                        @click="openAssignModal(visit)">
                                         <UserCheck class="mr-1 h-4 w-4" />
                                         Assign
                                     </Button>
@@ -254,6 +239,16 @@ const getStatusColor = (status: string) => {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to view visits.
+                </p>
             </div>
         </div>
 
@@ -270,31 +265,16 @@ const getStatusColor = (status: string) => {
                 <div class="grid gap-4 py-4">
                     <div class="grid grid-cols-4 items-center gap-4">
                         <Label for="staff" class="text-right"> Staff </Label>
-                        <SearchableSelect
-                            v-model="assignForm.staff_id"
-                            :options="staffOptions"
-                            placeholder="Select staff member"
-                            class="col-span-3"
-                        />
+                        <SearchableSelect v-model="assignForm.staff_id" :options="staffOptions"
+                            placeholder="Select staff member" class="col-span-3" />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        @click="showAssignModal = false"
-                    >
+                    <Button type="button" variant="outline" @click="showAssignModal = false">
                         Cancel
                     </Button>
-                    <Button
-                        type="button"
-                        @click="assignVisit"
-                        :disabled="assignForm.processing"
-                    >
-                        <Loader2
-                            v-if="assignForm.processing"
-                            class="mr-2 h-4 w-4 animate-spin"
-                        />
+                    <Button type="button" @click="assignVisit" :disabled="assignForm.processing">
+                        <Loader2 v-if="assignForm.processing" class="mr-2 h-4 w-4 animate-spin" />
                         Assign & Process
                     </Button>
                 </DialogFooter>

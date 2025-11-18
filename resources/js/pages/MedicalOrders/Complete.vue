@@ -432,14 +432,14 @@ const sendBackOrder = () => {
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
-                    <Button v-if="hasPermission('process_medical_orders')"
+                    <Button v-if="hasPermission('send_back_medical_orders')"
                         variant="destructive"
                         @click="showSendBackDialog = true"
                     >
                         <ArrowLeft class="mr-2 size-4" />
                         Send Back
                     </Button>
-                    <Button v-if="orderSummary.pending > 0" variant="outline" @click="confirmCompleteAllItems"
+                    <Button v-if="orderSummary.pending > 0 && hasPermission('complete_medical_orders')" variant="outline" @click="confirmCompleteAllItems"
                         :disabled="completingAllItems || completingItem">
                         <CheckCircle class="mr-2 size-4" />
                         {{
@@ -657,7 +657,7 @@ const sendBackOrder = () => {
                                         <Badge :class="getStatusColor(item.status)">
                                             {{ item.status_label }}
                                         </Badge>
-                                        <Button v-if="item.status !== 'completed'" size="sm"
+                                        <Button v-if="item.status !== 'completed' && hasPermission('complete_medical_order_items')" size="sm"
                                             @click="confirmCompleteItem(item)" class="ml-2" :disabled="completingItem">
                                             <CheckCircle class="mr-1 size-4" />
                                             {{

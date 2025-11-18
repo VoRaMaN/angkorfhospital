@@ -12,6 +12,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -47,6 +48,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -125,7 +128,7 @@ const submit = () => {
     <Head title="Create Visit" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('create_visits')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -288,6 +291,16 @@ const submit = () => {
                         </CardContent>
                     </Card>
                 </form>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to create visits.
+                </p>
             </div>
         </div>
     </AppLayout>

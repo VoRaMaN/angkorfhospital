@@ -17,6 +17,7 @@ import {
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     item: {
@@ -35,6 +36,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -64,7 +67,7 @@ const form = useForm({
     <Head title="Edit Inventory Item" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('edit_inventories')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -260,6 +263,15 @@ const form = useForm({
                         </Button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to edit inventory items.
+                </p>
             </div>
         </div>
     </AppLayout>

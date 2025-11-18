@@ -192,6 +192,7 @@ const getPriorityColor = (priority: string) => {
                                         variant="outline"
                                         size="sm"
                                         as-child
+                                        v-if="hasPermission('view_medical_orders')"
                                     >
                                         <Link :href="show(order.id).url"
                                             >View</Link

@@ -145,6 +145,13 @@ class VisitController extends Controller
      */
     public function update(Request $request, Visit $visit)
     {
+        // Check if user is trying to cancel the visit
+        if ($request->status === 'cancelled' && $visit->status !== 'cancelled') {
+            $this->authorize('cancel_visits', $visit);
+        } else {
+            $this->authorize('update', $visit);
+        }
+
         $request->validate([
             'appointment_id' => 'nullable|exists:appointments,id',
             'patient_id' => 'required|exists:patients,id',
@@ -165,6 +172,8 @@ class VisitController extends Controller
      */
     public function assignAndProcess(Request $request, Visit $visit)
     {
+        $this->authorize('assign_visits', $visit);
+
         $request->validate([
             'staff_id' => 'required|exists:staff,id',
         ]);
@@ -198,6 +207,8 @@ class VisitController extends Controller
      */
     public function notifyStaff(Visit $visit)
     {
+        $this->authorize('notify_visits', $visit);
+
         $this->visitsFlowService->notifyStaffForAssignment($visit->id);
 
         return back()->with('success', 'Staff notified successfully.');

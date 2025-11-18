@@ -18,6 +18,7 @@ import {
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     labSupplies: Array<{
@@ -53,15 +54,17 @@ const form = useForm({
     }>,
 });
 
+
+const { hasPermission } = useAuth();
 const addInventoryItem = () => {
     form.inventory_items.push({
         inventory_id: 0,
         quantity_required: 1,
         notes: '',
     });
-};
-
-const removeInventoryItem = (index: number) => {
+        <div v-if="hasPermission('create_lab_panels')"
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
     form.inventory_items.splice(index, 1);
 };
 
@@ -297,6 +300,15 @@ const getAvailableSupplies = () => {
                         </Button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to create lab panels.
+                </p>
             </div>
         </div>
     </AppLayout>

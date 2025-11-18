@@ -19,6 +19,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { assignProcess, update } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
@@ -65,6 +66,36 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
+
+interface Visit {
+    id: number;
+    patient: {
+        user: {
+            name: string;
+        };
+    };
+    staff: {
+        user: {
+            name: string;
+        };
+    } | null;
+    appointment: any;
+    visit_date_time: string;
+    status: string;
+    notes: string;
+    created_at: string;
+    medical_orders?: any[];
+}
+
+interface Props {
+    visit: Visit;
+    staff: Array<{
+        id: number;
+        name: string;
+    }>;
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -138,7 +169,7 @@ const getStatusColor = (status: string) => {
     <Head title="Visit Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_visits')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -167,8 +198,9 @@ const getStatusColor = (status: string) => {
                         </Button>
                         <Button
                             v-if="
-                                visit.status === 'pending' ||
-                                visit.status === 'in_progress'
+                                (visit.status === 'pending' ||
+                                visit.status === 'in_progress') &&
+                                hasPermission('cancel_visits')
                             "
                             variant="destructive"
                             size="sm"
@@ -178,7 +210,7 @@ const getStatusColor = (status: string) => {
                             Cancel
                         </Button>
                     </div>
-                    <Button variant="outline" as-child>
+                    <Button variant="outline" as-child v-if="hasPermission('edit_visits')">
                         <Link :href="`/visits/${visit.id}/edit`">
                             <Edit class="size-4" />
                             Edit Visit
@@ -330,6 +362,16 @@ const getStatusColor = (status: string) => {
                         </CardContent>
                     </Card>
                 </div>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to view visits.
+                </p>
             </div>
         </div>
 

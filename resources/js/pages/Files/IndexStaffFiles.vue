@@ -13,6 +13,7 @@ import { create, edit, show } from '@/routes/staff-files';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     items: Array<Record<string, any>>;
@@ -21,6 +22,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -34,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head :title="title" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_files')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center justify-between">
@@ -44,7 +47,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         Manage your {{ title.toLowerCase() }}
                     </p>
                 </div>
-                <Button v-if="createRoute" as-child>
+                <Button v-if="createRoute && hasPermission('create_files')" as-child>
                     <Link :href="create().url">
                         <Plus class="size-4" />
                         Create {{ title.slice(0, -1) }}
@@ -81,6 +84,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         >
                                     </Button>
                                     <Button
+                                        v-if="hasPermission('edit_files')"
                                         variant="outline"
                                         size="sm"
                                         as-child
@@ -94,6 +98,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view staff files.
+                </p>
             </div>
         </div>
     </AppLayout>

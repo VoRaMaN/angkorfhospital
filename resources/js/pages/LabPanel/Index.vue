@@ -29,6 +29,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus, Search } from 'lucide-vue-next';
 
 import { computed, ref, watch } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     labPanels: {
@@ -90,13 +91,15 @@ const updateFilter = (key: string, value: string) => {
 const paginationLinks = computed(() => {
     return props.labPanels.links.filter((link) => link.url);
 });
+
+const { hasPermission } = useAuth();
 </script>
 
 <template>
     <Head title="Lab Panels" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_lab_panels')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center justify-between">
@@ -107,7 +110,7 @@ const paginationLinks = computed(() => {
                         supplies
                     </p>
                 </div>
-                <Button as-child>
+                <Button v-if="hasPermission('create_lab_panels')" as-child>
                     <Link :href="labPanelCreate().url">
                         <Plus class="size-4" />
                         Add Panel
@@ -198,6 +201,7 @@ const paginationLinks = computed(() => {
                                         >
                                     </Button>
                                     <Button
+                                        v-if="hasPermission('edit_lab_panels')"
                                         variant="outline"
                                         size="sm"
                                         as-child
@@ -237,6 +241,15 @@ const paginationLinks = computed(() => {
                 >
                     <Link :href="link.url!">{{ link.label }}</Link>
                 </Button>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view lab panels.
+                </p>
             </div>
         </div>
     </AppLayout>

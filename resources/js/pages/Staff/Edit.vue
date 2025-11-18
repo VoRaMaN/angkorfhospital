@@ -15,6 +15,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
 import StaffFilesTab from './StaffFilesTab.vue';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     staff: {
@@ -62,6 +63,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const { hasPermission } = useAuth();
+
 const submit = () => {
     form.put(`/staff/${props.staff.id}`, {
         onSuccess: () => {
@@ -75,7 +78,7 @@ const submit = () => {
     <Head title="Edit Staff" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('edit_staff')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -276,6 +279,15 @@ const submit = () => {
                         <StaffFilesTab :staff="props.staff" />
                     </TabsContent>
                 </Tabs>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to edit staff.
+                </p>
             </div>
         </div>
     </AppLayout>

@@ -12,6 +12,7 @@ import {
 import { show } from '@/routes/medical-orders';
 import { Link } from '@inertiajs/vue3';
 import { Eye } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     patient: {
@@ -27,12 +28,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 </script>
 
 <template>
     <div class="space-y-6">
         <!-- Medical Orders List -->
-        <div class="rounded-lg border bg-card p-6">
+        <div v-if="hasPermission('view_medical_orders')" class="rounded-lg border bg-card p-6">
             <h3 class="mb-4 text-lg font-medium">Medical Orders</h3>
             <div class="rounded-md border">
                 <Table>
@@ -90,6 +93,15 @@ const props = defineProps<Props>();
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+
+        <div v-else-if="!hasPermission('view_medical_orders')" class="rounded-lg border bg-card p-6">
+            <div class="text-center">
+                <h3 class="text-lg font-medium text-muted-foreground">Medical Orders Access Denied</h3>
+                <p class="text-sm text-muted-foreground">
+                    You don't have permission to view medical orders.
+                </p>
             </div>
         </div>
     </div>

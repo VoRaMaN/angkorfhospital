@@ -30,6 +30,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { DollarSign, Edit, Eye, Plus, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     billings: {
@@ -54,6 +55,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const searchQuery = ref(props.filters.search);
 const statusFilter = ref(props.filters.status || '');
@@ -130,7 +133,9 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
     <Head title="Billings" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div v-if="hasPermission('view_billings')"
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold">Billings</h1>
@@ -139,7 +144,7 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                     </p>
                 </div>
                 <div class="ml-auto">
-                    <Button as-child>
+                    <Button v-if="hasPermission('create_billings')" as-child>
                         <Link :href="create().url">
                         <Plus class="size-4" />
                         Add Billing
@@ -258,7 +263,7 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                                         <Eye class="size-4" />
                                         </Link>
                                     </Button>
-                                    <Button variant="ghost" size="sm" as-child>
+                                    <Button v-if="hasPermission('edit_billings')" variant="ghost" size="sm" as-child>
                                         <Link :href="edit(billing.id).url">
                                         <Edit class="size-4" />
                                         </Link>
@@ -276,6 +281,15 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view billings.
+                </p>
             </div>
         </div>
     </AppLayout>

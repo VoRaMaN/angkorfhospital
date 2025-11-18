@@ -29,6 +29,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus, Search } from 'lucide-vue-next';
 
 import { computed, ref, watch } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     inventories: {
@@ -62,6 +63,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -106,7 +109,7 @@ const paginationLinks = computed(() => {
     <Head title="Inventory" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_inventories')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center justify-between">
@@ -116,7 +119,7 @@ const paginationLinks = computed(() => {
                         Manage medical supplies and equipment
                     </p>
                 </div>
-                <Button as-child>
+                <Button v-if="hasPermission('create_inventories')" as-child>
                     <Link :href="inventoryCreate().url">
                         <Plus class="size-4" />
                         Add Item
@@ -223,6 +226,7 @@ const paginationLinks = computed(() => {
                                         >
                                     </Button>
                                     <Button
+                                        v-if="hasPermission('edit_inventories')"
                                         variant="outline"
                                         size="sm"
                                         as-child
@@ -234,7 +238,7 @@ const paginationLinks = computed(() => {
                                 </div>
                             </TableCell>
                         </TableRow>
-                        <TableRow v-if="props.inventories.length === 0">
+                        <TableRow v-if="props.inventories.data.length === 0">
                             <TableCell
                                 colspan="7"
                                 class="text-center text-muted-foreground"
@@ -259,6 +263,15 @@ const paginationLinks = computed(() => {
                 >
                     <Link :href="link.url!">{{ link.label }}</Link>
                 </Button>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view inventory.
+                </p>
             </div>
         </div>
     </AppLayout>

@@ -27,13 +27,16 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+import { useAuth } from '@/composables/useAuth';
+
+const { hasPermission } = useAuth();
 </script>
 
 <template>
     <Head title="Department Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_departments')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -50,7 +53,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </p>
                 </div>
                 <div class="ml-auto">
-                    <Button variant="outline" as-child>
+                    <Button v-if="hasPermission('edit_departments')" variant="outline" as-child>
                         <Link
                             :href="`/departments/${props.department.id}/edit`"
                         >
@@ -118,6 +121,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view department details.
+                </p>
             </div>
         </div>
     </AppLayout>

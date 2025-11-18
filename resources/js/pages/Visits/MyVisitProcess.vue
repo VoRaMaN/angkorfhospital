@@ -18,6 +18,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { processPage, sendBack, completePage } from '@/routes/medical-orders';
 import { show } from '@/routes/visits';
@@ -46,7 +47,9 @@ interface Props {
     }>;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const showSendBackDialog = ref(false);
 const selectedOrder = ref<number | null>(null);
@@ -104,7 +107,7 @@ const getStatusColor = (status: string) => {
 
         <Head title="My Visits to Process" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div v-if="hasPermission('view_visits')" class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">My Visits to Process</h1>
@@ -175,7 +178,7 @@ const getStatusColor = (status: string) => {
                                         </Link>
                                     </Button>
                                     <Button
-                                        v-if="visit.medical_orders.length > 0 && (visit.status === 'assigned' || visit.status === 'in_progress' || visit.status === 'sent_back')"
+                                        v-if="visit.medical_orders.length > 0 && (visit.status === 'assigned' || visit.status === 'in_progress' || visit.status === 'sent_back') && hasPermission('process_medical_orders')"
                                         variant="outline" class="border-green-600 text-green-600" size="sm" as-child>
                                         <Link :href="processPage(
                                             visit.medical_orders[0].id,
@@ -186,13 +189,13 @@ const getStatusColor = (status: string) => {
                                         </Link>
                                     </Button>
                                     <Button
-                                        v-if="visit.medical_orders.length > 0 && visit.status === 'awaiting_accountant'"
+                                        v-if="visit.medical_orders.length > 0 && visit.status === 'awaiting_accountant' && hasPermission('send_back_medical_orders')"
                                         variant="outline" class="border-red-600 text-red-600" size="sm"
                                         @click="selectedOrder = visit.medical_orders[0].id; showSendBackDialog = true">
                                         Send Back
                                     </Button>
                                     <Button
-                                        v-if="visit.medical_orders.length > 0 && visit.status === 'awaiting_accountant'"
+                                        v-if="visit.medical_orders.length > 0 && visit.status === 'awaiting_accountant' && hasPermission('complete_medical_orders')"
                                         variant="outline" class="border-blue-600 text-blue-600" size="sm" as-child>
                                         <Link :href="completePage(visit.medical_orders[0].id).url">
                                             Complete Visit
@@ -203,6 +206,16 @@ const getStatusColor = (status: string) => {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+        <div v-else class="flex h-full flex-1 items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">
+                    Access Denied
+                </h2>
+                <p class="text-muted-foreground">
+                    You do not have permission to view visits.
+                </p>
             </div>
         </div>
 

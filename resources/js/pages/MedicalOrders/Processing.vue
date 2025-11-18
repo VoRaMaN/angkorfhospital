@@ -308,7 +308,7 @@ const executeProcessOrder = () => {
                     </Button>
                     <Button v-if="
                         medicalOrder.status === 'processing' &&
-                        hasPermission('process_medical_orders')
+                        hasPermission('confirm_processed_medical_orders')
                     " variant="default" @click="confirmProcessOrder">
                         <Play class="mr-2 size-4" />
                         Confirm Processed

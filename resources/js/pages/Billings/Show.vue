@@ -12,6 +12,7 @@ import {
     FileText,
     User,
 } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     billing: {
@@ -49,6 +50,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { hasPermission } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -93,7 +96,7 @@ const getStatusVariant = (status: string) => {
     <Head title="Billing Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_billings')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -110,7 +113,7 @@ const getStatusVariant = (status: string) => {
                     </p>
                 </div>
                 <div class="ml-auto">
-                    <Button variant="outline" as-child>
+                    <Button v-if="hasPermission('edit_billings')" variant="outline" as-child>
                         <Link :href="`/billings/${props.billing.id}/edit`">
                             <Edit class="size-4" />
                             Edit
@@ -338,6 +341,15 @@ const getStatusVariant = (status: string) => {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view billing details.
+                </p>
             </div>
         </div>
     </AppLayout>

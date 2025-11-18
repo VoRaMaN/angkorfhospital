@@ -9,6 +9,7 @@ import {
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     item: {
@@ -30,6 +31,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { hasPermission } = useAuth();
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Inventory',
@@ -46,7 +49,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Inventory Item Details" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_inventories')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -61,7 +64,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <p class="text-muted-foreground">View item information</p>
                 </div>
                 <div class="ml-auto">
-                    <Button variant="outline" as-child>
+                    <Button v-if="hasPermission('edit_inventories')" variant="outline" as-child>
                         <Link :href="inventoryEdit(props.item.id).url">
                             <Edit class="size-4" />
                             Edit
@@ -223,6 +226,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view inventory details.
+                </p>
             </div>
         </div>
     </AppLayout>

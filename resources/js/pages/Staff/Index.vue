@@ -16,6 +16,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     staff: {
@@ -44,13 +45,15 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/staff',
     },
 ];
+
+const { hasPermission } = useAuth();
 </script>
 
 <template>
     <Head title="Staff" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
+        <div v-if="hasPermission('view_staff')"
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
@@ -59,7 +62,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <p class="text-muted-foreground">Manage hospital staff</p>
                 </div>
                 <div class="ml-auto">
-                    <Button as-child>
+                    <Button v-if="hasPermission('create_staff')" as-child>
                         <Link :href="create().url">
                             <Plus class="size-4" />
                             Add Staff
@@ -131,11 +134,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
-                                        <Link :href="edit(member.id).url">
+                                        <Link v-if="hasPermission('edit_staff')" :href="edit(member.id).url">
                                             <Edit class="size-4" />
                                         </Link>
                                     </Button>
-                                    <Button variant="ghost" size="sm">
+                                    <Button v-if="hasPermission('edit_staff')" variant="ghost" size="sm">
                                         <Trash2 class="size-4" />
                                     </Button>
                                 </div>
@@ -151,6 +154,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+        </div>
+
+        <div v-else class="flex h-full flex-1 flex-col items-center justify-center gap-4 rounded-xl p-4">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-destructive">Access Denied</h2>
+                <p class="text-muted-foreground">
+                    You don't have permission to view staff.
+                </p>
             </div>
         </div>
     </AppLayout>
