@@ -21,9 +21,7 @@ import { computed } from 'vue';
 
 interface Patient {
     id: number;
-    user: {
-        name: string;
-    };
+    name: string;
 }
 
 interface Staff {
@@ -82,7 +80,7 @@ const patientOptions = computed(() => [
     { value: 'null', label: 'Select a patient' },
     ...props.patients.map((p) => ({
         value: p.id.toString(),
-        label: p.user.name,
+        label: p.name,
     })),
 ]);
 const staffOptions = computed(() => [
@@ -173,7 +171,7 @@ const submit = () => {
                                             :value="appointment.id.toString()"
                                         >
                                             #{{ appointment.id }} -
-                                            {{ appointment.patient.user.name }}
+                                            {{ appointment.patient.name }}
                                             -
                                             {{
                                                 new Date(

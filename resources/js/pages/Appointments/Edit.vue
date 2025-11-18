@@ -28,7 +28,7 @@ interface Props {
         reason_for_visit?: string;
         notes?: string;
     };
-    patients: Array<{ id: number; user: { name: string } }>;
+    patients: Array<{ id: number; name: string }>;
     staff: Array<{
         id: number;
         user: { name: string };
@@ -99,7 +99,7 @@ const form = useForm({
                             :options="
                                 props.patients.map((p) => ({
                                     value: p.id.toString(),
-                                    label: p.user.name,
+                                    label: p.name,
                                 }))
                             "
                             placeholder="Select a patient"

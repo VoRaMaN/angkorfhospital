@@ -31,9 +31,7 @@ interface Visit {
 
 interface Patient {
     id: number;
-    user: {
-        name: string;
-    };
+    name: string;
 }
 
 interface Staff {
@@ -92,7 +90,7 @@ const form = useForm<{
 });
 
 const patientOptions = computed(() =>
-    props.patients.map((p) => ({ value: p.id.toString(), label: p.user.name })),
+    props.patients.map((p) => ({ value: p.id.toString(), label: p.name })),
 );
 const staffOptions = computed(() => [
     { value: 'none', label: 'Unassigned' },
@@ -182,7 +180,7 @@ const submit = () => {
                                             :value="appointment.id.toString()"
                                         >
                                             #{{ appointment.id }} -
-                                            {{ appointment.patient.user.name }}
+                                            {{ appointment.patient.name }}
                                             -
                                             {{
                                                 new Date(

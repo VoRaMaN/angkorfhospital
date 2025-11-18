@@ -17,7 +17,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
 
 interface Props {
-    patients: Array<{ id: number; user: { name: string } }>;
+    patients: Array<{ id: number; name: string }>;
     staff: Array<{
         id: number;
         user: { name: string };
@@ -83,7 +83,7 @@ const form = useForm({
                             :options="
                                 props.patients.map((p) => ({
                                     value: p.id.toString(),
-                                    label: p.user?.name || 'Unknown Patient',
+                                    label: p?.name || 'Unknown Patient',
                                 }))
                             "
                             placeholder="Select a patient"
