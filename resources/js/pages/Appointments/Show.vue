@@ -12,9 +12,10 @@ import {
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { updateStatus as updateStatusRoute } from '@/routes/appointments';
+import { report as reportRoute } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Edit } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Download } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -226,6 +227,18 @@ const getTypeColor = (type: string) => {
                             <Edit class="size-4" />
                             Edit
                         </Link>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        as-child
+                    >
+                        <a
+                            :href="reportRoute(props.appointment.id).url"
+                            target="_blank"
+                        >
+                            <Download class="size-4" />
+                            Download Report
+                        </a>
                     </Button>
                 </div>
             </div>

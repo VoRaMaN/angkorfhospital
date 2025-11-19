@@ -307,4 +307,166 @@ class BillingController extends Controller
 
         return redirect()->route('billings.index')->with('success', 'Billing record deleted successfully.');
     }
+
+    /**
+     * Generate a comprehensive billing report as PDF.
+     */
+    public function generateReport(Billing $billing): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $billing);
+
+        $billing->load([
+            'appointment.patient.user',
+            'appointment.staff.user',
+            'visit.patient.user',
+            'visit.staff.user',
+            'medicalOrder.patient.user',
+            'medicalOrder.staff.user',
+            'medicalOrder.orderItems.inventory',
+            'medicalOrder.medicalRecords',
+        ]);
+
+        // Get patient name from related records
+        $patientName = 'Unknown Patient';
+        $patientInfo = null;
+
+        if ($billing->appointment && $billing->appointment->patient) {
+            $patient = $billing->appointment->patient;
+            $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
+            $patientInfo = [
+                'id' => $patient->id,
+                'name' => $patientName,
+                'date_of_birth' => $patient->date_of_birth,
+                'gender' => $patient->gender,
+                'phone_number' => $patient->phone_number,
+                'email' => $patient->email ?? $patient->user?->email,
+                'address' => $patient->address,
+                'insurance_info' => $patient->insurance_info,
+            ];
+        } elseif ($billing->visit && $billing->visit->patient) {
+            $patient = $billing->visit->patient;
+            $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
+            $patientInfo = [
+                'id' => $patient->id,
+                'name' => $patientName,
+                'date_of_birth' => $patient->date_of_birth,
+                'gender' => $patient->gender,
+                'phone_number' => $patient->phone_number,
+                'email' => $patient->email ?? $patient->user?->email,
+                'address' => $patient->address,
+                'insurance_info' => $patient->insurance_info,
+            ];
+        } elseif ($billing->medicalOrder && $billing->medicalOrder->patient) {
+            $patient = $billing->medicalOrder->patient;
+            $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
+            $patientInfo = [
+                'id' => $patient->id,
+                'name' => $patientName,
+                'date_of_birth' => $patient->date_of_birth,
+                'gender' => $patient->gender,
+                'phone_number' => $patient->phone_number,
+                'email' => $patient->email ?? $patient->user?->email,
+                'address' => $patient->address,
+                'insurance_info' => $patient->insurance_info,
+            ];
+        }
+
+        // Compile report data
+        $report = [
+            'billing_info' => [
+                'id' => $billing->id,
+                'amount' => $billing->amount,
+                'status' => $billing->status,
+                'billing_date' => $billing->billing_date,
+                'due_date' => $billing->due_date,
+                'paid_at' => $billing->paid_at,
+                'payment_method' => $billing->payment_method,
+                'transaction_id' => $billing->transaction_id,
+                'notes' => $billing->notes,
+                'created_at' => $billing->created_at,
+                'updated_at' => $billing->updated_at,
+            ],
+            'patient_info' => $patientInfo,
+            'appointment_info' => $billing->appointment ? [
+                'id' => $billing->appointment->id,
+                'appointment_date_time' => $billing->appointment->appointment_date_time,
+                'duration_minutes' => $billing->appointment->duration_minutes,
+                'reason_for_visit' => $billing->appointment->reason_for_visit,
+                'status' => $billing->appointment->status,
+                'staff_name' => $billing->appointment->staff?->user?->name ?? 'Unknown',
+            ] : null,
+            'visit_info' => $billing->visit ? [
+                'id' => $billing->visit->id,
+                'visit_date_time' => $billing->visit->visit_date_time,
+                'status' => $billing->visit->status,
+                'notes' => $billing->visit->notes,
+                'staff_name' => $billing->visit->staff?->user?->name ?? 'Unknown',
+            ] : null,
+            'medical_order_info' => $billing->medicalOrder ? [
+                'id' => $billing->medicalOrder->id,
+                'order_type' => $billing->medicalOrder->order_type,
+                'order_details' => $billing->medicalOrder->order_details,
+                'status' => $billing->medicalOrder->status,
+                'priority' => $billing->medicalOrder->priority,
+                'ordered_at' => $billing->medicalOrder->ordered_at,
+                'completed_at' => $billing->medicalOrder->completed_at,
+                'staff_name' => $billing->medicalOrder->staff?->user?->name ?? 'Unknown',
+            ] : null,
+            'medical_orders' => $billing->medicalOrder ? collect([$billing->medicalOrder])->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'order_type' => $order->order_type,
+                    'order_details' => $order->order_details,
+                    'status' => $order->status,
+                    'priority' => $order->priority,
+                    'ordered_at' => $order->ordered_at,
+                    'completed_at' => $order->completed_at,
+                    'staff_name' => $order->staff?->user?->name ?? 'Unknown',
+                ];
+            }) : collect(),
+            'order_items' => $billing->medicalOrder?->orderItems->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'item_type' => $item->item_type,
+                    'item_name' => $item->inventory?->item_name ?? $item->item_name ?? 'Unknown Item',
+                    'quantity_required' => $item->quantity_required,
+                    'quantity_used' => $item->quantity_used,
+                    'unit' => $item->inventory?->unit ?? 'units',
+                    'unit_price' => $item->inventory?->unit_price ?? 0,
+                    'total_cost' => ($item->quantity_used ?? $item->quantity_required ?? 1) * ($item->inventory?->unit_price ?? 0),
+                    'status' => $item->status,
+                ];
+            }) ?? collect(),
+            'medical_records' => $billing->medicalOrder?->medicalRecords->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'diagnosis' => $record->diagnosis,
+                    'treatment' => $record->treatment,
+                    'notes' => $record->notes,
+                    'date_of_service' => $record->date_of_service,
+                ];
+            }) ?? collect(),
+        ];
+
+        // Calculate cost breakdown if medical order exists
+        if ($billing->medicalOrder) {
+            $costBreakdown = app(MedicalOrderBillingService::class)->getOrderCostBreakdown($billing->medicalOrder);
+            $report['cost_breakdown'] = $costBreakdown;
+        }
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('billing-report', compact('report', 'billing'));
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'billing-report-'.$billing->id.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
+    }
 }

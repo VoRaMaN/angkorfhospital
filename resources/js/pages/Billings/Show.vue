@@ -2,12 +2,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { report as reportRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowLeft,
     Calendar,
     DollarSign,
+    Download,
     Edit,
     FileText,
     User,
@@ -118,6 +120,15 @@ const getStatusVariant = (status: string) => {
                             <Edit class="size-4" />
                             Edit
                         </Link>
+                    </Button>
+                    <Button variant="outline" as-child>
+                        <a
+                            :href="reportRoute(props.billing.id).url"
+                            target="_blank"
+                        >
+                            <Download class="size-4" />
+                            Download Report
+                        </a>
                     </Button>
                 </div>
             </div>

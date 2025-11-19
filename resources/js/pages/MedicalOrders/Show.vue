@@ -15,6 +15,7 @@ import {
     edit,
     index,
     processWithUpdate as processRoute,
+    report as reportRoute,
 } from '@/routes/medical-orders';
 import { show as showMedicalRecord } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
@@ -25,6 +26,7 @@ import {
     CheckCircle,
     ChevronDown,
     ChevronRight,
+    Download,
     Edit,
     FileText,
     FlaskConical,
@@ -350,6 +352,18 @@ const orderSummary = computed(() => {
                             <Edit class="size-4" />
                             Edit
                         </Link>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        as-child
+                    >
+                        <a
+                            :href="reportRoute(medicalOrder.id).url"
+                            target="_blank"
+                        >
+                            <Download class="size-4" />
+                            Download Report
+                        </a>
                     </Button>
                 </div>
             </div>

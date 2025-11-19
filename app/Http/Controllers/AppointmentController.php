@@ -239,4 +239,135 @@ class AppointmentController extends Controller
         return redirect()->route('appointments.index')
             ->with('success', 'Appointment deleted successfully.');
     }
+
+    /**
+     * Generate a comprehensive appointment report as PDF.
+     */
+    public function generateReport(Appointment $appointment): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $appointment);
+
+        $appointment->load([
+            'patient.user',
+            'staff.user',
+            'staff.role',
+            'visits.staff.user',
+            'billings',
+            'medicalRecord',
+            'visits.medicalOrders.staff.user',
+            'visits.medicalOrders.orderItems.inventory',
+            'visits.medicalRecord',
+        ]);
+
+        // Compile report data
+        $report = [
+            'appointment_info' => [
+                'id' => $appointment->id,
+                'appointment_date_time' => $appointment->appointment_date_time,
+                'duration_minutes' => $appointment->duration_minutes,
+                'reason_for_visit' => $appointment->reason_for_visit,
+                'status' => $appointment->status,
+                'notes' => $appointment->notes,
+                'created_at' => $appointment->created_at,
+                'updated_at' => $appointment->updated_at,
+            ],
+            'patient_info' => [
+                'id' => $appointment->patient->id,
+                'name' => $appointment->patient->user?->name ?? $appointment->patient->first_name.' '.$appointment->patient->last_name,
+                'date_of_birth' => $appointment->patient->date_of_birth,
+                'gender' => $appointment->patient->gender,
+                'phone_number' => $appointment->patient->phone_number,
+                'email' => $appointment->patient->email ?? $appointment->patient->user?->email,
+                'address' => $appointment->patient->address,
+                'insurance_info' => $appointment->patient->insurance_info,
+            ],
+            'staff_info' => [
+                'id' => $appointment->staff->id,
+                'name' => $appointment->staff->user?->name ?? $appointment->staff->first_name.' '.$appointment->staff->last_name,
+                'role' => $appointment->staff->role?->name ?? 'Unknown',
+            ],
+            'visits' => $appointment->visits->map(function ($visit) {
+                return [
+                    'id' => $visit->id,
+                    'visit_date_time' => $visit->visit_date_time,
+                    'status' => $visit->status,
+                    'notes' => $visit->notes,
+                    'staff_name' => $visit->staff?->user?->name ?? 'Unassigned',
+                    'created_at' => $visit->created_at,
+                ];
+            }),
+            'medical_orders' => $appointment->visits->pluck('medicalOrders')->flatten()->unique('id')->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'order_type' => $order->order_type,
+                    'order_details' => $order->order_details,
+                    'status' => $order->status,
+                    'priority' => $order->priority,
+                    'ordered_at' => $order->ordered_at,
+                    'completed_at' => $order->completed_at,
+                    'staff_name' => $order->staff?->user?->name ?? 'Unknown',
+                ];
+            }),
+            'medical_records' => collect([$appointment->medicalRecord])->filter()->merge(
+                $appointment->visits->pluck('medicalRecord')->filter()
+            )->unique('id')->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'diagnosis' => $record->diagnosis,
+                    'treatment' => $record->treatment,
+                    'notes' => $record->notes,
+                    'date_of_service' => $record->date_of_service,
+                    'created_at' => $record->created_at,
+                ];
+            }),
+            'billings' => $appointment->billings->map(function ($billing) {
+                return [
+                    'id' => $billing->id,
+                    'amount' => $billing->amount,
+                    'status' => $billing->status,
+                    'billing_date' => $billing->billing_date,
+                    'due_date' => $billing->due_date,
+                    'paid_at' => $billing->paid_at,
+                    'notes' => $billing->notes,
+                ];
+            }),
+            'order_items' => $appointment->visits->pluck('medicalOrders')->flatten()->pluck('orderItems')->flatten()->unique('id')->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'item_type' => $item->item_type,
+                    'item_name' => $item->inventory?->item_name ?? $item->item_name ?? 'Unknown Item',
+                    'quantity_required' => $item->quantity_required,
+                    'quantity_used' => $item->quantity_used,
+                    'status' => $item->status,
+                    'completed_at' => $item->completed_at,
+                ];
+            }),
+        ];
+
+        // Calculate totals
+        $report['totals'] = [
+            'total_visits' => $appointment->visits->count(),
+            'total_medical_orders' => $appointment->visits->pluck('medicalOrders')->flatten()->unique('id')->count(),
+            'total_medical_records' => collect([$appointment->medicalRecord])->filter()->merge(
+                $appointment->visits->pluck('medicalRecord')->filter()
+            )->unique('id')->count(),
+            'total_billings' => $appointment->billings->count(),
+            'total_billed_amount' => $appointment->billings->sum('amount'),
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('appointment-report', compact('report', 'appointment'));
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'appointment-report-'.$appointment->id.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
+    }
 }

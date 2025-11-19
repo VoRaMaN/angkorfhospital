@@ -861,4 +861,127 @@ class MedicalOrderController extends Controller
 
         return redirect()->back()->with('success', 'Order item completed successfully.');
     }
+
+    /**
+     * Generate a comprehensive medical order report as PDF.
+     */
+    public function generateReport(MedicalOrder $medicalOrder): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $medicalOrder);
+
+        $medicalOrder->load([
+            'patient.user',
+            'staff.user',
+            'orderItems.inventory',
+            'visit.patient.user',
+            'visit.staff.user',
+            'visit.appointment',
+            'medicalRecords',
+            'billings',
+        ]);
+
+        // Compile report data
+        $report = [
+            'order_info' => [
+                'id' => $medicalOrder->id,
+                'order_type' => $medicalOrder->order_type,
+                'status' => $medicalOrder->status,
+                'priority' => $medicalOrder->priority,
+                'order_details' => $medicalOrder->order_details,
+                'notes' => $medicalOrder->notes,
+                'ordered_at' => $medicalOrder->ordered_at,
+                'completed_at' => $medicalOrder->completed_at,
+                'created_at' => $medicalOrder->created_at,
+                'updated_at' => $medicalOrder->updated_at,
+            ],
+            'patient_info' => [
+                'id' => $medicalOrder->patient->id,
+                'name' => $medicalOrder->patient->user?->name ?? $medicalOrder->patient->first_name.' '.$medicalOrder->patient->last_name,
+                'date_of_birth' => $medicalOrder->patient->date_of_birth,
+                'gender' => $medicalOrder->patient->gender,
+                'phone_number' => $medicalOrder->patient->phone_number,
+                'email' => $medicalOrder->patient->email ?? $medicalOrder->patient->user?->email,
+            ],
+            'staff_info' => $medicalOrder->staff ? [
+                'id' => $medicalOrder->staff->id,
+                'name' => $medicalOrder->staff->user?->name ?? $medicalOrder->staff->first_name.' '.$medicalOrder->staff->last_name,
+                'role' => $medicalOrder->staff->role?->name ?? 'Unknown',
+            ] : null,
+            'appointment_info' => $medicalOrder->visit?->appointment ? [
+                'id' => $medicalOrder->visit->appointment->id,
+                'appointment_date_time' => $medicalOrder->visit->appointment->appointment_date_time,
+                'duration_minutes' => $medicalOrder->visit->appointment->duration_minutes,
+                'reason_for_visit' => $medicalOrder->visit->appointment->reason_for_visit,
+                'status' => $medicalOrder->visit->appointment->status,
+                'notes' => $medicalOrder->visit->appointment->notes,
+            ] : null,
+            'visit_info' => $medicalOrder->visit ? [
+                'id' => $medicalOrder->visit->id,
+                'visit_date_time' => $medicalOrder->visit->visit_date_time,
+                'status' => $medicalOrder->visit->status,
+                'notes' => $medicalOrder->visit->notes,
+            ] : null,
+            'order_items' => $medicalOrder->orderItems->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'item_type' => $item->item_type,
+                    'item_name' => $item->inventory?->item_name ?? $item->item_name ?? 'Unknown Item',
+                    'quantity_required' => $item->quantity_required,
+                    'quantity_used' => $item->quantity_used,
+                    'unit' => $item->inventory?->unit ?? 'units',
+                    'unit_price' => $item->inventory?->unit_price ?? 0,
+                    'total_cost' => ($item->quantity_used ?? $item->quantity_required ?? 1) * ($item->inventory?->unit_price ?? 0),
+                    'status' => $item->status,
+                    'notes' => $item->notes,
+                    'completed_at' => $item->completed_at,
+                ];
+            }),
+            'medical_records' => $medicalOrder->medicalRecords->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'diagnosis' => $record->diagnosis,
+                    'treatment' => $record->treatment,
+                    'notes' => $record->notes,
+                    'date_of_service' => $record->date_of_service,
+                    'created_at' => $record->created_at,
+                ];
+            }),
+            'billings' => $medicalOrder->billings->map(function ($billing) {
+                return [
+                    'id' => $billing->id,
+                    'amount' => $billing->amount,
+                    'status' => $billing->status,
+                    'billing_date' => $billing->billing_date,
+                    'due_date' => $billing->due_date,
+                    'paid_at' => $billing->paid_at,
+                    'notes' => $billing->notes,
+                ];
+            }),
+        ];
+
+        // Calculate totals
+        $report['totals'] = [
+            'total_items' => $medicalOrder->orderItems->count(),
+            'completed_items' => $medicalOrder->orderItems->where('status', 'completed')->count(),
+            'total_cost' => $medicalOrder->orderItems->sum(function ($item) {
+                return ($item->quantity_used ?? $item->quantity_required ?? 1) * ($item->inventory?->unit_price ?? 0);
+            }),
+            'total_billed' => $medicalOrder->billings->sum('amount'),
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('medical-order-report', compact('report', 'medicalOrder'));
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'medical-order-report-'.$medicalOrder->id.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
+    }
 }

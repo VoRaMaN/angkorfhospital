@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { edit, index } from '@/routes/medical-records';
+import { edit, index, report as reportRoute } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Download } from 'lucide-vue-next';
 
 interface Props {
     medicalRecord: {
@@ -62,6 +62,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <Edit class="size-4" />
                             Edit
                         </Link>
+                    </Button>
+                    <Button variant="outline" as-child>
+                        <a
+                            :href="reportRoute(props.medicalRecord.id).url"
+                            target="_blank"
+                        >
+                            <Download class="size-4" />
+                            Download Report
+                        </a>
                     </Button>
                 </div>
             </div>

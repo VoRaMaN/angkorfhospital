@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Report - {{ $report['patient_info']['name'] }}</title>
+    <title>Appointment Report - {{ $appointment->id }}</title>
     <style>
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
@@ -142,13 +142,86 @@
             border-top: 1px solid #ccc;
             padding-top: 10px;
         }
+
+        .totals-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+
+        .totals-grid {
+            display: table;
+            width: 100%;
+        }
+
+        .totals-row {
+            display: table-row;
+        }
+
+        .totals-cell {
+            display: table-cell;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .totals-label {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .totals-value {
+            font-size: 14px;
+            color: #000;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>CynoSys Clinic</h1>
-        <p>Patient Report</p>
+        <p>Appointment Report</p>
         <p>Generated on: {{ now()->format('F j, Y \a\t g:i A') }}</p>
+    </div>
+
+    <!-- Appointment Information -->
+    <div class="section">
+        <h2>Appointment Information</h2>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-cell">
+                    <div class="info-label">Appointment ID:</div>
+                    <div class="info-value">#{{ $report['appointment_info']['id'] }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-label">Date & Time:</div>
+                    <div class="info-value">{{ \Carbon\Carbon::parse($report['appointment_info']['appointment_date_time'])->format('M j, Y g:i A') }}</div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell">
+                    <div class="info-label">Duration:</div>
+                    <div class="info-value">{{ $report['appointment_info']['duration_minutes'] }} minutes</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-label">Status:</div>
+                    <div class="info-value">{{ $report['appointment_info']['status']?->label() ?? $report['appointment_info']['status'] ?? 'N/A' }}</div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell" style="width: 100%;">
+                    <div class="info-label">Reason for Visit:</div>
+                    <div class="info-value">{{ $report['appointment_info']['reason_for_visit'] }}</div>
+                </div>
+            </div>
+            @if($report['appointment_info']['notes'])
+            <div class="info-row">
+                <div class="info-cell" style="width: 100%;">
+                    <div class="info-label">Notes:</div>
+                    <div class="info-value">{{ $report['appointment_info']['notes'] }}</div>
+                </div>
+            </div>
+            @endif
+        </div>
     </div>
 
     <!-- Patient Information -->
@@ -191,57 +264,39 @@
                     <div class="info-value">{{ $report['patient_info']['address'] }}</div>
                 </div>
             </div>
+            @if($report['patient_info']['insurance_info'])
             <div class="info-row">
                 <div class="info-cell" style="width: 100%;">
                     <div class="info-label">Insurance Information:</div>
-                    <div class="info-value">{{ $report['patient_info']['insurance_info'] ?? 'N/A' }}</div>
+                    <div class="info-value">{{ $report['patient_info']['insurance_info'] }}</div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 
-    <!-- Appointments -->
+    <!-- Staff Information -->
     <div class="section">
-        <h2>Appointments ({{ count($report['appointments']) }})</h2>
-        @if(count($report['appointments']) === 0)
-            <div class="no-data">No appointments found.</div>
-        @else
-            <div class="records-list">
-                @foreach($report['appointments'] as $appointment)
-                    <div class="record-item">
-                        <div class="record-header">
-                            <div class="record-header-row">
-                                <div class="record-header-cell">
-                                    <div class="record-label">Date & Time:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($appointment['appointment_date_time'])->format('M j, Y g:i A') }}</div>
-                                </div>
-                                <div class="record-header-cell">
-                                    <div class="record-label">Staff:</div>
-                                    <div class="record-value">{{ $appointment['staff_name'] }}</div>
-                                </div>
-                            </div>
-                            <div class="record-header-row">
-                                <div class="record-header-cell">
-                                    <div class="record-label">Reason:</div>
-                                    <div class="record-value">{{ $appointment['reason_for_visit'] }}</div>
-                                </div>
-                                <div class="record-header-cell">
-                                    <div class="record-label">Status:</div>
-                                    <div class="record-value">{{ $appointment['status']?->label() ?? $appointment['status'] ?? 'N/A' }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+        <h2>Staff Information</h2>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-cell">
+                    <div class="info-label">Staff Name:</div>
+                    <div class="info-value">{{ $report['staff_info']['name'] }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-label">Role:</div>
+                    <div class="info-value">{{ $report['staff_info']['role'] }}</div>
+                </div>
             </div>
-        @endif
+        </div>
     </div>
 
     <!-- Visits -->
     <div class="section">
         <h2>Visits ({{ count($report['visits']) }})</h2>
         @if(count($report['visits']) === 0)
-            <div class="no-data">No visits found.</div>
+            <div class="no-data">No visits found for this appointment.</div>
         @else
             <div class="records-list">
                 @foreach($report['visits'] as $visit)
@@ -280,7 +335,7 @@
     <div class="section">
         <h2>Medical Orders ({{ count($report['medical_orders']) }})</h2>
         @if(count($report['medical_orders']) === 0)
-            <div class="no-data">No medical orders found.</div>
+            <div class="no-data">No medical orders found for this appointment.</div>
         @else
             <div class="records-list">
                 @foreach($report['medical_orders'] as $order)
@@ -298,8 +353,8 @@
                             </div>
                             <div class="record-header-row">
                                 <div class="record-header-cell">
-                                    <div class="record-label">Ordered At:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') }}</div>
+                                    <div class="record-label">Priority:</div>
+                                    <div class="record-value">{{ $order['priority']?->label() ?? $order['priority'] ?? 'N/A' }}</div>
                                 </div>
                                 <div class="record-header-cell">
                                     <div class="record-label">Staff:</div>
@@ -311,12 +366,6 @@
                             <div class="record-label">Details:</div>
                             <div class="record-value">{{ $order['order_details'] }}</div>
                         </div>
-                        @if($order['notes'])
-                            <div class="record-content">
-                                <div class="record-label">Notes:</div>
-                                <div class="record-value">{{ $order['notes'] }}</div>
-                            </div>
-                        @endif
                     </div>
                 @endforeach
             </div>
@@ -327,7 +376,7 @@
     <div class="section">
         <h2>Medical Records ({{ count($report['medical_records']) }})</h2>
         @if(count($report['medical_records']) === 0)
-            <div class="no-data">No medical records found.</div>
+            <div class="no-data">No medical records found for this appointment.</div>
         @else
             <div class="records-list">
                 @foreach($report['medical_records'] as $record)
@@ -368,43 +417,131 @@
         @endif
     </div>
 
-    <!-- Patient Files -->
+    <!-- Billings -->
     <div class="section">
-        <h2>Patient Files ({{ count($report['patient_files']) }})</h2>
-        @if(count($report['patient_files']) === 0)
-            <div class="no-data">No files found.</div>
+        <h2>Billings ({{ count($report['billings']) }})</h2>
+        @if(count($report['billings']) === 0)
+            <div class="no-data">No billings found for this appointment.</div>
         @else
             <div class="records-list">
-                @foreach($report['patient_files'] as $file)
+                @foreach($report['billings'] as $billing)
                     <div class="record-item">
                         <div class="record-header">
                             <div class="record-header-row">
                                 <div class="record-header-cell">
-                                    <div class="record-label">File Type:</div>
-                                    <div class="record-value">{{ $file['file_type']?->label() ?? $file['file_type'] ?? 'N/A' }}</div>
+                                    <div class="record-label">Amount:</div>
+                                    <div class="record-value">${{ number_format($billing['amount'], 2) }}</div>
                                 </div>
                                 <div class="record-header-cell">
-                                    <div class="record-label">Filename:</div>
-                                    <div class="record-value">{{ $file['filename'] }}</div>
+                                    <div class="record-label">Status:</div>
+                                    <div class="record-value">{{ $billing['status'] }}</div>
                                 </div>
                             </div>
                             <div class="record-header-row">
                                 <div class="record-header-cell">
-                                    <div class="record-label">Uploaded At:</div>
-                                    <div class="record-value">{{ $file['uploaded_at'] ? \Carbon\Carbon::parse($file['uploaded_at'])->format('M j, Y g:i A') : 'N/A' }}</div>
+                                    <div class="record-label">Billing Date:</div>
+                                    <div class="record-value">{{ \Carbon\Carbon::parse($billing['billing_date'])->format('M j, Y') }}</div>
+                                </div>
+                                <div class="record-header-cell">
+                                    <div class="record-label">Due Date:</div>
+                                    <div class="record-value">{{ \Carbon\Carbon::parse($billing['due_date'])->format('M j, Y') }}</div>
                                 </div>
                             </div>
                         </div>
-                        @if($file['notes'])
+                        @if($billing['paid_at'])
+                            <div class="record-content">
+                                <div class="record-label">Paid At:</div>
+                                <div class="record-value">{{ \Carbon\Carbon::parse($billing['paid_at'])->format('M j, Y g:i A') }}</div>
+                            </div>
+                        @endif
+                        @if($billing['notes'])
                             <div class="record-content">
                                 <div class="record-label">Notes:</div>
-                                <div class="record-value">{{ $file['notes'] }}</div>
+                                <div class="record-value">{{ $billing['notes'] }}</div>
                             </div>
                         @endif
                     </div>
                 @endforeach
             </div>
         @endif
+    </div>
+
+    <!-- Order Items -->
+    <div class="section">
+        <h2>Order Items ({{ count($report['order_items']) }})</h2>
+        @if(count($report['order_items']) === 0)
+            <div class="no-data">No order items found for this appointment.</div>
+        @else
+            <div class="records-list">
+                @foreach($report['order_items'] as $item)
+                    <div class="record-item">
+                        <div class="record-header">
+                            <div class="record-header-row">
+                                <div class="record-header-cell">
+                                    <div class="record-label">Item Type:</div>
+                                    <div class="record-value">{{ $item['item_type'] }}</div>
+                                </div>
+                                <div class="record-header-cell">
+                                    <div class="record-label">Item Name:</div>
+                                    <div class="record-value">{{ $item['item_name'] }}</div>
+                                </div>
+                            </div>
+                            <div class="record-header-row">
+                                <div class="record-header-cell">
+                                    <div class="record-label">Required:</div>
+                                    <div class="record-value">{{ $item['quantity_required'] }}</div>
+                                </div>
+                                <div class="record-header-cell">
+                                    <div class="record-label">Used:</div>
+                                    <div class="record-value">{{ $item['quantity_used'] ?? 0 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="record-content">
+                            <div class="record-label">Status:</div>
+                            <div class="record-value">{{ $item['status'] }}</div>
+                        </div>
+                        @if($item['completed_at'])
+                            <div class="record-content">
+                                <div class="record-label">Completed At:</div>
+                                <div class="record-value">{{ \Carbon\Carbon::parse($item['completed_at'])->format('M j, Y g:i A') }}</div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    <!-- Totals Summary -->
+    <div class="totals-section">
+        <h2>Summary Totals</h2>
+        <div class="totals-grid">
+            <div class="totals-row">
+                <div class="totals-cell">
+                    <div class="totals-label">Total Visits:</div>
+                    <div class="totals-value">{{ $report['totals']['total_visits'] }}</div>
+                </div>
+                <div class="totals-cell">
+                    <div class="totals-label">Total Medical Orders:</div>
+                    <div class="totals-value">{{ $report['totals']['total_medical_orders'] }}</div>
+                </div>
+                <div class="totals-cell">
+                    <div class="totals-label">Total Medical Records:</div>
+                    <div class="totals-value">{{ $report['totals']['total_medical_records'] }}</div>
+                </div>
+            </div>
+            <div class="totals-row">
+                <div class="totals-cell">
+                    <div class="totals-label">Total Billings:</div>
+                    <div class="totals-value">{{ $report['totals']['total_billings'] }}</div>
+                </div>
+                <div class="totals-cell">
+                    <div class="totals-label">Total Billed Amount:</div>
+                    <div class="totals-value">${{ number_format($report['totals']['total_billed_amount'], 2) }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="footer">

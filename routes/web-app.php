@@ -31,10 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('appointments', AppointmentController::class);
     Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
+    Route::get('appointments/{appointment}/report', [AppointmentController::class, 'generateReport'])->name('appointments.report');
 
     // Billings
     Route::resource('billings', BillingController::class);
     Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
+    Route::get('billings/{billing}/report', [BillingController::class, 'generateReport'])->name('billings.report');
 
     // Departments
     Route::resource('departments', DepartmentController::class);
@@ -66,9 +68,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('medical-orders/{medical_order}/cost-breakdown', [MedicalOrderController::class, 'getCostBreakdown'])->name('medical-orders.cost-breakdown');
     Route::patch('medical-orders/{medical_order}/cancel-processed', [MedicalOrderController::class, 'cancelProcessed'])->name('medical-orders.cancel-processed');
     Route::patch('medical-orders/{medical_order}/send-back', [MedicalOrderController::class, 'sendBack'])->name('medical-orders.send-back');
+    Route::get('medical-orders/{medical_order}/report', [MedicalOrderController::class, 'generateReport'])->name('medical-orders.report');
 
     // Medical Records
     Route::resource('medical-records', MedicalRecordController::class);
+    Route::get('medical-records/{medical_record}/report', [MedicalRecordController::class, 'generateReport'])->name('medical-records.report');
 
     // Medical Services
     Route::resource('medical-services', MedicalServiceController::class);
