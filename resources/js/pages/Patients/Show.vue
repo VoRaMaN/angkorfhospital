@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/composables/useAuth';
@@ -7,7 +6,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Printer, X } from 'lucide-vue-next';
+import { ArrowLeft, Edit, FileText, Printer } from 'lucide-vue-next';
 
 interface Props {
     patient: {
@@ -51,9 +50,6 @@ const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
 
-const showPrintPreview = ref(false);
-const stickerHtml = ref('');
-
 const printMedicalStickers = () => {
     const patientName = props.patient.user?.name || `${props.patient.first_name} ${props.patient.last_name}`;
     const patientDOB = new Date(props.patient.date_of_birth).toLocaleDateString('en-US');
@@ -61,7 +57,7 @@ const printMedicalStickers = () => {
     const clinicName = 'CynoSys Clinic'; // You can make this configurable
     const dos = new Date().toLocaleDateString('en-US'); // Current date as DOS
 
-    stickerHtml.value = `
+    const stickerHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,8 +70,8 @@ const printMedicalStickers = () => {
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            padding: 20px;
+            background-color: white;
+            padding: 0.25in;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -83,163 +79,74 @@ const printMedicalStickers = () => {
 
         .sticker-grid-wrapper {
             display: grid;
-            grid-template-columns: repeat(2, 4.0in);
-            grid-auto-rows: 1.0in;
-            gap: 10px;
-            width: max-content;
-            padding: 5px;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 0.125in;
+            width: 7.5in;
+            height: 10in;
             background-color: white;
         }
 
         .sticker-label {
-            width: 4.0in;
-            height: 1.0in;
+            width: 100%;
+            height: 100%;
             box-sizing: border-box;
-            border: 1px dashed #cccccc;
+            border: 1px solid #000000;
             padding: 8px;
             background-color: white;
             color: black;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            overflow: hidden;
         }
 
-        .text-xs-sticker { font-size: 0.65rem; }
-        .text-sm-sticker { font-size: 0.75rem; }
-        .text-md-sticker { font-size: 0.9rem; }
-        .text-lg-sticker { font-size: 1.1rem; }
+        .text-xs-sticker { font-size: 8pt; }
+        .text-sm-sticker { font-size: 9pt; }
+        .text-md-sticker { font-size: 11pt; }
+        .text-lg-sticker { font-size: 12pt; }
+
+        .font-bold { font-weight: bold; }
+        .font-extrabold { font-weight: 800; }
+        .font-semibold { font-weight: 600; }
+
+        .pb-2 { padding-bottom: 4px; }
+        .mb-2 { margin-bottom: 4px; }
+        .space-y-1 > * + * { margin-top: 2px; }
+
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .flex-grow { flex-grow: 1; }
 
         @media print {
-            /* Page setup */
             @page {
                 size: A4 portrait;
                 margin: 10mm;
-            }
-
-            /* Hide everything except the sticker content */
-            body * {
-                visibility: hidden;
-            }
-
-            .sticker-grid-wrapper,
-            .sticker-grid-wrapper * {
-                visibility: visible;
-            }
-
-            /* Reset body for print */
-            body {
-                background-color: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                display: block !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-            }
-
-            /* Sticker grid layout for print */
-            .sticker-grid-wrapper {
-                position: static !important;
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                grid-auto-rows: 1in !important;
-                gap: 0.125in !important; /* 1/8 inch gap between stickers */
-                width: 100% !important;
-                max-width: 7.5in !important; /* Account for page margins */
-                margin: 0 auto !important;
-                padding: 0 !important;
-                background-color: white !important;
-                border: none !important;
-                box-shadow: none !important;
-                page-break-inside: avoid !important;
-            }
-
-            /* Individual sticker styling for print */
-            .sticker-label {
-                width: 100% !important;
-                height: 1in !important;
-                box-sizing: border-box !important;
-                border: 1px solid #000000 !important; /* Black border for better visibility on print */
-                padding: 6px !important;
-                background-color: white !important;
-                color: black !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: flex-start !important;
-                box-shadow: none !important;
-                border-radius: 0 !important; /* Remove rounded corners for print */
-                overflow: hidden !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            /* Typography adjustments for print */
-            .text-xs-sticker { font-size: 8pt !important; }
-            .text-sm-sticker { font-size: 9pt !important; }
-            .text-md-sticker { font-size: 11pt !important; }
-            .text-lg-sticker { font-size: 12pt !important; }
-
-            /* Ensure all text is black for print */
-            .sticker-label * {
-                color: black !important;
-                background-color: transparent !important;
-            }
-
-            /* Font weight adjustments for better print visibility */
-            .font-bold { font-weight: bold !important; }
-            .font-extrabold { font-weight: 800 !important; }
-            .font-semibold { font-weight: 600 !important; }
-
-            /* Spacing adjustments */
-            .pb-2 { padding-bottom: 4px !important; }
-            .mb-2 { margin-bottom: 4px !important; }
-            .space-y-1 > * + * { margin-top: 2px !important; }
-
-            /* Flexbox adjustments for print */
-            .flex { display: flex !important; }
-            .justify-between { justify-content: space-between !important; }
-            .items-center { align-items: center !important; }
-            .flex-grow { flex-grow: 1 !important; }
-            .flex-direction-column { flex-direction: column !important; }
-
-            /* Prevent page breaks within stickers */
-            .sticker-label,
-            .sticker-label * {
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            /* Ensure proper text rendering */
-            * {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                print-color-adjust: exact !important;
             }
         }
     </style>
 </head>
 <body>
     <div class="sticker-grid-wrapper">
-        ${Array.from({ length: 10 }, () => `
-        <div class="sticker-label rounded-md">
+        ${Array.from({ length: 12 }, () => `
+        <div class="sticker-label">
             <div class="flex justify-between items-center pb-2 mb-2">
-                <span class="text-md-sticker font-bold text-gray-700">${clinicName}</span>
+                <span class="text-md-sticker font-bold">${clinicName}</span>
                 <span class="text-md-sticker font-semibold">DOS: ${dos}</span>
             </div>
             <div class="flex-grow space-y-1">
                 <div class="flex justify-between items-center">
-                    <span class="text-md-sticker font-bold uppercase text-gray-700">Patient:</span>
-                    <span class="text-lg-sticker font-extrabold text-gray-900">${patientName}</span>
+                    <span class="text-md-sticker font-bold uppercase">Patient:</span>
+                    <span class="text-lg-sticker font-extrabold">${patientName}</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-md-sticker font-bold uppercase text-gray-700">DOB:</span>
-                    <span class="text-lg-sticker font-semibold text-gray-800">${patientDOB}</span>
+                    <span class="text-md-sticker font-bold uppercase">DOB:</span>
+                    <span class="text-lg-sticker font-semibold">${patientDOB}</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-md-sticker font-bold uppercase text-gray-700">Patient ID:</span>
-                    <span class="text-lg-sticker font-semibold text-gray-800">${patientId}</span>
+                    <span class="text-md-sticker font-bold uppercase">Patient ID:</span>
+                    <span class="text-lg-sticker font-semibold">${patientId}</span>
                 </div>
             </div>
         </div>
@@ -248,15 +155,30 @@ const printMedicalStickers = () => {
 </body>
 </html>`;
 
-    showPrintPreview.value = true;
+    // Create a hidden iframe for printing
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+        doc.open();
+        doc.write(stickerHtml);
+        doc.close();
+
+        // Wait for content to load then print
+        iframe.onload = () => {
+            iframe.contentWindow?.print();
+            // Clean up after printing
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        };
+    }
 };
 
-const executePrint = () => {
-    window.print();
-};
-
-const closePrintPreview = () => {
-    showPrintPreview.value = false;
+const downloadReport = () => {
+    window.open(`/patients/${props.patient.id}/report`, '_blank');
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -295,6 +217,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <Button variant="outline" @click="printMedicalStickers">
                         <Printer class="size-4" />
                         Print Stickers
+                    </Button>
+                    <Button variant="outline" @click="downloadReport">
+                        <FileText class="size-4" />
+                        Generate Report
                     </Button>
                     <Button variant="outline" as-child v-if="hasPermission('edit_patients')">
                         <Link :href="`/patients/${props.patient.id}/edit`">
@@ -496,8 +422,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             </dt>
                                             <dd class="text-sm">
                                                 <Badge
-                                                    :variant="order.status === 'completed' ? 'default' : order.status === 'processing' ? 'secondary' : 'outline'">
-                                                    {{ order.status.charAt(0).toUpperCase() + order.status.slice(1) }}
+                                                    :variant="order.status === 'Completed' ? 'default' : order.status === 'Processing' ? 'secondary' : 'outline'">
+                                                    {{ order.status }}
                                                 </Badge>
                                             </dd>
                                         </div>
@@ -507,12 +433,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 Priority
                                             </dt>
                                             <dd class="text-sm">
-                                                <Badge variant="destructive" v-if="order.priority === 'high'">
-                                                    High Priority
+                                                <Badge variant="destructive" v-if="order.priority === 'STAT'">
+                                                    {{ order.priority }}
                                                 </Badge>
                                                 <Badge variant="secondary" v-else>
-                                                    {{ order.priority.charAt(0).toUpperCase() + order.priority.slice(1)
-                                                    }}
+                                                    {{ order.priority }}
                                                 </Badge>
                                             </dd>
                                         </div>
@@ -652,33 +577,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <p class="text-muted-foreground">
                     You don't have permission to view patient details.
                 </p>
-            </div>
-        </div>
-
-        <!-- Print Preview Modal -->
-        <div v-if="showPrintPreview" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-            @click.self="closePrintPreview">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-                <div class="flex items-center justify-between p-4 border-b">
-                    <h3 class="text-lg font-semibold">Print Preview - Patient Stickers</h3>
-                    <div class="flex gap-2">
-                        <Button variant="outline" @click="executePrint">
-                            <Printer class="size-4 mr-2" />
-                            Print
-                        </Button>
-                        <Button variant="outline" @click="closePrintPreview">
-                            <X class="size-4 mr-2" />
-                            Close
-                        </Button>
-                    </div>
-                </div>
-                <div class="p-6 overflow-auto max-h-[calc(90vh-80px)]">
-                    <div class="text-center mb-4 text-sm text-muted-foreground">
-                        This preview shows how the stickers will appear when printed. Use Ctrl+P (or Cmd+P on Mac) to
-                        print.
-                    </div>
-                    <div v-html="stickerHtml" class="border rounded bg-gray-50 p-4"></div>
-                </div>
             </div>
         </div>
     </AppLayout>

@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Patients
     Route::resource('patients', PatientController::class);
+    Route::get('patients/{patient}/report', [PatientController::class, 'generateReport'])->name('patients.report');
 
     // Staff
     Route::resource('staff', StaffController::class);

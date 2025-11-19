@@ -117,8 +117,8 @@ class PatientController extends Controller
                 'id' => $order->id,
                 'type' => 'medical_order',
                 'order_details' => $order->order_details,
-                'status' => $order->status,
-                'priority' => $order->priority,
+                'status' => $order->status->label(),
+                'priority' => $order->priority->label(),
                 'ordered_at' => $order->ordered_at,
                 'completed_at' => $order->completed_at,
                 'staff_name' => $order->staff ? $order->staff->first_name.' '.$order->staff->last_name : null,
@@ -195,5 +195,130 @@ class PatientController extends Controller
 
         return redirect()->route('patients.index')
             ->with('success', 'Patient deleted successfully.');
+    }
+
+    /**
+     * Generate a comprehensive patient report as PDF.
+     */
+    public function generateReport(Patient $patient): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $patient);
+
+        $patient->load([
+            'user',
+            'appointments.staff.user',
+            'patientFiles.file',
+            'medicalOrders.staff.user',
+            'appointments.visits.staff.user',
+            'appointments.visits.medicalRecord',
+            'medicalOrders.medicalRecords',
+        ]);
+
+        // Compile medical records from all sources
+        $medicalRecords = collect();
+
+        // Records from appointments/visits
+        foreach ($patient->appointments as $appointment) {
+            if ($appointment->visits) {
+                foreach ($appointment->visits as $visit) {
+                    if ($visit->medicalRecord) {
+                        $medicalRecords->push($visit->medicalRecord);
+                    }
+                }
+            }
+        }
+
+        // Records directly linked to medical orders
+        foreach ($patient->medicalOrders as $medicalOrder) {
+            $medicalRecords = $medicalRecords->merge($medicalOrder->medicalRecords ?? []);
+        }
+
+        // Remove duplicates and sort by date
+        $uniqueRecords = $medicalRecords->unique('id')->sortByDesc('date_of_service');
+
+        // Compile report data
+        $report = [
+            'patient_info' => [
+                'id' => $patient->id,
+                'name' => $patient->user?->name ?? $patient->first_name.' '.$patient->last_name,
+                'date_of_birth' => $patient->date_of_birth,
+                'gender' => $patient->gender,
+                'phone_number' => $patient->phone_number,
+                'email' => $patient->email ?? $patient->user?->email,
+                'address' => $patient->address,
+                'insurance_info' => $patient->insurance_info,
+                'created_at' => $patient->created_at,
+                'updated_at' => $patient->updated_at,
+            ],
+            'appointments' => $patient->appointments->unique('id')->map(function ($appointment) {
+                return [
+                    'id' => $appointment->id,
+                    'appointment_date_time' => $appointment->appointment_date_time,
+                    'duration_minutes' => $appointment->duration_minutes,
+                    'reason_for_visit' => $appointment->reason_for_visit,
+                    'status' => $appointment->status,
+                    'staff_name' => $appointment->staff->user->name ?? 'Unknown',
+                    'created_at' => $appointment->created_at,
+                ];
+            }),
+            'visits' => $patient->appointments->pluck('visits')->flatten()->unique('id')->map(function ($visit) {
+                return [
+                    'id' => $visit->id,
+                    'visit_date_time' => $visit->visit_date_time,
+                    'status' => $visit->status,
+                    'notes' => $visit->notes,
+                    'staff_name' => $visit->staff?->user->name ?? null,
+                    'created_at' => $visit->created_at,
+                ];
+            }),
+            'medical_orders' => $patient->medicalOrders->unique('id')->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'order_type' => $order->order_type,
+                    'order_details' => $order->order_details,
+                    'status' => $order->status,
+                    'priority' => $order->priority,
+                    'ordered_at' => $order->ordered_at,
+                    'completed_at' => $order->completed_at,
+                    'staff_name' => $order->staff?->user->name ?? null,
+                    'notes' => $order->notes,
+                ];
+            }),
+            'medical_records' => $uniqueRecords->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'diagnosis' => $record->diagnosis,
+                    'treatment' => $record->treatment,
+                    'notes' => $record->notes,
+                    'date_of_service' => $record->date_of_service,
+                    'created_at' => $record->created_at,
+                ];
+            }),
+            'patient_files' => $patient->patientFiles->unique('id')->map(function ($patientFile) {
+                return [
+                    'id' => $patientFile->id,
+                    'file_type' => $patientFile->file_type,
+                    'filename' => $patientFile->file->filename ?? 'Unknown',
+                    'uploaded_at' => $patientFile->file->uploaded_at ?? null,
+                    'notes' => $patientFile->notes,
+                ];
+            }),
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('patient-report', compact('report', 'patient'));
+        
+        // Set PDF options to ensure single page
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'patient-report-'.$patient->id.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
     }
 }

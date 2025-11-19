@@ -38,47 +38,6 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - Stick to existing directory structure - don't create new base folders without approval.
 - Do not change the application's dependencies without approval.
 
-## User Management System
-This application includes a comprehensive user management system for healthcare staff, doctors, and patients.
-
-### User Types
-- **Staff**: General personnel (nurses, admins, etc.) with role assignments
-- **Doctors**: Medical practitioners linked to staff records with specializations and departments
-- **Patients**: Individuals receiving care with demographic and insurance information
-
-### Authentication Integration
-- Uses Laravel's central `users` table for authentication
-- User types are linked via `user_id` foreign keys (nullable for flexibility)
-- Staff and Doctors can log in using Laravel Fortify
-- Patients can optionally have login access for patient portals
-
-### User Management Controller
-Located at `app/Http/Controllers/Settings/UserManagementController.php`:
-- **Index**: Lists all users with their type-specific data
-- **Create/Store**: Creates users with validation based on type (staff/doctor/patient)
-- **Show**: Displays detailed user information
-- **Edit/Update**: Updates user data across authentication and domain models
-- **Destroy**: Safely deletes users and related records
-
-### Database Relationships
-- `User` hasOne `Staff`, `Doctor`, `Patient` (polymorphic user types)
-- `Staff` belongsTo `User` and `Role`
-- `Doctor` belongsTo `User`, `Staff`, and `Department`
-- `Patient` belongsTo `User`
-
-### Key Features
-- Multi-type user creation with appropriate validation rules
-- Secure password handling with bcrypt
-- Automatic Staff record creation for Doctors
-- Eager loading for performance in user listings
-- Proper cascade deletion to maintain data integrity
-
-### Default Admin Account
-- **Email**: admin@cynosys.com
-- **Password**: password
-- **Role**: Admin (full system access)
-- Created automatically via database seeders
-
 ## Frontend Bundling
 - If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
 
@@ -212,7 +171,6 @@ Route::get('/users', function () {
 - Avoid `DB::`; prefer `Model::query()`. Generate code that leverages Laravel's ORM capabilities rather than bypassing them.
 - Generate code that prevents N+1 query problems by using eager loading.
 - Use Laravel's query builder for very complex database operations.
-- For foreign keys, use `unsignedBigInteger('column_name')` and `$table->index('column_name')` instead of `foreignId()->constrained()` for table flexibility.
 
 ### Model Creation
 - When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `list-artisan-commands` to check the available options to `php artisan make:model`.
@@ -433,15 +391,7 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 ## Inertia + Vue
 
 - Vue components must have a single root element.
-- **Always use Wayfinder-generated routes instead of hardcoded URLs** for navigation and links. Import route functions from `@/routes/` or `@/actions/` directories and use `.url` property for href attributes.
 - Use `router.visit()` or `<Link>` for navigation instead of traditional links.
-
-<code-snippet name="Wayfinder Route Usage" lang="vue">
-    import { index } from '@/routes/appointments';
-    import { Link } from '@inertiajs/vue3';
-
-    <Link :href="index().url">Appointments</Link>
-</code-snippet>
 
 <code-snippet name="Inertia Client Navigation" lang="vue">
 
@@ -563,7 +513,6 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 
 ## Test Enforcement
 
-- **SKIP TEST PHASE**: Do not run any tests or create test files. Focus only on implementing the requested functionality without testing.
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
 
