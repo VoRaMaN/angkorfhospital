@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/composables/useAuth';
@@ -12,14 +13,55 @@ interface Props {
     patient: {
         id: number;
         user: { name: string; email: string };
+        title: string | null;
         first_name: string;
         last_name: string;
+        native_name: string | null;
         date_of_birth: string;
         gender: string;
-        address: string;
-        phone_number: string;
-        email?: string;
-        insurance_info: string;
+        
+        // Address
+        address: string | null;
+        country: string | null;
+        city: string | null;
+        province: string | null;
+        postal_code: string | null;
+
+        // Contact
+        email: string | null;
+        home_phone: string | null;
+        work_phone: string | null;
+        mobile_phone: string | null;
+        contact_method: string | null;
+
+        // Employment
+        occupation: string | null;
+        employer: string | null;
+        employer_address: string | null;
+        employer_phone: string | null;
+
+        // Emergency Contact
+        emergency_contact_name: string | null;
+        emergency_contact_relationship: string | null;
+        emergency_contact_phone: string | null;
+        emergency_contact_address: string | null;
+
+        // Payment
+        payment_method: string | null;
+        card_number: string | null;
+        card_expiry: string | null;
+        card_cvc: string | null;
+        card_holder: string | null;
+
+        // Insurance
+        insurance_provider: string | null;
+        insurance_policy_number: string | null;
+        insurance_group_number: string | null;
+        insurance_plan_name: string | null;
+        insurance_expiry: string | null;
+        insurance_holder: string | null;
+        insurance_relationship: string | null;
+
         created_at: string;
         updated_at: string;
         patient_files?: Array<any>;
@@ -240,147 +282,212 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="details" class="mt-6">
+                    <TabsContent value="details" class="mt-6 space-y-6">
+                        
+                        <!-- Personal Information -->
                         <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Personal Information</h3>
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Full Name
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{
-                                            props.patient.user?.name ||
-                                            `${props.patient.first_name}
-                                        ${props.patient.last_name}`
-                                        }}
-                                    </dd>
+                                    <dt class="text-sm font-medium text-muted-foreground">Title</dt>
+                                    <dd class="text-sm">{{ props.patient.title || '-' }}</dd>
                                 </div>
-
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Email
-                                    </dt>
+                                    <dt class="text-sm font-medium text-muted-foreground">Full Name</dt>
                                     <dd class="text-sm">
-                                        {{
-                                            props.patient.user?.email ||
-                                            'No email account'
-                                        }}
+                                        {{ props.patient.first_name }} {{ props.patient.last_name }}
                                     </dd>
                                 </div>
-
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        First Name
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{ props.patient.first_name }}
-                                    </dd>
+                                    <dt class="text-sm font-medium text-muted-foreground">Native Name</dt>
+                                    <dd class="text-sm">{{ props.patient.native_name || '-' }}</dd>
                                 </div>
-
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Last Name
-                                    </dt>
+                                    <dt class="text-sm font-medium text-muted-foreground">Date of Birth</dt>
                                     <dd class="text-sm">
-                                        {{ props.patient.last_name }}
+                                        {{ new Date(props.patient.date_of_birth).toLocaleDateString() }}
                                     </dd>
                                 </div>
-
                                 <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Date of Birth
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{
-                                            new Date(
-                                                props.patient.date_of_birth,
-                                            ).toLocaleDateString()
-                                        }}
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Gender
-                                    </dt>
-                                    <dd class="text-sm">
-                                        <Badge variant="secondary">
-                                            {{
-                                                props.patient.gender
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                props.patient.gender.slice(1)
-                                            }}
-                                        </Badge>
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Phone Number
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{ props.patient.phone_number }}
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Email
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{ props.patient.email || 'No email' }}
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Address
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{ props.patient.address }}
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2 md:col-span-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Insurance Information
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{
-                                            props.patient.insurance_info ||
-                                            'N/A'
-                                        }}
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Created
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{
-                                            new Date(
-                                                props.patient.created_at,
-                                            ).toLocaleString()
-                                        }}
-                                    </dd>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">
-                                        Last Updated
-                                    </dt>
-                                    <dd class="text-sm">
-                                        {{
-                                            new Date(
-                                                props.patient.updated_at,
-                                            ).toLocaleString()
-                                        }}
-                                    </dd>
+                                    <dt class="text-sm font-medium text-muted-foreground">Gender</dt>
+                                    <dd class="text-sm capitalize">{{ props.patient.gender }}</dd>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Contact Information -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Contact Information</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Email</dt>
+                                    <dd class="text-sm">{{ props.patient.email || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Mobile Phone</dt>
+                                    <dd class="text-sm">{{ props.patient.mobile_phone || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Home Phone</dt>
+                                    <dd class="text-sm">{{ props.patient.home_phone || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Work Phone</dt>
+                                    <dd class="text-sm">{{ props.patient.work_phone || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Preferred Contact Method</dt>
+                                    <dd class="text-sm capitalize">{{ props.patient.contact_method || '-' }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Address</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2 md:col-span-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Street Address</dt>
+                                    <dd class="text-sm">{{ props.patient.address || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">City</dt>
+                                    <dd class="text-sm">{{ props.patient.city || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Province/State</dt>
+                                    <dd class="text-sm">{{ props.patient.province || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Postal Code</dt>
+                                    <dd class="text-sm">{{ props.patient.postal_code || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Country</dt>
+                                    <dd class="text-sm">{{ props.patient.country || '-' }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Employment -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Employment</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Occupation</dt>
+                                    <dd class="text-sm">{{ props.patient.occupation || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Employer</dt>
+                                    <dd class="text-sm">{{ props.patient.employer || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Employer Phone</dt>
+                                    <dd class="text-sm">{{ props.patient.employer_phone || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Employer Address</dt>
+                                    <dd class="text-sm">{{ props.patient.employer_address || '-' }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Emergency Contact</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Name</dt>
+                                    <dd class="text-sm">{{ props.patient.emergency_contact_name || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Relationship</dt>
+                                    <dd class="text-sm">{{ props.patient.emergency_contact_relationship || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Phone</dt>
+                                    <dd class="text-sm">{{ props.patient.emergency_contact_phone || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Address</dt>
+                                    <dd class="text-sm">{{ props.patient.emergency_contact_address || '-' }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Payment Information</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Payment Method</dt>
+                                    <dd class="text-sm capitalize">{{ props.patient.payment_method || '-' }}</dd>
+                                </div>
+                                <div v-if="props.patient.payment_method === 'card'" class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Card Holder</dt>
+                                    <dd class="text-sm">{{ props.patient.card_holder || '-' }}</dd>
+                                </div>
+                                <div v-if="props.patient.payment_method === 'card'" class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Card Number</dt>
+                                    <dd class="text-sm">**** **** **** {{ props.patient.card_number?.slice(-4) || '****' }}</dd>
+                                </div>
+                                <div v-if="props.patient.payment_method === 'card'" class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Expiry</dt>
+                                    <dd class="text-sm">{{ props.patient.card_expiry || '-' }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Insurance Information -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">Insurance Information</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Provider</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_provider || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Policy Number</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_policy_number || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Group Number</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_group_number || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Plan Name</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_plan_name || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Expiry Date</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_expiry || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Policy Holder</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_holder || '-' }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Relationship to Holder</dt>
+                                    <dd class="text-sm">{{ props.patient.insurance_relationship || '-' }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Information -->
+                        <div class="rounded-lg border bg-card p-6">
+                            <h3 class="mb-4 text-lg font-semibold">System Information</h3>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Created At</dt>
+                                    <dd class="text-sm">{{ new Date(props.patient.created_at).toLocaleString() }}</dd>
+                                </div>
+                                <div class="space-y-2">
+                                    <dt class="text-sm font-medium text-muted-foreground">Last Updated</dt>
+                                    <dd class="text-sm">{{ new Date(props.patient.updated_at).toLocaleString() }}</dd>
+                                </div>
+                            </div>
+                        </div>
+
                     </TabsContent>
 
                     <TabsContent value="files" class="mt-6">

@@ -158,43 +158,98 @@
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Full Name:</div>
-                    <div class="info-value">{{ $report['patient_info']['name'] }}</div>
+                    <div class="info-value">{{ $report['patient_info']['title'] ? $report['patient_info']['title'] . ' ' : '' }}{{ $report['patient_info']['first_name'] }} {{ $report['patient_info']['last_name'] }}</div>
                 </div>
+                <div class="info-cell">
+                    <div class="info-label">Native Name:</div>
+                    <div class="info-value">{{ $report['patient_info']['native_name'] ?? 'N/A' }}</div>
+                </div>
+            </div>
+            <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Date of Birth:</div>
                     <div class="info-value">{{ \Carbon\Carbon::parse($report['patient_info']['date_of_birth'])->format('M j, Y') }}</div>
                 </div>
-            </div>
-            <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Gender:</div>
                     <div class="info-value">{{ ucfirst($report['patient_info']['gender']) }}</div>
                 </div>
-                <div class="info-cell">
-                    <div class="info-label">Phone Number:</div>
-                    <div class="info-value">{{ $report['patient_info']['phone_number'] }}</div>
-                </div>
             </div>
             <div class="info-row">
-                <div class="info-cell">
-                    <div class="info-label">Email:</div>
-                    <div class="info-value">{{ $report['patient_info']['email'] ?? 'N/A' }}</div>
-                </div>
                 <div class="info-cell">
                     <div class="info-label">Patient ID:</div>
                     <div class="info-value">#{{ $report['patient_info']['id'] }}</div>
                 </div>
+                <div class="info-cell">
+                    <div class="info-label">Email:</div>
+                    <div class="info-value">{{ $report['patient_info']['email'] ?? 'N/A' }}</div>
+                </div>
             </div>
+            
+            <!-- Contact -->
+            <div class="info-row">
+                <div class="info-cell">
+                    <div class="info-label">Mobile Phone:</div>
+                    <div class="info-value">{{ $report['patient_info']['mobile_phone'] ?? 'N/A' }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-label">Home Phone:</div>
+                    <div class="info-value">{{ $report['patient_info']['home_phone'] ?? 'N/A' }}</div>
+                </div>
+            </div>
+
+            <!-- Address -->
             <div class="info-row">
                 <div class="info-cell" style="width: 100%;">
                     <div class="info-label">Address:</div>
-                    <div class="info-value">{{ $report['patient_info']['address'] }}</div>
+                    <div class="info-value">
+                        {{ $report['patient_info']['address'] }}<br>
+                        {{ $report['patient_info']['city'] }}, {{ $report['patient_info']['province'] }} {{ $report['patient_info']['postal_code'] }}<br>
+                        {{ $report['patient_info']['country'] }}
+                    </div>
                 </div>
             </div>
+
+            <!-- Employment -->
+            <div class="info-row">
+                <div class="info-cell">
+                    <div class="info-label">Occupation:</div>
+                    <div class="info-value">{{ $report['patient_info']['occupation'] ?? 'N/A' }}</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-label">Employer:</div>
+                    <div class="info-value">{{ $report['patient_info']['employer'] ?? 'N/A' }}</div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="info-row">
+                <div class="info-cell">
+                    <div class="info-label">Emergency Contact:</div>
+                    <div class="info-value">
+                        {{ $report['patient_info']['emergency_contact_name'] ?? 'N/A' }} 
+                        ({{ $report['patient_info']['emergency_contact_relationship'] ?? 'N/A' }})
+                    </div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-label">Emergency Phone:</div>
+                    <div class="info-value">{{ $report['patient_info']['emergency_contact_phone'] ?? 'N/A' }}</div>
+                </div>
+            </div>
+
+            <!-- Insurance -->
             <div class="info-row">
                 <div class="info-cell" style="width: 100%;">
-                    <div class="info-label">Insurance Information:</div>
-                    <div class="info-value">{{ $report['patient_info']['insurance_info'] ?? 'N/A' }}</div>
+                    <div class="info-label">Insurance:</div>
+                    <div class="info-value">
+                        @if($report['patient_info']['insurance_provider'])
+                            Provider: {{ $report['patient_info']['insurance_provider'] }}<br>
+                            Policy #: {{ $report['patient_info']['insurance_policy_number'] ?? 'N/A' }}<br>
+                            Plan: {{ $report['patient_info']['insurance_plan_name'] ?? 'N/A' }}
+                        @else
+                            {{ $report['patient_info']['insurance_info'] ?? 'N/A' }}
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

@@ -241,12 +241,56 @@ class PatientController extends Controller
             'patient_info' => [
                 'id' => $patient->id,
                 'name' => $patient->user?->name ?? $patient->first_name.' '.$patient->last_name,
+                'title' => $patient->title,
+                'first_name' => $patient->first_name,
+                'last_name' => $patient->last_name,
+                'native_name' => $patient->native_name,
                 'date_of_birth' => $patient->date_of_birth,
                 'gender' => $patient->gender,
-                'phone_number' => $patient->phone_number,
+                
+                // Contact
                 'email' => $patient->email ?? $patient->user?->email,
+                'phone_number' => $patient->phone_number,
+                'home_phone' => $patient->home_phone,
+                'work_phone' => $patient->work_phone,
+                'mobile_phone' => $patient->mobile_phone,
+                'contact_method' => $patient->contact_method,
+
+                // Address
                 'address' => $patient->address,
-                'insurance_info' => $patient->insurance_info,
+                'city' => $patient->city,
+                'province' => $patient->province,
+                'postal_code' => $patient->postal_code,
+                'country' => $patient->country,
+
+                // Employment
+                'occupation' => $patient->occupation,
+                'employer' => $patient->employer,
+                'employer_address' => $patient->employer_address,
+                'employer_phone' => $patient->employer_phone,
+
+                // Emergency Contact
+                'emergency_contact_name' => $patient->emergency_contact_name,
+                'emergency_contact_relationship' => $patient->emergency_contact_relationship,
+                'emergency_contact_phone' => $patient->emergency_contact_phone,
+                'emergency_contact_address' => $patient->emergency_contact_address,
+
+                // Payment
+                'payment_method' => $patient->payment_method,
+                'card_holder' => $patient->card_holder,
+                'card_number' => $patient->card_number ? '**** **** **** '.substr($patient->card_number, -4) : null,
+                'card_expiry' => $patient->card_expiry,
+
+                // Insurance
+                'insurance_info' => $patient->insurance_info, // Keep for backward compatibility if needed
+                'insurance_provider' => $patient->insurance_provider,
+                'insurance_policy_number' => $patient->insurance_policy_number,
+                'insurance_group_number' => $patient->insurance_group_number,
+                'insurance_plan_name' => $patient->insurance_plan_name,
+                'insurance_expiry' => $patient->insurance_expiry,
+                'insurance_holder' => $patient->insurance_holder,
+                'insurance_relationship' => $patient->insurance_relationship,
+
                 'created_at' => $patient->created_at,
                 'updated_at' => $patient->updated_at,
             ],
