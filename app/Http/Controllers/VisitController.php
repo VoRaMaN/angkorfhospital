@@ -12,7 +12,8 @@ class VisitController extends Controller
 {
     public function __construct(
         private VisitFlowService $visitsFlowService,
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -93,7 +94,7 @@ class VisitController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'staff_id' => 'nullable|exists:staff,id',
             'visit_date_time' => 'required|date',
-            'status' => 'required|in:'.implode(',', Visit::STATUSES),
+            'status' => 'required|in:' . implode(',', Visit::STATUSES),
             'notes' => 'nullable|string',
         ]);
 
@@ -157,7 +158,7 @@ class VisitController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'staff_id' => 'nullable|exists:staff,id',
             'visit_date_time' => 'required|date',
-            'status' => 'required|in:'.implode(',', Visit::STATUSES),
+            'status' => 'required|in:' . implode(',', Visit::STATUSES),
             'notes' => 'nullable|string',
         ]);
 
@@ -189,41 +190,87 @@ class VisitController extends Controller
         }
 
         // Assign staff to the visit
-        $visit->update([
-            'staff_id' => $request->staff_id,
-            'status' => 'in_progress',
+        $visit->update(['staff_id' => $request->staff_id]);
+
+        // Assign staff to associated medical orders
+        foreach ($visit->medicalOrders as $order) {
+            $order->update(['staff_id' => $request->staff_id]);
+        }
+
+        // Update visit status to assigned
+        $this->visitsFlowService->updateVisitStatus($visit->id, Visit::STATUS_ASSIGNED);
+
+        return back()->with('success', 'Staff assigned successfully.');
+    }
+
+    /**
+     * Notify staff that the visit is ready for assignment.
+     */
+    public function notifyStaff(Visit $visit)
+    {
+        $this->authorize('notify_visits', $visit);
+
+        $this->visitsFlowService->notifyStaffForAssignment($visit->id);
+
+        return back()->with('success', 'Staff notified successfully.');
+    }
+
+    /**
+     * Get visits awaiting assignment for the current user.
+     */
+    public function myVisits(): Response
+    {
+        $visits = $this->visitsFlowService->getAwaitingToBeAssignVisits();
+
+        // Transform visits for the frontend
+        $transformedVisits = $visits->map(function ($visit) {
+            return [
+                'id' => $visit->id,
+                'patient' => $visit->patient ? [
+                    'user' => $visit->patient->user ? [
+                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name . ' ' . $visit->patient->last_name),
+                    ] : ['name' => trim($visit->patient->first_name . ' ' . $visit->patient->last_name)],
+                ] : ['user' => ['name' => 'Unknown Patient']],
+                'appointment' => $visit->appointment,
+                'visit_date_time' => $visit->visit_date_time,
+                'status' => $visit->status,
+                'notes' => $visit->notes,
+                'created_at' => $visit->created_at,
+                'medical_orders' => $visit->medicalOrders->map(function ($order) {
+                    return [
+                        'id' => $order->id,
+                        'status' => $order->status->value,
+                    ];
+                }),
+            ];
+        });
+
+        $staff = \App\Models\Staff::with('user')->get()->map(function ($staff) {
+            return [
+                'id' => $staff->id,
+                'name' => $staff->user ? $staff->user->name : trim($staff->first_name . ' ' . $staff->last_name),
+            ];
+        });
+
+        return Inertia::render('Visits/MyVisits', [
+            'visits' => $transformedVisits,
+            'staff' => $staff,
         ]);
+    }
 
-        // Generate medical orders for this visit if none exist
-        if ($visit->medicalOrders()->count() === 0) {
-            $flowService = app(\App\Services\FlowService::class);
-            $flowService->generateMedicalOrders($visit->id);
-        }
+    /**
+     * Get visits assigned to the current user that are in progress.
+     */
+    public function myToBeProcessVisits(): Response
+    {
+        // Get visits assigned to the current user that are in progress
+        $visits = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders'])
+            ->where('staff_id', auth()->user()->staff->id ?? null)
+            // ->where('status', Visit::STATUS_ASSIGNED)
+            ->get();
 
-        // Process any pending medical orders that have items
-        $pendingOrders = $visit->medicalOrders()->where('status', 'pending')->get();
-        $processedCount = 0;
-
-        foreach ($pendingOrders as $order) {
-            $flowService = app(\App\Services\FlowService::class);
-            $flowService->assignStaffToOrder($order->id, $request->staff_id);
-
-            // Only process orders that have items
-            if ($order->orderItems()->count() > 0) {
-                $flowService->processMedicalOrder($order->id);
-                $processedCount++;
-            }
-        }
-
-        $message = 'Staff assigned successfully.';
-        if ($processedCount > 0) {
-            $message .= " {$processedCount} medical order(s) with items have been processed.";
-        }
-        if (($pendingOrders->count() - $processedCount) > 0) {
-            $message .= ' '.($pendingOrders->count() - $processedCount).' medical order(s) are waiting for items to be added.';
-        }
-
-        return redirect()->route('visits.index')
-            ->with('success', $message);
+        return Inertia::render('Visits/MyVisitProcess', [
+            'visits' => $visits,
+        ]);
     }
 }

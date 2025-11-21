@@ -44,8 +44,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Doctors
     Route::get('doctors/my-appointments', [DoctorController::class, 'myAppointments'])->name('doctors.my-appointments');
     Route::get('doctors/my-patients', [DoctorController::class, 'myPatients'])->name('doctors.my-patients');
-    Route::get('doctors/my-visits', [VisitController::class, 'myVisits'])->name('doctors.my-visits');
-    Route::get('doctors/my-to-be-process-visits', [VisitController::class, 'myToBeProcessVisits'])->name('doctors.my-to-be-process-visits');
 
     // Inventory
     Route::resource('inventory', InventoryController::class);
@@ -101,6 +99,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('visits', VisitController::class);
     Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
     Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');
+    Route::get('/my-visits', [VisitController::class, 'myVisits'])->name('doctors.my-visits');
+    Route::get('/my-to-be-process-visits', [VisitController::class, 'myToBeProcessVisits'])->name('doctors.my-to-be-process-visits');
+
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
