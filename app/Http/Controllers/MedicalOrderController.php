@@ -212,7 +212,7 @@ class MedicalOrderController extends Controller
                     'id' => $billing->id,
                     'amount' => $billing->amount,
                     'status' => $billing->status,
-                    'status_label' => ucfirst($billing->status),
+                    'status_label' => $billing->status,
                     'status_color' => match ($billing->status) {
                         'pending' => 'text-yellow-600',
                         'paid' => 'text-green-600',
