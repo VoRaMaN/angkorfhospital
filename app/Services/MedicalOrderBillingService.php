@@ -153,6 +153,15 @@ class MedicalOrderBillingService
     public function processOrderAndCreateBilling(MedicalOrder $medicalOrder, ?string $notes = null): Billing
     {
         return DB::transaction(function () use ($medicalOrder, $notes) {
+            // Load necessary relationships
+            $medicalOrder->load(['visit.appointment', 'orderItems.inventory']);
+
+            // Check if order can be processed
+            $canProcess = $this->canProcessOrder($medicalOrder);
+            if (! $canProcess['can_process']) {
+                throw new \Exception('Cannot process order: '.implode(', ', $canProcess['issues']));
+            }
+
             // Calculate total amount
             $totalAmount = $this->calculateOrderTotal($medicalOrder);
 
@@ -171,7 +180,7 @@ class MedicalOrderBillingService
             // Reduce inventory stock for used items
             $this->reduceInventoryStock($medicalOrder);
 
-            // Create billing record with updated structure
+            // Create billing record
             $billing = Billing::create([
                 'appointment_id' => $medicalOrder->visit?->appointment_id,
                 'visit_id' => $medicalOrder->visit_id,
