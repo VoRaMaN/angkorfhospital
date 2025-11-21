@@ -77,28 +77,27 @@ const form = useForm<{
 });
 
 const patientOptions = computed(() => [
-    { value: 'null', label: 'Select a patient' },
     ...props.patients.map((p) => ({
         value: p.id.toString(),
         label: p.name,
     })),
 ]);
 const staffOptions = computed(() => [
-    { value: 'null', label: 'Unassigned' },
+    { value: '', label: 'Unassigned' },
     ...props.staff.map((s) => ({ value: s.id.toString(), label: s.user.name })),
 ]);
 
 const patientValue = computed({
-    get: () => form.patient_id || 'null',
+    get: () => form.patient_id,
     set: (value) => {
-        form.patient_id = value === 'null' ? '' : value;
+        form.patient_id = value;
     },
 });
 
 const staffValue = computed({
-    get: () => (form.staff_id ? String(form.staff_id) : 'null'),
+    get: () => (form.staff_id ? String(form.staff_id) : ''),
     set: (value) => {
-        form.staff_id = value === 'null' ? null : value;
+        form.staff_id = value === '' ? null : value;
     },
 });
 
@@ -106,9 +105,9 @@ const submit = () => {
     // Transform form data before submission
     const transformedData = {
         appointment_id:
-            form.appointment_id === 'none' ? null : form.appointment_id,
-        patient_id: form.patient_id === '' ? null : form.patient_id,
-        staff_id: form.staff_id,
+            form.appointment_id === 'none' || form.appointment_id === null ? null : form.appointment_id,
+        patient_id: form.patient_id,
+        staff_id: form.staff_id === '' ? null : form.staff_id,
         visit_date_time: form.visit_date_time,
         status: form.status,
         notes: form.notes,
