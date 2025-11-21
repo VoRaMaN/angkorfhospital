@@ -19,6 +19,11 @@ return new class extends Migration
             $table->dateTime('appointment_date_time');
             $table->enum('status', ['scheduled', 'confirmed', 'arrived', 'in_progress', 'completed', 'cancelled', 'no_show', 'rescheduled']);
             $table->text('reason_for_visit')->nullable();
+            $table->boolean('is_hormone_test')->default(false);
+            $table->boolean('is_tvs')->default(false);
+            $table->time('opu_time')->nullable();
+            $table->time('et_fet_time')->nullable();
+            $table->boolean('is_beta_hcg')->default(false);
             $table->timestamps();
         });
     }

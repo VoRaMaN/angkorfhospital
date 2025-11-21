@@ -166,6 +166,11 @@ class AppointmentController extends Controller
             'status' => $appointment->status,
             'reason_for_visit' => $appointment->reason_for_visit,
             'notes' => $appointment->notes,
+            'is_hormone_test' => $appointment->is_hormone_test,
+            'is_tvs' => $appointment->is_tvs,
+            'opu_time' => $appointment->opu_time,
+            'et_fet_time' => $appointment->et_fet_time,
+            'is_beta_hcg' => $appointment->is_beta_hcg,
         ];
 
         return Inertia::render('Appointments/Edit', [
@@ -191,6 +196,11 @@ class AppointmentController extends Controller
             'status' => 'required|in:scheduled,confirmed,arrived,in_progress,completed,cancelled,no_show,rescheduled',
             'reason_for_visit' => 'required|string|max:1000',
             'notes' => 'nullable|string|max:2000',
+            'is_hormone_test' => 'boolean',
+            'is_tvs' => 'boolean',
+            'opu_time' => 'nullable|date_format:H:i',
+            'et_fet_time' => 'nullable|date_format:H:i',
+            'is_beta_hcg' => 'boolean',
         ]);
 
         $appointment->update($request->only([
@@ -202,6 +212,11 @@ class AppointmentController extends Controller
             'status',
             'reason_for_visit',
             'notes',
+            'is_hormone_test',
+            'is_tvs',
+            'opu_time',
+            'et_fet_time',
+            'is_beta_hcg',
         ]));
 
         return redirect()->route('appointments.index')

@@ -469,4 +469,36 @@ class BillingController extends Controller
 
         return $pdf->download($filename);
     }
+
+    /**
+     * Generate a simple billing letter as PDF.
+     */
+    public function generateLetter(Billing $billing): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $billing);
+
+        $billing->load([
+            'appointment.patient.user',
+            'appointment.staff.user',
+            'visit.patient.user',
+            'visit.staff.user',
+            'medicalOrder.patient.user',
+            'medicalOrder.staff.user',
+        ]);
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('billing-letter', compact('billing'));
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'billing-letter-'.$billing->id.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
+    }
 }

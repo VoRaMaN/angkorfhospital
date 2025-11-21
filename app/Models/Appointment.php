@@ -21,6 +21,11 @@ class Appointment extends Model
         'status',
         'reason_for_visit',
         'notes',
+        'is_hormone_test',
+        'is_tvs',
+        'opu_time',
+        'et_fet_time',
+        'is_beta_hcg',
     ];
 
     protected function casts(): array
@@ -30,6 +35,9 @@ class Appointment extends Model
             'duration_minutes' => 'integer',
             'appointment_type' => AppointmentTypeEnum::class,
             'status' => AppointmentStatusEnum::class,
+            'is_hormone_test' => 'boolean',
+            'is_tvs' => 'boolean',
+            'is_beta_hcg' => 'boolean',
         ];
     }
 

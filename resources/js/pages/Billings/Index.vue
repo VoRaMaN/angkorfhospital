@@ -25,10 +25,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { create, edit, show } from '@/routes/billings';
+import { create, edit, letter, show } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { DollarSign, Edit, Eye, Plus, Search } from 'lucide-vue-next';
+import { DollarSign, Edit, Eye, Plus, Printer, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
@@ -267,6 +267,16 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                                         <Link :href="edit(billing.id).url">
                                         <Edit class="size-4" />
                                         </Link>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" as-child>
+                                        <a
+                                            :href="letter(billing.id).url"
+                                            target="_blank"
+                                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                                        >
+                                            <Printer class="size-4" />
+                                            Print
+                                        </a>
                                     </Button>
                                     <Button variant="ghost" size="sm" @click="openStatusDialog(billing)">
                                         Update Status

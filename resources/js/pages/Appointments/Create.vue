@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -46,6 +47,11 @@ const form = useForm({
     appointment_type: 'consultation',
     reason_for_visit: '',
     notes: '',
+    is_hormone_test: false,
+    is_tvs: false,
+    opu_time: '',
+    et_fet_time: '',
+    is_beta_hcg: false,
 });
 </script>
 
@@ -198,6 +204,68 @@ const form = useForm({
                                 class="text-sm text-destructive"
                             >
                                 {{ form.errors.appointment_type }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 rounded-lg border p-4">
+                        <h3 class="font-medium">Procedure Details</h3>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div class="flex items-center space-x-2">
+                                <Checkbox
+                                    id="is_hormone_test"
+                                    :checked="form.is_hormone_test"
+                                    @update:checked="
+                                        form.is_hormone_test = $event
+                                    "
+                                />
+                                <Label for="is_hormone_test"
+                                    >Hormone Test</Label
+                                >
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <Checkbox
+                                    id="is_tvs"
+                                    :checked="form.is_tvs"
+                                    @update:checked="form.is_tvs = $event"
+                                />
+                                <Label for="is_tvs">TVS</Label>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Label for="opu_time" class="whitespace-nowrap"
+                                    >OPU Time</Label
+                                >
+                                <Input
+                                    id="opu_time"
+                                    v-model="form.opu_time"
+                                    type="time"
+                                    class="w-full"
+                                />
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Label
+                                    for="et_fet_time"
+                                    class="whitespace-nowrap"
+                                    >ET/FET Time</Label
+                                >
+                                <Input
+                                    id="et_fet_time"
+                                    v-model="form.et_fet_time"
+                                    type="time"
+                                    class="w-full"
+                                />
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <Checkbox
+                                    id="is_beta_hcg"
+                                    :checked="form.is_beta_hcg"
+                                    @update:checked="form.is_beta_hcg = $event"
+                                />
+                                <Label for="is_beta_hcg">Beta HCG</Label>
                             </div>
                         </div>
                     </div>

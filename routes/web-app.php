@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('billings', BillingController::class);
     Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
     Route::get('billings/{billing}/report', [BillingController::class, 'generateReport'])->name('billings.report');
+    Route::get('billings/{billing}/letter', [BillingController::class, 'generateLetter'])->name('billings.letter');
 
     // Departments
     Route::resource('departments', DepartmentController::class);

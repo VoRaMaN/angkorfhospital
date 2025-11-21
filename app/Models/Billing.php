@@ -25,6 +25,7 @@ class Billing extends Model
         return [
             'amount' => 'decimal:2',
             'billing_date' => 'date',
+            'status' => \App\Enums\BillingStatusEnum::class,
         ];
     }
 
