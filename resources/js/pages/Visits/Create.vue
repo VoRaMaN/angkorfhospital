@@ -199,12 +199,12 @@ const submit = () => {
 
                             <div class="space-y-2">
                                 <Label for="staff_id"
-                                    >Assigned Staff (Optional)</Label
+                                    >Assigned Doctor (Optional)</Label
                                 >
                                 <SearchableSelect
                                     v-model="staffValue"
                                     :options="staffOptions"
-                                    placeholder="Select staff member (optional)"
+                                    placeholder="Select doctor member (optional)"
                                 />
                             </div>
 

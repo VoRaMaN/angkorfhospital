@@ -209,11 +209,11 @@ const submit = () => {
 
                             <!-- Assigned Staff -->
                             <div class="space-y-2">
-                                <Label for="staff_id">Assigned Staff (Optional)</Label>
+                                <Label for="staff_id">Assigned Doctor (Optional)</Label>
                                 <SearchableSelect
                                     v-model="staffValue"
                                     :options="staffOptions"
-                                    placeholder="Select staff member"
+                                    placeholder="Select doctor member"
                                 />
                                 <p v-if="form.errors.staff_id" class="text-sm text-red-600">
                                     {{ form.errors.staff_id }}

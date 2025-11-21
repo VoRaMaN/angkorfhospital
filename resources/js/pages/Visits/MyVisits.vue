@@ -18,11 +18,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Toaster } from '@/components/ui/sonner';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { assignProcess, show } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import {
     Calendar,
     Clock,
@@ -33,6 +34,7 @@ import {
 } from 'lucide-vue-next';
 
 import SearchableSelect from '@/components/SearchableSelect.vue';
+import { toast } from 'vue-sonner';
 import { computed, ref } from 'vue';
 
 interface Visit {
@@ -118,8 +120,9 @@ const assignVisit = () => {
         onSuccess: () => {
             showAssignModal.value = false;
             selectedVisit.value = null;
+            toast.success("Doctor assigned successfully!");
             // Refresh the page or update the list
-            window.location.reload();
+            router.reload();
         },
     });
 };
@@ -232,7 +235,7 @@ const getStatusColor = (status: string) => {
                                     " variant="outline" size="sm" class="border-blue-600 text-blue-600"
                                         @click="openAssignModal(visit)">
                                         <UserCheck class="mr-1 h-4 w-4" />
-                                        Assign
+                                        Select Doctor
                                     </Button>
                                 </div>
                             </TableCell>
@@ -256,17 +259,17 @@ const getStatusColor = (status: string) => {
         <Dialog v-model:open="showAssignModal">
             <DialogContent class="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Assign Staff to Visit</DialogTitle>
+                    <DialogTitle>Select Doctor for Visit</DialogTitle>
                     <DialogDescription>
-                        Select a staff member to assign to this visit. This will
+                        Select a doctor to assign to this visit. This will
                         also initiate the medical order process.
                     </DialogDescription>
                 </DialogHeader>
                 <div class="grid gap-4 py-4">
                     <div class="grid grid-cols-4 items-center gap-4">
-                        <Label for="staff" class="text-right"> Staff </Label>
+                        <Label for="staff" class="text-right"> Doctor </Label>
                         <SearchableSelect v-model="assignForm.staff_id" :options="staffOptions"
-                            placeholder="Select staff member" class="col-span-3" />
+                            placeholder="Select doctor" class="col-span-3" />
                     </div>
                 </div>
                 <DialogFooter>
@@ -281,4 +284,5 @@ const getStatusColor = (status: string) => {
             </DialogContent>
         </Dialog>
     </AppLayout>
+    <Toaster />
 </template>

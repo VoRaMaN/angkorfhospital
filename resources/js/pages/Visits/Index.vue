@@ -10,12 +10,14 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Toaster } from '@/components/ui/sonner';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show, update } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Edit, Eye, Plus, Search, X } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 interface Visit {
     id: number;
@@ -105,8 +107,8 @@ const cancelVisit = (visit: Visit) => {
             },
             {
                 onSuccess: () => {
-                    // Refresh the page or update the list
-                    window.location.reload();
+                    toast.success("Visit cancelled successfully!");
+                    router.reload();
                 },
             },
         );
@@ -119,7 +121,8 @@ const notifyStaff = (visit: Visit) => {
         {},
         {
             onSuccess: () => {
-                window.location.reload();
+                toast.success("Nurse notified successfully!");
+                router.reload();
             },
         },
     );
@@ -148,12 +151,12 @@ const getStatusColor = (status: string) => {
 </script>
 
 <template>
+
     <Head title="Visits" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div v-if="hasPermission('view_visits')"
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Visits</h1>
@@ -164,17 +167,15 @@ const getStatusColor = (status: string) => {
                 </div>
                 <Button as-child v-if="hasPermission('create_visits')">
                     <Link :href="create().url">
-                        <Plus class="size-4" />
-                        New Visit
+                    <Plus class="size-4" />
+                    New Visit
                     </Link>
                 </Button>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="relative max-w-sm flex-1">
-                    <Search
-                        class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                    />
+                    <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input placeholder="Search visits..." class="pl-9" />
                 </div>
             </div>
@@ -196,10 +197,7 @@ const getStatusColor = (status: string) => {
                                 <div class="font-medium">
                                     {{ visit.patient.user.name }}
                                 </div>
-                                <div
-                                    v-if="visit.appointment"
-                                    class="text-sm text-muted-foreground"
-                                >
+                                <div v-if="visit.appointment" class="text-sm text-muted-foreground">
                                     From appointment
                                 </div>
                             </TableCell>
@@ -227,46 +225,27 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                        v-if="hasPermission('view_visits')"
-                                    >
+                                    <Button variant="outline" size="sm" as-child v-if="hasPermission('view_visits')">
                                         <Link :href="show(visit.id).url">
-                                            <Eye class="size-4" />
-                                            View
+                                        <Eye class="size-4" />
+                                        View
                                         </Link>
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                        v-if="hasPermission('edit_visits')"
-                                    >
+                                    <Button variant="outline" size="sm" as-child v-if="hasPermission('edit_visits')">
                                         <Link :href="edit(visit.id).url">
-                                            <Edit class="size-4" />
-                                            Edit
+                                        <Edit class="size-4" />
+                                        Edit
                                         </Link>
                                     </Button>
-                                    <Button
-                                        v-if="visit.status === 'pending' && hasPermission('notify_visits')"
-                                        variant="outline"
-                                        size="sm"
-                                        @click="notifyStaff(visit)"
-                                    >
-                                        Notify Staff
+                                    <Button v-if="visit.status === 'pending' && hasPermission('notify_visits')"
+                                        variant="outline" size="sm" @click="notifyStaff(visit)">
+                                        Send To Nurse
                                     </Button>
-                                    <Button
-                                        v-if="
-                                            (visit.status === 'pending' ||
+                                    <Button v-if="
+                                        (visit.status === 'pending' ||
                                             visit.status === 'in_progress') &&
-                                            hasPermission('cancel_visits')
-                                        "
-                                        variant="destructive"
-                                        size="sm"
-                                        @click="cancelVisit(visit)"
-                                    >
+                                        hasPermission('cancel_visits')
+                                    " variant="destructive" size="sm" @click="cancelVisit(visit)">
                                         <X class="size-4" />
                                         Cancel
                                     </Button>
@@ -274,10 +253,7 @@ const getStatusColor = (status: string) => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.visits.length === 0">
-                            <TableCell
-                                colspan="5"
-                                class="text-center text-muted-foreground"
-                            >
+                            <TableCell colspan="5" class="text-center text-muted-foreground">
                                 No visits found
                             </TableCell>
                         </TableRow>
@@ -296,4 +272,5 @@ const getStatusColor = (status: string) => {
             </div>
         </div>
     </AppLayout>
+    <Toaster />
 </template>

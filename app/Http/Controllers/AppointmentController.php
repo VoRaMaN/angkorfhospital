@@ -370,4 +370,33 @@ class AppointmentController extends Controller
 
         return $pdf->download($filename);
     }
+
+    /**
+     * Generate a simple appointment letter as PDF.
+     */
+    public function generateLetter(Appointment $appointment): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $appointment);
+
+        $appointment->load([
+            'patient.user',
+            'staff.user',
+            'staff.role',
+        ]);
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('appointment-letter', compact('appointment'));
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'appointment-letter-'.$appointment->id.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
+    }
 }

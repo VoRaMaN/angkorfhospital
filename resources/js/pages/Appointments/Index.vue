@@ -23,12 +23,13 @@ import {
     calendar,
     create,
     edit,
+    letter,
     show,
     updateStatus as updateStatusRoute,
 } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Calendar, Plus } from 'lucide-vue-next';
+import { Calendar, Plus, Printer } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -207,6 +208,20 @@ const cancelStatusUpdate = () => {
                                         <Link :href="edit(appointment.id).url"
                                             >Edit</Link
                                         >
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        as-child
+                                    >
+                                        <a
+                                            :href="letter(appointment.id).url"
+                                            target="_blank"
+                                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                                        >
+                                            <Printer class="size-4" />
+                                            Print
+                                        </a>
                                     </Button>
 
                                     <!-- Status-specific action buttons -->

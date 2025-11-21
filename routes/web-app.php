@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
     Route::get('appointments/{appointment}/report', [AppointmentController::class, 'generateReport'])->name('appointments.report');
+    Route::get('appointments/{appointment}/letter', [AppointmentController::class, 'generateLetter'])->name('appointments.letter');
 
     // Billings
     Route::resource('billings', BillingController::class);
@@ -104,4 +105,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';
