@@ -11,14 +11,30 @@ class StaffSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin staff user
-        \App\Models\Staff::create([
-            'user_id' => 1, // Will be created by UserSeeder
-            'first_name' => 'Admin',
-            'last_name' => 'User',
-            'role_id' => 1, // Admin role
-            'contact_number' => '+1234567890',
-            'hire_date' => now(),
-        ]);
+        $users = \App\Models\User::all();
+
+        $roleMap = [
+            'admin' => 1,
+            'doctor' => 2,
+            'nurse' => 3,
+            'receptionist' => 4,
+            'accountant' => 5,
+        ];
+
+        foreach ($users as $index => $user) {
+            $roleName = $user->roles->first()->name;
+            $roleId = $roleMap[$roleName] ?? 1; // Default to admin if not found
+
+            $names = explode(' ', $user->name);
+
+            \App\Models\Staff::create([
+                'user_id' => $user->id,
+                'first_name' => $names[0],
+                'last_name' => $names[1] ?? '',
+                'role_id' => $roleId,
+                'contact_number' => '+123456789'.($user->id),
+                'hire_date' => now(),
+            ]);
+        }
     }
 }

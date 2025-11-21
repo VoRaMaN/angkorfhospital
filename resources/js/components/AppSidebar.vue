@@ -62,6 +62,8 @@ const page = usePage();
 
 const { hasPermission, hasAnyPermission, isAdmin } = useAuth();
 
+const userRole = computed(() => page.props.auth.user?.roles?.[0]);
+
 const coreNavItems = computed(() => [
     { title: 'Dashboard', href: dashboard().url, icon: LayoutGrid },
     {
@@ -271,12 +273,6 @@ const showMedicalResources = computed(
 const showFinancial = computed(
     () => filteredFinancialNavItems.value.length > 0,
 );
-const showDoctorsSection = computed(
-    () => filteredDoctorNavItems.value.length > 0,
-);
-const showManagement = computed(
-    () => filteredManagementNavItems.value.length > 0,
-);
 
 const footerNavItems: NavItem[] = [];
 </script>
@@ -313,7 +309,7 @@ const footerNavItems: NavItem[] = [];
             </SidebarGroup>
 
             <!-- Doctors Section -->
-            <SidebarGroup class="px-2 py-0" v-if="showDoctorsSection">
+            <SidebarGroup class="px-2 py-0" v-if="userRole === 'doctor'">
                 <SidebarGroupLabel>Doctors</SidebarGroupLabel>
                 <SidebarMenu>
                     <SidebarMenuItem v-for="item in filteredDoctorNavItems" :key="item.title">
@@ -388,7 +384,7 @@ const footerNavItems: NavItem[] = [];
             </SidebarGroup>
 
             <!-- Management Section -->
-            <SidebarGroup class="px-2 py-0" v-if="showManagement">
+            <SidebarGroup class="px-2 py-0" v-if="userRole === 'admin'">
                 <SidebarGroupLabel>Management</SidebarGroupLabel>
                 <SidebarMenu>
                     <SidebarMenuItem v-for="item in filteredManagementNavItems" :key="item.title">
