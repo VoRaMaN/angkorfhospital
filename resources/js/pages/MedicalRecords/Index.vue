@@ -10,9 +10,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { create, edit, show } from '@/routes/medical-records';
+import { create, destroy, edit, show } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -26,7 +26,7 @@ interface Props {
         diagnosis: string;
         treatment: string;
         notes: string;
-        visit_date: string;
+        date_of_service: string;
         created_at: string;
     }[];
     filters: {
@@ -44,6 +44,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/medical-records',
     },
 ];
+
+const deleteRecord = (id: number) => {
+    if (confirm('Are you sure you want to delete this medical record?')) {
+        router.delete(destroy(id).url);
+    }
+};
 </script>
 
 <template>
@@ -113,7 +119,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </span>
                             </TableCell>
                             <TableCell>{{
-                                new Date(record.visit_date).toLocaleDateString()
+                                record.date_of_service
+                                    ? new Date(record.date_of_service).toLocaleDateString()
+                                    : 'N/A'
                             }}</TableCell>
                             <TableCell>{{
                                 new Date(record.created_at).toLocaleDateString()
@@ -130,7 +138,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             <Edit class="size-4" />
                                         </Link>
                                     </Button>
-                                    <Button variant="ghost" size="sm">
+                                    <Button variant="ghost" size="sm" @click="deleteRecord(record.id)">
                                         <Trash2 class="size-4" />
                                     </Button>
                                 </div>

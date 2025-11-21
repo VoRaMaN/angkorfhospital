@@ -38,7 +38,7 @@ class UpdateMedicalRecordRequest extends FormRequest
         $medicalRecordId = $this->route('medical_record')->id ?? null;
 
         return [
-            'appointment_id' => 'sometimes|exists:appointments,id|unique:medical_records,appointment_id,'.$medicalRecordId.',id',
+            'appointment_id' => 'sometimes|nullable|exists:appointments,id|unique:medical_records,appointment_id,'.$medicalRecordId.',id',
             'diagnosis' => 'sometimes|string|max:1000',
             'notes' => 'nullable|string|max:2000',
             'treatment' => 'nullable|string|max:1000',

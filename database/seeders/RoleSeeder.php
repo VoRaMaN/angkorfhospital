@@ -12,11 +12,11 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-            ['name' => 'Admin', 'description' => 'System Administrator with full access'],
-            ['name' => 'Doctor', 'description' => 'Medical practitioner'],
-            ['name' => 'Nurse', 'description' => 'Nursing staff'],
-            ['name' => 'Receptionist', 'description' => 'Front desk and administrative staff'],
-            ['name' => 'Accountant', 'description' => 'Handles financial records and transactions'],
+            ['name' => 'admin', 'description' => 'System Administrator with full access'],
+            ['name' => 'doctor', 'description' => 'Medical practitioner'],
+            ['name' => 'nurse', 'description' => 'Nursing staff'],
+            ['name' => 'receptionist', 'description' => 'Front desk and administrative staff'],
+            ['name' => 'accountant', 'description' => 'Handles financial records and transactions'],
         ];
 
         foreach ($roles as $role) {

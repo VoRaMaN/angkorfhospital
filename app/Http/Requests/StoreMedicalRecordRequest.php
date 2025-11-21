@@ -22,7 +22,7 @@ class StoreMedicalRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'appointment_id' => 'required|exists:appointments,id|unique:medical_records,appointment_id',
+            'appointment_id' => 'nullable|exists:appointments,id|unique:medical_records,appointment_id',
             'diagnosis' => 'required|string|max:1000',
             'treatment' => 'nullable|string|max:1000',
             'notes' => 'nullable|string|max:2000',

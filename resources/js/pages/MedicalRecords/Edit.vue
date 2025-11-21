@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index } from '@/routes/medical-records';
+import { index, update } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
@@ -19,14 +19,14 @@ import { ArrowLeft, Save } from 'lucide-vue-next';
 interface Props {
     record: {
         id: number;
-        appointment_id: number;
+        appointment_id: number | null;
         diagnosis: string;
         treatment: string;
         notes: string;
-        visit_date: string;
+        date_of_service: string;
     };
     appointments: {
-        id: number;
+        id: number | null;
         patient_name: string;
         doctor_name: string;
         date: string;
@@ -37,11 +37,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const form = useForm({
-    appointment_id: props.record.appointment_id.toString(),
+    appointment_id: props.record.appointment_id === null ? 'null' : props.record.appointment_id.toString(),
     diagnosis: props.record.diagnosis,
     treatment: props.record.treatment,
     notes: props.record.notes,
-    date_of_service: props.record.visit_date.split('T')[0], // Format for date input
+    date_of_service: props.record.date_of_service,
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -56,7 +56,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const submit = () => {
-    form.put(`/medical-records/${props.record.id}`, {
+    if (form.appointment_id === 'null') {
+        form.appointment_id = null;
+    }
+    form.put(update(props.record.id).url, {
         onSuccess: () => {
             // Success handled by Inertia
         },
@@ -100,14 +103,13 @@ const submit = () => {
                             <SelectContent>
                                 <SelectItem
                                     v-for="appointment in props.appointments"
-                                    :key="appointment.id"
-                                    :value="appointment.id.toString()"
+                                    :key="appointment.id ?? 'none'"
+                                    :value="appointment.id === null ? 'null' : appointment.id.toString()"
                                 >
-                                    {{ appointment.patient_name }} -
-                                    {{ appointment.doctor_name }} ({{
-                                        appointment.date
-                                    }}
-                                    {{ appointment.time }})
+                                    {{ appointment.patient_name }}
+                                    <span v-if="appointment.doctor_name">
+                                        - {{ appointment.doctor_name }} ({{ appointment.date }} {{ appointment.time }})
+                                    </span>
                                 </SelectItem>
                             </SelectContent>
                         </Select>

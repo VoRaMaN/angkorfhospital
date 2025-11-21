@@ -19,16 +19,16 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('viewAny', MedicalRecord::class);
 
-        $medicalRecords = MedicalRecord::with(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user'])->paginate(15);
+        $medicalRecords = MedicalRecord::with(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user', 'medicalOrder.patient.user', 'medicalOrder.staff.user'])->paginate(15);
 
         // Transform medical records for the frontend
         $transformedRecords = $medicalRecords->getCollection()->map(function ($record) {
-            // Try to get patient from appointment first, then from visit
-            $patient = $record->appointment?->patient ?? $record->visit?->patient;
+            // Try to get patient from appointment first, then from visit, then from medical order
+            $patient = $record->appointment?->patient ?? $record->visit?->patient ?? $record->medicalOrder?->patient;
             $patientName = $patient?->user?->name ?? 'Unknown Patient';
 
-            // Try to get staff/doctor from appointment first, then from visit
-            $staff = $record->appointment?->staff ?? $record->visit?->staff;
+            // Try to get staff/doctor from appointment first, then from visit, then from medical order
+            $staff = $record->appointment?->staff ?? $record->visit?->staff ?? $record->medicalOrder?->staff;
             $doctorName = $staff?->user?->name ?? 'Unknown Doctor';
 
             return [
@@ -40,7 +40,7 @@ class MedicalRecordController extends Controller
                 'diagnosis' => $record->diagnosis,
                 'treatment' => $record->treatment,
                 'notes' => $record->notes,
-                'visit_date' => $record->date_of_service ?? $record->created_at->toDateString(),
+                'date_of_service' => $record->date_of_service?->format('Y-m-d'),
                 'created_at' => $record->created_at,
             ];
         });
@@ -61,7 +61,6 @@ class MedicalRecordController extends Controller
         $this->authorize('create', MedicalRecord::class);
 
         $appointments = Appointment::with(['patient.user', 'staff.user'])
-            ->whereDoesntHave('medicalRecord')
             ->get()
             ->map(function ($appointment) {
                 return [
@@ -72,6 +71,15 @@ class MedicalRecordController extends Controller
                     'time' => $appointment->appointment_date_time->toTimeString(),
                 ];
             });
+
+        // Add "No Appointment" option
+        $appointments->prepend([
+            'id' => null,
+            'patient_name' => 'No Appointment',
+            'doctor_name' => '',
+            'date' => '',
+            'time' => '',
+        ]);
 
         return Inertia::render('MedicalRecords/Create', [
             'appointments' => $appointments,
@@ -96,14 +104,14 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('view', $medicalRecord);
 
-        $medicalRecord->load(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user']);
+        $medicalRecord->load(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user', 'medicalOrder.patient.user', 'medicalOrder.staff.user']);
 
-        // Try to get patient from appointment first, then from visit
-        $patient = $medicalRecord->appointment?->patient ?? $medicalRecord->visit?->patient;
+        // Try to get patient from appointment first, then from visit, then from medical order
+        $patient = $medicalRecord->appointment?->patient ?? $medicalRecord->visit?->patient ?? $medicalRecord->medicalOrder?->patient;
         $patientName = $patient?->user?->name ?? 'Unknown Patient';
 
-        // Try to get staff/doctor from appointment first, then from visit
-        $staff = $medicalRecord->appointment?->staff ?? $medicalRecord->visit?->staff;
+        // Try to get staff/doctor from appointment first, then from visit, then from medical order
+        $staff = $medicalRecord->appointment?->staff ?? $medicalRecord->visit?->staff ?? $medicalRecord->medicalOrder?->staff;
         $doctorName = $staff?->user?->name ?? 'Unknown Doctor';
 
         $transformedRecord = [
@@ -115,7 +123,7 @@ class MedicalRecordController extends Controller
             'diagnosis' => $medicalRecord->diagnosis,
             'treatment' => $medicalRecord->treatment,
             'notes' => $medicalRecord->notes,
-            'visit_date' => $medicalRecord->date_of_service,
+            'date_of_service' => $medicalRecord->date_of_service?->format('Y-m-d'),
             'created_at' => $medicalRecord->created_at,
             'updated_at' => $medicalRecord->updated_at,
         ];
@@ -133,10 +141,6 @@ class MedicalRecordController extends Controller
         $this->authorize('update', $medicalRecord);
 
         $appointments = Appointment::with(['patient.user', 'staff.user'])
-            ->where(function ($query) use ($medicalRecord) {
-                $query->whereDoesntHave('medicalRecord')
-                    ->orWhere('id', $medicalRecord->appointment_id);
-            })
             ->get()
             ->map(function ($appointment) {
                 return [
@@ -148,13 +152,22 @@ class MedicalRecordController extends Controller
                 ];
             });
 
+        // Add "No Appointment" option
+        $appointments->prepend([
+            'id' => null,
+            'patient_name' => 'No Appointment',
+            'doctor_name' => '',
+            'date' => '',
+            'time' => '',
+        ]);
+
         $transformedRecord = [
             'id' => $medicalRecord->id,
             'appointment_id' => $medicalRecord->appointment_id,
             'diagnosis' => $medicalRecord->diagnosis,
             'treatment' => $medicalRecord->treatment,
             'notes' => $medicalRecord->notes,
-            'visit_date' => $medicalRecord->date_of_service ?? $medicalRecord->created_at->toDateString(),
+            'date_of_service' => $medicalRecord->date_of_service?->format('Y-m-d'),
         ];
 
         return Inertia::render('MedicalRecords/Edit', [

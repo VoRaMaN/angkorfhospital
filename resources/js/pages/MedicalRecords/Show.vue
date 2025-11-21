@@ -16,7 +16,7 @@ interface Props {
         diagnosis: string;
         treatment: string;
         notes: string;
-        visit_date: string;
+        date_of_service: string;
         created_at: string;
         updated_at: string;
     };
@@ -104,13 +104,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <dt
                                 class="text-sm font-medium text-muted-foreground"
                             >
-                                Visit Date
+                                Date of Service
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.medicalRecord.visit_date,
-                                    ).toLocaleDateString()
+                                    props.medicalRecord.date_of_service
+                                        ? new Date(
+                                              props.medicalRecord.date_of_service,
+                                          ).toLocaleDateString()
+                                        : 'N/A'
                                 }}
                             </dd>
                         </div>

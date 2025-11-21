@@ -21,8 +21,17 @@ class MedicalRecordPolicy
     public function view(User $user, MedicalRecord $medicalRecord): bool
     {
         return $user->can('view_medical_records') ||
-               ($user->hasRole('Patient') && $user->patient?->id === $medicalRecord->appointment->patient_id) ||
-               ($user->hasRole('Doctor') && $user->staff?->id === $medicalRecord->appointment->staff_id);
+               $user->hasRole('admin') ||
+               ($user->hasRole('Patient') && (
+                   ($medicalRecord->appointment && $user->patient?->id === $medicalRecord->appointment->patient_id) ||
+                   ($medicalRecord->visit && $user->patient?->id === $medicalRecord->visit->patient_id) ||
+                   ($medicalRecord->medicalOrder && $user->patient?->id === $medicalRecord->medicalOrder->patient_id)
+               )) ||
+               ($user->hasRole('Doctor') && (
+                   ($medicalRecord->appointment && $user->staff?->id === $medicalRecord->appointment->staff_id) ||
+                   ($medicalRecord->visit && $user->staff?->id === $medicalRecord->visit->staff_id) ||
+                   ($medicalRecord->medicalOrder && $user->staff?->id === $medicalRecord->medicalOrder->staff_id)
+               ));
     }
 
     /**
@@ -40,7 +49,11 @@ class MedicalRecordPolicy
     {
         return $user->can('edit_medical_records') ||
                $user->hasRole('admin') ||
-               ($user->hasRole('Doctor') && $user->staff?->id === $medicalRecord->appointment->staff_id);
+               ($user->hasRole('Doctor') && (
+                   ($medicalRecord->appointment && $user->staff?->id === $medicalRecord->appointment->staff_id) ||
+                   ($medicalRecord->visit && $user->staff?->id === $medicalRecord->visit->staff_id) ||
+                   ($medicalRecord->medicalOrder && $user->staff?->id === $medicalRecord->medicalOrder->staff_id)
+               ));
     }
 
     /**

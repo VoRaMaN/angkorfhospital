@@ -11,14 +11,14 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index } from '@/routes/medical-records';
+import { index, store } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
 
 interface Props {
     appointments: {
-        id: number;
+        id: number | null;
         patient_name: string;
         doctor_name: string;
         date: string;
@@ -48,7 +48,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const submit = () => {
-    form.post('/medical-records', {
+    if (form.appointment_id === 'null') {
+        form.appointment_id = null;
+    }
+    form.post(store().url, {
         onSuccess: () => {
             form.reset();
         },
@@ -92,14 +95,13 @@ const submit = () => {
                             <SelectContent>
                                 <SelectItem
                                     v-for="appointment in props.appointments"
-                                    :key="appointment.id"
-                                    :value="appointment.id.toString()"
+                                    :key="appointment.id ?? 'none'"
+                                    :value="appointment.id === null ? 'null' : appointment.id.toString()"
                                 >
-                                    {{ appointment.patient_name }} -
-                                    {{ appointment.doctor_name }} ({{
-                                        appointment.date
-                                    }}
-                                    {{ appointment.time }})
+                                    {{ appointment.patient_name }}
+                                    <span v-if="appointment.doctor_name">
+                                        - {{ appointment.doctor_name }} ({{ appointment.date }} {{ appointment.time }})
+                                    </span>
                                 </SelectItem>
                             </SelectContent>
                         </Select>
