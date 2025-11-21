@@ -446,26 +446,6 @@ const orderTotalPrice = computed(() => {
 // Item expansion state - all collapsed by default
 const expandedItems = ref<Set<number>>(new Set());
 
-const addProcedureItem = () => {
-    form.order_items.push({
-        item_type: 'procedure',
-        item_name: '',
-        details: '',
-        quantity_required: 1,
-        notes: '',
-    });
-};
-
-const addImagingItem = () => {
-    form.order_items.push({
-        item_type: 'imaging',
-        item_name: '',
-        details: '',
-        quantity_required: 1,
-        notes: '',
-    });
-};
-
 const addSupplyItem = () => {
     form.order_items.push({
         item_type: 'supply',

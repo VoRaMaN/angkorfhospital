@@ -9,7 +9,6 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, DollarSign, Save } from 'lucide-vue-next';
-import { computed } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -63,10 +62,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 // Calculate outstanding amount
-const outstandingAmount = computed(() => {
-    const total = parseFloat(form.amount) || 0;
-    return total;
-});
+// const outstandingAmount = computed(() => {
+//     const total = parseFloat(form.amount) || 0;
+//     return total;
+// });
 
 const submit = () => {
     form.put(`/billings/${props.billing.id}`, {

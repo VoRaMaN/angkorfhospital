@@ -64,6 +64,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { hasPermission } = useAuth();
 
+const medicalServices = ref([...props.medicalServices]);
+
 const showModal = ref(false);
 const editingService = ref<Service | null>(null);
 const showViewModal = ref(false);
@@ -117,15 +119,15 @@ const submitForm = async () => {
         const response = await axios[method](url, formData);
         if (editingService.value) {
             // update the service in the list
-            const index = props.medicalServices.findIndex(
+            const index = medicalServices.value.findIndex(
                 (s) => s.id === editingService.value!.id,
             );
             if (index !== -1) {
-                props.medicalServices[index] = response.data;
+                medicalServices.value[index] = response.data;
             }
         } else {
             // add new service
-            props.medicalServices.push(response.data);
+            medicalServices.value.push(response.data);
         }
         showModal.value = false;
     } catch (error: any) {
@@ -191,7 +193,7 @@ const formatPrice = (price: number) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="service in props.medicalServices" :key="service.id">
+                        <TableRow v-for="service in medicalServices" :key="service.id">
                             <TableCell class="font-medium">
                                 {{ service.name }}
                             </TableCell>
@@ -217,7 +219,7 @@ const formatPrice = (price: number) => {
                                 </div>
                             </TableCell>
                         </TableRow>
-                        <TableRow v-if="props.medicalServices.length === 0">
+                        <TableRow v-if="medicalServices.length === 0">
                             <TableCell colspan="5" class="py-8 text-center">
                                 No medical services found.
                             </TableCell>

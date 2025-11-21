@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('staff_id')->nullable();
             $table->index('staff_id');
-            $table->unsignedBigInteger('patient_id')->nullable();
-            $table->index('patient_id');
+            $table->string('patient_id', 13)->nullable();
             $table->string('username')->unique();
             $table->string('password_hash');
             $table->timestamps();

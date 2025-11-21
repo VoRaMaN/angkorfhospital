@@ -17,43 +17,50 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
 import { useAuth } from '@/composables/useAuth';
-import { watch } from 'vue';
 
 interface Props {
     patient: {
-        id: number;
+        id: string;
         user?: { name: string; email: string };
         title?: string;
-        first_name: string;
-        last_name: string;
-        native_name?: string;
-        native_surname?: string;
-        date_of_birth: string;
-        identification_number?: string;
+        name: string;
+        surname: string;
+        khmer_china_name?: string;
+        khmer_china_surname?: string;
+        date_of_birth_day: number;
+        date_of_birth_month: number;
+        date_of_birth_year: number;
+        gender: string;
+        id_card_or_passport?: string;
         marital_status?: string;
-        nationality?: string;
+        nationality: string;
         religion?: string;
         race?: string;
-        gender: string;
+
+        // Address
         address?: string;
-        address_building_village?: string;
-        address_moo?: string;
-        address_soi?: string;
-        address_road?: string;
-        address_sub_district?: string;
-        address_district?: string;
-        address_province?: string;
-        address_zip_code?: string;
-        phone_number: string;
-        home_phone_number?: string;
+        building_village?: string;
+        moo?: string;
+        soi?: string;
+        road?: string;
+        sub_district?: string;
+        district?: string;
+        province?: string;
+        zip_code?: string;
+
+        // Contact
+        home_phone?: string;
+        mobile_phone?: string;
         email?: string;
         occupation?: string;
         company_name?: string;
-        company_phone_number?: string;
+        company_phone?: string;
+
+        // Emergency Contact
         emergency_contact_name?: string;
         emergency_contact_relationship?: string;
-        emergency_contact_description?: string;
-        emergency_contact_same_address?: boolean;
+        emergency_contact_description_other?: string;
+        emergency_contact_address_same_as_patient?: boolean;
         emergency_contact_address?: string;
         emergency_contact_road?: string;
         emergency_contact_sub_district?: string;
@@ -63,14 +70,19 @@ interface Props {
         emergency_contact_home_phone?: string;
         emergency_contact_mobile_phone?: string;
         emergency_contact_email?: string;
+
+        // Payment
         payment_method?: string;
         contract_name?: string;
         insurance_name?: string;
-        insurance_info?: string;
-        agent_name?: string;
+        staff_id?: number;
         patient_type?: string;
-        patientFiles?: Array<any>;
+
+        created_at: string;
+        updated_at: string;
+        patient_files?: Array<any>;
     };
+    doctors: Array<{ id: number; name: string }>;
 }
 
 const props = defineProps<Props>();
@@ -90,39 +102,47 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const form = useForm({
     create_user_account: false,
-    name: '',
-    email: '', // For user account creation
+    name: props.patient.name,
+    surname: props.patient.surname,
+    email: props.patient.user?.email || props.patient.email || '', 
+    
     title: props.patient.title || '',
-    first_name: props.patient.first_name,
-    last_name: props.patient.last_name,
-    native_name: props.patient.native_name || '',
-    native_surname: props.patient.native_surname || '',
-    date_of_birth: props.patient.date_of_birth,
-    identification_number: props.patient.identification_number || '',
-    marital_status: props.patient.marital_status || 'Single',
-    nationality: props.patient.nationality || 'Thai',
+    khmer_china_name: props.patient.khmer_china_name || '',
+    khmer_china_surname: props.patient.khmer_china_surname || '',
+    date_of_birth_day: props.patient.date_of_birth_day,
+    date_of_birth_month: props.patient.date_of_birth_month,
+    date_of_birth_year: props.patient.date_of_birth_year,
+    gender: props.patient.gender,
+    id_card_or_passport: props.patient.id_card_or_passport || '',
+    marital_status: props.patient.marital_status || '',
+    nationality: props.patient.nationality,
     religion: props.patient.religion || '',
     race: props.patient.race || '',
-    gender: props.patient.gender,
+
+    // Address
     address: props.patient.address || '',
-    address_building_village: props.patient.address_building_village || '',
-    address_moo: props.patient.address_moo || '',
-    address_soi: props.patient.address_soi || '',
-    address_road: props.patient.address_road || '',
-    address_sub_district: props.patient.address_sub_district || '',
-    address_district: props.patient.address_district || '',
-    address_province: props.patient.address_province || '',
-    address_zip_code: props.patient.address_zip_code || '',
-    phone_number: props.patient.phone_number,
-    home_phone_number: props.patient.home_phone_number || '',
-    patient_email: props.patient.email || '', // Renamed to avoid conflict with user account email
+    building_village: props.patient.building_village || '',
+    moo: props.patient.moo || '',
+    soi: props.patient.soi || '',
+    road: props.patient.road || '',
+    sub_district: props.patient.sub_district || '',
+    district: props.patient.district || '',
+    province: props.patient.province || '',
+    zip_code: props.patient.zip_code || '',
+
+    // Contact
+    home_phone: props.patient.home_phone || '',
+    mobile_phone: props.patient.mobile_phone || '',
+    patient_email: props.patient.email || '',
     occupation: props.patient.occupation || '',
     company_name: props.patient.company_name || '',
-    company_phone_number: props.patient.company_phone_number || '',
+    company_phone: props.patient.company_phone || '',
+
+    // Emergency Contact
     emergency_contact_name: props.patient.emergency_contact_name || '',
-    emergency_contact_relationship: props.patient.emergency_contact_relationship || 'Spouse',
-    emergency_contact_description: props.patient.emergency_contact_description || '',
-    emergency_contact_same_address: props.patient.emergency_contact_same_address || false,
+    emergency_contact_relationship: props.patient.emergency_contact_relationship || '',
+    emergency_contact_description_other: props.patient.emergency_contact_description_other || '',
+    emergency_contact_address_same_as_patient: props.patient.emergency_contact_address_same_as_patient || false,
     emergency_contact_address: props.patient.emergency_contact_address || '',
     emergency_contact_road: props.patient.emergency_contact_road || '',
     emergency_contact_sub_district: props.patient.emergency_contact_sub_district || '',
@@ -132,27 +152,25 @@ const form = useForm({
     emergency_contact_home_phone: props.patient.emergency_contact_home_phone || '',
     emergency_contact_mobile_phone: props.patient.emergency_contact_mobile_phone || '',
     emergency_contact_email: props.patient.emergency_contact_email || '',
-    payment_method: props.patient.payment_method || 'Cash',
+
+    // Payment
+    payment_method: props.patient.payment_method || '',
     contract_name: props.patient.contract_name || '',
     insurance_name: props.patient.insurance_name || '',
-    insurance_info: props.patient.insurance_info || '',
-    agent_name: props.patient.agent_name || '',
-    patient_type: props.patient.patient_type || 'Patient',
+    staff_id: props.patient.staff_id?.toString() || '',
+    patient_type: props.patient.patient_type || '',
 });
 
-watch(
-    () => form.emergency_contact_same_address,
-    (val) => {
-        if (val) {
-            form.emergency_contact_address = form.address;
-            form.emergency_contact_road = form.address_road;
-            form.emergency_contact_sub_district = form.address_sub_district;
-            form.emergency_contact_district = form.address_district;
-            form.emergency_contact_province = form.address_province;
-            form.emergency_contact_zip_code = form.address_zip_code;
-        }
-    },
-);
+const copyAddressToEmergency = () => {
+    if (form.emergency_contact_address_same_as_patient) {
+        form.emergency_contact_address = form.address;
+        form.emergency_contact_road = form.road;
+        form.emergency_contact_sub_district = form.sub_district;
+        form.emergency_contact_district = form.district;
+        form.emergency_contact_province = form.province;
+        form.emergency_contact_zip_code = form.zip_code;
+    }
+};
 </script>
 
 <template>
@@ -185,292 +203,465 @@ watch(
                     </TabsList>
 
                     <TabsContent value="information" class="mt-6">
-                        <form @submit.prevent="
-                            form.put(`/patients/${props.patient.id}`)
-                            " class="space-y-6">
-                            <!-- Personal Info -->
-                            <div class="grid gap-4 md:grid-cols-12">
-                                <div class="col-span-2 space-y-2">
-                                    <Label for="title">Title</Label>
-                                    <Select v-model="form.title">
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Title" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Mr.">Mr.</SelectItem>
-                                            <SelectItem value="Mrs.">Mrs.</SelectItem>
-                                            <SelectItem value="Ms.">Ms.</SelectItem>
-                                            <SelectItem value="Dr.">Dr.</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div class="col-span-5 space-y-2">
-                                    <Label for="first_name">Name</Label>
-                                    <Input id="first_name" v-model="form.first_name" />
-                                    <div v-if="form.errors.first_name" class="text-sm text-destructive">{{ form.errors.first_name }}</div>
-                                </div>
-                                <div class="col-span-5 space-y-2">
-                                    <Label for="last_name">Surname</Label>
-                                    <Input id="last_name" v-model="form.last_name" />
-                                    <div v-if="form.errors.last_name" class="text-sm text-destructive">{{ form.errors.last_name }}</div>
-                                </div>
-                            </div>
-
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <Label for="native_name">Thai/China Name</Label>
-                                    <Input id="native_name" v-model="form.native_name" />
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="native_surname">Surname</Label>
-                                    <Input id="native_surname" v-model="form.native_surname" />
-                                </div>
-                            </div>
-
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <Label for="date_of_birth">Date of Birth</Label>
-                                    <Input id="date_of_birth" v-model="form.date_of_birth" type="date" />
-                                    <div v-if="form.errors.date_of_birth" class="text-sm text-destructive">{{ form.errors.date_of_birth }}</div>
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="identification_number">ID Card No./Passport No.</Label>
-                                    <Input id="identification_number" v-model="form.identification_number" />
-                                </div>
-                            </div>
-
-                            <div class="grid gap-4 md:grid-cols-4">
-                                <div class="space-y-2">
-                                    <Label for="marital_status">Marital</Label>
-                                    <Select v-model="form.marital_status">
-                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Single">Single</SelectItem>
-                                            <SelectItem value="Married">Married</SelectItem>
-                                            <SelectItem value="Divorced">Divorced</SelectItem>
-                                            <SelectItem value="Widowed">Widowed</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="nationality">Nationality</Label>
-                                    <Select v-model="form.nationality">
-                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Thai">Thai</SelectItem>
-                                            <SelectItem value="Chinese">Chinese</SelectItem>
-                                            <SelectItem value="Other">Other</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="religion">Religion</Label>
-                                    <Select v-model="form.religion">
-                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Buddhism">Buddhism</SelectItem>
-                                            <SelectItem value="Christianity">Christianity</SelectItem>
-                                            <SelectItem value="Islam">Islam</SelectItem>
-                                            <SelectItem value="Other">Other</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="race">Race</Label>
-                                    <Input id="race" v-model="form.race" />
+                        <form
+                            @submit.prevent="
+                                form.put(`/patients/update?patient=${props.patient.id}`)
+                            "
+                            class="space-y-8"
+                        >
+                            <!-- Personal Information -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium">Personal Information</h3>
+                                <div class="rounded-md border">
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium w-1/3">Title</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.title">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select title" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Mr.">Mr.</SelectItem>
+                                                            <SelectItem value="Mrs.">Mrs.</SelectItem>
+                                                            <SelectItem value="Ms.">Ms.</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Name <span class="text-destructive">*</span></td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.name" placeholder="Name" />
+                                                    <div v-if="form.errors.name" class="text-sm text-destructive mt-1">{{ form.errors.name }}</div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Surname <span class="text-destructive">*</span></td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.surname" placeholder="Surname" />
+                                                    <div v-if="form.errors.surname" class="text-sm text-destructive mt-1">{{ form.errors.surname }}</div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Khmer/China Name</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.khmer_china_name" placeholder="Khmer/China Name" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Khmer/China Surname</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.khmer_china_surname" placeholder="Khmer/China Surname" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Date of Birth <span class="text-destructive">*</span></td>
+                                                <td class="p-4">
+                                                    <div class="grid grid-cols-3 gap-4">
+                                                        <div class="space-y-2">
+                                                            <Label for="date_of_birth_day">Day</Label>
+                                                            <Input v-model="form.date_of_birth_day" type="number" placeholder="DD" />
+                                                            <div v-if="form.errors.date_of_birth_day" class="text-sm text-destructive">{{ form.errors.date_of_birth_day }}</div>
+                                                        </div>
+                                                        <div class="space-y-2">
+                                                            <Label for="date_of_birth_month">Month</Label>
+                                                            <Input v-model="form.date_of_birth_month" type="number" placeholder="MM" />
+                                                            <div v-if="form.errors.date_of_birth_month" class="text-sm text-destructive">{{ form.errors.date_of_birth_month }}</div>
+                                                        </div>
+                                                        <div class="space-y-2">
+                                                            <Label for="date_of_birth_year">Year</Label>
+                                                            <Input v-model="form.date_of_birth_year" type="number" placeholder="YYYY" />
+                                                            <div v-if="form.errors.date_of_birth_year" class="text-sm text-destructive">{{ form.errors.date_of_birth_year }}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Gender</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.gender">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select gender" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Male">Male</SelectItem>
+                                                            <SelectItem value="Female">Female</SelectItem>
+                                                            <SelectItem value="Other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">ID Card/Passport</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.id_card_or_passport" placeholder="ID Card/Passport" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Marital Status</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.marital_status">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select marital status" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Single">Single</SelectItem>
+                                                            <SelectItem value="Married">Married</SelectItem>
+                                                            <SelectItem value="Divorced">Divorced</SelectItem>
+                                                            <SelectItem value="Widowed">Widowed</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Nationality <span class="text-destructive">*</span></td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.nationality">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select nationality" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Thai">Thai</SelectItem>
+                                                            <SelectItem value="Cambodian">Cambodian</SelectItem>
+                                                            <SelectItem value="Vietnamese">Vietnamese</SelectItem>
+                                                            <SelectItem value="Laotian">Laotian</SelectItem>
+                                                            <SelectItem value="Myanma">Myanma</SelectItem>
+                                                            <SelectItem value="Chinese">Chinese</SelectItem>
+                                                            <SelectItem value="Other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <div v-if="form.errors.nationality" class="text-sm text-destructive mt-1">{{ form.errors.nationality }}</div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Religion</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.religion">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select religion" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Buddhism">Buddhism</SelectItem>
+                                                            <SelectItem value="Christianity">Christianity</SelectItem>
+                                                            <SelectItem value="Islam">Islam</SelectItem>
+                                                            <SelectItem value="Hinduism">Hinduism</SelectItem>
+                                                            <SelectItem value="Other">Other</SelectItem>
+                                                            <SelectItem value="None">None</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-4 font-medium">Race</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.race">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select race" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Asian">Asian</SelectItem>
+                                                            <SelectItem value="Caucasian">Caucasian</SelectItem>
+                                                            <SelectItem value="African">African</SelectItem>
+                                                            <SelectItem value="Hispanic">Hispanic</SelectItem>
+                                                            <SelectItem value="Other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 
                             <!-- Address -->
-                            <div class="space-y-2">
-                                <Label for="address">Address</Label>
-                                <div class="grid gap-4 md:grid-cols-12">
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address" placeholder="House No." />
-                                    </div>
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_building_village" placeholder="Building, Village" />
-                                    </div>
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_moo" placeholder="Moo" />
-                                    </div>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-12 mt-2">
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_soi" placeholder="SOI" />
-                                    </div>
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_road" placeholder="Road" />
-                                    </div>
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_sub_district" placeholder="Sub-District" />
-                                    </div>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-12 mt-2">
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_district" placeholder="District" />
-                                    </div>
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_province" placeholder="Province" />
-                                    </div>
-                                    <div class="col-span-4">
-                                        <Input v-model="form.address_zip_code" placeholder="ZipCode" />
-                                    </div>
+                            <div class="space-y-4 border-t pt-4">
+                                <h3 class="text-lg font-medium">Address</h3>
+                                <div class="rounded-md border">
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium w-1/3">Address</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.address" placeholder="Address" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Building/Village</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.building_village" placeholder="Building/Village" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Moo</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.moo" placeholder="Moo" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Soi</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.soi" placeholder="Soi" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Road</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.road" placeholder="Road" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Sub-district</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.sub_district" placeholder="Sub-district" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">District</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.district" placeholder="District" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Province</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.province" placeholder="Province" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-4 font-medium">Zip Code</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.zip_code" placeholder="Zip Code" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 
-                            <!-- Contact -->
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <Label for="home_phone_number">Home Phone No</Label>
-                                    <Input id="home_phone_number" v-model="form.home_phone_number" />
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="phone_number">Mobile Phone No</Label>
-                                    <Input id="phone_number" v-model="form.phone_number" />
-                                    <div v-if="form.errors.phone_number" class="text-sm text-destructive">{{ form.errors.phone_number }}</div>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                <Label for="patient_email">E-Mail</Label>
-                                <Input id="patient_email" v-model="form.patient_email" type="email" />
-                                <div v-if="form.errors.patient_email" class="text-sm text-destructive">{{ form.errors.patient_email }}</div>
-                            </div>
-
-                            <!-- Employment -->
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <Label for="occupation">Occupation</Label>
-                                    <Input id="occupation" v-model="form.occupation" />
-                                </div>
-                            </div>
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <Label for="company_name">Company Name</Label>
-                                    <Input id="company_name" v-model="form.company_name" />
-                                </div>
-                                <div class="space-y-2">
-                                    <Label for="company_phone_number">Company Phone No</Label>
-                                    <Input id="company_phone_number" v-model="form.company_phone_number" />
+                            <!-- Contact Information -->
+                            <div class="space-y-4 border-t pt-4">
+                                <h3 class="text-lg font-medium">Contact Information</h3>
+                                <div class="rounded-md border">
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium w-1/3">Home Phone</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.home_phone" placeholder="Home Phone" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Mobile Phone</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.mobile_phone" placeholder="Mobile Phone" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Email</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.patient_email" type="email" placeholder="Email Address" />
+                                                    <div v-if="form.errors.email" class="text-sm text-destructive mt-1">{{ form.errors.email }}</div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Occupation</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.occupation" placeholder="Occupation" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Company Name</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.company_name" placeholder="Company Name" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-4 font-medium">Company Phone</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.company_phone" placeholder="Company Phone" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 
                             <!-- Emergency Contact -->
                             <div class="space-y-4 border-t pt-4">
-                                <h3 class="font-semibold">Emergency Personal Contact:</h3>
-                                <div class="space-y-2">
-                                    <Input v-model="form.emergency_contact_name" placeholder="Name" />
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label>Relationship</Label>
-                                        <Select v-model="form.emergency_contact_relationship">
-                                            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Spouse">Spouse</SelectItem>
-                                                <SelectItem value="Parent">Parent</SelectItem>
-                                                <SelectItem value="Sibling">Sibling</SelectItem>
-                                                <SelectItem value="Friend">Friend</SelectItem>
-                                                <SelectItem value="Other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>Description Other</Label>
-                                        <Input v-model="form.emergency_contact_description" />
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium">Emergency Contact</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="emergency_contact_address_same_as_patient"
+                                            v-model:checked="form.emergency_contact_address_same_as_patient"
+                                            @update:checked="copyAddressToEmergency"
+                                        />
+                                        <label
+                                            for="emergency_contact_address_same_as_patient"
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            Same as patient's address
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-2">
-                                    <Checkbox id="same_address" :checked="form.emergency_contact_same_address" @update:checked="form.emergency_contact_same_address = $event" />
-                                    <Label for="same_address">Address as same as Patient</Label>
-                                </div>
-                                
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label>EP-Address</Label>
-                                        <Input v-model="form.emergency_contact_address" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>EP-Road</Label>
-                                        <Input v-model="form.emergency_contact_road" />
-                                    </div>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label>EP-Sub-District</Label>
-                                        <Input v-model="form.emergency_contact_sub_district" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>EP-District</Label>
-                                        <Input v-model="form.emergency_contact_district" />
-                                    </div>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label>EP-Province</Label>
-                                        <Input v-model="form.emergency_contact_province" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>EP-ZipCode</Label>
-                                        <Input v-model="form.emergency_contact_zip_code" />
-                                    </div>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-3">
-                                    <div class="space-y-2">
-                                        <Label>EP-Home Phone No</Label>
-                                        <Input v-model="form.emergency_contact_home_phone" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>EP-Mobile Phone No</Label>
-                                        <Input v-model="form.emergency_contact_mobile_phone" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>EP-E-Mail</Label>
-                                        <Input v-model="form.emergency_contact_email" />
-                                    </div>
+                                <div class="rounded-md border">
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium w-1/3">Name</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_name" placeholder="Contact Name" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Relationship</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.emergency_contact_relationship">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select relationship" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Spouse">Spouse</SelectItem>
+                                                            <SelectItem value="Parent">Parent</SelectItem>
+                                                            <SelectItem value="Sibling">Sibling</SelectItem>
+                                                            <SelectItem value="Friend">Friend</SelectItem>
+                                                            <SelectItem value="Other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Other Relationship</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_description_other" placeholder="Please specify" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Address</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_address" placeholder="Contact Address" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Road</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_road" placeholder="Road" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Sub-district</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_sub_district" placeholder="Sub-district" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">District</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_district" placeholder="District" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Province</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_province" placeholder="Province" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Zip Code</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_zip_code" placeholder="Zip Code" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Home Phone</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_home_phone" placeholder="Home Phone" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Mobile Phone</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_mobile_phone" placeholder="Mobile Phone" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-4 font-medium">Email</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.emergency_contact_email" placeholder="Email" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 
-                            <!-- Payment & Insurance -->
+                            <!-- Payment Information -->
                             <div class="space-y-4 border-t pt-4">
-                                <div class="space-y-2">
-                                    <Label>Payment Method</Label>
-                                    <Select v-model="form.payment_method">
-                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Cash">Cash</SelectItem>
-                                            <SelectItem value="Credit Card">Credit Card</SelectItem>
-                                            <SelectItem value="Insurance">Insurance</SelectItem>
-                                            <SelectItem value="Corporate Contract">Corporate Contract</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label>Contract Name</Label>
-                                        <Input v-model="form.contract_name" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>Insurance Name</Label>
-                                        <Input v-model="form.insurance_name" />
-                                    </div>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label>Agent Name</Label>
-                                        <Input v-model="form.agent_name" />
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label>Patient Type</Label>
-                                        <Select v-model="form.patient_type">
-                                            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Patient">Patient</SelectItem>
-                                                <SelectItem value="VIP">VIP</SelectItem>
-                                                <SelectItem value="Staff">Staff</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                <h3 class="text-lg font-medium">Payment Information</h3>
+                                <div class="rounded-md border">
+                                    <table class="w-full">
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium w-1/3">Payment Method</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.payment_method">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select method" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Corporate Contract">Corporate Contract</SelectItem>
+                                                            <SelectItem value="Self-Pay">Self-Pay</SelectItem>
+                                                            <SelectItem value="Insurance">Insurance</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Contract Name</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.contract_name" placeholder="Contract Name" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Insurance Name</td>
+                                                <td class="p-4">
+                                                    <Input v-model="form.insurance_name" placeholder="Insurance Name" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium">Referring Doctor</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.staff_id">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select doctor" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem v-for="doctor in props.doctors" :key="doctor.id" :value="doctor.id.toString()">
+                                                                {{ doctor.name }}
+                                                            </SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-4 font-medium">Patient Type</td>
+                                                <td class="p-4">
+                                                    <Select v-model="form.patient_type">
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select type" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Patient">Patient</SelectItem>
+                                                            <SelectItem value="Customer">Customer</SelectItem>
+                                                            <SelectItem value="Dependent">Dependent</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 

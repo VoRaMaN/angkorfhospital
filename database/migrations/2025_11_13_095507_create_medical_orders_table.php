@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('medical_orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('patient_id')->nullable();
-            $table->index('patient_id');
+            $table->string('patient_id', 13)->nullable();
             $table->unsignedBigInteger('staff_id')->nullable();
             $table->index('staff_id');
             $table->string('order_details');

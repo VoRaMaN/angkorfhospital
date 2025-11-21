@@ -10,39 +10,66 @@ class Patient extends Model
     /** @use HasFactory<\Database\Factories\PatientFactory> */
     use HasFactory;
 
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($patient) {
+            $year = date('y'); // 2-digit year, e.g., '25'
+            $lastPatient = static::where('id', 'like', $year.'/%')
+                ->orderByRaw('CAST(SUBSTRING(id, 4) AS UNSIGNED) DESC')
+                ->first();
+
+            $number = $lastPatient ? intval(substr($lastPatient->id, 3)) + 1 : 1;
+            $patient->id = $year.'/'.str_pad($number, 10, '0', STR_PAD_LEFT);
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'title',
-        'first_name',
-        'last_name',
-        'native_name',
-        'native_surname',
-        'date_of_birth',
-        'identification_number',
+        'name',
+        'surname',
+        'khmer_china_name',
+        'khmer_china_surname',
+        'date_of_birth_day',
+        'date_of_birth_month',
+        'date_of_birth_year',
+        'gender',
+        'id_card_or_passport',
         'marital_status',
         'nationality',
         'religion',
         'race',
-        'gender',
+
+        // Address
         'address',
-        'address_building_village',
-        'address_moo',
-        'address_soi',
-        'address_road',
-        'address_sub_district',
-        'address_district',
-        'address_province',
-        'address_zip_code',
-        'phone_number',
-        'home_phone_number',
+        'building_village',
+        'moo',
+        'soi',
+        'road',
+        'sub_district',
+        'district',
+        'province',
+        'zip_code',
+
+        // Contact
+        'home_phone',
+        'mobile_phone',
         'email',
         'occupation',
         'company_name',
-        'company_phone_number',
+        'company_phone',
+
+        // Emergency Contact
         'emergency_contact_name',
         'emergency_contact_relationship',
-        'emergency_contact_description',
-        'emergency_contact_same_address',
+        'emergency_contact_description_other',
+        'emergency_contact_address_same_as_patient',
         'emergency_contact_address',
         'emergency_contact_road',
         'emergency_contact_sub_district',
@@ -52,11 +79,12 @@ class Patient extends Model
         'emergency_contact_home_phone',
         'emergency_contact_mobile_phone',
         'emergency_contact_email',
+
+        // Payment
         'payment_method',
         'contract_name',
         'insurance_name',
-        'insurance_info',
-        'agent_name',
+        'staff_id',
         'patient_type',
     ];
 
@@ -65,13 +93,18 @@ class Patient extends Model
     protected function casts(): array
     {
         return [
-            'date_of_birth' => 'date',
+            //
         ];
     }
 
     public function getNameAttribute(): string
     {
-        return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
+        return trim(($this->name ?? '').' '.($this->surname ?? ''));
+    }
+
+    public function getPhoneNumberAttribute(): ?string
+    {
+        return $this->mobile_phone ?? $this->home_phone;
     }
 
     public function appointments()
@@ -99,8 +132,8 @@ class Patient extends Model
         return $this->hasMany(MedicalOrder::class);
     }
 
-    public function medicalRecords()
+    public function staff()
     {
-        return $this->hasManyThrough(MedicalRecord::class, Appointment::class, 'patient_id', 'appointment_id');
+        return $this->belongsTo(Staff::class);
     }
 }

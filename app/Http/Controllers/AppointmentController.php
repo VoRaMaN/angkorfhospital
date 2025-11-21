@@ -26,13 +26,13 @@ class AppointmentController extends Controller
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
-                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
+                        'name' => $appointment->patient->user->name ?? $appointment->patient->name,
+                    ] : ['name' => $appointment->patient->name],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
-                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
-                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
+                        'name' => $appointment->staff->user->name ?? $appointment->staff->name,
+                    ] : ['name' => $appointment->staff->name],
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'duration_minutes' => $appointment->duration_minutes ?? 30,
@@ -79,13 +79,13 @@ class AppointmentController extends Controller
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? trim($appointment->patient->first_name.' '.$appointment->patient->last_name),
-                    ] : ['name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name)],
+                        'name' => $appointment->patient->user->name ?? $appointment->patient->name,
+                    ] : ['name' => $appointment->patient->name],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
-                        'name' => $appointment->staff->user->name ?? trim($appointment->staff->first_name.' '.$appointment->staff->last_name),
-                    ] : ['name' => trim($appointment->staff->first_name.' '.$appointment->staff->last_name)],
+                        'name' => $appointment->staff->user->name ?? $appointment->staff->name,
+                    ] : ['name' => $appointment->staff->name],
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'duration_minutes' => $appointment->duration_minutes ?? 30,

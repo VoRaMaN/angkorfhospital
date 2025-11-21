@@ -7,60 +7,69 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, FileText, Printer } from 'lucide-vue-next';
+import { ArrowLeft, Edit } from 'lucide-vue-next';
 
 interface Props {
     patient: {
-        id: number;
-        user: { name: string; email: string };
-        title: string | null;
-        first_name: string;
-        last_name: string;
-        native_name: string | null;
-        date_of_birth: string;
+        id: string;
+        user?: { name: string; email: string };
+        title?: string;
+        name: string;
+        surname: string;
+        khmer_china_name?: string;
+        khmer_china_surname?: string;
+        date_of_birth_day: number;
+        date_of_birth_month: number;
+        date_of_birth_year: number;
         gender: string;
-        
+        id_card_or_passport?: string;
+        marital_status?: string;
+        nationality: string;
+        religion?: string;
+        race?: string;
+
         // Address
-        address: string | null;
-        country: string | null;
-        city: string | null;
-        province: string | null;
-        postal_code: string | null;
+        address?: string;
+        building_village?: string;
+        moo?: string;
+        soi?: string;
+        road?: string;
+        sub_district?: string;
+        district?: string;
+        province?: string;
+        zip_code?: string;
 
         // Contact
-        email: string | null;
-        home_phone: string | null;
-        work_phone: string | null;
-        mobile_phone: string | null;
-        contact_method: string | null;
-
-        // Employment
-        occupation: string | null;
-        employer: string | null;
-        employer_address: string | null;
-        employer_phone: string | null;
+        home_phone?: string;
+        mobile_phone?: string;
+        email?: string;
+        occupation?: string;
+        company_name?: string;
+        company_phone?: string;
 
         // Emergency Contact
-        emergency_contact_name: string | null;
-        emergency_contact_relationship: string | null;
-        emergency_contact_phone: string | null;
-        emergency_contact_address: string | null;
+        emergency_contact_name?: string;
+        emergency_contact_relationship?: string;
+        emergency_contact_description_other?: string;
+        emergency_contact_address_same_as_patient?: boolean;
+        emergency_contact_address?: string;
+        emergency_contact_road?: string;
+        emergency_contact_sub_district?: string;
+        emergency_contact_district?: string;
+        emergency_contact_province?: string;
+        emergency_contact_zip_code?: string;
+        emergency_contact_home_phone?: string;
+        emergency_contact_mobile_phone?: string;
+        emergency_contact_email?: string;
 
         // Payment
-        payment_method: string | null;
-        card_number: string | null;
-        card_expiry: string | null;
-        card_cvc: string | null;
-        card_holder: string | null;
+        payment_method?: string;
+        contract_name?: string;
+        insurance_name?: string;
+        staff_id?: number;
+        patient_type?: string;
 
-        // Insurance
-        insurance_provider: string | null;
-        insurance_policy_number: string | null;
-        insurance_group_number: string | null;
-        insurance_plan_name: string | null;
-        insurance_expiry: string | null;
-        insurance_holder: string | null;
-        insurance_relationship: string | null;
+        staff?: { id: number; name: string };
 
         created_at: string;
         updated_at: string;
@@ -92,137 +101,6 @@ const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
 
-const printMedicalStickers = () => {
-    const patientName = props.patient.user?.name || `${props.patient.first_name} ${props.patient.last_name}`;
-    const patientDOB = new Date(props.patient.date_of_birth).toLocaleDateString('en-US');
-    const patientId = `P${props.patient.id.toString().padStart(6, '0')}`;
-    const clinicName = 'CynoSys Clinic'; // You can make this configurable
-    const dos = new Date().toLocaleDateString('en-US'); // Current date as DOS
-
-    const stickerHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Sticker Labels</title>
-    <script src="https://cdn.tailwindcss.com"></${'script'}>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: white;
-            padding: 0.25in;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-        }
-
-        .sticker-grid-wrapper {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(6, 1fr);
-            gap: 0.125in;
-            width: 7.5in;
-            height: 10in;
-            background-color: white;
-        }
-
-        .sticker-label {
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            border: 1px solid #000000;
-            padding: 8px;
-            background-color: white;
-            color: black;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            overflow: hidden;
-        }
-
-        .text-xs-sticker { font-size: 8pt; }
-        .text-sm-sticker { font-size: 9pt; }
-        .text-md-sticker { font-size: 11pt; }
-        .text-lg-sticker { font-size: 12pt; }
-
-        .font-bold { font-weight: bold; }
-        .font-extrabold { font-weight: 800; }
-        .font-semibold { font-weight: 600; }
-
-        .pb-2 { padding-bottom: 4px; }
-        .mb-2 { margin-bottom: 4px; }
-        .space-y-1 > * + * { margin-top: 2px; }
-
-        .flex { display: flex; }
-        .justify-between { justify-content: space-between; }
-        .items-center { align-items: center; }
-        .flex-grow { flex-grow: 1; }
-
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 10mm;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="sticker-grid-wrapper">
-        ${Array.from({ length: 12 }, () => `
-        <div class="sticker-label">
-            <div class="flex justify-between items-center pb-2 mb-2">
-                <span class="text-md-sticker font-bold">${clinicName}</span>
-                <span class="text-md-sticker font-semibold">DOS: ${dos}</span>
-            </div>
-            <div class="flex-grow space-y-1">
-                <div class="flex justify-between items-center">
-                    <span class="text-md-sticker font-bold uppercase">Patient:</span>
-                    <span class="text-lg-sticker font-extrabold">${patientName}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-md-sticker font-bold uppercase">DOB:</span>
-                    <span class="text-lg-sticker font-semibold">${patientDOB}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-md-sticker font-bold uppercase">Patient ID:</span>
-                    <span class="text-lg-sticker font-semibold">${patientId}</span>
-                </div>
-            </div>
-        </div>
-        `).join('')}
-    </div>
-</body>
-</html>`;
-
-    // Create a hidden iframe for printing
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow?.document;
-    if (doc) {
-        doc.open();
-        doc.write(stickerHtml);
-        doc.close();
-
-        // Wait for content to load then print
-        iframe.onload = () => {
-            iframe.contentWindow?.print();
-            // Clean up after printing
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 1000);
-        };
-    }
-};
-
-const downloadReport = () => {
-    window.open(`/patients/${props.patient.id}/report`, '_blank');
-};
-
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Patients',
@@ -250,24 +128,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </a>
                 </Button>
                 <div>
-                    <h1 class="text-2xl font-bold">Patient Details</h1>
+                    <h1 class="text-2xl font-bold">
+                        {{ patient.title }} {{ patient.name }} {{ patient.surname }}
+                    </h1>
                     <p class="text-muted-foreground">
                         View patient information
                     </p>
                 </div>
-                <div class="ml-auto flex gap-2">
-                    <Button variant="outline" @click="printMedicalStickers">
-                        <Printer class="size-4" />
-                        Print Stickers
-                    </Button>
-                    <Button variant="outline" @click="downloadReport">
-                        <FileText class="size-4" />
-                        Generate Report
-                    </Button>
-                    <Button variant="outline" as-child v-if="hasPermission('edit_patients')">
-                        <Link :href="`/patients/${props.patient.id}/edit`">
-                        <Edit class="size-4" />
-                        Edit
+                <div class="ml-auto">
+                    <Button variant="outline" as-child>
+                        <Link :href="`/patients/edit?patient=${props.patient.id}`">
+                            <Edit class="size-4" />
+                            Edit
                         </Link>
                     </Button>
                 </div>
@@ -285,206 +157,251 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <TabsContent value="details" class="mt-6 space-y-6">
                         
                         <!-- Personal Information -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Personal Information</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Title</dt>
-                                    <dd class="text-sm">{{ props.patient.title || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Full Name</dt>
-                                    <dd class="text-sm">
-                                        {{ props.patient.first_name }} {{ props.patient.last_name }}
-                                    </dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Native Name</dt>
-                                    <dd class="text-sm">{{ props.patient.native_name || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Date of Birth</dt>
-                                    <dd class="text-sm">
-                                        {{ new Date(props.patient.date_of_birth).toLocaleDateString() }}
-                                    </dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Gender</dt>
-                                    <dd class="text-sm capitalize">{{ props.patient.gender }}</dd>
-                                </div>
+                        <div class="rounded-lg border p-4">
+                            <h3 class="mb-4 flex items-center text-lg font-medium">
+                                <User class="mr-2 size-5" />
+                                Personal Information
+                            </h3>
+                            <div class="rounded-md border">
+                                <table class="w-full">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Title</td>
+                                            <td class="p-4">{{ patient.title || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">First Name</td>
+                                            <td class="p-4">{{ patient.name }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Last Name</td>
+                                            <td class="p-4">{{ patient.surname }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Khmer/China Name</td>
+                                            <td class="p-4">{{ patient.khmer_china_name || 'N/A' }} {{ patient.khmer_china_surname || '' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Date of Birth</td>
+                                            <td class="p-4">{{ patient.date_of_birth_day }}/{{ patient.date_of_birth_month }}/{{ patient.date_of_birth_year }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Gender</td>
+                                            <td class="p-4 capitalize">{{ patient.gender }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">ID Card/Passport</td>
+                                            <td class="p-4">{{ patient.id_card_or_passport || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Marital Status</td>
+                                            <td class="p-4">{{ patient.marital_status || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Nationality</td>
+                                            <td class="p-4">{{ patient.nationality }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Religion</td>
+                                            <td class="p-4">{{ patient.religion || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Race</td>
+                                            <td class="p-4">{{ patient.race || 'N/A' }}</td>
+                                        </tr>
+                                        <tr v-if="patient.user">
+                                            <td class="p-4 font-medium">User Account</td>
+                                            <td class="p-4">{{ patient.user.name }} ({{ patient.user.email }})</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
                         <!-- Contact Information -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Contact Information</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Email</dt>
-                                    <dd class="text-sm">{{ props.patient.email || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Mobile Phone</dt>
-                                    <dd class="text-sm">{{ props.patient.mobile_phone || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Home Phone</dt>
-                                    <dd class="text-sm">{{ props.patient.home_phone || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Work Phone</dt>
-                                    <dd class="text-sm">{{ props.patient.work_phone || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Preferred Contact Method</dt>
-                                    <dd class="text-sm capitalize">{{ props.patient.contact_method || '-' }}</dd>
-                                </div>
+                        <div class="rounded-lg border p-4">
+                            <h3 class="mb-4 text-lg font-medium">Contact Information</h3>
+                            <div class="rounded-md border">
+                                <table class="w-full">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Home Phone</td>
+                                            <td class="p-4">{{ patient.home_phone || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Mobile Phone</td>
+                                            <td class="p-4">{{ patient.mobile_phone || 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-4 font-medium">Email</td>
+                                            <td class="p-4">{{ patient.email || 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
                         <!-- Address -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Address</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2 md:col-span-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Street Address</dt>
-                                    <dd class="text-sm">{{ props.patient.address || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">City</dt>
-                                    <dd class="text-sm">{{ props.patient.city || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Province/State</dt>
-                                    <dd class="text-sm">{{ props.patient.province || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Postal Code</dt>
-                                    <dd class="text-sm">{{ props.patient.postal_code || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Country</dt>
-                                    <dd class="text-sm">{{ props.patient.country || '-' }}</dd>
-                                </div>
+                        <div class="rounded-lg border p-4">
+                            <h3 class="mb-4 text-lg font-medium">Address</h3>
+                            <div class="rounded-md border">
+                                <table class="w-full">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Address</td>
+                                            <td class="p-4">{{ patient.address || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Building/Village</td>
+                                            <td class="p-4">{{ patient.building_village || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Moo</td>
+                                            <td class="p-4">{{ patient.moo || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Soi</td>
+                                            <td class="p-4">{{ patient.soi || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Road</td>
+                                            <td class="p-4">{{ patient.road || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Sub-district</td>
+                                            <td class="p-4">{{ patient.sub_district || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">District</td>
+                                            <td class="p-4">{{ patient.district || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Province</td>
+                                            <td class="p-4">{{ patient.province || 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-4 font-medium">Zip Code</td>
+                                            <td class="p-4">{{ patient.zip_code || 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
                         <!-- Employment -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Employment</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Occupation</dt>
-                                    <dd class="text-sm">{{ props.patient.occupation || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Employer</dt>
-                                    <dd class="text-sm">{{ props.patient.employer || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Employer Phone</dt>
-                                    <dd class="text-sm">{{ props.patient.employer_phone || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2 md:col-span-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Employer Address</dt>
-                                    <dd class="text-sm">{{ props.patient.employer_address || '-' }}</dd>
-                                </div>
+                        <div class="rounded-lg border p-4">
+                            <h3 class="mb-4 text-lg font-medium">Employment</h3>
+                            <div class="rounded-md border">
+                                <table class="w-full">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Occupation</td>
+                                            <td class="p-4">{{ patient.occupation || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Company Name</td>
+                                            <td class="p-4">{{ patient.company_name || 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-4 font-medium">Company Phone</td>
+                                            <td class="p-4">{{ patient.company_phone || 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
                         <!-- Emergency Contact -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Emergency Contact</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Name</dt>
-                                    <dd class="text-sm">{{ props.patient.emergency_contact_name || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Relationship</dt>
-                                    <dd class="text-sm">{{ props.patient.emergency_contact_relationship || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Phone</dt>
-                                    <dd class="text-sm">{{ props.patient.emergency_contact_phone || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2 md:col-span-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Address</dt>
-                                    <dd class="text-sm">{{ props.patient.emergency_contact_address || '-' }}</dd>
-                                </div>
+                        <div class="rounded-lg border p-4">
+                            <h3 class="mb-4 text-lg font-medium">Emergency Contact</h3>
+                            <div class="rounded-md border">
+                                <table class="w-full">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Name</td>
+                                            <td class="p-4">{{ patient.emergency_contact_name || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Relationship</td>
+                                            <td class="p-4">{{ patient.emergency_contact_relationship || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Other Relationship</td>
+                                            <td class="p-4">{{ patient.emergency_contact_description_other || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Same as Patient Address</td>
+                                            <td class="p-4">{{ patient.emergency_contact_address_same_as_patient ? 'Yes' : 'No' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Address</td>
+                                            <td class="p-4">{{ patient.emergency_contact_address || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Road</td>
+                                            <td class="p-4">{{ patient.emergency_contact_road || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Sub-district</td>
+                                            <td class="p-4">{{ patient.emergency_contact_sub_district || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">District</td>
+                                            <td class="p-4">{{ patient.emergency_contact_district || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Province</td>
+                                            <td class="p-4">{{ patient.emergency_contact_province || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Zip Code</td>
+                                            <td class="p-4">{{ patient.emergency_contact_zip_code || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Home Phone</td>
+                                            <td class="p-4">{{ patient.emergency_contact_home_phone || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Mobile Phone</td>
+                                            <td class="p-4">{{ patient.emergency_contact_mobile_phone || 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-4 font-medium">Email</td>
+                                            <td class="p-4">{{ patient.emergency_contact_email || 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
-                        <!-- Payment Information -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Payment Information</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Payment Method</dt>
-                                    <dd class="text-sm capitalize">{{ props.patient.payment_method || '-' }}</dd>
-                                </div>
-                                <div v-if="props.patient.payment_method === 'card'" class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Card Holder</dt>
-                                    <dd class="text-sm">{{ props.patient.card_holder || '-' }}</dd>
-                                </div>
-                                <div v-if="props.patient.payment_method === 'card'" class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Card Number</dt>
-                                    <dd class="text-sm">**** **** **** {{ props.patient.card_number?.slice(-4) || '****' }}</dd>
-                                </div>
-                                <div v-if="props.patient.payment_method === 'card'" class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Expiry</dt>
-                                    <dd class="text-sm">{{ props.patient.card_expiry || '-' }}</dd>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Insurance Information -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">Insurance Information</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Provider</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_provider || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Policy Number</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_policy_number || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Group Number</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_group_number || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Plan Name</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_plan_name || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Expiry Date</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_expiry || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Policy Holder</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_holder || '-' }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Relationship to Holder</dt>
-                                    <dd class="text-sm">{{ props.patient.insurance_relationship || '-' }}</dd>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- System Information -->
-                        <div class="rounded-lg border bg-card p-6">
-                            <h3 class="mb-4 text-lg font-semibold">System Information</h3>
-                            <div class="grid gap-6 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Created At</dt>
-                                    <dd class="text-sm">{{ new Date(props.patient.created_at).toLocaleString() }}</dd>
-                                </div>
-                                <div class="space-y-2">
-                                    <dt class="text-sm font-medium text-muted-foreground">Last Updated</dt>
-                                    <dd class="text-sm">{{ new Date(props.patient.updated_at).toLocaleString() }}</dd>
-                                </div>
+                        <!-- Insurance & Payment -->
+                        <div class="rounded-lg border p-4">
+                            <h3 class="mb-4 text-lg font-medium">Insurance & Payment</h3>
+                            <div class="rounded-md border">
+                                <table class="w-full">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Payment Method</td>
+                                            <td class="p-4 capitalize">{{ patient.payment_method || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Contract Name</td>
+                                            <td class="p-4">{{ patient.contract_name || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Insurance Name</td>
+                                            <td class="p-4">{{ patient.insurance_name || 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium">Referring Doctor</td>
+                                            <td class="p-4">{{ patient.staff?.name || 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-4 font-medium">Patient Type</td>
+                                            <td class="p-4">{{ patient.patient_type || 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 

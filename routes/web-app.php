@@ -78,8 +78,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('medical-services', MedicalServiceController::class);
 
     // Patients
-    Route::resource('patients', PatientController::class);
-    Route::get('patients/{patient}/report', [PatientController::class, 'generateReport'])->name('patients.report');
+    Route::get('patients', [PatientController::class, 'index'])->name('patients.index');
+    Route::get('patients/create', [PatientController::class, 'create'])->name('patients.create');
+    Route::post('patients', [PatientController::class, 'store'])->name('patients.store');
+    Route::get('patients/show', [PatientController::class, 'show'])->name('patients.show');
+    Route::get('patients/edit', [PatientController::class, 'edit'])->name('patients.edit');
+    Route::put('patients/update', [PatientController::class, 'update'])->name('patients.update');
+    Route::delete('patients/destroy', [PatientController::class, 'destroy'])->name('patients.destroy');
+    Route::get('patients/report', [PatientController::class, 'generateReport'])->name('patients.report');
 
     // Staff
     Route::resource('staff', StaffController::class);

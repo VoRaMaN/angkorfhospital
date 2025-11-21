@@ -47,7 +47,7 @@ interface Props {
     }>;
 }
 
-const props = defineProps<Props>();
+const { visits } = defineProps<Props>();
 
 const { hasPermission } = useAuth();
 

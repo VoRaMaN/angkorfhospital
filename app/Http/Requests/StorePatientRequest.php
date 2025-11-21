@@ -22,37 +22,45 @@ class StorePatientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:50',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'native_name' => 'nullable|string|max:255',
-            'native_surname' => 'nullable|string|max:255',
-            'date_of_birth' => 'required|date|before:today',
-            'identification_number' => 'nullable|string|max:50',
-            'marital_status' => 'nullable|string|max:50',
-            'nationality' => 'nullable|string|max:100',
+            'title' => 'nullable|in:Mr.,Mrs.,Ms.',
+            'name' => 'required|string|max:255',
+            'surname' => 'required|string|max:255',
+            'khmer_china_name' => 'nullable|string|max:255',
+            'khmer_china_surname' => 'nullable|string|max:255',
+            'date_of_birth_day' => 'required|integer|min:1|max:31',
+            'date_of_birth_month' => 'required|integer|min:1|max:12',
+            'date_of_birth_year' => 'required|integer|min:1900|max:'.(date('Y') - 1),
+            'gender' => 'nullable|in:Male,Female,Other',
+            'id_card_or_passport' => 'nullable|string|max:50',
+            'marital_status' => 'nullable|in:Single,Married,Divorced,Widowed',
+            'nationality' => 'required|string|max:100',
             'religion' => 'nullable|string|max:100',
             'race' => 'nullable|string|max:100',
-            'gender' => 'required|in:male,female,other',
+
+            // Address
             'address' => 'nullable|string|max:500',
-            'address_building_village' => 'nullable|string|max:255',
-            'address_moo' => 'nullable|string|max:50',
-            'address_soi' => 'nullable|string|max:100',
-            'address_road' => 'nullable|string|max:100',
-            'address_sub_district' => 'nullable|string|max:100',
-            'address_district' => 'nullable|string|max:100',
-            'address_province' => 'nullable|string|max:100',
-            'address_zip_code' => 'nullable|string|max:20',
-            'phone_number' => 'required|string|max:20',
-            'home_phone_number' => 'nullable|string|max:20',
+            'building_village' => 'nullable|string|max:255',
+            'moo' => 'nullable|string|max:50',
+            'soi' => 'nullable|string|max:100',
+            'road' => 'nullable|string|max:100',
+            'sub_district' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'province' => 'nullable|string|max:100',
+            'zip_code' => 'nullable|string|max:20',
+
+            // Contact
+            'home_phone' => 'nullable|string|max:20',
+            'mobile_phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|unique:patients,email',
             'occupation' => 'nullable|string|max:100',
             'company_name' => 'nullable|string|max:255',
-            'company_phone_number' => 'nullable|string|max:20',
+            'company_phone' => 'nullable|string|max:20',
+
+            // Emergency Contact
             'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
-            'emergency_contact_description' => 'nullable|string|max:255',
-            'emergency_contact_same_address' => 'boolean',
+            'emergency_contact_relationship' => 'nullable|in:Spouse,Parent,Sibling,Friend,Other',
+            'emergency_contact_description_other' => 'nullable|string|max:255',
+            'emergency_contact_address_same_as_patient' => 'nullable|boolean',
             'emergency_contact_address' => 'nullable|string|max:500',
             'emergency_contact_road' => 'nullable|string|max:100',
             'emergency_contact_sub_district' => 'nullable|string|max:100',
@@ -61,13 +69,14 @@ class StorePatientRequest extends FormRequest
             'emergency_contact_zip_code' => 'nullable|string|max:20',
             'emergency_contact_home_phone' => 'nullable|string|max:20',
             'emergency_contact_mobile_phone' => 'nullable|string|max:20',
-            'emergency_contact_email' => 'nullable|email|max:255',
-            'payment_method' => 'nullable|string|max:50',
+            'emergency_contact_email' => 'nullable|email',
+
+            // Payment
+            'payment_method' => 'nullable|in:Corporate Contract,Self-Pay,Insurance',
             'contract_name' => 'nullable|string|max:255',
             'insurance_name' => 'nullable|string|max:255',
-            'insurance_info' => 'nullable|string|max:1000',
-            'agent_name' => 'nullable|string|max:255',
-            'patient_type' => 'nullable|string|max:50',
+            'staff_id' => 'nullable|exists:staff,id',
+            'patient_type' => 'nullable|in:Patient,Customer,Dependent',
         ];
     }
 
@@ -77,9 +86,9 @@ class StorePatientRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.unique' => 'This user is already registered as a patient.',
-            'date_of_birth.before' => 'Date of birth must be in the past.',
-            'gender.in' => 'Gender must be male, female, or other.',
+            'email.unique' => 'This email is already registered for another patient.',
+            'date_of_birth_year.min' => 'Year of birth must be at least 1900.',
+            'date_of_birth_year.max' => 'Year of birth must be in the past.',
         ];
     }
 }
