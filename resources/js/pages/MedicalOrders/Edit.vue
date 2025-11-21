@@ -19,6 +19,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
@@ -845,41 +853,48 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3 grid grid-cols-5 gap-4 text-sm">
-                            <div
-                                v-if="orderSummary.lab > 0"
-                                class="flex items-center gap-1"
-                            >
-                                <FlaskConical class="size-4 text-blue-600" />
-                                <span>{{ orderSummary.lab }} Lab</span>
-                            </div>
-                            <div
-                                v-if="orderSummary.rx_medicine > 0"
-                                class="flex items-center gap-1"
-                            >
-                                <Pill class="size-4 text-purple-600" />
-                                <span>{{ orderSummary.rx_medicine }} RX</span>
-                            </div>
-                            <div
-                                v-if="orderSummary.procedure > 0"
-                                class="flex items-center gap-1"
-                            >
-                                <Syringe class="size-4 text-orange-600" />
-                                <span>{{ orderSummary.procedure }} Proc</span>
-                            </div>
-                            <div
-                                v-if="orderSummary.imaging > 0"
-                                class="flex items-center gap-1"
-                            >
-                                <Scan class="size-4 text-red-600" />
-                                <span>{{ orderSummary.imaging }} Imaging</span>
-                            </div>
-                            <div
-                                v-if="orderSummary.supply > 0"
-                                class="flex items-center gap-1"
-                            >
-                                <Package class="size-4 text-gray-600" />
-                                <span>{{ orderSummary.supply }} Supply</span>
+                        <div class="mt-4">
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                <div
+                                    v-if="orderSummary.lab > 0"
+                                    class="flex flex-col items-center justify-center p-4 rounded-lg border bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50 border-blue-200 dark:border-blue-800"
+                                >
+                                    <FlaskConical class="size-6 text-blue-600 dark:text-blue-400 mb-2" />
+                                    <div class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ orderSummary.lab }}</div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400 font-medium">Lab Tests</div>
+                                </div>
+                                <div
+                                    v-if="orderSummary.rx_medicine > 0"
+                                    class="flex flex-col items-center justify-center p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/50 dark:to-purple-900/50 border-purple-200 dark:border-purple-800"
+                                >
+                                    <Pill class="size-6 text-purple-600 dark:text-purple-400 mb-2" />
+                                    <div class="text-2xl font-bold text-purple-700 dark:text-purple-300">{{ orderSummary.rx_medicine }}</div>
+                                    <div class="text-xs text-purple-600 dark:text-purple-400 font-medium">RX Medicines</div>
+                                </div>
+                                <div
+                                    v-if="orderSummary.procedure > 0"
+                                    class="flex flex-col items-center justify-center p-4 rounded-lg border bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/50 dark:to-orange-900/50 border-orange-200 dark:border-orange-800"
+                                >
+                                    <Syringe class="size-6 text-orange-600 dark:text-orange-400 mb-2" />
+                                    <div class="text-2xl font-bold text-orange-700 dark:text-orange-300">{{ orderSummary.procedure }}</div>
+                                    <div class="text-xs text-orange-600 dark:text-orange-400 font-medium">Procedures</div>
+                                </div>
+                                <div
+                                    v-if="orderSummary.imaging > 0"
+                                    class="flex flex-col items-center justify-center p-4 rounded-lg border bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/50 border-red-200 dark:border-red-800"
+                                >
+                                    <Scan class="size-6 text-red-600 dark:text-red-400 mb-2" />
+                                    <div class="text-2xl font-bold text-red-700 dark:text-red-300">{{ orderSummary.imaging }}</div>
+                                    <div class="text-xs text-red-600 dark:text-red-400 font-medium">Imaging</div>
+                                </div>
+                                <div
+                                    v-if="orderSummary.supply > 0"
+                                    class="flex flex-col items-center justify-center p-4 rounded-lg border bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950/50 dark:to-gray-900/50 border-gray-200 dark:border-gray-800"
+                                >
+                                    <Package class="size-6 text-gray-600 dark:text-gray-400 mb-2" />
+                                    <div class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ orderSummary.supply }}</div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-400 font-medium">Supplies</div>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
@@ -1814,6 +1829,21 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                                         class="h-8"
                                                     />
                                                 </div>
+                                                <div class="w-20">
+                                                    <Label class="text-xs"
+                                                        >Qty</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .quantity_required
+                                                        "
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="1"
+                                                        class="h-8"
+                                                    />
+                                                </div>
                                                 <div class="w-32">
                                                     <Label class="text-xs"
                                                         >Notes</Label
@@ -2011,6 +2041,21 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                                         class="h-8"
                                                     />
                                                 </div>
+                                                <div class="w-20">
+                                                    <Label class="text-xs"
+                                                        >Qty</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .quantity_required
+                                                        "
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="1"
+                                                        class="h-8"
+                                                    />
+                                                </div>
                                                 <div class="w-32">
                                                     <Label class="text-xs"
                                                         >Notes</Label
@@ -2056,6 +2101,21 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                                                 .details
                                                         "
                                                         placeholder="Body part, with/without contrast, views"
+                                                        class="h-8"
+                                                    />
+                                                </div>
+                                                <div class="w-20">
+                                                    <Label class="text-xs"
+                                                        >Qty</Label
+                                                    >
+                                                    <Input
+                                                        v-model="
+                                                            itemData.item
+                                                                .quantity_required
+                                                        "
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="1"
                                                         class="h-8"
                                                     />
                                                 </div>
