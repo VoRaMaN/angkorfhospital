@@ -23,10 +23,6 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-
     // Appointments
     Route::resource('appointments', AppointmentController::class);
     Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
