@@ -11,9 +11,10 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, destroy, edit, show } from '@/routes/medical-records';
+import { medicalRecordReport } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
+import { Download, Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {
@@ -132,6 +133,11 @@ const deleteRecord = (id: number) => {
                                         <Link :href="show(record.id).url">
                                             <Eye class="size-4" />
                                         </Link>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" as-child>
+                                        <a :href="medicalRecordReport(record.id).url" target="_blank">
+                                            <Download class="size-4" />
+                                        </a>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
                                         <Link :href="edit(record.id).url">

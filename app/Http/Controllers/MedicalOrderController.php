@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMedicalOrderRequest;
 use App\Http\Requests\UpdateMedicalOrderRequest;
 use App\Models\MedicalOrder;
+use App\Models\MedicalRecord;
+use App\Models\Visit;
 use App\Services\MedicalOrderBillingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -359,7 +361,7 @@ class MedicalOrderController extends Controller
                 $sellingPrice = $item->inventory?->selling_price;
 
                 // For medical services without inventory, look up price from MedicalService
-                if (! $item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
+                if (!$item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
                     $medicalService = \App\Models\MedicalService::where('name', $item->item_name)->first();
                     if ($medicalService) {
                         $unitPrice = $medicalService->price;
@@ -756,7 +758,7 @@ class MedicalOrderController extends Controller
         $this->authorize('processAndBill', $medicalOrder);
 
         // Only allow processing if the order is pending or processed
-        if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
+        if (!in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
             return redirect()->back()->with('error', 'This medical order cannot be processed for billing.');
         }
 
@@ -764,7 +766,7 @@ class MedicalOrderController extends Controller
 
         // Check if order can be processed (sufficient inventory)
         $canProcess = $billingService->canProcessOrder($medicalOrder);
-        if (! $canProcess['can_process']) {
+        if (!$canProcess['can_process']) {
             $issues = implode(', ', $canProcess['issues']);
 
             return redirect()->back()->with('error', "Cannot process order due to inventory issues: {$issues}");
@@ -774,15 +776,20 @@ class MedicalOrderController extends Controller
             // Process the order and create billing
             $billing = $billingService->processOrderAndCreateBilling(
                 $medicalOrder,
-                'Processed and billed on '.now()->format('Y-m-d H:i')
+                'Processed and billed on ' . now()->format('Y-m-d H:i')
             );
+
+            // Generate medical record after billing is created
+            $this->generateMedicalRecord($medicalOrder, $billing);
+
+            Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_COMPLETED]);
 
             // Status is already updated in the service, no need to update again
 
             return redirect()->route('medical-orders.show', $medicalOrder)
-                ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
+                ->with('success', 'Medical order processed successfully. Billing created with total amount: $' . number_format((float) $billing->amount, 2));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to process medical order: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Failed to process medical order: ' . $e->getMessage());
         }
     }
 
@@ -831,12 +838,12 @@ class MedicalOrderController extends Controller
         ]);
 
         // Update the status back to processing and add the reason to notes
-        $currentNotes = $medicalOrder->notes ? $medicalOrder->notes."\n\n" : '';
-        $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason;
+        $currentNotes = $medicalOrder->notes ? $medicalOrder->notes . "\n\n" : '';
+        $revisionNote = 'Sent back for revision on ' . now()->format('Y-m-d H:i') . ":\n" . $request->reason;
 
         $medicalOrder->update([
             'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
-            'notes' => $currentNotes.$revisionNote,
+            'notes' => $currentNotes . $revisionNote,
         ]);
 
         // Reset all order items back to pending status when sent back for revision
@@ -904,7 +911,7 @@ class MedicalOrderController extends Controller
             ],
             'patient_info' => [
                 'id' => $medicalOrder->patient->id,
-                'name' => $medicalOrder->patient->user?->name ?? $medicalOrder->patient->first_name.' '.$medicalOrder->patient->last_name,
+                'name' => $medicalOrder->patient->user?->name ?? $medicalOrder->patient->first_name . ' ' . $medicalOrder->patient->last_name,
                 'date_of_birth' => $medicalOrder->patient->date_of_birth,
                 'gender' => $medicalOrder->patient->gender,
                 'phone_number' => $medicalOrder->patient->phone_number,
@@ -912,7 +919,7 @@ class MedicalOrderController extends Controller
             ],
             'staff_info' => $medicalOrder->staff ? [
                 'id' => $medicalOrder->staff->id,
-                'name' => $medicalOrder->staff->user?->name ?? $medicalOrder->staff->first_name.' '.$medicalOrder->staff->last_name,
+                'name' => $medicalOrder->staff->user?->name ?? $medicalOrder->staff->first_name . ' ' . $medicalOrder->staff->last_name,
                 'role' => $medicalOrder->staff->role?->name ?? 'Unknown',
             ] : null,
             'appointment_info' => $medicalOrder->visit?->appointment ? [
@@ -988,7 +995,268 @@ class MedicalOrderController extends Controller
             'isPhpEnabled' => true,
         ]);
 
-        $filename = 'medical-order-report-'.$medicalOrder->id.'-'.now()->format('Y-m-d').'.pdf';
+        $filename = 'medical-order-report-' . $medicalOrder->id . '-' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Generate medical record from medical order and billing information.
+     */
+    private function generateMedicalRecord(MedicalOrder $medicalOrder, \App\Models\Billing $billing): void
+    {
+        // Check if medical record already exists for this medical order
+        $existingRecord = MedicalRecord::where('medical_order_id', $medicalOrder->id)->first();
+        if ($existingRecord) {
+            return; // Don't create duplicate records
+        }
+
+        // Load necessary relationships
+        $medicalOrder->load(['visit.appointment', 'orderItems.inventory', 'staff.user', 'patient.user']);
+
+        // Generate diagnosis from order details and visit/appointment notes
+        $diagnosis = $this->generateDiagnosis($medicalOrder);
+
+        // Generate treatment summary from order items
+        $treatment = $this->generateTreatment($medicalOrder);
+
+        // Generate comprehensive notes
+        $notes = $this->generateMedicalNotes($medicalOrder, $billing);
+
+        // Create medical record
+        MedicalRecord::create([
+            'appointment_id' => $medicalOrder->visit?->appointment?->id,
+            'visit_id' => $medicalOrder->visit?->id,
+            'medical_order_id' => $medicalOrder->id,
+            'diagnosis' => $diagnosis,
+            'treatment' => $treatment,
+            'notes' => $notes,
+            'date_of_service' => $medicalOrder->completed_at?->toDateString() ?? now()->toDateString(),
+        ]);
+    }
+
+    /**
+     * Generate diagnosis information from medical order context.
+     */
+    private function generateDiagnosis(MedicalOrder $medicalOrder): string
+    {
+        $diagnosisParts = [];
+
+        // Get diagnosis from visit notes
+        if ($medicalOrder->visit && $medicalOrder->visit->notes) {
+            $diagnosisParts[] = "Visit Notes: {$medicalOrder->visit->notes}";
+        }
+
+        // Get diagnosis from appointment notes
+        if ($medicalOrder->visit?->appointment && $medicalOrder->visit->appointment->notes) {
+            $diagnosisParts[] = "Appointment Notes: {$medicalOrder->visit->appointment->notes}";
+        }
+
+        // Extract diagnosis from order details
+        if ($medicalOrder->order_details) {
+            $diagnosisParts[] = "Order Assessment: {$medicalOrder->order_details}";
+        }
+
+        // If no specific diagnosis found, generate based on ordered items
+        if (empty($diagnosisParts)) {
+            $itemTypes = $medicalOrder->orderItems->pluck('item_type')->unique();
+            $diagnosisParts[] = 'Diagnostic evaluation including: ' . implode(', ', $itemTypes->toArray());
+        }
+
+        return implode('; ', $diagnosisParts);
+    }
+
+    /**
+     * Generate treatment summary from medical order items.
+     */
+    private function generateTreatment(MedicalOrder $medicalOrder): string
+    {
+        $treatmentParts = [];
+
+        // Group items by type for better organization
+        $groupedItems = $medicalOrder->orderItems->groupBy('item_type');
+
+        foreach ($groupedItems as $itemType => $items) {
+            $typeLabel = $this->getTreatmentTypeLabel($itemType);
+            $itemDescriptions = [];
+
+            foreach ($items as $item) {
+                $description = $item->inventory?->item_name ?? $item->item_name ?? 'Unknown Item';
+
+                // Add dosage/frequency/route if available
+                $details = [];
+                if ($item->dosage) {
+                    $details[] = $item->dosage;
+                }
+                if ($item->frequency) {
+                    $details[] = $item->frequency;
+                }
+                if ($item->route) {
+                    $details[] = $item->route;
+                }
+
+                if ($details) {
+                    $description .= ' (' . implode(', ', $details) . ')';
+                }
+
+                // Add quantity
+                $quantity = $item->quantity_used ?? $item->quantity_required ?? 1;
+                if ($quantity > 1) {
+                    $description .= " - {$quantity} units";
+                }
+
+                $itemDescriptions[] = $description;
+            }
+
+            $treatmentParts[] = "{$typeLabel}: " . implode(', ', $itemDescriptions);
+        }
+
+        return implode('; ', $treatmentParts);
+    }
+
+    /**
+     * Get human-readable label for treatment type.
+     */
+    private function getTreatmentTypeLabel(string $itemType): string
+    {
+        return match ($itemType) {
+            'lab' => 'Laboratory Tests',
+            'rx_medicine' => 'Prescribed Medications',
+            'procedure' => 'Medical Procedures',
+            'imaging' => 'Imaging Studies',
+            'supply' => 'Medical Supplies',
+            'therapy' => 'Therapy Services',
+            'consultation' => 'Consultations',
+            default => ucfirst($itemType),
+        };
+    }
+
+    /**
+     * Generate comprehensive medical notes.
+     */
+    private function generateMedicalNotes(MedicalOrder $medicalOrder, \App\Models\Billing $billing): string
+    {
+        $notes = [];
+
+        // Add order priority if high
+        if ($medicalOrder->priority && in_array($medicalOrder->priority->value, ['urgent', 'stat'])) {
+            $notes[] = ucfirst($medicalOrder->priority->value) . ' priority order';
+        }
+
+        // Add completion information
+        if ($medicalOrder->completed_at) {
+            $notes[] = "Order completed on {$medicalOrder->completed_at->format('M j, Y \a\t g:i A')}";
+        }
+
+        // Add billing information
+        $notes[] = "Total billed amount: \${$billing->amount}";
+        $notes[] = "Billing status: {$billing->status->value}";
+
+        // Add staff information
+        if ($medicalOrder->staff) {
+            $staffName = $medicalOrder->staff->user?->name ??
+                ($medicalOrder->staff->first_name . ' ' . $medicalOrder->staff->last_name);
+            $notes[] = "Ordering physician: {$staffName}";
+        }
+
+        // Add any additional order notes
+        if ($medicalOrder->notes) {
+            $notes[] = "Additional notes: {$medicalOrder->notes}";
+        }
+
+        return implode('; ', $notes);
+    }
+
+    /**
+     * Generate medical record PDF report.
+     */
+    public function generateMedicalRecordReport(MedicalRecord $medicalRecord): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $medicalRecord);
+
+        $medicalRecord->load([
+            'appointment',
+            'visit.patient.user',
+            'visit.staff.user',
+            'medicalOrder.patient.user',
+            'medicalOrder.staff.user',
+            'medicalOrder.orderItems.inventory',
+        ]);
+
+        // Compile report data
+        $report = [
+            'record_info' => [
+                'id' => $medicalRecord->id,
+                'diagnosis' => $medicalRecord->diagnosis,
+                'treatment' => $medicalRecord->treatment,
+                'notes' => $medicalRecord->notes,
+                'date_of_service' => $medicalRecord->date_of_service,
+                'created_at' => $medicalRecord->created_at,
+                'updated_at' => $medicalRecord->updated_at,
+            ],
+            'patient_info' => [
+                'id' => $medicalRecord->medicalOrder?->patient?->id ?? $medicalRecord->visit?->patient?->id ?? 'N/A',
+                'name' => $medicalRecord->medicalOrder?->patient?->user?->name ??
+                    ($medicalRecord->medicalOrder?->patient?->first_name . ' ' . $medicalRecord->medicalOrder?->patient?->last_name) ??
+                    $medicalRecord->visit?->patient?->user?->name ??
+                    ($medicalRecord->visit?->patient?->first_name . ' ' . $medicalRecord->visit?->patient?->last_name) ??
+                    'Unknown Patient',
+                'date_of_birth' => $medicalRecord->medicalOrder?->patient?->date_of_birth ?? $medicalRecord->visit?->patient?->date_of_birth ?? 'N/A',
+                'gender' => $medicalRecord->medicalOrder?->patient?->gender ?? $medicalRecord->visit?->patient?->gender ?? 'N/A',
+                'phone_number' => $medicalRecord->medicalOrder?->patient?->phone_number ?? $medicalRecord->visit?->patient?->phone_number ?? 'N/A',
+                'email' => $medicalRecord->medicalOrder?->patient?->email ??
+                    $medicalRecord->medicalOrder?->patient?->user?->email ??
+                    $medicalRecord->visit?->patient?->email ??
+                    $medicalRecord->visit?->patient?->user?->email ?? 'N/A',
+            ],
+            'staff_info' => $medicalRecord->medicalOrder?->staff ? [
+                'name' => $medicalRecord->medicalOrder->staff->user?->name ??
+                    ($medicalRecord->medicalOrder->staff->first_name . ' ' . $medicalRecord->medicalOrder->staff->last_name),
+                'role' => $medicalRecord->medicalOrder->staff->role?->name ?? 'Unknown',
+            ] : ($medicalRecord->visit?->staff ? [
+                    'name' => $medicalRecord->visit->staff->user?->name ??
+                        ($medicalRecord->visit->staff->first_name . ' ' . $medicalRecord->visit->staff->last_name),
+                    'role' => $medicalRecord->visit->staff->role?->name ?? 'Unknown',
+                ] : null),
+            'visit_info' => $medicalRecord->visit ? [
+                'id' => $medicalRecord->visit->id,
+                'visit_date_time' => $medicalRecord->visit->visit_date_time,
+                'status' => $medicalRecord->visit->status->value,
+                'staff_name' => $medicalRecord->visit->staff?->user?->name ??
+                    ($medicalRecord->visit->staff?->first_name . ' ' . $medicalRecord->visit->staff?->last_name) ?? 'N/A',
+                'notes' => $medicalRecord->visit->notes,
+            ] : null,
+            'appointment_info' => $medicalRecord->appointment ? [
+                'id' => $medicalRecord->appointment->id,
+                'appointment_date_time' => $medicalRecord->appointment->appointment_date_time,
+                'reason_for_visit' => $medicalRecord->appointment->reason_for_visit,
+                'status' => $medicalRecord->appointment->status->value,
+            ] : null,
+            'medical_orders' => $medicalRecord->medicalOrder ? [
+                [
+                    'id' => $medicalRecord->medicalOrder->id,
+                    'order_type' => $medicalRecord->medicalOrder->order_type,
+                    'status' => $medicalRecord->medicalOrder->status->value,
+                    'priority' => $medicalRecord->medicalOrder->priority,
+                    'order_details' => $medicalRecord->medicalOrder->order_details,
+                    'ordered_at' => $medicalRecord->medicalOrder->ordered_at,
+                ]
+            ] : [],
+            'medical_services' => [], // Could be populated if needed
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('medical-record-report', compact('report', 'medicalRecord'));
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'medical-record-' . $medicalRecord->id . '-' . now()->format('Y-m-d') . '.pdf';
 
         return $pdf->download($filename);
     }

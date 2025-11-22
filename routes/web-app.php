@@ -16,7 +16,6 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffFileController;
 use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -65,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('medical-orders/{medical_order}/cancel-processed', [MedicalOrderController::class, 'cancelProcessed'])->name('medical-orders.cancel-processed');
     Route::patch('medical-orders/{medical_order}/send-back', [MedicalOrderController::class, 'sendBack'])->name('medical-orders.send-back');
     Route::get('medical-orders/{medical_order}/report', [MedicalOrderController::class, 'generateReport'])->name('medical-orders.report');
+    Route::get('medical-orders/{medical_order}/medical-record-report', [MedicalOrderController::class, 'generateMedicalRecordReport'])->name('medical-orders.medical-record-report');
 
     // Medical Records
     Route::resource('medical-records', MedicalRecordController::class);
