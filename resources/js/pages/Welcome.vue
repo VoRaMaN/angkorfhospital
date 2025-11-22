@@ -27,7 +27,7 @@ defineProps<{
                         />
                     </div>
                     <div class="space-y-2 text-center">
-                        <h1 class="text-2xl font-bold">Welcome to CynoSys</h1>
+                        <h1 class="text-2xl font-bold">Welcome to Angkor F Clinic</h1>
                         <p class="text-center text-sm text-muted-foreground">
                             Healthcare Management System
                         </p>

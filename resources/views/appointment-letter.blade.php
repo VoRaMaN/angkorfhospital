@@ -145,10 +145,10 @@
 </head>
 <body>
     <div class="letterhead">
-        <h1>CynoSys Clinic</h1>
+        <h1>Angkor F Clinic</h1>
         <p>Medical Center</p>
         <p>123 Healthcare Avenue, Medical District</p>
-        <p>Phone: (555) 123-4567 | Email: info@cynosysclinic.com</p>
+        <p>Phone: (555) 123-4567 | Email: info@angkorfclinic.com</p>
     </div>
 
     <div class="date">
@@ -169,7 +169,7 @@
     </div>
 
     <div class="content">
-        <p>This letter confirms your appointment with CynoSys Clinic.</p>
+        <p>This letter confirms your appointment with Angkor F Clinic.</p>
 
         <div class="appointment-details">
             <div class="detail-row">
@@ -216,12 +216,12 @@
     <div class="closing">
         <p>Sincerely,</p>
         <div class="signature">
-            CynoSys Clinic Staff
+            Angkor F Clinic Staff
         </div>
     </div>
 
     <div class="footer">
-        <p>This is an official appointment confirmation from CynoSys Clinic. Please keep this letter for your records.</p>
+        <p>This is an official appointment confirmation from Angkor F Clinic. Please keep this letter for your records.</p>
         <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }}</p>
     </div>
 </body>
