@@ -25,12 +25,29 @@ class StaffFileController extends Controller
             $query->where('staff_id', $staffId);
         }
 
+        // Apply search filter
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('staff', function ($staffQuery) use ($search) {
+                    $staffQuery->where('first_name', 'like', '%'.$search.'%')
+                        ->orWhere('last_name', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('file', function ($fileQuery) use ($search) {
+                        $fileQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhere('type', 'like', '%'.$search.'%');
+            });
+        }
+
         $staffFiles = $query->get();
 
         return Inertia::render('Files/IndexStaffFiles', [
             'items' => $staffFiles,
             'title' => 'Staff Files',
             'createRoute' => route('staff-files.create'),
+            'filters' => [
+                'search' => $request->query('search', ''),
+            ],
         ]);
     }
 

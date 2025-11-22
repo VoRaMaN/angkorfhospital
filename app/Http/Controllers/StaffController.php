@@ -19,7 +19,27 @@ class StaffController extends Controller
     {
         $this->authorize('viewAny', Staff::class);
 
-        $staff = Staff::with(['role', 'user', 'department'])->paginate(15);
+        $query = Staff::with(['role', 'user', 'department']);
+
+        // Apply search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%');
+                })
+                    ->orWhere('first_name', 'like', '%'.$search.'%')
+                    ->orWhere('last_name', 'like', '%'.$search.'%')
+                    ->orWhereHas('role', function ($roleQuery) use ($search) {
+                        $roleQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('department', function ($departmentQuery) use ($search) {
+                        $departmentQuery->where('name', 'like', '%'.$search.'%');
+                    });
+            });
+        }
+
+        $staff = $query->paginate(15);
 
         // Transform staff for the frontend to provide flat data structure
         $transformedStaff = $staff->getCollection()->map(function ($member) {
@@ -70,7 +90,7 @@ class StaffController extends Controller
 
         // Create User associated with Staff
         $user = \App\Models\User::create([
-            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'name' => $validated['first_name'].' '.$validated['last_name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
         ]);
@@ -136,7 +156,7 @@ class StaffController extends Controller
             'user_id' => $staff->user_id,
             'first_name' => $staff->first_name,
             'last_name' => $staff->last_name,
-            'name' => $staff->user?->name ?? $staff->first_name . ' ' . $staff->last_name,
+            'name' => $staff->user?->name ?? $staff->first_name.' '.$staff->last_name,
             'email' => $staff->user?->email ?? '',
             'role_id' => $staff->role_id,
             'department_id' => $staff->department_id,
@@ -164,7 +184,7 @@ class StaffController extends Controller
             if (isset($validated['email'])) {
                 $userData['email'] = $validated['email'];
             }
-            if (!empty($userData)) {
+            if (! empty($userData)) {
                 $staff->user->update($userData);
             }
         }
@@ -176,7 +196,7 @@ class StaffController extends Controller
             'role_id' => $validated['role_id'] ?? null,
             'department_id' => $validated['department_id'] ?? null,
             'contact_number' => $validated['contact_number'] ?? null,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
 
         $staff->update($staffData);
 
@@ -190,7 +210,7 @@ class StaffController extends Controller
 
         // Update user name if first_name or last_name changed
         if ($staff->user && (isset($validated['first_name']) || isset($validated['last_name']))) {
-            $newName = ($validated['first_name'] ?? $staff->first_name) . ' ' . ($validated['last_name'] ?? $staff->last_name);
+            $newName = ($validated['first_name'] ?? $staff->first_name).' '.($validated['last_name'] ?? $staff->last_name);
             $staff->user->update(['name' => $newName]);
         }
 

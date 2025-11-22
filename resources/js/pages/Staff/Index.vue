@@ -13,9 +13,9 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/staff';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -38,6 +38,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const searchQuery = ref(props.filters.search);
+let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -45,6 +46,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/staff',
     },
 ];
+
+// Debounced search function
+const performSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        router.get('/staff', {
+            search: searchQuery.value,
+            page: 1, // Reset to first page when searching
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300); // 300ms debounce
+};
+
+// Watch for search query changes
+watch(searchQuery, () => {
+    performSearch();
+});
 
 const { hasPermission } = useAuth();
 </script>

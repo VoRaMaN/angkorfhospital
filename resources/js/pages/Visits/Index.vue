@@ -17,7 +17,7 @@ import { create, edit, show, update } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Edit, Eye, Plus, Search, X } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { ref, watch } from 'vue';
 
 interface Visit {
     id: number;
@@ -57,39 +57,8 @@ const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
 
-interface Visit {
-    id: number;
-    patient: {
-        user: {
-            name: string;
-        };
-    };
-    staff: {
-        user: {
-            name: string;
-        };
-    } | null;
-    appointment: any;
-    visit_date_time: string;
-    status: string;
-    notes: string;
-    created_at: string;
-    medical_orders: Array<{
-        id: number;
-        status: string;
-    }>;
-}
-
-interface Props {
-    visits: Visit[];
-    staff: Array<{
-        id: number;
-        name: string;
-    }>;
-    filters: {
-        search: string;
-    };
-}
+const searchQuery = ref(props.filters.search || '');
+let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -97,6 +66,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+// Debounced search function
+const performSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        router.get('/visits', {
+            search: searchQuery.value,
+            page: 1, // Reset to first page when searching
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300); // 300ms debounce
+};
+
+// Watch for search query changes
+watch(searchQuery, () => {
+    performSearch();
+});
 
 const cancelVisit = (visit: Visit) => {
     if (confirm('Are you sure you want to cancel this visit?')) {
@@ -176,7 +167,7 @@ const getStatusColor = (status: string) => {
             <div class="flex items-center gap-4">
                 <div class="relative max-w-sm flex-1">
                     <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search visits..." class="pl-9" />
+                    <Input v-model="searchQuery" placeholder="Search visits..." class="pl-9" />
                 </div>
             </div>
 

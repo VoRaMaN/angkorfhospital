@@ -12,15 +12,38 @@ class VisitController extends Controller
 {
     public function __construct(
         private VisitFlowService $visitsFlowService,
-    ) {
-    }
+    ) {}
 
     /**
      * Display a listing of the resource.
      */
     public function index(): Response
     {
-        $visits = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders'])->paginate(15);
+        $query = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders']);
+
+        // Apply search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient.user', function ($patientQuery) use ($search) {
+                    $patientQuery->where('name', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('staff.user', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('first_name', 'like', '%'.$search.'%')
+                            ->orWhere('last_name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhere('status', 'like', '%'.$search.'%')
+                    ->orWhere('notes', 'like', '%'.$search.'%');
+            });
+        }
+
+        $visits = $query->paginate(15);
 
         // Transform visits for the frontend
         $transformedVisits = $visits->getCollection()->map(function ($visit) {
@@ -94,7 +117,7 @@ class VisitController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'staff_id' => 'nullable|exists:staff,id',
             'visit_date_time' => 'required|date',
-            'status' => 'required|in:' . implode(',', Visit::STATUSES),
+            'status' => 'required|in:'.implode(',', Visit::STATUSES),
             'notes' => 'nullable|string',
         ]);
 
@@ -158,7 +181,7 @@ class VisitController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'staff_id' => 'nullable|exists:staff,id',
             'visit_date_time' => 'required|date',
-            'status' => 'required|in:' . implode(',', Visit::STATUSES),
+            'status' => 'required|in:'.implode(',', Visit::STATUSES),
             'notes' => 'nullable|string',
         ]);
 
@@ -228,8 +251,8 @@ class VisitController extends Controller
                 'id' => $visit->id,
                 'patient' => $visit->patient ? [
                     'user' => $visit->patient->user ? [
-                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name . ' ' . $visit->patient->last_name),
-                    ] : ['name' => trim($visit->patient->first_name . ' ' . $visit->patient->last_name)],
+                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name.' '.$visit->patient->last_name),
+                    ] : ['name' => trim($visit->patient->first_name.' '.$visit->patient->last_name)],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'appointment' => $visit->appointment,
                 'visit_date_time' => $visit->visit_date_time,
@@ -248,7 +271,7 @@ class VisitController extends Controller
         $staff = \App\Models\Staff::with('user')->get()->map(function ($staff) {
             return [
                 'id' => $staff->id,
-                'name' => $staff->user ? $staff->user->name : trim($staff->first_name . ' ' . $staff->last_name),
+                'name' => $staff->user ? $staff->user->name : trim($staff->first_name.' '.$staff->last_name),
             ];
         });
 

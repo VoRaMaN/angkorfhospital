@@ -18,7 +18,32 @@ class AppointmentController extends Controller
     {
         $this->authorize('viewAny', Appointment::class);
 
-        $appointments = Appointment::with(['patient.user', 'staff.user'])->paginate(15);
+        $query = Appointment::with(['patient.user', 'staff.user']);
+
+        // Apply search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient.user', function ($patientQuery) use ($search) {
+                    $patientQuery->where('name', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('staff.user', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('first_name', 'like', '%'.$search.'%')
+                            ->orWhere('last_name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhere('appointment_type', 'like', '%'.$search.'%')
+                    ->orWhere('status', 'like', '%'.$search.'%')
+                    ->orWhere('reason_for_visit', 'like', '%'.$search.'%');
+            });
+        }
+
+        $appointments = $query->paginate(15);
 
         // Transform appointments for the frontend to handle null relationships
         $transformedAppointments = $appointments->getCollection()->map(function ($appointment) {

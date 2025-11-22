@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -29,8 +30,8 @@ import {
 } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Calendar, Plus, Printer } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Calendar, Plus, Printer, Search } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 
 interface Props {
     appointments: Array<{
@@ -42,11 +43,17 @@ interface Props {
         appointment_type: string;
         status: string;
     }>;
+    filters: {
+        search: string;
+    };
 }
 
 const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
+
+const searchQuery = ref(props.filters.search || '');
+let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -54,6 +61,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+// Debounced search function
+const performSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        router.get('/appointments', {
+            search: searchQuery.value,
+            page: 1, // Reset to first page when searching
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300); // 300ms debounce
+};
+
+// Watch for search query changes
+watch(searchQuery, () => {
+    performSearch();
+});
 
 const confirmModalOpen = ref(false);
 const selectedAppointment = ref<any>(null);
@@ -123,6 +152,18 @@ const cancelStatusUpdate = () => {
                             Create Appointment
                         </Link>
                     </Button>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="flex items-center gap-4">
+                <div class="relative flex-1 max-w-sm">
+                    <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search appointments..."
+                        class="pl-10"
+                    />
                 </div>
             </div>
 

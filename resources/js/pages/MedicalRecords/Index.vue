@@ -15,7 +15,7 @@ import { medicalRecordReport } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Download, Edit, Eye, Plus, Search, Trash2 } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface Props {
     medicalRecords: {
@@ -38,6 +38,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const searchQuery = ref(props.filters.search);
+let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -45,6 +46,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/medical-records',
     },
 ];
+
+// Debounced search function
+const performSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        router.get('/medical-records', {
+            search: searchQuery.value,
+            page: 1, // Reset to first page when searching
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300); // 300ms debounce
+};
+
+// Watch for search query changes
+watch(searchQuery, () => {
+    performSearch();
+});
 
 const deleteRecord = (id: number) => {
     if (confirm('Are you sure you want to delete this medical record?')) {

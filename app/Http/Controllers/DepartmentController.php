@@ -17,7 +17,17 @@ class DepartmentController extends Controller
     {
         $this->authorize('viewAny', Department::class);
 
-        $departments = Department::with('staff.user')->paginate(15);
+        $query = Department::with('staff.user');
+
+        // Apply search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
+            });
+        }
+
+        $departments = $query->paginate(15);
 
         // Transform departments for the frontend
         $transformedDepartments = $departments->getCollection()->map(function ($department) {

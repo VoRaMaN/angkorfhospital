@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -11,8 +12,9 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/departments';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Plus, Search } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -22,9 +24,15 @@ interface Props {
         description: string;
         created_at: string;
     }>;
+    filters: {
+        search: string;
+    };
 }
 
 const props = defineProps<Props>();
+
+const searchQuery = ref(props.filters.search || '');
+let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -32,6 +40,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+// Debounced search function
+const performSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        router.get('/departments', {
+            search: searchQuery.value,
+            page: 1, // Reset to first page when searching
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300); // 300ms debounce
+};
+
+// Watch for search query changes
+watch(searchQuery, () => {
+    performSearch();
+});
 
 const { hasPermission } = useAuth();
 </script>
@@ -56,6 +86,18 @@ const { hasPermission } = useAuth();
                         Add Department
                     </Link>
                 </Button>
+            </div>
+
+            <!-- Search -->
+            <div class="flex items-center gap-4">
+                <div class="relative flex-1 max-w-sm">
+                    <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search departments..."
+                        class="pl-10"
+                    />
+                </div>
             </div>
 
             <div class="rounded-md border">

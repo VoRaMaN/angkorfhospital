@@ -15,13 +15,10 @@ class Staff extends Model
         'user_id',
         'first_name',
         'last_name',
-        'name',
-        'email',
         'role_id',
         'department_id',
         'contact_number',
         'hire_date',
-        'status',
     ];
 
     protected $appends = ['name'];

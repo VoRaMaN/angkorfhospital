@@ -19,7 +19,63 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('viewAny', MedicalRecord::class);
 
-        $medicalRecords = MedicalRecord::with(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user', 'medicalOrder.patient.user', 'medicalOrder.staff.user'])->paginate(15);
+        $query = MedicalRecord::with(['appointment.patient.user', 'appointment.staff.user', 'visit.patient.user', 'visit.staff.user', 'medicalOrder.patient.user', 'medicalOrder.staff.user']);
+
+        // Apply search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                // Search in patient names
+                $q->whereHas('appointment.patient.user', function ($patientQuery) use ($search) {
+                    $patientQuery->where('name', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('appointment.patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('visit.patient.user', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('visit.patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('medicalOrder.patient.user', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('medicalOrder.patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    })
+                // Search in staff/doctor names
+                    ->orWhereHas('appointment.staff.user', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('appointment.staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('first_name', 'like', '%'.$search.'%')
+                            ->orWhere('last_name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('visit.staff.user', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('visit.staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('first_name', 'like', '%'.$search.'%')
+                            ->orWhere('last_name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('medicalOrder.staff.user', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('medicalOrder.staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('first_name', 'like', '%'.$search.'%')
+                            ->orWhere('last_name', 'like', '%'.$search.'%');
+                    })
+                // Search in diagnosis and treatment
+                    ->orWhere('diagnosis', 'like', '%'.$search.'%')
+                    ->orWhere('treatment', 'like', '%'.$search.'%')
+                    ->orWhere('notes', 'like', '%'.$search.'%');
+            });
+        }
+
+        $medicalRecords = $query->paginate(15);
 
         // Transform medical records for the frontend
         $transformedRecords = $medicalRecords->getCollection()->map(function ($record) {

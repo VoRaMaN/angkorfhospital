@@ -25,12 +25,29 @@ class PatientFileController extends Controller
             $query->where('patient_id', $patientId);
         }
 
+        // Apply search filter
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($patientQuery) use ($search) {
+                    $patientQuery->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('surname', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('file', function ($fileQuery) use ($search) {
+                        $fileQuery->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhere('type', 'like', '%'.$search.'%');
+            });
+        }
+
         $patientFiles = $query->get();
 
         return Inertia::render('Files/IndexPatientFile', [
             'items' => $patientFiles,
             'title' => 'Patient Files',
             'createRoute' => route('patient-files.create'),
+            'filters' => [
+                'search' => $request->query('search', ''),
+            ],
         ]);
     }
 
