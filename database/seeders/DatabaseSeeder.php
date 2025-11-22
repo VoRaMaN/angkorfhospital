@@ -19,12 +19,8 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             StaffSeeder::class,
             PatientSeeder::class,
-            AppointmentSeeder::class,
-            MedicalRecordSeeder::class,
-            BillingSeeder::class,
             InventorySeeder::class,
             LabPackagesSeeder::class,
-            VisitSeeder::class,
         ]);
     }
 }

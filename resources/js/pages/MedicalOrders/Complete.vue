@@ -110,6 +110,7 @@ const itemToComplete = ref<OrderItem | null>(null);
 const completingOrder = ref(false);
 const completingItem = ref(false);
 const completingAllItems = ref(false);
+const billProcessed = ref(false);
 
 const hasAdditionalInfo = (item: OrderItem) => {
     return !!(
@@ -233,6 +234,7 @@ const processBill = () => {
         {
             onSuccess: () => {
                 completingOrder.value = false;
+                billProcessed.value = true;
                 showCompleteDialog.value = false;
                 successMessage.value =
                     'Medical order has been processed and billed successfully!';
@@ -449,10 +451,10 @@ const sendBackOrder = () => {
                         }}
                     </Button>
                     <Button variant="default" @click="confirmProcessBill"
-                        :disabled="!allItemsCompleted || completingOrder">
+                        :disabled="!allItemsCompleted || completingOrder || billProcessed">
                         <CheckCircle2 class="mr-2 size-4" />
                         {{
-                            completingOrder ? 'Processing...' : 'Process Bill'
+                            completingOrder ? 'Processing...' : billProcessed ? 'Bill Processed' : 'Process Bill'
                         }}
                     </Button>
                 </div>
@@ -753,10 +755,10 @@ const sendBackOrder = () => {
                 <DialogFooter>
                     <Button variant="outline" @click="showCompleteDialog = false"
                         :disabled="completingOrder">Cancel</Button>
-                    <Button @click="processBill" :disabled="completingOrder">
+                    <Button @click="processBill" :disabled="completingOrder || billProcessed">
                         <CheckCircle2 class="mr-2 size-4" />
                         {{
-                            completingOrder ? 'Processing...' : 'Process Bill'
+                            completingOrder ? 'Processing...' : billProcessed ? 'Bill Processed' : 'Process Bill'
                         }}
                     </Button>
                 </DialogFooter>
