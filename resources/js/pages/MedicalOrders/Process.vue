@@ -633,7 +633,7 @@ const submitForm = () => {
                         <div>
                             <Label class="text-sm font-medium text-muted-foreground">Patient</Label>
                             <p class="text-sm font-medium">
-                                {{ medicalOrder.patient_name }}
+                                {{ medicalOrder.patient_name || 'Unknown Patient' }}
                             </p>
                         </div>
                         <div>

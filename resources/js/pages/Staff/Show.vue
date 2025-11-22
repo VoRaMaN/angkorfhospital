@@ -7,6 +7,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
 import StaffFilesTab from './StaffFilesTab.vue';
+import { index, edit } from '@/routes/staff';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -31,7 +32,7 @@ const props = defineProps<Props>();
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Staff',
-        href: '/staff',
+        href: index().url,
     },
     {
         title: 'Details',
@@ -51,7 +52,7 @@ const { hasPermission } = useAuth();
         >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
-                    <a href="/staff">
+                    <a :href="index().url">
                         <ArrowLeft class="size-4" />
                         Back
                     </a>
@@ -62,7 +63,7 @@ const { hasPermission } = useAuth();
                 </div>
                 <div class="ml-auto">
                     <Button v-if="hasPermission('edit_staff')" variant="outline" as-child>
-                        <Link :href="`/staff/${props.staff.id}/edit`">
+                        <Link :href="edit(props.staff.id).url">
                             <Edit class="size-4" />
                             Edit
                         </Link>
@@ -134,9 +135,11 @@ const { hasPermission } = useAuth();
                                     </dt>
                                     <dd class="text-sm">
                                         {{
-                                            new Date(
-                                                props.staff.hire_date,
-                                            ).toLocaleDateString()
+                                            props.staff.hire_date
+                                                ? new Date(
+                                                    props.staff.hire_date,
+                                                ).toLocaleDateString()
+                                                : 'Not provided'
                                         }}
                                     </dd>
                                 </div>

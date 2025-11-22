@@ -15,7 +15,7 @@ class UpdateAppointmentRequest extends FormRequest
         $user = $this->user();
 
         // Admins can update any appointment
-        if ($user->staff?->role?->name === 'Admin') {
+        if ($user->staff?->role?->name === 'admin') {
             return true;
         }
 

@@ -25,6 +25,7 @@ class StoreMedicalOrderRequest extends FormRequest
     {
         return [
             'patient_id' => 'nullable|exists:patients,id',
+            'visit_id' => 'nullable|exists:visits,id',
             'staff_id' => 'nullable|exists:staff,id',
             'order_details' => 'required|string|max:1000',
             'priority' => 'required|in:'.implode(',', array_column(MedicalOrderPriorityEnum::cases(), 'value')),

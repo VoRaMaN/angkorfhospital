@@ -12,7 +12,7 @@ class VisitPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_visits') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_visits') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -31,12 +31,12 @@ class VisitPolicy
         }
 
         // Doctors can view visits they are assigned to
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $visit->staff_id === $user->staff->id;
         }
 
         // Patients can view their own visits
-        if ($user->hasRole('Patient') && $user->patient) {
+        if ($user->hasRole('patient') && $user->patient) {
             return $visit->patient_id === $user->patient->id;
         }
 
@@ -48,7 +48,7 @@ class VisitPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_visits') || $user->hasRole('Doctor') || $user->hasRole('admin');
+        return $user->can('create_visits') || $user->hasRole('doctor') || $user->hasRole('admin');
     }
 
     /**
@@ -67,7 +67,7 @@ class VisitPolicy
         }
 
         // Doctors can update visits they are assigned to
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $visit->staff_id === $user->staff->id;
         }
 

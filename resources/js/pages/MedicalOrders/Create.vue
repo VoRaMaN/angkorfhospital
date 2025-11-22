@@ -153,7 +153,7 @@ const patientOptions = computed(() => {
         ...base,
         ...props.patients.map((p) => ({
             value: p.id.toString(),
-            label: p.name,
+            label: p.name || 'Unknown Patient',
         })),
     ];
 });
@@ -162,7 +162,7 @@ const staffOptions = computed(() => {
     if (!props.staff) return base;
     return [
         ...base,
-        ...props.staff.map((s) => ({ value: s.id.toString(), label: s.name })),
+        ...props.staff.map((s) => ({ value: s.id.toString(), label: s.name || 'Unknown Staff' })),
     ];
 });
 

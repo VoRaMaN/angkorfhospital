@@ -12,7 +12,7 @@ class PatientFilePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_patient_files') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_patient_files') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -31,12 +31,12 @@ class PatientFilePolicy
         }
 
         // Doctors can view files for their patients
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $patientFile->patient->staff_id === $user->staff->id;
         }
 
         // Patients can view their own files
-        if ($user->hasRole('Patient') && $user->patient) {
+        if ($user->hasRole('patient') && $user->patient) {
             return $patientFile->patient_id === $user->patient->id;
         }
 
@@ -48,7 +48,7 @@ class PatientFilePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_patient_files') || $user->hasRole('Doctor') || $user->hasRole('admin');
+        return $user->can('create_patient_files') || $user->hasRole('doctor') || $user->hasRole('admin');
     }
 
     /**
@@ -67,7 +67,7 @@ class PatientFilePolicy
         }
 
         // Doctors can update files for their patients
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $patientFile->patient->staff_id === $user->staff->id;
         }
 

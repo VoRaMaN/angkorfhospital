@@ -12,7 +12,7 @@ class InventoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -20,7 +20,7 @@ class InventoryPolicy
      */
     public function view(User $user, Inventory $inventory): bool
     {
-        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**

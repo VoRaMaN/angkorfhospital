@@ -19,7 +19,7 @@ export function useAuth() {
     const hasAllPermissions = (perms: string[]) =>
         perms.every((p) => hasPermission(p));
 
-    const isAdmin = computed(() => hasRole('admin'));
+    const isAdmin = computed(() => hasRole('Admin'));
 
     return {
         roles,

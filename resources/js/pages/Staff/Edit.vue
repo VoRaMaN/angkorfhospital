@@ -15,7 +15,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Save } from 'lucide-vue-next';
 import StaffFilesTab from './StaffFilesTab.vue';
-import { useAuth } from '@/composables/useAuth';
+import { index, update } from '@/routes/staff';
 
 interface Props {
     staff: {
@@ -55,7 +55,7 @@ const form = useForm({
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Staff',
-        href: '/staff',
+        href: index().url,
     },
     {
         title: 'Edit',
@@ -66,7 +66,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const { hasPermission } = useAuth();
 
 const submit = () => {
-    form.put(`/staff/${props.staff.id}`, {
+    form.put(update(props.staff.id).url, {
         onSuccess: () => {
             // Success handled by Inertia
         },
@@ -83,7 +83,7 @@ const submit = () => {
         >
             <div class="flex items-center gap-4">
                 <Button variant="outline" as-child>
-                    <a href="/staff">
+                    <a :href="index().url">
                         <ArrowLeft class="size-4" />
                         Back
                     </a>
@@ -269,7 +269,7 @@ const submit = () => {
                                     variant="outline"
                                     as-child
                                 >
-                                    <a href="/staff">Cancel</a>
+                                    <a :href="index().url">Cancel</a>
                                 </Button>
                             </div>
                         </form>

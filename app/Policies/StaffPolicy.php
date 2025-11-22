@@ -12,7 +12,7 @@ class StaffPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_staff') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_staff') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**

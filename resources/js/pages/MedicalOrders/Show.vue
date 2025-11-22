@@ -8,14 +8,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
@@ -395,7 +387,7 @@ const orderSummary = computed(() => {
                                     Patient
                                 </dt>
                                 <dd class="text-sm font-medium">
-                                    {{ medicalOrder.patient_name }}
+                                    {{ medicalOrder.patient_name || 'Unknown Patient' }}
                                 </dd>
                             </div>
 
@@ -406,7 +398,7 @@ const orderSummary = computed(() => {
                                     Ordering Staff
                                 </dt>
                                 <dd class="text-sm font-medium">
-                                    {{ medicalOrder.staff_name }}
+                                    {{ medicalOrder.staff_name || 'Unknown Staff' }}
                                 </dd>
                             </div>
 

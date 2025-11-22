@@ -11,7 +11,7 @@ class StoreLabPackageRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array($this->user()->staff?->role?->name, ['Admin', 'Lab']);
+        return in_array($this->user()->staff?->role?->name, ['admin', 'lab']);
     }
 
     /**

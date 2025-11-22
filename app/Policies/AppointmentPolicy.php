@@ -12,7 +12,7 @@ class AppointmentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_appointments') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_appointments') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -31,12 +31,12 @@ class AppointmentPolicy
         }
 
         // Doctors can view appointments they are assigned to
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $appointment->staff_id === $user->staff->id;
         }
 
         // Patients can view their own appointments
-        if ($user->hasRole('Patient') && $user->patient) {
+        if ($user->hasRole('patient') && $user->patient) {
             return $appointment->patient_id === $user->patient->id;
         }
 
@@ -48,7 +48,7 @@ class AppointmentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_appointments') || $user->hasRole('Doctor') || $user->hasRole('admin');
+        return $user->can('create_appointments') || $user->hasRole('doctor') || $user->hasRole('admin');
     }
 
     /**
@@ -67,7 +67,7 @@ class AppointmentPolicy
         }
 
         // Doctors can update appointments they are assigned to
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $appointment->staff_id === $user->staff->id;
         }
 

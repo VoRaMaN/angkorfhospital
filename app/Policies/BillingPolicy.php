@@ -12,7 +12,7 @@ class BillingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_billing') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_billing') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -31,12 +31,12 @@ class BillingPolicy
         }
 
         // Doctors can view billings for their appointments
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $billing->appointment->staff_id === $user->staff->id;
         }
 
         // Patients can view their own billings
-        if ($user->hasRole('Patient') && $user->patient) {
+        if ($user->hasRole('patient') && $user->patient) {
             return $billing->appointment->patient_id === $user->patient->id;
         }
 

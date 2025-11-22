@@ -12,7 +12,7 @@ class MedicalOrderInventoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_medical_order_inventories') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_medical_order_inventories') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -31,7 +31,7 @@ class MedicalOrderInventoryPolicy
         }
 
         // Doctors can view for their orders
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $medicalOrderInventory->medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -43,7 +43,7 @@ class MedicalOrderInventoryPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_medical_order_inventories') || $user->hasRole('Doctor') || $user->hasRole('admin');
+        return $user->can('create_medical_order_inventories') || $user->hasRole('doctor') || $user->hasRole('admin');
     }
 
     /**
@@ -62,7 +62,7 @@ class MedicalOrderInventoryPolicy
         }
 
         // Doctors can update for their orders
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $medicalOrderInventory->medicalOrder->staff_id === $user->staff->id;
         }
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Role;
 
 class Staff extends Model
 {
@@ -14,10 +15,13 @@ class Staff extends Model
         'user_id',
         'first_name',
         'last_name',
+        'name',
+        'email',
         'role_id',
         'department_id',
         'contact_number',
         'hire_date',
+        'status',
     ];
 
     protected $appends = ['name'];
@@ -36,7 +40,7 @@ class Staff extends Model
 
     public function role()
     {
-        return $this->belongsTo(StaffRole::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     public function department()

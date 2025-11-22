@@ -12,7 +12,7 @@ class PatientPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_patients') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_patients') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -31,12 +31,12 @@ class PatientPolicy
         }
 
         // Doctors can view patients they have appointments with
-        if ($user->hasRole('Doctor') && $user->staff) {
+        if ($user->hasRole('doctor') && $user->staff) {
             return $patient->appointments()->where('staff_id', $user->staff->id)->exists();
         }
 
         // Patients can view their own record
-        if ($user->hasRole('Patient') && $user->patient) {
+        if ($user->hasRole('patient') && $user->patient) {
             return $user->patient->id === $patient->id;
         }
 
@@ -67,7 +67,7 @@ class PatientPolicy
         }
 
         // Patients can update their own record
-        if ($user->hasRole('Patient') && $user->patient) {
+        if ($user->hasRole('patient') && $user->patient) {
             return $user->patient->id === $patient->id;
         }
 

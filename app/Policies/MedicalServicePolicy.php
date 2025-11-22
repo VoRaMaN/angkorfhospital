@@ -12,7 +12,7 @@ class MedicalServicePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_medical_services') || $user->hasRole('admin') || $user->hasRole('Doctor') || $user->hasRole('nurse');
+        return $user->can('view_medical_services') || $user->hasRole('admin') || $user->hasRole('doctor') || $user->hasRole('nurse');
     }
 
     /**
@@ -38,7 +38,7 @@ class MedicalServicePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_medical_services') || $user->hasRole('admin') || $user->hasRole('Doctor') || $user->hasRole('nurse');
+        return $user->can('create_medical_services') || $user->hasRole('admin') || $user->hasRole('doctor') || $user->hasRole('nurse');
     }
 
     /**

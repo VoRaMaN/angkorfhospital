@@ -12,7 +12,7 @@ class LabPanelPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_lab_panels') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_lab_panels') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**
@@ -20,7 +20,7 @@ class LabPanelPolicy
      */
     public function view(User $user, LabPanel $labPanel): bool
     {
-        return $user->can('view_lab_panels') || $user->hasRole('admin') || $user->hasRole('Doctor');
+        return $user->can('view_lab_panels') || $user->hasRole('admin') || $user->hasRole('doctor');
     }
 
     /**

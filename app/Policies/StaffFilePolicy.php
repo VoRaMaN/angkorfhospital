@@ -31,7 +31,7 @@ class StaffFilePolicy
         }
 
         // Staff can view their own files
-        if ($user->hasRole('Staff') && $user->staff) {
+        if ($user->hasRole('staff') && $user->staff) {
             return $staffFile->staff_id === $user->staff->id;
         }
 
@@ -62,7 +62,7 @@ class StaffFilePolicy
         }
 
         // Staff can update their own files
-        if ($user->hasRole('Staff') && $user->staff) {
+        if ($user->hasRole('staff') && $user->staff) {
             return $staffFile->staff_id === $user->staff->id;
         }
 

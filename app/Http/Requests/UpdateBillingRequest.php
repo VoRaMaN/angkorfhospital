@@ -11,7 +11,7 @@ class UpdateBillingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array($this->user()->staff?->role?->name, ['Admin', 'Billing']);
+        return in_array($this->user()->staff?->role?->name, ['admin', 'Billing']);
     }
 
     /**

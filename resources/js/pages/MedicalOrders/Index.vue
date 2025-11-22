@@ -133,8 +133,8 @@ const getPriorityColor = (priority: string) => {
                             v-for="order in medicalOrders"
                             :key="order.id"
                         >
-                            <TableCell>{{ order.patient_name }}</TableCell>
-                            <TableCell>{{ order.staff_name }}</TableCell>
+                            <TableCell>{{ order.patient_name || 'Unknown Patient' }}</TableCell>
+                            <TableCell>{{ order.staff_name || 'Unknown Staff' }}</TableCell>
                             <TableCell>
                                 <Badge
                                     :class="getOrderTypeColor(order.order_type)"

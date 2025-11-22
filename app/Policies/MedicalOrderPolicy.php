@@ -31,13 +31,14 @@ class MedicalOrderPolicy
         }
 
         // Doctors can view medical orders they created
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
         // Patients can view their own medical orders
-        if ($user->hasRole('Patient')) {
-            return $medicalOrder->patient_id === $user->patient->id;
+        if ($user->hasRole('patient')) {
+            return $medicalOrder->patient_id === $user->patient?->id ||
+                   ($medicalOrder->visit && $medicalOrder->visit->patient_id === $user->patient?->id);
         }
 
         return false;
@@ -48,7 +49,7 @@ class MedicalOrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_medical_orders') || $user->hasRole('Doctor') || $user->hasRole('admin');
+        return $user->can('create_medical_orders') || $user->hasRole('doctor') || $user->hasRole('admin');
     }
 
     /**
@@ -67,7 +68,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can update
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -114,7 +115,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can process
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -137,7 +138,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can process and bill
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -160,7 +161,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can confirm
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -183,7 +184,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can complete
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -206,7 +207,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can complete items
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 
@@ -229,7 +230,7 @@ class MedicalOrderPolicy
         }
 
         // Only the ordering staff can send back
-        if ($user->hasRole('Doctor')) {
+        if ($user->hasRole('doctor')) {
             return $medicalOrder->staff_id === $user->staff->id;
         }
 

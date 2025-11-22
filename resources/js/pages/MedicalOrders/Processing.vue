@@ -345,7 +345,7 @@ const executeProcessOrder = () => {
                                     Patient
                                 </dt>
                                 <dd class="text-sm font-medium">
-                                    {{ medicalOrder.patient_name }}
+                                    {{ medicalOrder.patient_name || 'Unknown Patient' }}
                                 </dd>
                             </div>
 
@@ -354,7 +354,7 @@ const executeProcessOrder = () => {
                                     Ordering Staff
                                 </dt>
                                 <dd class="text-sm font-medium">
-                                    {{ medicalOrder.staff_name }}
+                                    {{ medicalOrder.staff_name || 'Unknown Staff' }}
                                 </dd>
                             </div>
 

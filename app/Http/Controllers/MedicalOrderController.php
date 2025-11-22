@@ -16,16 +16,24 @@ class MedicalOrderController extends Controller
     public function index(): Response
     {
         $this->authorize('viewAny', MedicalOrder::class);
-        $medicalOrders = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems'])->paginate(15);
+        $medicalOrders = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems', 'visit.patient.user', 'visit.staff.user'])->paginate(15);
 
         // Transform medical orders for the frontend
         $transformedOrders = $medicalOrders->getCollection()->map(function ($order) {
+            // Get patient from order or visit
+            $patient = $order->patient ?? $order->visit?->patient;
+            $patientName = $patient?->user?->name ?? 'Unknown Patient';
+
+            // Get staff from order or visit
+            $staff = $order->staff ?? $order->visit?->staff;
+            $staffName = $staff?->user?->name ?? 'Unknown Staff';
+
             return [
                 'id' => $order->id,
-                'patient_id' => $order->patient_id,
-                'patient_name' => $order->patient?->user?->name ?? 'Unknown Patient',
-                'staff_id' => $order->staff_id,
-                'staff_name' => $order->staff?->user?->name ?? 'Unknown Staff',
+                'patient_id' => $patient?->id,
+                'patient_name' => $patientName,
+                'staff_id' => $staff?->id,
+                'staff_name' => $staffName,
                 'order_details' => $order->order_details,
                 'status' => $order->status->value,
                 'status_label' => $order->status->label(),
@@ -262,7 +270,7 @@ class MedicalOrderController extends Controller
     {
         $this->authorize('update', $medicalOrder);
 
-        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory']);
+        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.patient.user', 'visit.staff.user']);
 
         $patients = \App\Models\Patient::with('user')->get()->map(function ($patient) {
             return [
@@ -684,14 +692,14 @@ class MedicalOrderController extends Controller
                 ->with('error', 'This medical order is not ready for completion.');
         }
 
-        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory']);
+        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.medicalRecord', 'billings', 'visit.patient.user', 'visit.staff.user']);
 
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
-            'patient_name' => $medicalOrder->patient?->user?->name ?? 'Unknown Patient',
+            'patient_name' => $medicalOrder->patient?->user?->name ?? $medicalOrder->visit?->patient?->user?->name ?? 'Unknown Patient',
             'staff_id' => $medicalOrder->staff_id,
-            'staff_name' => $medicalOrder->staff?->user?->name ?? 'Unknown Staff',
+            'staff_name' => $medicalOrder->staff?->user?->name ?? $medicalOrder->visit?->staff?->user?->name ?? 'Unknown Staff',
             'order_details' => $medicalOrder->order_details,
             'status' => $medicalOrder->status->value,
             'status_label' => $medicalOrder->status->label(),

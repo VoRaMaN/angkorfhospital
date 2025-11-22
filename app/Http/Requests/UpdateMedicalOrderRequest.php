@@ -39,6 +39,7 @@ class UpdateMedicalOrderRequest extends FormRequest
     {
         return [
             'patient_id' => 'sometimes|exists:patients,id',
+            'visit_id' => 'sometimes|nullable|exists:visits,id',
             'staff_id' => 'sometimes|exists:staff,id',
             'order_details' => 'sometimes|string|max:1000',
             'status' => 'sometimes|in:'.implode(',', array_column(MedicalOrderStatusEnum::cases(), 'value')),
