@@ -82,7 +82,7 @@ class StaffFileController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect()->route('staff.show', $request->staff_id);
+        return redirect()->back();
     }
 
     /**
@@ -178,7 +178,7 @@ class StaffFileController extends Controller
             ]);
         }
 
-        return redirect()->route('staff-files.index');
+        return redirect()->back();
     }
 
     /**
@@ -192,6 +192,6 @@ class StaffFileController extends Controller
         $staffFile->file->delete();
         $staffFile->delete();
 
-        return redirect()->route('staff-files.index');
+        return redirect()->back();
     }
 }

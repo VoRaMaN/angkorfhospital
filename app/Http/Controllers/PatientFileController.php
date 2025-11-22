@@ -79,7 +79,7 @@ class PatientFileController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect()->route('patients.show', $request->patient_id);
+        return redirect()->back();
     }
 
     /**
@@ -172,7 +172,7 @@ class PatientFileController extends Controller
             ]);
         }
 
-        return redirect()->route('patient-files.index');
+        return redirect()->back();
     }
 
     /**
@@ -186,6 +186,6 @@ class PatientFileController extends Controller
         $patientFile->file->delete();
         $patientFile->delete();
 
-        return redirect()->route('patient-files.index');
+        return redirect()->back();
     }
 }
