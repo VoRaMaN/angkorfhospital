@@ -290,7 +290,7 @@ const orderSummary = computed(() => {
             class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
         >
             <div class="flex items-center gap-4">
-                <Button variant="outline" as-child>
+                <Button variant="outline" as-child class="transition-all duration-200 hover:scale-105">
                     <a :href="index().url">
                         <ArrowLeft class="size-4" />
                         Back
@@ -307,6 +307,7 @@ const orderSummary = computed(() => {
                         v-if="medicalOrder.medical_record_id"
                         variant="outline"
                         as-child
+                        class="transition-all duration-200 hover:scale-105"
                     >
                         <Link
                             :href="
@@ -326,6 +327,7 @@ const orderSummary = computed(() => {
                         "
                         variant="default"
                         @click="confirmProcess"
+                        class="transition-all duration-200 hover:scale-105"
                     >
                         <Play class="mr-2 size-4" />
                         Confirm Process
@@ -337,6 +339,7 @@ const orderSummary = computed(() => {
                         "
                         variant="default"
                         as-child
+                        class="transition-all duration-200 hover:scale-105"
                     >
                         <Link :href="completeRoute(medicalOrder.id).url">
                             <CheckCircle class="mr-2 size-4" />
@@ -347,6 +350,7 @@ const orderSummary = computed(() => {
                         v-if="hasPermission('edit_medical_orders')"
                         variant="outline"
                         as-child
+                        class="transition-all duration-200 hover:scale-105"
                     >
                         <Link :href="edit(medicalOrder.id).url">
                             <Edit class="size-4" />
@@ -356,6 +360,7 @@ const orderSummary = computed(() => {
                     <Button
                         variant="outline"
                         as-child
+                        class="transition-all duration-200 hover:scale-105"
                     >
                         <a
                             :href="reportRoute(medicalOrder.id).url"
