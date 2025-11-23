@@ -216,6 +216,143 @@ class PatientController extends Controller
     }
 
     /**
+     * Download patient report as PDF.
+     */
+    public function downloadReport(): \Illuminate\Http\Response
+    {
+        $patient = Patient::findOrFail(request('patient'));
+        $this->authorize('view', $patient);
+
+        $patient->load(['user', 'appointments.staff', 'appointments.medicalRecord', 'patientFiles.file', 'medicalOrders.staff']);
+
+        // Build patient_info array expected by patient-report blade.
+        // Build date of birth string only when components are present
+        $dobYear = (int) ($patient->date_of_birth_year ?? 0);
+        $dobMonth = (int) ($patient->date_of_birth_month ?? 0);
+        $dobDay = (int) ($patient->date_of_birth_day ?? 0);
+        $dateOfBirthStr = null;
+        if ($dobYear > 0 && $dobMonth > 0 && $dobDay > 0) {
+            $dateOfBirthStr = sprintf('%04d-%02d-%02d', $dobYear, $dobMonth, $dobDay);
+        }
+
+        $patientInfo = [
+            'id' => $patient->id,
+            'title' => $patient->title,
+            'first_name' => $patient->name,
+            'last_name' => $patient->surname,
+            // Full name, used by blade title and other places
+            'name' => trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').' '.($patient->surname ?? '')),
+            'native_name' => trim(($patient->khmer_china_name ?? '').' '.($patient->khmer_china_surname ?? '')) ?: null,
+            'date_of_birth' => $dateOfBirthStr,
+            'gender' => $patient->gender,
+            'email' => $patient->email ?? $patient->user?->email,
+            'mobile_phone' => $patient->mobile_phone,
+            'home_phone' => $patient->home_phone,
+            'address' => $patient->address,
+            'city' => $patient->sub_district,
+            'province' => $patient->province,
+            'postal_code' => $patient->zip_code,
+            'country' => $patient->nationality,
+            'occupation' => $patient->occupation,
+            'employer' => $patient->company_name,
+            'emergency_contact_name' => $patient->emergency_contact_name,
+            'emergency_contact_relationship' => $patient->emergency_contact_relationship,
+        ];
+        // Additional convenience fields used in templates
+        $patientInfo['name'] = $patientInfo['name'] ?? trim(($patientInfo['title'] ? $patientInfo['title'].' ' : '').$patientInfo['first_name'].' '.$patientInfo['last_name']);
+        $patientInfo['phone_number'] = $patientInfo['mobile_phone'] ?? $patientInfo['home_phone'] ?? null;
+        $patientInfo['insurance_provider'] = $patient->insurance_name ?? null;
+        $patientInfo['insurance_policy_number'] = $patient->contract_name ?? null;
+        $patientInfo['insurance_plan_name'] = null;
+        $patientInfo['insurance_info'] = $patient->insurance_name ?? $patient->contract_name ?? null;
+
+        // Files
+        $patientFiles = $patient->patientFiles->map(function ($pf) {
+            return [
+                'file_type' => $pf->type ?? null,
+                'filename' => $pf->file?->name ?? null,
+                'uploaded_at' => $pf->file?->created_at ?? null,
+                'notes' => null,
+            ];
+        })->toArray();
+
+        // Medical records
+        $medicalRecords = collect();
+        $medicalRecords = $medicalRecords->merge($patient->appointments->pluck('medicalRecord')->filter());
+        $medicalRecords = $medicalRecords->merge($patient->appointments->pluck('visits')->flatten()->pluck('medicalRecord')->filter());
+        $uniqueRecords = $medicalRecords->unique('id')->map(function ($record) {
+            return [
+                'id' => $record->id,
+                'diagnosis' => $record->diagnosis,
+                'treatment' => $record->treatment,
+                'notes' => $record->notes,
+                'date_of_service' => $record->date_of_service,
+                'created_at' => $record->created_at,
+            ];
+        })->toArray();
+
+        // Medical orders
+        $medicalOrders = $patient->medicalOrders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'order_type' => $order->type ?? $order->order_type ?? null,
+                'order_details' => $order->order_details,
+                'status' => $order->status,
+                'priority' => $order->priority,
+                'ordered_at' => $order->ordered_at,
+                'completed_at' => $order->completed_at,
+                'staff_name' => $order->staff?->name,
+                'notes' => $order->notes,
+            ];
+        })->toArray();
+
+        // Appointments
+        $appointments = $patient->appointments->map(function ($appointment) {
+            return [
+                'id' => $appointment->id,
+                'appointment_date_time' => $appointment->appointment_date_time?->toDateTimeString(),
+                'staff_name' => $appointment->staff?->user?->name ?? $appointment->staff?->name ?? 'N/A',
+                'reason_for_visit' => $appointment->reason_for_visit ?? null,
+                'status' => $appointment->status ?? null,
+            ];
+        })->toArray();
+
+        // Visits from appointments
+        $visits = $patient->appointments->pluck('visits')->flatten()->map(function ($visit) {
+            return [
+                'id' => $visit->id,
+                'visit_date_time' => $visit->visit_date_time?->toDateTimeString(),
+                'staff_name' => $visit->staff?->user?->name ?? $visit->staff?->name ?? 'N/A',
+                'status' => $visit->status ?? null,
+                'notes' => $visit->notes ?? null,
+            ];
+        })->toArray();
+
+        $report = [
+            'patient_info' => $patientInfo,
+            'appointments' => $appointments,
+            'visits' => $visits,
+            'medical_records' => $uniqueRecords,
+            'medical_orders' => $medicalOrders,
+            'patient_files' => $patientFiles,
+        ];
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('patient-report', compact('report', 'patient'));
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ]);
+
+        $filename = 'patient-report-'.str_replace('/', '-', $patient->id).'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
      * Generate a printable patient sticker as PDF.
      */
     public function generateSticker()

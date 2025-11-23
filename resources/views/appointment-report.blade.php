@@ -282,11 +282,11 @@
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Staff Name:</div>
-                    <div class="info-value">{{ $report['staff_info']['name'] }}</div>
+                    <div class="info-value">{{ $report['staff_info']['name'] ?? 'N/A' }}</div>
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Role:</div>
-                    <div class="info-value">{{ $report['staff_info']['role'] }}</div>
+                    <div class="info-value">{{ $report['staff_info']['role'] ?? 'N/A' }}</div>
                 </div>
             </div>
         </div>

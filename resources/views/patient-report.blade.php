@@ -11,8 +11,11 @@
             line-height: 1.4;
             color: #000;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background: #fff;
         }
+
+        .container { width: 160mm; margin: 0 auto; padding: 16px 12px; box-sizing: border-box; }
 
         .header {
             text-align: center;
@@ -47,20 +50,21 @@
         }
 
         .info-grid {
-            display: table;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
             width: 100%;
             margin-bottom: 15px;
+            align-items: start;
         }
 
-        .info-row {
-            display: table-row;
-        }
+        .info-row { display: contents; }
 
         .info-cell {
-            display: table-cell;
             padding: 4px 8px;
             vertical-align: top;
-            width: 50%;
+            box-sizing: border-box;
+            min-width: 0; /* prevents overflow in grid cells */
         }
 
         .info-label {
@@ -81,6 +85,7 @@
             padding: 10px;
             margin-bottom: 10px;
             page-break-inside: avoid;
+            overflow: hidden; /* prevent width overflow */
         }
 
         .record-header {
@@ -132,20 +137,18 @@
         }
 
         .footer {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
             text-align: center;
             font-size: 10px;
             color: #666;
             border-top: 1px solid #ccc;
             padding-top: 10px;
+            margin-top: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
+    <div class="container">
+        <div class="header">
         <h1>Angkor F Clinic</h1>
         <p>Patient Report</p>
         <p>Generated on: {{ now()->format('F j, Y \a\t g:i A') }}</p>
@@ -168,7 +171,7 @@
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Date of Birth:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['patient_info']['date_of_birth'])->format('M j, Y') }}</div>
+                    <div class="info-value">{{ $report['patient_info']['date_of_birth'] ? \Carbon\Carbon::parse($report['patient_info']['date_of_birth'])->format('M j, Y') : 'N/A' }}</div>
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Gender:</div>
@@ -268,7 +271,7 @@
                             <div class="record-header-row">
                                 <div class="record-header-cell">
                                     <div class="record-label">Date & Time:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($appointment['appointment_date_time'])->format('M j, Y g:i A') }}</div>
+                                    <div class="record-value">{{ $appointment['appointment_date_time'] ? \Carbon\Carbon::parse($appointment['appointment_date_time'])->format('M j, Y g:i A') : 'N/A' }}</div>
                                 </div>
                                 <div class="record-header-cell">
                                     <div class="record-label">Staff:</div>
@@ -305,7 +308,7 @@
                             <div class="record-header-row">
                                 <div class="record-header-cell">
                                     <div class="record-label">Visit Date & Time:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($visit['visit_date_time'])->format('M j, Y g:i A') }}</div>
+                                    <div class="record-value">{{ $visit['visit_date_time'] ? \Carbon\Carbon::parse($visit['visit_date_time'])->format('M j, Y g:i A') : 'N/A' }}</div>
                                 </div>
                                 <div class="record-header-cell">
                                     <div class="record-label">Status:</div>
@@ -354,7 +357,7 @@
                             <div class="record-header-row">
                                 <div class="record-header-cell">
                                     <div class="record-label">Ordered At:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') }}</div>
+                                    <div class="record-value">{{ $order['ordered_at'] ? \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') : 'N/A' }}</div>
                                 </div>
                                 <div class="record-header-cell">
                                     <div class="record-label">Staff:</div>
@@ -391,7 +394,7 @@
                             <div class="record-header-row">
                                 <div class="record-header-cell">
                                     <div class="record-label">Date of Service:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($record['date_of_service'])->format('M j, Y') }}</div>
+                                    <div class="record-value">{{ $record['date_of_service'] ? \Carbon\Carbon::parse($record['date_of_service'])->format('M j, Y') : 'N/A' }}</div>
                                 </div>
                                 <div class="record-header-cell">
                                     <div class="record-label">Record ID:</div>
@@ -462,7 +465,8 @@
         @endif
     </div>
 
-    <div class="footer">
+    </div>
+    <div class="footer container">
         <p>This report was generated by Angkor F Clinic on {{ now()->format('F j, Y \a\t g:i A') }}</p>
         <p>Confidential - For medical use only</p>
     </div>

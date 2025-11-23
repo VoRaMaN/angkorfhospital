@@ -143,6 +143,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </a>
                     </Button>
                     <Button variant="outline" as-child>
+                        <a :href="`/patients/report/download?patient=${props.patient.id}`" target="_blank" rel="noopener noreferrer">
+                            <Printer class="size-4" />
+                            Download Report
+                        </a>
+                    </Button>
+                    <Button variant="outline" as-child>
                         <Link :href="`/patients/edit?patient=${props.patient.id}`">
                             <Edit class="size-4" />
                             Edit

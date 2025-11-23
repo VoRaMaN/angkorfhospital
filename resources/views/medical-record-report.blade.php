@@ -173,17 +173,17 @@
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Date of Service:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['record_info']['date_of_service'])->format('M j, Y') }}</div>
+                    <div class="info-value">{{ (!empty($report['record_info']['date_of_service']) && strtotime($report['record_info']['date_of_service'])) ? \Carbon\Carbon::parse($report['record_info']['date_of_service'])->format('M j, Y') : 'N/A' }}</div>
                 </div>
             </div>
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Created At:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['record_info']['created_at'])->format('M j, Y g:i A') }}</div>
+                    <div class="info-value">{{ (!empty($report['record_info']['created_at']) && strtotime($report['record_info']['created_at'])) ? \Carbon\Carbon::parse($report['record_info']['created_at'])->format('M j, Y g:i A') : 'N/A' }}</div>
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Updated At:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['record_info']['updated_at'])->format('M j, Y g:i A') }}</div>
+                    <div class="info-value">{{ (!empty($report['record_info']['updated_at']) && strtotime($report['record_info']['updated_at'])) ? \Carbon\Carbon::parse($report['record_info']['updated_at'])->format('M j, Y g:i A') : 'N/A' }}</div>
                 </div>
             </div>
         </div>
@@ -200,7 +200,7 @@
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Date of Birth:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['patient_info']['date_of_birth'])->format('M j, Y') }}</div>
+                    <div class="info-value">{{ (!empty($report['patient_info']['date_of_birth']) && strtotime($report['patient_info']['date_of_birth'])) ? \Carbon\Carbon::parse($report['patient_info']['date_of_birth'])->format('M j, Y') : 'N/A' }}</div>
                 </div>
             </div>
             <div class="info-row">
@@ -233,11 +233,11 @@
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Staff Name:</div>
-                    <div class="info-value">{{ $report['staff_info']['name'] }}</div>
+                    <div class="info-value">{{ $report['staff_info']['name'] ?? 'N/A' }}</div>
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Role:</div>
-                    <div class="info-value">{{ $report['staff_info']['role'] }}</div>
+                    <div class="info-value">{{ $report['staff_info']['role'] ?? 'N/A' }}</div>
                 </div>
             </div>
         </div>
@@ -285,7 +285,7 @@
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Visit Date & Time:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['visit_info']['visit_date_time'])->format('M j, Y g:i A') }}</div>
+                    <div class="info-value">{{ (!empty($report['visit_info']['visit_date_time']) && strtotime($report['visit_info']['visit_date_time'])) ? \Carbon\Carbon::parse($report['visit_info']['visit_date_time'])->format('M j, Y g:i A') : 'N/A' }}</div>
                 </div>
             </div>
             <div class="info-row">
@@ -314,7 +314,7 @@
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Appointment Date & Time:</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($report['appointment_info']['appointment_date_time'])->format('M j, Y g:i A') }}</div>
+                    <div class="info-value">{{ (!empty($report['appointment_info']['appointment_date_time']) && strtotime($report['appointment_info']['appointment_date_time'])) ? \Carbon\Carbon::parse($report['appointment_info']['appointment_date_time'])->format('M j, Y g:i A') : 'N/A' }}</div>
                 </div>
             </div>
             <div class="info-row">
@@ -368,7 +368,7 @@
                         </div>
                         <div class="record-content">
                             <div class="record-label">Ordered At:</div>
-                            <div class="record-value">{{ \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') }}</div>
+                            <div class="record-value">{{ (!empty($order['ordered_at']) && strtotime($order['ordered_at'])) ? \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') : 'N/A' }}</div>
                         </div>
                     </div>
                 @endforeach

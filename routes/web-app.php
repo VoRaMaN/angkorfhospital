@@ -82,6 +82,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('patients/update', [PatientController::class, 'update'])->name('patients.update');
     Route::delete('patients/destroy', [PatientController::class, 'destroy'])->name('patients.destroy');
     Route::get('patients/report', [PatientController::class, 'generateReport'])->name('patients.report');
+    // Download patient report as PDF (query param: patient)
+    Route::get('patients/report/download', [PatientController::class, 'downloadReport'])->name('patients.report.download');
     Route::get('patients/sticker', [PatientController::class, 'generateSticker'])->name('patients.sticker');
 
     // Staff

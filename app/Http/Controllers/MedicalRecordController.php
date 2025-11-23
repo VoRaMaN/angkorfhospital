@@ -302,7 +302,17 @@ class MedicalRecordController extends Controller
             'patient_info' => $patient ? [
                 'id' => $patient->id,
                 'name' => $patientName,
-                'date_of_birth' => $patient->date_of_birth,
+                // Normalize date_of_birth to a Y-m-d string or null
+                'date_of_birth' => (function () use ($patient) {
+                    if (empty($patient->date_of_birth)) {
+                        return null;
+                    }
+                    try {
+                        return \Carbon\Carbon::parse($patient->date_of_birth)->toDateString();
+                    } catch (\Exception $e) {
+                        return null;
+                    }
+                })(),
                 'gender' => $patient->gender,
                 'phone_number' => $patient->phone_number,
                 'email' => $patient->email ?? $patient->user?->email,
