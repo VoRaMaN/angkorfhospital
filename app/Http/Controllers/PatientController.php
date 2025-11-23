@@ -9,6 +9,7 @@ use App\Models\Staff;
 // Note: the application's domain `Role` model is separate from Spatie's Role model.
 // Spatie Role is not imported here; we simply use the role name when assigning using Spatie's trait
 use App\Models\User;
+use Dompdf\Dompdf;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -212,5 +213,144 @@ class PatientController extends Controller
         return Inertia::render('Patients/Report', [
             'patient' => $patient,
         ]);
+    }
+
+    /**
+     * Generate a printable patient sticker as PDF.
+     */
+    public function generateSticker()
+    {
+        try {
+            $patient = Patient::findOrFail(request('patient'));
+            $this->authorize('view', $patient);
+
+            // Format the sticker HTML for 12 labels in 3x4 grid
+            $dob = $patient->date_of_birth_month.'/'.$patient->date_of_birth_day.'/'.$patient->date_of_birth_year;
+            $gender = strtoupper(substr($patient->gender, 0, 1)); // M or F
+
+            $stickerHtml = '
+                <div style="border: 2px solid #000; border-radius: 8px; padding: 8px; text-align: center; font-size: 9px; height: 70px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="font-size: 11px; font-weight: bold; color: #000; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Medical Record Sticker</div>
+                    <div style="margin: 3px 0; color: #374151;">
+                        <strong style="color: #1f2937;">PATIENT ID:</strong><br>
+                        <span style="font-family: monospace; font-size: 10px; color: #dc2626;">'.$patient->id.'</span>
+                    </div>
+                    <div style="margin: 3px 0; color: #374151;">
+                        <strong style="color: #1f2937;">DOB:</strong><br>
+                        <span style="font-size: 10px;">'.$dob.' <strong>('.$gender.')</strong></span>
+                    </div>
+                </div>
+            ';
+
+            // Create 12 copies in a 3x4 grid
+            $html = '
+            <html>
+            <head>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 0; 
+                        padding: 5mm; 
+                        background: #f9fafb;
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: separate; 
+                        border-spacing: 3mm;
+                        page-break-inside: avoid;
+                    }
+                    td { 
+                        padding: 0; 
+                        border: none;
+                        page-break-inside: avoid;
+                    }
+                    .sticker-container {
+                        page-break-inside: avoid;
+                        height: 100%;
+                    }
+                    @page {
+                        size: A4;
+                        margin: 5mm;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="sticker-container">
+                    <table>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                                                <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                                                <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                        <tr>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                            <td>'.$stickerHtml.'</td>
+                        </tr>
+                    </table>
+                </div>
+            </body>
+            </html>
+            ';
+
+            $dompdf = new Dompdf;
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('a4');
+
+            // Ensure single page output
+            $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', false);
+            $dompdf->set_option('defaultFont', 'Arial');
+
+            $dompdf->render();
+
+            return response($dompdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="patient_sticker.pdf"',
+                'Cache-Control' => 'no-cache',
+            ]);
+        } catch (\Exception $e) {
+            return response('Error: '.$e->getMessage(), 500);
+        }
     }
 }

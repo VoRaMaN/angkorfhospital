@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Printer, User } from 'lucide-vue-next';
 
 interface Props {
     patient: {
@@ -135,7 +135,13 @@ const breadcrumbs: BreadcrumbItem[] = [
                         View patient information
                     </p>
                 </div>
-                <div class="ml-auto">
+                <div class="ml-auto flex gap-2">
+                    <Button variant="outline" as-child>
+                        <a :href="`/patients/sticker?patient=${props.patient.id}`" target="_blank" rel="noopener noreferrer">
+                            <Printer class="size-4" />
+                            Print Sticker
+                        </a>
+                    </Button>
                     <Button variant="outline" as-child>
                         <Link :href="`/patients/edit?patient=${props.patient.id}`">
                             <Edit class="size-4" />

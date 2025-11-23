@@ -82,6 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('patients/update', [PatientController::class, 'update'])->name('patients.update');
     Route::delete('patients/destroy', [PatientController::class, 'destroy'])->name('patients.destroy');
     Route::get('patients/report', [PatientController::class, 'generateReport'])->name('patients.report');
+    Route::get('patients/sticker', [PatientController::class, 'generateSticker'])->name('patients.sticker');
 
     // Staff
     Route::resource('staff', StaffController::class);
