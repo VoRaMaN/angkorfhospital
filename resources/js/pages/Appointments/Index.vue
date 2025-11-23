@@ -45,6 +45,8 @@ interface Props {
     }>;
     filters: {
         search: string;
+        from?: string | null;
+        to?: string | null;
     };
 }
 
@@ -53,6 +55,13 @@ const props = defineProps<Props>();
 const { hasPermission } = useAuth();
 
 const searchQuery = ref(props.filters.search || '');
+const dateFrom = ref<string>(props.filters.from ?? '');
+const dateTo = ref<string>(props.filters.to ?? '');
+const clearDates = () => {
+    dateFrom.value = '';
+    dateTo.value = '';
+    performSearch();
+};
 let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -63,15 +72,29 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 // Debounced search function
-const performSearch = () => {
+const performSearch = (immediate = false) => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    
+    if (immediate) {
+        router.get('/appointments', {
+            search: searchQuery.value,
+            page: 1, // Reset to first page when searching
+            from: dateFrom.value || undefined,
+            to: dateTo.value || undefined,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+        return;
+    }
+
     searchTimeout = setTimeout(() => {
         router.get('/appointments', {
             search: searchQuery.value,
             page: 1, // Reset to first page when searching
+            from: dateFrom.value || undefined,
+            to: dateTo.value || undefined,
         }, {
             preserveState: true,
             replace: true,
@@ -83,6 +106,8 @@ const performSearch = () => {
 watch(searchQuery, () => {
     performSearch();
 });
+
+// Do not auto-search on date change; user will click Search
 
 const confirmModalOpen = ref(false);
 const selectedAppointment = ref<any>(null);
@@ -123,12 +148,11 @@ const cancelStatusUpdate = () => {
 </script>
 
 <template>
+
     <Head title="Appointments" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Appointments</h1>
@@ -139,31 +163,43 @@ const cancelStatusUpdate = () => {
                 <div class="flex gap-2">
                     <Button as-child variant="outline">
                         <Link :href="calendar().url">
-                            <Calendar class="mr-2 size-4" />
-                            Calendar View
+                        <Calendar class="mr-2 size-4" />
+                        Calendar View
                         </Link>
                     </Button>
-                    <Button
-                        as-child
-                        v-if="hasPermission('create_appointments')"
-                    >
+                    <Button as-child v-if="hasPermission('create_appointments')">
                         <Link :href="create().url">
-                            <Plus class="size-4" />
-                            Create Appointment
+                        <Plus class="size-4" />
+                        Create Appointment
                         </Link>
                     </Button>
                 </div>
             </div>
 
-            <!-- Search -->
-            <div class="flex items-center gap-4">
-                <div class="relative flex-1 max-w-sm">
+            <!-- Search + Date Range Filters Grouped -->
+            <div class="flex items-center gap-4 w-full">
+                <div class="relative flex-1 min-w-0">
                     <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        v-model="searchQuery"
-                        placeholder="Search appointments..."
-                        class="pl-10"
-                    />
+                    <Input v-model="searchQuery" placeholder="Search appointments..." class="pl-10"
+                        @keyup.enter="performSearch(true)" />
+                </div>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <label class="text-sm text-muted-foreground">From</label>
+                    <div class="flex flex-col min-w-[150px]">
+                        <Input type="date" v-model="dateFrom" />
+                    </div>
+                    <label class="text-sm text-muted-foreground">To</label>
+                    <div class="flex flex-col min-w-[150px]">
+                        <Input type="date" v-model="dateTo" />
+                    </div>
+                    <div class="flex items-center">
+                        <Button variant="ghost" size="sm" @click="clearDates">
+                            Clear
+                        </Button>
+                        <Button class="ml-2" size="sm" @click="performSearch(true)">
+                            Search
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -181,271 +217,188 @@ const cancelStatusUpdate = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow
-                            v-for="appointment in props.appointments"
-                            :key="appointment.id"
-                        >
+                        <TableRow v-for="appointment in props.appointments" :key="appointment.id">
                             <TableCell>{{
                                 appointment.patient.user.name
-                            }}</TableCell>
+                                }}</TableCell>
                             <TableCell>{{
                                 appointment.staff.user.name
-                            }}</TableCell>
+                                }}</TableCell>
                             <TableCell>{{
                                 new Date(
-                                    appointment.appointment_date_time,
+                                appointment.appointment_date_time,
                                 ).toLocaleString()
-                            }}</TableCell>
+                                }}</TableCell>
                             <TableCell>
                                 <Badge variant="outline">
                                     {{
-                                        appointment?.appointment_type.replace(
-                                            '_',
-                                            ' ',
-                                        )
+                                    appointment?.appointment_type.replace(
+                                    '_',
+                                    ' ',
+                                    )
                                     }}
                                 </Badge>
                             </TableCell>
-                            <TableCell
-                                >{{
-                                    appointment.duration_minutes
-                                }}min</TableCell
-                            >
+                            <TableCell>{{
+                                appointment.duration_minutes
+                                }}min</TableCell>
                             <TableCell>
-                                <Badge
-                                    :variant="
+                                <Badge :variant="
                                         appointment.status === 'completed'
                                             ? 'default'
                                             : 'secondary'
-                                    "
-                                >
+                                    ">
                                     {{
-                                        appointment.status
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                        appointment.status.slice(1)
+                                    appointment.status
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                    appointment.status.slice(1)
                                     }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <Link :href="show(appointment.id).url"
-                                            >View</Link
-                                        >
+                                    <Button variant="outline" size="sm" as-child>
+                                        <Link :href="show(appointment.id).url">View</Link>
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                        v-if="
+                                    <Button variant="outline" size="sm" as-child v-if="
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Link :href="edit(appointment.id).url"
-                                            >Edit</Link
-                                        >
+                                        ">
+                                        <Link :href="edit(appointment.id).url">Edit</Link>
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <a
-                                            :href="letter(appointment.id).url"
-                                            target="_blank"
-                                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
-                                        >
+                                    <Button variant="outline" size="sm" as-child>
+                                        <a :href="letter(appointment.id).url" target="_blank"
+                                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
                                             <Printer class="size-4" />
                                             Print
                                         </a>
                                     </Button>
 
                                     <!-- Status-specific action buttons -->
-                                    <template
-                                        v-if="
+                                    <template v-if="
                                             appointment.status ===
                                                 'scheduled' &&
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            @click="
+                                        ">
+                                        <Button variant="default" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'confirmed',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Confirm
                                         </Button>
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            @click="
+                                        <Button variant="destructive" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'cancelled',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Cancel
                                         </Button>
                                     </template>
 
-                                    <template
-                                        v-else-if="
+                                    <template v-else-if="
                                             appointment.status ===
                                                 'confirmed' &&
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            @click="
+                                        ">
+                                        <Button variant="default" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'arrived',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Arrived
                                         </Button>
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            @click="
+                                        <Button variant="default" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'completed',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Complete
                                         </Button>
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            @click="
+                                        <Button variant="destructive" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'cancelled',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Cancel
                                         </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            @click="
+                                        <Button variant="outline" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'no_show',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             No Show
                                         </Button>
                                     </template>
 
-                                    <template
-                                        v-else-if="
+                                    <template v-else-if="
                                             appointment.status === 'arrived' &&
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            @click="
+                                        ">
+                                        <Button variant="default" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'in_progress',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Start
                                         </Button>
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            @click="
+                                        <Button variant="destructive" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'cancelled',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Cancel
                                         </Button>
                                     </template>
 
-                                    <template
-                                        v-else-if="
+                                    <template v-else-if="
                                             appointment.status ===
                                                 'in_progress' &&
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            @click="
+                                        ">
+                                        <Button variant="default" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'completed',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Complete
                                         </Button>
                                     </template>
 
-                                    <template
-                                        v-else-if="
+                                    <template v-else-if="
                                             appointment.status === 'no-show' &&
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            @click="
+                                        ">
+                                        <Button variant="outline" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'scheduled',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Reschedule
                                         </Button>
                                     </template>
 
-                                    <template
-                                        v-else-if="
+                                    <template v-else-if="
                                             appointment.status ===
                                                 'cancelled' &&
                                             hasPermission('edit_appointments')
-                                        "
-                                    >
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            @click="
+                                        ">
+                                        <Button variant="outline" size="sm" @click="
                                                 updateStatus(
                                                     appointment,
                                                     'scheduled',
                                                 )
-                                            "
-                                        >
+                                            ">
                                             Reschedule
                                         </Button>
                                     </template>
@@ -453,10 +406,7 @@ const cancelStatusUpdate = () => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.appointments.length === 0">
-                            <TableCell
-                                colspan="7"
-                                class="text-center text-muted-foreground"
-                            >
+                            <TableCell colspan="7" class="text-center text-muted-foreground">
                                 No appointments found
                             </TableCell>
                         </TableRow>
@@ -474,8 +424,8 @@ const cancelStatusUpdate = () => {
                         appointment to "{{ selectedNewStatus }}"? <br /><br />
                         <strong>Patient:</strong>
                         {{
-                            selectedAppointment?.patient?.user?.name ||
-                            'Unknown'
+                        selectedAppointment?.patient?.user?.name ||
+                        'Unknown'
                         }}
                         <br />
                         <strong>Current Status:</strong>

@@ -43,6 +43,23 @@ class AppointmentController extends Controller
             });
         }
 
+        // Apply date range filters
+        if ($from = request('from')) {
+            try {
+                $query->whereDate('appointment_date_time', '>=', $from);
+            } catch (\Exception $e) {
+                // Ignore invalid date formats
+            }
+        }
+
+        if ($to = request('to')) {
+            try {
+                $query->whereDate('appointment_date_time', '<=', $to);
+            } catch (\Exception $e) {
+                // Ignore invalid date formats
+            }
+        }
+
         $appointments = $query->paginate(15);
 
         // Transform appointments for the frontend to handle null relationships
@@ -71,6 +88,8 @@ class AppointmentController extends Controller
             'appointments' => $transformedAppointments,
             'filters' => [
                 'search' => request('search', ''),
+                'from' => request('from', ''),
+                'to' => request('to', ''),
             ],
         ]);
     }
