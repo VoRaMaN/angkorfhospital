@@ -27,19 +27,32 @@ class BillingController extends Controller
             $query->where('status', request('status'));
         }
 
-        // Filter by search if provided
+        // Filter by search if provided (search in patient id, patient name and related IDs)
         if (request('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                // Search in related patient names
-                $q->whereHas('patient.user', function ($patientQuery) use ($search) {
-                    $patientQuery->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                });
+                // search by patient id (string like 25/0000000001)
+                $q->where('patient_id', 'like', "%{$search}%")
+                    // or by patient full name on the related user
+                    ->orWhereHas('patient.user', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', "%{$search}%");
+                    })
+                    // or by related numeric IDs
+                    ->orWhere('appointment_id', 'like', "%{$search}%")
+                    ->orWhere('visit_id', 'like', "%{$search}%")
+                    ->orWhere('medical_order_id', 'like', "%{$search}%");
             });
         }
 
-        $billings = $query->paginate(15);
+        // Filter by billing date range if provided
+        if (request('start_date')) {
+            $query->whereDate('billing_date', '>=', request('start_date'));
+        }
+        if (request('end_date')) {
+            $query->whereDate('billing_date', '<=', request('end_date'));
+        }
+
+        $billings = $query->paginate(15)->appends(request()->only(['search', 'status', 'start_date', 'end_date']));
 
         // Transform billings for the frontend
         $transformedBillings = $billings->getCollection()->map(function ($billing) {
@@ -72,6 +85,8 @@ class BillingController extends Controller
             'filters' => [
                 'search' => request('search', ''),
                 'status' => request('status', ''),
+                'start_date' => request('start_date', ''),
+                'end_date' => request('end_date', ''),
             ],
         ]);
     }

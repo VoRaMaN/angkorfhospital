@@ -29,13 +29,13 @@ import { create, edit, letter, show } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { DollarSign, Edit, Eye, Plus, Printer, Search } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     billings: {
         id: number;
-        patient_id: number;
+        patient_id: string | number;
         patient_name: string;
         appointment_id?: number;
         visit_id?: number;
@@ -51,6 +51,8 @@ interface Props {
     filters: {
         search: string;
         status: string;
+        start_date?: string;
+        end_date?: string;
     };
 }
 
@@ -60,6 +62,8 @@ const { hasPermission } = useAuth();
 
 const searchQuery = ref(props.filters.search);
 const statusFilter = ref(props.filters.status || '');
+const startDate = ref(props.filters.start_date || '');
+const endDate = ref(props.filters.end_date || '');
 
 const isDialogOpen = ref(false);
 const selectedBilling = ref<Props['billings'][0] | null>(null);
@@ -116,9 +120,32 @@ const performSearch = () => {
         data: {
             search: searchQuery.value,
             status: statusFilter.value,
+            start_date: startDate.value || undefined,
+            end_date: endDate.value || undefined,
         },
         preserveState: true,
     });
+};
+
+// Debounce search for smooth typing
+const debounceDelay = 500;
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+watch(searchQuery, () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        performSearch();
+    }, debounceDelay);
+});
+
+watch([startDate, endDate, statusFilter], () => {
+    // Instant search when date or status changes
+    performSearch();
+});
+
+const clearDates = () => {
+    startDate.value = '';
+    endDate.value = '';
+    performSearch();
 };
 
 const openStatusDialog = (billing: Props['billings'][0]) => {
@@ -162,6 +189,11 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                 <Button @click="performSearch" variant="outline">
                     Search
                 </Button>
+                <div class="flex gap-2 items-center">
+                    <Input v-model="startDate" type="date" class="max-w-[200px]" placeholder="Start date" />
+                    <Input v-model="endDate" type="date" class="max-w-[200px]" placeholder="End date" />
+                    <Button variant="ghost" size="sm" @click="clearDates">Clear Dates</Button>
+                </div>
             </div>
 
             <!-- Status Filter Buttons -->
