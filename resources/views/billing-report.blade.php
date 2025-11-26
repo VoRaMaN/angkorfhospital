@@ -7,202 +7,221 @@
     <style>
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
-            color: #000;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background: #fff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
         }
 
         .header {
             text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .header h1 {
-            margin: 0;
-            font-size: 24px;
+            margin: 0 0 5px 0;
+            font-size: 28px;
             font-weight: bold;
+            color: #2c3e50;
+            letter-spacing: 1px;
         }
 
-        .header p {
+        .header .subtitle {
             margin: 5px 0;
-            font-size: 14px;
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .header .meta {
+            margin: 10px 0 0 0;
+            font-size: 10px;
+            color: #95a5a6;
         }
 
         .section {
-            margin-bottom: 25px;
+            margin-bottom: 35px;
             page-break-inside: avoid;
         }
 
-        .section h2 {
+        .section-title {
             font-size: 16px;
             font-weight: bold;
-            border-bottom: 1px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-            color: #000;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .info-grid {
             display: table;
             width: 100%;
-            margin-bottom: 15px;
+            border-collapse: collapse;
         }
 
         .info-row {
             display: table-row;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
         }
 
         .info-cell {
             display: table-cell;
-            padding: 4px 8px;
+            padding: 12px 15px;
             vertical-align: top;
             width: 50%;
         }
 
         .info-label {
-            font-weight: bold;
-            color: #333;
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
         .info-value {
-            color: #000;
+            color: #2c3e50;
+            font-size: 12px;
+            font-weight: 500;
         }
 
-        .records-list {
-            margin-top: 10px;
-        }
-
-        .record-item {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
+        .card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 4px;
             page-break-inside: avoid;
         }
 
-        .record-header {
-            display: table;
-            width: 100%;
-            margin-bottom: 8px;
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
         }
 
-        .record-header-row {
-            display: table-row;
+        .card-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        .record-header-cell {
-            display: table-cell;
-            padding: 2px 4px;
-            width: 50%;
-        }
-
-        .record-content {
-            margin-top: 8px;
-        }
-
-        .record-label {
-            font-weight: bold;
+        .card-value {
+            color: #212529;
             font-size: 11px;
-            color: #333;
-        }
-
-        .record-value {
-            margin-top: 2px;
-            font-size: 11px;
-            color: #000;
-            white-space: pre-line;
+            line-height: 1.6;
         }
 
         .no-data {
-            font-style: italic;
-            color: #666;
-            padding: 10px;
-        }
-
-        .page-break {
-            page-break-before: always;
-        }
-
-        @page {
-            margin: 1in;
-            size: A4;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
             text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
+            font-style: italic;
+            color: #adb5bd;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 4px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .status-pending { background-color: #fff3cd; color: #856404; }
-        .status-paid { background-color: #d4edda; color: #155724; }
-        .status-overdue { background-color: #f8d7da; color: #721c24; }
-        .status-cancelled { background-color: #e2e3e5; color: #383d41; }
+        .status-pending { 
+            background-color: rgba(255, 193, 7, 0.2); 
+            color: #856404; 
+            border: 1px solid #ffc107;
+        }
+        
+        .status-paid { 
+            background-color: rgba(40, 167, 69, 0.2); 
+            color: #155724; 
+            border: 1px solid #28a745;
+        }
+        
+        .status-overdue { 
+            background-color: rgba(220, 53, 69, 0.2); 
+            color: #721c24; 
+            border: 1px solid #dc3545;
+        }
+        
+        .status-partial {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #004085;
+            border: 1px solid #007bff;
+        }
+        
+        .status-written-off,
+        .status-cancelled { 
+            background-color: rgba(108, 117, 125, 0.2); 
+            color: #383d41; 
+            border: 1px solid #6c757d;
+        }
 
-        .billing-summary {
-            background-color: #f0f8ff;
-            border: 2px solid #000;
-            padding: 15px;
-            margin: 20px 0;
+        @page {
+            margin: 0.75in;
+            size: A4;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
             text-align: center;
+            font-size: 9px;
+            color: #adb5bd;
+            border-top: 2px solid #ecf0f1;
         }
 
-        .billing-amount {
-            font-size: 18px;
-            font-weight: bold;
-            color: #000;
-            margin: 10px 0;
-        }
-
-        .billing-status {
-            font-size: 14px;
-            font-weight: bold;
+        .footer p {
             margin: 5px 0;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #ecf0f1, transparent);
+            margin: 30px 0;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Angkor F Clinic</h1>
-        <p>Billing Report</p>
-        <p>Generated on: {{ now()->format('F j, Y \a\t g:i A') }}</p>
-    </div>
-
-    <!-- Billing Summary -->
-    <div class="billing-summary">
-        <h2>Billing Summary</h2>
-        <div class="billing-amount">
-            ${{ number_format($report['billing_info']['amount'], 2) }}
+    <div class="container">
+        <div class="header">
+            <h1>ANGKOR F CLINIC</h1>
+            <div class="subtitle">Billing Statement</div>
+            <div class="meta">Generated: {{ now()->format('F j, Y \a\t g:i A') }}</div>
         </div>
-        <div class="billing-status">
-            <span class="status-badge status-{{ strtolower(str_replace(' ', '-', $report['billing_info']['status'])) }}">
-                {{ $report['billing_info']['status'] }}
-            </span>
-        </div>
-    </div>
 
-    <!-- Billing Information -->
-    <div class="section">
-        <h2>Billing Information</h2>
-        <div class="info-grid">
+        <!-- Billing Information -->
+        <div class="section">
+            <div class="section-title">Billing Details</div>
+            <div class="info-grid">
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Billing ID:</div>
@@ -217,8 +236,8 @@
                 <div class="info-cell">
                     <div class="info-label">Status:</div>
                     <div class="info-value">
-                        <span class="status-badge status-{{ strtolower(str_replace(' ', '-', $report['billing_info']['status'])) }}">
-                            {{ $report['billing_info']['status'] }}
+                        <span class="status-badge status-{{ strtolower(str_replace(' ', '-', $report['billing_info']['status']->label())) }}">
+                            {{ $report['billing_info']['status']->label() }}
                         </span>
                     </div>
                 </div>
@@ -256,12 +275,14 @@
             </div>
             @endif
         </div>
-    </div>
+        </div>
 
-    <!-- Patient Information -->
-    <div class="section">
-        <h2>Patient Information</h2>
-        <div class="info-grid">
+        <div class="divider"></div>
+
+        <!-- Patient Information -->
+        <div class="section">
+            <div class="section-title">Patient Information</div>
+            <div class="info-grid">
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Full Name:</div>
@@ -301,13 +322,15 @@
             </div>
             @endif
         </div>
-    </div>
+        </div>
 
-    <!-- Related Appointment -->
-    @if($report['appointment_info'])
-    <div class="section">
-        <h2>Related Appointment</h2>
-        <div class="info-grid">
+        <div class="divider"></div>
+
+        <!-- Related Appointment -->
+        @if($report['appointment_info'])
+        <div class="section">
+            <div class="section-title">Related Appointment</div>
+            <div class="info-grid">
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Appointment ID:</div>
@@ -329,14 +352,14 @@
                 </div>
             </div>
         </div>
-    </div>
-    @endif
+        </div>
+        @endif
 
-    <!-- Related Visit -->
-    @if($report['visit_info'])
-    <div class="section">
-        <h2>Related Visit</h2>
-        <div class="info-grid">
+        <!-- Related Visit -->
+        @if($report['visit_info'])
+        <div class="section">
+            <div class="section-title">Related Visit</div>
+            <div class="info-grid">
             <div class="info-row">
                 <div class="info-cell">
                     <div class="info-label">Visit ID:</div>
@@ -358,102 +381,98 @@
                 </div>
             </div>
         </div>
-    </div>
-    @endif
+        </div>
+        @endif
 
-    <!-- Related Medical Orders -->
-    <div class="section">
-        <h2>Related Medical Orders ({{ count($report['medical_orders']) }})</h2>
-        @if(count($report['medical_orders']) === 0)
-            <div class="no-data">No related medical orders found.</div>
-        @else
-            <div class="records-list">
+        <div class="divider"></div>
+
+        <!-- Related Medical Orders -->
+        <div class="section">
+            <div class="section-title">Medical Orders ({{ count($report['medical_orders']) }})</div>
+            @if(count($report['medical_orders']) === 0)
+                <div class="no-data">No medical orders associated with this billing.</div>
+            @else
                 @foreach($report['medical_orders'] as $order)
-                    <div class="record-item">
-                        <div class="record-header">
-                            <div class="record-header-row">
-                                <div class="record-header-cell">
-                                    <div class="record-label">Order ID:</div>
-                                    <div class="record-value">#{{ $order['id'] }}</div>
-                                </div>
-                                <div class="record-header-cell">
-                                    <div class="record-label">Order Type:</div>
-                                    <div class="record-value">{{ $order['order_type']?->label() ?? $order['order_type'] ?? 'N/A' }}</div>
-                                </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-label">Order ID</div>
+                                <div class="card-value">#{{ $order['id'] }}</div>
                             </div>
-                            <div class="record-header-row">
-                                <div class="record-header-cell">
-                                    <div class="record-label">Status:</div>
-                                    <div class="record-value">{{ $order['status']?->label() ?? $order['status'] ?? 'N/A' }}</div>
-                                </div>
-                                <div class="record-header-cell">
-                                    <div class="record-label">Priority:</div>
-                                    <div class="record-value">{{ $order['priority']?->label() ?? $order['priority'] ?? 'N/A' }}</div>
-                                </div>
+                            <div>
+                                <div class="card-label">Type</div>
+                                <div class="card-value">{{ $order['order_type']?->label() ?? $order['order_type'] ?? 'N/A' }}</div>
+                            </div>
+                            <div>
+                                <div class="card-label">Status</div>
+                                <div class="card-value">{{ $order['status']?->label() ?? $order['status'] ?? 'N/A' }}</div>
+                            </div>
+                            <div>
+                                <div class="card-label">Priority</div>
+                                <div class="card-value">{{ $order['priority']?->label() ?? $order['priority'] ?? 'N/A' }}</div>
                             </div>
                         </div>
-                        <div class="record-content">
-                            <div class="record-label">Details:</div>
-                            <div class="record-value">{{ $order['order_details'] }}</div>
+                        <div>
+                            <div class="card-label">Order Details</div>
+                            <div class="card-value">{{ $order['order_details'] }}</div>
                         </div>
-                        <div class="record-content">
-                            <div class="record-label">Ordered At:</div>
-                            <div class="record-value">{{ \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') }}</div>
+                        <div style="margin-top: 10px;">
+                            <div class="card-label">Ordered At</div>
+                            <div class="card-value">{{ \Carbon\Carbon::parse($order['ordered_at'])->format('M j, Y g:i A') }}</div>
                         </div>
                     </div>
                 @endforeach
-            </div>
-        @endif
-    </div>
+            @endif
+        </div>
 
-    <!-- Related Medical Records -->
-    <div class="section">
-        <h2>Related Medical Records ({{ count($report['medical_records']) }})</h2>
-        @if(count($report['medical_records']) === 0)
-            <div class="no-data">No related medical records found.</div>
-        @else
-            <div class="records-list">
+        <div class="divider"></div>
+
+        <!-- Related Medical Records -->
+        <div class="section">
+            <div class="section-title">Medical Records ({{ count($report['medical_records']) }})</div>
+            @if(count($report['medical_records']) === 0)
+                <div class="no-data">No medical records associated with this billing.</div>
+            @else
                 @foreach($report['medical_records'] as $record)
-                    <div class="record-item">
-                        <div class="record-header">
-                            <div class="record-header-row">
-                                <div class="record-header-cell">
-                                    <div class="record-label">Record ID:</div>
-                                    <div class="record-value">#{{ $record['id'] }}</div>
-                                </div>
-                                <div class="record-header-cell">
-                                    <div class="record-label">Date of Service:</div>
-                                    <div class="record-value">{{ \Carbon\Carbon::parse($record['date_of_service'])->format('M j, Y') }}</div>
-                                </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-label">Record ID</div>
+                                <div class="card-value">#{{ $record['id'] }}</div>
+                            </div>
+                            <div>
+                                <div class="card-label">Date of Service</div>
+                                <div class="card-value">{{ \Carbon\Carbon::parse($record['date_of_service'])->format('M j, Y') }}</div>
                             </div>
                         </div>
                         @if($record['diagnosis'])
-                            <div class="record-content">
-                                <div class="record-label">Diagnosis:</div>
-                                <div class="record-value">{{ $record['diagnosis'] }}</div>
+                            <div style="margin-top: 10px;">
+                                <div class="card-label">Diagnosis</div>
+                                <div class="card-value">{{ $record['diagnosis'] }}</div>
                             </div>
                         @endif
                         @if($record['treatment'])
-                            <div class="record-content">
-                                <div class="record-label">Treatment:</div>
-                                <div class="record-value">{{ $record['treatment'] }}</div>
+                            <div style="margin-top: 10px;">
+                                <div class="card-label">Treatment</div>
+                                <div class="card-value">{{ $record['treatment'] }}</div>
                             </div>
                         @endif
                         @if($record['notes'])
-                            <div class="record-content">
-                                <div class="record-label">Notes:</div>
-                                <div class="record-value">{{ $record['notes'] }}</div>
+                            <div style="margin-top: 10px;">
+                                <div class="card-label">Notes</div>
+                                <div class="card-value">{{ $record['notes'] }}</div>
                             </div>
                         @endif
                     </div>
                 @endforeach
-            </div>
-        @endif
-    </div>
+            @endif
+        </div>
 
-    <div class="footer">
-        <p>This report was generated by Angkor F Clinic on {{ now()->format('F j, Y \a\t g:i A') }}</p>
-        <p>Confidential - For medical use only</p>
+        <div class="footer">
+            <p>ANGKOR F CLINIC</p>
+            <p>This is an official billing statement. Please retain for your records.</p>
+            <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }} • Confidential Medical Document</p>
+        </div>
     </div>
 </body>
 </html>
