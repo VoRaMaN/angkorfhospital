@@ -129,16 +129,16 @@ interface OrderItem {
 }
 
 const form = useForm<{
-    patient_id: number | null;
-    staff_id: number | null;
+    patient_id: string;
+    staff_id: string;
     order_details: string;
     priority: string;
     notes: string;
     ordered_at: string;
     order_items: OrderItem[];
 }>({
-    patient_id: null,
-    staff_id: null,
+    patient_id: '',
+    staff_id: '',
     order_details: '',
     priority: 'routine',
     notes: '',
@@ -147,37 +147,19 @@ const form = useForm<{
 });
 
 const patientOptions = computed(() => {
-    const base = [{ value: 'null', label: 'None' }];
-    if (!props.patients) return base;
-    return [
-        ...base,
-        ...props.patients.map((p) => ({
-            value: p.id.toString(),
-            label: p.name || 'Unknown Patient',
-        })),
-    ];
+    if (!props.patients) return [];
+    return props.patients.map((p) => ({
+        value: p.id.toString(),
+        label: p.name || 'Unknown Patient',
+    }));
 });
+
 const staffOptions = computed(() => {
-    const base = [{ value: 'null', label: 'None' }];
-    if (!props.staff) return base;
-    return [
-        ...base,
-        ...props.staff.map((s) => ({ value: s.id.toString(), label: s.name || 'Unknown Staff' })),
-    ];
-});
-
-const patientValue = computed({
-    get: () => form.patient_id?.toString() || 'null',
-    set: (value) => {
-        form.patient_id = value === 'null' ? null : Number(value);
-    },
-});
-
-const staffValue = computed({
-    get: () => form.staff_id?.toString() || 'null',
-    set: (value) => {
-        form.staff_id = value === 'null' ? null : Number(value);
-    },
+    if (!props.staff) return [];
+    return props.staff.map((s) => ({
+        value: s.id.toString(),
+        label: s.name || 'Unknown Staff',
+    }));
 });
 
 const submitForm = () => {
@@ -609,7 +591,7 @@ const getLabItemPrice = (inventoryId: number) => {
                                 <FormItem>
                                     <Label>Patient</Label>
                                     <SearchableSelect
-                                        v-model="patientValue"
+                                        v-model="form.patient_id"
                                         :options="patientOptions"
                                         placeholder="Select a patient (optional)"
                                     />
@@ -626,7 +608,7 @@ const getLabItemPrice = (inventoryId: number) => {
                                 <FormItem>
                                     <Label>Ordering Staff</Label>
                                     <SearchableSelect
-                                        v-model="staffValue"
+                                        v-model="form.staff_id"
                                         :options="staffOptions"
                                         placeholder="Select staff member (optional)"
                                     />
