@@ -11,6 +11,7 @@ class Billing extends Model
     use HasFactory;
 
     protected $fillable = [
+        'patient_id',
         'appointment_id',
         'visit_id',
         'medical_order_id',
@@ -46,6 +47,6 @@ class Billing extends Model
 
     public function patient()
     {
-        return $this->hasOneThrough(Patient::class, Appointment::class, 'id', 'id', 'appointment_id', 'patient_id');
+        return $this->belongsTo(Patient::class);
     }
 }

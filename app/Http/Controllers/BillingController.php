@@ -20,7 +20,7 @@ class BillingController extends Controller
     {
         $this->authorize('viewAny', Billing::class);
 
-        $query = Billing::with(['appointment.patient.user', 'visit.patient.user', 'medicalOrder.patient.user']);
+        $query = Billing::with(['patient.user', 'appointment', 'visit', 'medicalOrder']);
 
         // Filter by status if provided
         if (request('status')) {
@@ -32,18 +32,10 @@ class BillingController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 // Search in related patient names
-                $q->whereHas('appointment.patient.user', function ($patientQuery) use ($search) {
+                $q->whereHas('patient.user', function ($patientQuery) use ($search) {
                     $patientQuery->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%");
-                })
-                    ->orWhereHas('visit.patient.user', function ($patientQuery) use ($search) {
-                        $patientQuery->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('medicalOrder.patient.user', function ($patientQuery) use ($search) {
-                        $patientQuery->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%");
-                    });
+                });
             });
         }
 
@@ -51,19 +43,11 @@ class BillingController extends Controller
 
         // Transform billings for the frontend
         $transformedBillings = $billings->getCollection()->map(function ($billing) {
-            $patient = null;
+            $patient = $billing->patient;
             $patientName = 'Unknown Patient';
 
-            if ($billing->appointment && $billing->appointment->patient && $billing->appointment->patient->user) {
-                $patient = $billing->appointment->patient;
-            } elseif ($billing->visit && $billing->visit->patient && $billing->visit->patient->user) {
-                $patient = $billing->visit->patient;
-            } elseif ($billing->medicalOrder && $billing->medicalOrder->patient && $billing->medicalOrder->patient->user) {
-                $patient = $billing->medicalOrder->patient;
-            }
-
-            if ($patient) {
-                $patientName = $patient->first_name.' '.$patient->last_name;
+            if ($patient && $patient->user) {
+                $patientName = $patient->user->name;
             }
 
             return [
@@ -98,25 +82,31 @@ class BillingController extends Controller
 
         // Get appointments without billings
         $appointments = Appointment::with('patient.user')->whereDoesntHave('billings')->get()->map(function ($appointment) {
+            $patientName = $appointment->patient->user ? $appointment->patient->user->name : 'Unknown';
+
             return [
                 'id' => $appointment->id,
-                'label' => 'Appointment for '.$appointment->patient->first_name.' '.$appointment->patient->last_name.' on '.$appointment->appointment_date_time->format('Y-m-d'),
+                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->format('Y-m-d'),
             ];
         });
 
         // Get visits without billings
         $visits = Visit::with('patient.user')->whereDoesntHave('billings')->get()->map(function ($visit) {
+            $patientName = $visit->patient->user ? $visit->patient->user->name : 'Unknown';
+
             return [
                 'id' => $visit->id,
-                'label' => 'Visit for '.$visit->patient->first_name.' '.$visit->patient->last_name.' on '.$visit->visit_date_time->format('Y-m-d H:i'),
+                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('Y-m-d H:i'),
             ];
         });
 
         // Get medical orders without billings
-        $medicalOrders = MedicalOrder::with('patient.user')->whereDoesntHave('billings')->get()->map(function ($order) {
+        $medicalOrders = MedicalOrder::with('visit.patient.user')->whereDoesntHave('billings')->get()->map(function ($order) {
+            $patientName = $order->visit?->patient?->user ? $order->visit->patient->user->name : 'Unknown';
+
             return [
                 'id' => $order->id,
-                'label' => 'Order for '.$order->patient->first_name.' '.$order->patient->last_name.' - '.$order->order_details,
+                'label' => 'Order for '.$patientName.' - '.$order->order_details,
             ];
         });
 
@@ -160,11 +150,9 @@ class BillingController extends Controller
     {
         $this->authorize('view', $billing);
         $billing->load([
-            'appointment.patient.user',
+            'patient.user',
             'appointment.staff.user',
-            'visit.patient.user',
             'visit.staff.user',
-            'medicalOrder.patient.user',
             'medicalOrder.staff',
             'medicalOrder.orderItems.inventory',
         ]);
@@ -175,14 +163,10 @@ class BillingController extends Controller
             $costBreakdown = $billingService->getOrderCostBreakdown($billing->medicalOrder);
         }
 
-        // Get patient name from related records
+        // Get patient name from direct relationship
         $patientName = 'Unknown Patient';
-        if ($billing->appointment && $billing->appointment->patient && $billing->appointment->patient->user) {
-            $patientName = $billing->appointment->patient->first_name.' '.$billing->appointment->patient->last_name;
-        } elseif ($billing->visit && $billing->visit->patient && $billing->visit->patient->user) {
-            $patientName = $billing->visit->patient->first_name.' '.$billing->visit->patient->last_name;
-        } elseif ($billing->medicalOrder && $billing->medicalOrder->patient && $billing->medicalOrder->patient->user) {
-            $patientName = $billing->medicalOrder->patient->first_name.' '.$billing->medicalOrder->patient->last_name;
+        if ($billing->patient && $billing->patient->user) {
+            $patientName = $billing->patient->user->name;
         }
 
         $transformedBilling = [
@@ -213,9 +197,11 @@ class BillingController extends Controller
         $appointments = Appointment::with('patient.user')->where(function ($query) use ($billing) {
             $query->whereDoesntHave('billings')->orWhere('id', $billing->appointment_id);
         })->get()->map(function ($appointment) {
+            $patientName = $appointment->patient->user ? $appointment->patient->user->name : 'Unknown';
+
             return [
                 'id' => $appointment->id,
-                'label' => 'Appointment for '.$appointment->patient->first_name.' '.$appointment->patient->last_name.' on '.$appointment->appointment_date_time->format('Y-m-d'),
+                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->format('Y-m-d'),
             ];
         });
 
@@ -223,19 +209,23 @@ class BillingController extends Controller
         $visits = Visit::with('patient.user')->where(function ($query) use ($billing) {
             $query->whereDoesntHave('billings')->orWhere('id', $billing->visit_id);
         })->get()->map(function ($visit) {
+            $patientName = $visit->patient->user ? $visit->patient->user->name : 'Unknown';
+
             return [
                 'id' => $visit->id,
-                'label' => 'Visit for '.$visit->patient->first_name.' '.$visit->patient->last_name.' on '.$visit->visit_date_time->format('Y-m-d H:i'),
+                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('Y-m-d H:i'),
             ];
         });
 
         // Get medical orders without billings or current
-        $medicalOrders = MedicalOrder::with('patient.user')->where(function ($query) use ($billing) {
+        $medicalOrders = MedicalOrder::with('visit.patient.user')->where(function ($query) use ($billing) {
             $query->whereDoesntHave('billings')->orWhere('id', $billing->medical_order_id);
         })->get()->map(function ($order) {
+            $patientName = $order->visit?->patient?->user ? $order->visit->patient->user->name : 'Unknown';
+
             return [
                 'id' => $order->id,
-                'label' => 'Order for '.$order->patient->first_name.' '.$order->patient->last_name.' - '.$order->order_details,
+                'label' => 'Order for '.$patientName.' - '.$order->order_details,
             ];
         });
 
@@ -316,49 +306,21 @@ class BillingController extends Controller
         $this->authorize('view', $billing);
 
         $billing->load([
-            'appointment.patient.user',
+            'patient.user',
             'appointment.staff.user',
-            'visit.patient.user',
             'visit.staff.user',
-            'medicalOrder.patient.user',
             'medicalOrder.staff.user',
             'medicalOrder.orderItems.inventory',
             'medicalOrder.medicalRecords',
         ]);
 
-        // Get patient name from related records
+        // Get patient info from direct relationship
         $patientName = 'Unknown Patient';
         $patientInfo = null;
 
-        if ($billing->appointment && $billing->appointment->patient) {
-            $patient = $billing->appointment->patient;
-            $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
-            $patientInfo = [
-                'id' => $patient->id,
-                'name' => $patientName,
-                'date_of_birth' => $patient->date_of_birth,
-                'gender' => $patient->gender,
-                'phone_number' => $patient->phone_number,
-                'email' => $patient->email ?? $patient->user?->email,
-                'address' => $patient->address,
-                'insurance_info' => $patient->insurance_info,
-            ];
-        } elseif ($billing->visit && $billing->visit->patient) {
-            $patient = $billing->visit->patient;
-            $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
-            $patientInfo = [
-                'id' => $patient->id,
-                'name' => $patientName,
-                'date_of_birth' => $patient->date_of_birth,
-                'gender' => $patient->gender,
-                'phone_number' => $patient->phone_number,
-                'email' => $patient->email ?? $patient->user?->email,
-                'address' => $patient->address,
-                'insurance_info' => $patient->insurance_info,
-            ];
-        } elseif ($billing->medicalOrder && $billing->medicalOrder->patient) {
-            $patient = $billing->medicalOrder->patient;
-            $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
+        if ($billing->patient) {
+            $patient = $billing->patient;
+            $patientName = $patient->user ? $patient->user->name : $patient->first_name.' '.$patient->last_name;
             $patientInfo = [
                 'id' => $patient->id,
                 'name' => $patientName,
@@ -478,11 +440,9 @@ class BillingController extends Controller
         $this->authorize('view', $billing);
 
         $billing->load([
-            'appointment.patient.user',
+            'patient.user',
             'appointment.staff.user',
-            'visit.patient.user',
             'visit.staff.user',
-            'medicalOrder.patient.user',
             'medicalOrder.staff.user',
         ]);
 

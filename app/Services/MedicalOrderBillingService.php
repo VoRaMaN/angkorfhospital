@@ -180,8 +180,12 @@ class MedicalOrderBillingService
             // Reduce inventory stock for used items
             $this->reduceInventoryStock($medicalOrder);
 
+            // Get patient_id from medical order or fallback to visit's patient_id
+            $patientId = $medicalOrder->patient_id ?? $medicalOrder->visit?->patient_id;
+
             // Create billing record
             $billing = Billing::create([
+                'patient_id' => $patientId,
                 'appointment_id' => $medicalOrder->visit?->appointment_id,
                 'visit_id' => $medicalOrder->visit_id,
                 'medical_order_id' => $medicalOrder->id,
