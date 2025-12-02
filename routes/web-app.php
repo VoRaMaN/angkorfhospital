@@ -85,6 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Download patient report as PDF (query param: patient)
     Route::get('patients/report/download', [PatientController::class, 'downloadReport'])->name('patients.report.download');
     Route::get('patients/sticker', [PatientController::class, 'generateSticker'])->name('patients.sticker');
+    // Printable patient label (single small page suitable for label printers)
+    Route::get('patients/label', [PatientController::class, 'generateLabel'])->name('patients.label');
 
     // Staff
     Route::resource('staff', StaffController::class);

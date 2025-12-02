@@ -137,6 +137,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
                 <div class="ml-auto flex gap-2">
                     <Button variant="outline" as-child>
+                        <a :href="`/patients/label?patient=${props.patient.id}`" target="_blank" rel="noopener noreferrer">
+                            <Printer class="size-4" />
+                            Print Label
+                        </a>
+                    </Button>
+                    <Button variant="outline" as-child>
                         <a :href="`/patients/sticker?patient=${props.patient.id}`" target="_blank" rel="noopener noreferrer">
                             <Printer class="size-4" />
                             Print Sticker

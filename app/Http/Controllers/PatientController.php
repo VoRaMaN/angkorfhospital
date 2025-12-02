@@ -490,4 +490,120 @@ class PatientController extends Controller
             return response('Error: '.$e->getMessage(), 500);
         }
     }
+
+    /**
+     * Generate a single patient label sized for small label printers (e.g. 4" x 2").
+     */
+    public function generateLabel(): \Illuminate\Http\Response
+    {
+        try {
+            $patient = Patient::findOrFail(request('patient'));
+            $this->authorize('view', $patient);
+
+            // Build DOB string using safe defaults and casting to string
+            $dob = sprintf(
+                '%s/%s/%s',
+                (string) ($patient->date_of_birth_month ?? ''),
+                (string) ($patient->date_of_birth_day ?? ''),
+                (string) ($patient->date_of_birth_year ?? '')
+            );
+
+            // Build full name safely, filtering out empty pieces and casting values to string
+            $nameParts = array_filter([
+                (string) ($patient->title ?? ''),
+                (string) ($patient->name ?? ''),
+                (string) ($patient->surname ?? ''),
+            ]);
+            $fullName = trim(implode(' ', $nameParts));
+
+            // Sanitize values prior to embedding in HTML to avoid mixing types or XSS
+            $sanitizedFullName = htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8');
+            $sanitizedDob = htmlspecialchars($dob, ENT_QUOTES, 'UTF-8');
+            $sanitizedId = htmlspecialchars((string) $patient->getKey(), ENT_QUOTES, 'UTF-8');
+
+            $html = '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Label</title>
+    <style>
+        @page { 
+            size: 4in 2in; 
+            margin: 0; 
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            width: 4in; 
+            height: 2in;
+        }
+        .label-container {
+            box-sizing: border-box;
+            width: 3.9in; 
+            height: 1.9in;
+            position: absolute;
+            top: 0.05in;
+            left: 0.05in;
+            border: 2px solid #1f2937;
+            border-radius: 6px;
+            padding: 10px;
+            overflow: hidden;
+        }
+        .label-field {
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+        .patient-name {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1f2937;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .patient-dob {
+            font-size: 12pt;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .patient-id {
+            font-size: 14pt;
+            color: #dc2626;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="label-container">
+        <div class="label-field patient-name">NAME: '.$sanitizedFullName.'</div>
+        <div class="label-field patient-dob">DOB: '.$sanitizedDob.'</div>
+        <div class="label-field patient-id">ID: '.$sanitizedId.'</div>
+    </div>
+</body>
+</html>';
+
+            $dompdf = new Dompdf();
+
+            $dompdf->loadHtml($html);
+
+            // Explicitly set paper size to 4x2 inches to prevent extra pages
+            $dompdf->setPaper([0, 0, 4 * 72, 2 * 72]);
+
+            $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', false);
+            $dompdf->set_option('defaultFont', 'DejaVu Sans');
+
+            $dompdf->render();
+
+            $fileName = 'patient_label_'.(string) $patient->getKey().'.pdf';
+
+            return response($dompdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+                'Cache-Control' => 'no-cache',
+            ]);
+        } catch (\Exception $e) {
+            return response('Error: '.$e->getMessage(), 500);
+        }
+    }
 }
