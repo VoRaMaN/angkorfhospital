@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Patient;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePatientRequest extends FormRequest
@@ -21,7 +22,8 @@ class UpdatePatientRequest extends FormRequest
      */
     public function rules(): array
     {
-        $patientId = $this->route('patient')->id ?? null;
+        $patient = Patient::find($this->input('patient'));
+        $patientId = $patient ? $patient->id : null;
 
         $rules = [
             'create_user_account' => 'boolean',
@@ -83,7 +85,7 @@ class UpdatePatientRequest extends FormRequest
         ];
 
         // Add user account validation only if creating user account for patient without existing user
-        if ($this->boolean('create_user_account') && ! $this->route('patient')->user_id) {
+        if ($this->boolean('create_user_account') && $patient && ! $patient->user_id) {
             $rules = array_merge($rules, [
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',

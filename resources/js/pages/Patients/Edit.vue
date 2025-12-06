@@ -100,10 +100,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const patientName = props.patient.user ? props.patient.user.name.split(' ')[0] : props.patient.name;
+const patientSurname = props.patient.user ? props.patient.user.name.split(' ').slice(1).join(' ') : props.patient.surname;
+
 const form = useForm({
     create_user_account: false,
-    name: props.patient.name,
-    surname: props.patient.surname,
+    name: patientName,
+    surname: patientSurname,
     email: props.patient.user?.email || props.patient.email || '', 
     
     title: props.patient.title || '',
@@ -666,7 +669,7 @@ const copyAddressToEmergency = () => {
                             </div>
 
                             <div class="flex items-center space-x-2" v-if="!props.patient.user">
-                                <Checkbox id="create_user_account" v-model:checked="form.create_user_account" />
+                                <input type="checkbox" id="create_user_account" v-model="form.create_user_account" />
                                 <label for="create_user_account"
                                     class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Create user account for self-service

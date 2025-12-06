@@ -22,6 +22,7 @@ interface Props {
         data: Array<{
             id: string;
             user: { name: string; email: string } | null;
+            full_name: string;
             name: string;
             surname: string;
             date_of_birth_day: number;
@@ -132,7 +133,7 @@ watch(searchQuery, () => {
                             :key="patient.id"
                         >
                             <TableCell class="font-mono text-sm">{{ patient.id }}</TableCell>
-                            <TableCell>{{ patient.name }} {{ patient.surname }}</TableCell>
+                            <TableCell>{{ patient.full_name }}</TableCell>
                             <TableCell>{{ patient.user?.email || 'No Email' }}</TableCell>
                             <TableCell>{{ patient.date_of_birth_day }}/{{ patient.date_of_birth_month }}/{{ patient.date_of_birth_year }}</TableCell>
                             <TableCell>{{ patient.gender }}</TableCell>

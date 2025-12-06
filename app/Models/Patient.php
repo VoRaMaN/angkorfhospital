@@ -88,7 +88,7 @@ class Patient extends Model
         'patient_type',
     ];
 
-    protected $appends = ['name'];
+    protected $appends = ['full_name'];
 
     protected function casts(): array
     {
@@ -97,7 +97,7 @@ class Patient extends Model
         ];
     }
 
-    public function getNameAttribute(): string
+    public function getFullNameAttribute(): string
     {
         return trim(($this->name ?? '').' '.($this->surname ?? ''));
     }
