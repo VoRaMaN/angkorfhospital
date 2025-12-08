@@ -384,20 +384,20 @@ class PatientController extends Controller
             <html>
             <head>
                 <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        margin: 0; 
-                        padding: 5mm; 
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 5mm;
                         background: #f9fafb;
                     }
-                    table { 
-                        width: 100%; 
-                        border-collapse: separate; 
+                    table {
+                        width: 100%;
+                        border-collapse: separate;
                         border-spacing: 3mm;
                         page-break-inside: avoid;
                     }
-                    td { 
-                        padding: 0; 
+                    td {
+                        padding: 0;
                         border: none;
                         page-break-inside: avoid;
                     }
@@ -499,15 +499,6 @@ class PatientController extends Controller
         try {
             $patient = Patient::findOrFail(request('patient'));
             $this->authorize('view', $patient);
-
-            // Build DOB string using safe defaults and casting to string
-            $dob = sprintf(
-                '%s/%s/%s',
-                (string) ($patient->date_of_birth_month ?? ''),
-                (string) ($patient->date_of_birth_day ?? ''),
-                (string) ($patient->date_of_birth_year ?? '')
-            );
-
             // Build full name safely, filtering out empty pieces and casting values to string
             $nameParts = array_filter([
                 (string) ($patient->title ?? ''),
@@ -516,90 +507,112 @@ class PatientController extends Controller
             ]);
             $fullName = trim(implode(' ', $nameParts));
 
-            // Sanitize values prior to embedding in HTML to avoid mixing types or XSS
-            $sanitizedFullName = htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8');
-            $sanitizedDob = htmlspecialchars($dob, ENT_QUOTES, 'UTF-8');
-            $sanitizedId = htmlspecialchars((string) $patient->getKey(), ENT_QUOTES, 'UTF-8');
+            $dob = $patient->date_of_birth_month.'/'.$patient->date_of_birth_day.'/'.$patient->date_of_birth_year;
+            $gender = strtoupper(substr($patient->gender, 0, 1)); // M or F
 
-            $html = '<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Patient Label</title>
-    <style>
-        @page { 
-            size: 4in 2in; 
-            margin: 0; 
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            width: 4in; 
-            height: 2in;
-        }
-        .label-container {
-            box-sizing: border-box;
-            width: 3.9in; 
-            height: 1.9in;
-            position: absolute;
-            top: 0.05in;
-            left: 0.05in;
-            border: 2px solid #1f2937;
-            border-radius: 6px;
-            padding: 10px;
-            overflow: hidden;
-        }
-        .label-field {
-            line-height: 1.3;
-            white-space: nowrap;
-        }
-        .patient-name {
-            font-size: 16pt;
-            font-weight: bold;
-            color: #1f2937;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .patient-dob {
-            font-size: 12pt;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-        .patient-id {
-            font-size: 14pt;
-            color: #dc2626;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="label-container">
-        <div class="label-field patient-name">NAME: '.$sanitizedFullName.'</div>
-        <div class="label-field patient-dob">DOB: '.$sanitizedDob.'</div>
-        <div class="label-field patient-id">ID: '.$sanitizedId.'</div>
-    </div>
-</body>
-</html>';
+            $age = null;
+            if ($patient->date_of_birth_year && $patient->date_of_birth_month && $patient->date_of_birth_day) {
+                $birthDate = \Carbon\Carbon::createFromDate(
+                    (int) $patient->date_of_birth_year,
+                    (int) $patient->date_of_birth_month,
+                    (int) $patient->date_of_birth_day
+                );
+                $age = $birthDate->age;
+            }
 
-            $dompdf = new Dompdf();
+            // Single label markup (fills the cell, centered)
+            $stickerHtml = '
+                <div style="
+                    box-sizing: border-box;
+                    width: 57mm; height: 31.5mm;
+                    border: none;
+                    display: flex; flex-direction: column;
+                    align-items: center; justify-content: center;
+                    text-align: center; font-size: 12pt;">
+                    <div style="font-weight: bold;">NAME: '.htmlspecialchars((string)($fullName ?? ""), ENT_QUOTES, "UTF-8").'</div>
+                    <div>ID: '.htmlspecialchars((string)$patient->id, ENT_QUOTES, "UTF-8").'</div>
+                    <div>DOB: '.htmlspecialchars($dob, ENT_QUOTES, "UTF-8").' ('.htmlspecialchars($age, ENT_QUOTES, "UTF-8").')</div>
+                </div>
+            ';
 
+
+            // Build 9 rows × 3 columns = 27 labels
+            $rows = '';
+            for ($r = 0; $r < 9; $r++) {
+                $rows .= '<tr>';
+                for ($c = 0; $c < 3; $c++) {
+                    $rows .= '<td>'.$stickerHtml.'</td>';
+                }
+                $rows .= '</tr>';
+            }
+
+            $html = '
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    @page { size: A4; margin: 0; }
+                    html, body {
+                        width: 210mm; height: 297mm;
+                        margin: 0; padding: 0; background: #fff;
+                        font-family: Arial, sans-serif;
+                    }
+                    .grid {
+                        position: absolute;
+                        top: 15mm;
+                        left: 15mm;
+                        width: 181.5mm;
+                        height: 270mm;
+                    }
+                    table {
+                        width: 100%;
+                        height: 100%;
+                        border-collapse: separate;
+                        border-spacing: 0;
+                        table-layout: fixed;
+                    }
+                    tr { height: 31.5mm; }
+                    td {
+                        width: 57mm; height: 31.5mm;
+                        padding: 0 0;
+                        vertical-align: middle;
+                        text-align: center;
+                    }
+                    .label {
+                    width: 100%;
+                    height: 100%;
+                    box-sizing: border-box;
+                    border: none;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12pt;
+                    text-align: center;
+                }
+
+                </style>
+            </head>
+            <body>
+                <div class="grid">
+                    <table>'.$rows.'</table>
+                </div>
+            </body>
+            </html>
+            ';
+
+            $dompdf = new Dompdf;
             $dompdf->loadHtml($html);
-
-            // Explicitly set paper size to 4x2 inches to prevent extra pages
-            $dompdf->setPaper([0, 0, 4 * 72, 2 * 72]);
-
+            $dompdf->setPaper('a4');
             $dompdf->set_option('isHtml5ParserEnabled', true);
             $dompdf->set_option('isRemoteEnabled', false);
-            $dompdf->set_option('defaultFont', 'DejaVu Sans');
-
+            $dompdf->set_option('defaultFont', 'Arial');
             $dompdf->render();
-
-            $fileName = 'patient_label_'.(string) $patient->getKey().'.pdf';
 
             return response($dompdf->output(), 200, [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+                'Content-Disposition' => 'attachment; filename="patient_sticker.pdf"',
                 'Cache-Control' => 'no-cache',
             ]);
         } catch (\Exception $e) {
