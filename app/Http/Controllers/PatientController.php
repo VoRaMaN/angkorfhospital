@@ -511,13 +511,23 @@ class PatientController extends Controller
             $gender = strtoupper(substr($patient->gender, 0, 1)); // M or F
 
             $age = null;
-            if ($patient->date_of_birth_year && $patient->date_of_birth_month && $patient->date_of_birth_day) {
+            if (! empty($patient->date_of_birth_year) && ! empty($patient->date_of_birth_month) && ! empty($patient->date_of_birth_day)) {
                 $birthDate = \Carbon\Carbon::createFromDate(
                     (int) $patient->date_of_birth_year,
                     (int) $patient->date_of_birth_month,
                     (int) $patient->date_of_birth_day
                 );
-                $age = $birthDate->age;
+
+                $now = \Carbon\Carbon::now();
+                $interval = $birthDate->diff($now); // DateInterval
+
+                // Format as YY.MM.DD (years.months.days), padded to 2 digits for months/days
+                $age = sprintf(
+                    '%02d.%02d.%02d',
+                    $interval->y,
+                    $interval->m,
+                    $interval->d
+                );
             }
 
             // Single label markup (fills the cell, centered)
