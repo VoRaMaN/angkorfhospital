@@ -73,7 +73,7 @@ class AppointmentsExport
     private function generateCsv($appointments)
     {
         $headers = [
-            'ID',
+            'Patient ID',
             'Time',
             'Date',
             'Patient Name',
@@ -90,7 +90,7 @@ class AppointmentsExport
 
         foreach ($appointments as $appointment) {
             $rows[] = [
-                $appointment->id,
+                $appointment->patient ? $appointment->patient->id : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('Y-m-d') : '',
                 $appointment->patient ? ($appointment->patient->user ? $appointment->patient->user->name : ($appointment->patient->name.' '.$appointment->patient->surname)) : 'Unknown Patient',

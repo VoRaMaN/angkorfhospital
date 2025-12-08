@@ -65,7 +65,7 @@ class AppointmentController extends Controller
         // Transform appointments for the frontend to handle null relationships
         $transformedAppointments = $appointments->getCollection()->map(function ($appointment) {
             return [
-                'id' => $appointment->id,
+                'id' => $appointment->patient ? $appointment->patient->id : null,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
                         'name' => $appointment->patient->user->name ?? $appointment->patient->name,
@@ -121,7 +121,7 @@ class AppointmentController extends Controller
         // Transform appointments for the frontend
         $transformedAppointments = $appointments->map(function ($appointment) {
             return [
-                'id' => $appointment->id,
+                'id' => $appointment->patient ? $appointment->patient->id : null,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
                         'name' => $appointment->patient->user->name ?? $appointment->patient->name,
