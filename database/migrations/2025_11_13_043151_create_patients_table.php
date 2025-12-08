@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
-            $table->string('id', 13)->primary(); // Custom format: YY/XXXXXXXXXX
+            $table->string('id', 9)->primary(); // Custom format: YY/XXXXXXXXXX
             $table->unsignedBigInteger('user_id')->nullable();
             $table->index('user_id');
             $table->enum('title', ['Mr.', 'Mrs.', 'Ms.'])->nullable();

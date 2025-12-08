@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('visits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('appointment_id')->nullable()->constrained('appointments')->onDelete('set null');
-            $table->string('patient_id', 13);
+            $table->string('patient_id', 9);
             $table->foreignId('staff_id')->nullable()->constrained('staff');
             $table->datetime('visit_date_time');
             $table->enum('status', array_column(VisitStatusEnum::cases(), 'value'))->default(VisitStatusEnum::PENDING->value);
