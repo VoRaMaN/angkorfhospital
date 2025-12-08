@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
     Route::get('appointments/{appointment}/report', [AppointmentController::class, 'generateReport'])->name('appointments.report');
     Route::get('appointments/{appointment}/letter', [AppointmentController::class, 'generateLetter'])->name('appointments.letter');
+    Route::get('appointments-export', [AppointmentController::class, 'export'])->name('appointments.export');
 
     // Billings
     Route::resource('billings', BillingController::class);

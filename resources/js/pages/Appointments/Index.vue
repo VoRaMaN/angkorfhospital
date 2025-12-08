@@ -30,13 +30,16 @@ import {
 } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Calendar, Plus, Printer, Search } from 'lucide-vue-next';
+import { Calendar, Download, Plus, Printer, Search } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
 interface Props {
     appointments: Array<{
         id: number;
-        patient: { user: { name: string } };
+        patient: { 
+            user: { name: string };
+            mobile_phone: string | null;
+        };
         staff: { user: { name: string } };
         appointment_date_time: string;
         duration_minutes: number;
@@ -145,6 +148,16 @@ const cancelStatusUpdate = () => {
     selectedAppointment.value = null;
     selectedNewStatus.value = '';
 };
+
+const exportAppointments = () => {
+    const params = new URLSearchParams();
+    if (searchQuery.value) params.append('search', searchQuery.value);
+    if (dateFrom.value) params.append('from', dateFrom.value);
+    if (dateTo.value) params.append('to', dateTo.value);
+    
+    const url = `/appointments-export?${params.toString()}`;
+    window.open(url, '_blank');
+};
 </script>
 
 <template>
@@ -172,6 +185,10 @@ const cancelStatusUpdate = () => {
                         <Plus class="size-4" />
                         Create Appointment
                         </Link>
+                    </Button>
+                    <Button variant="outline" @click="exportAppointments" v-if="hasPermission('view_appointments')">
+                        <Download class="size-4" />
+                        Export to CSV
                     </Button>
                 </div>
             </div>
@@ -207,41 +224,21 @@ const cancelStatusUpdate = () => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Patient</TableHead>
-                            <TableHead>Staff</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Duration</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead>ID</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Patient Name</TableHead>
+                            <TableHead>Mobile Number</TableHead>
+                            <TableHead>Doctor</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="appointment in props.appointments" :key="appointment.id">
                             <TableCell>{{
-                                appointment.patient.user.name
-                                }}</TableCell>
-                            <TableCell>{{
-                                appointment.staff.user.name
-                                }}</TableCell>
-                            <TableCell>{{
-                                new Date(
-                                appointment.appointment_date_time,
-                                ).toLocaleString()
-                                }}</TableCell>
-                            <TableCell>
-                                <Badge variant="outline">
-                                    {{
-                                    appointment?.appointment_type.replace(
-                                    '_',
-                                    ' ',
-                                    )
-                                    }}
-                                </Badge>
-                            </TableCell>
-                            <TableCell>{{
-                                appointment.duration_minutes
-                                }}min</TableCell>
+                                new Date(appointment.appointment_date_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                            }}</TableCell>
+                            <TableCell class="font-mono">{{ appointment.id }}</TableCell>
                             <TableCell>
                                 <Badge :variant="
                                         appointment.status === 'completed'
@@ -256,6 +253,9 @@ const cancelStatusUpdate = () => {
                                     }}
                                 </Badge>
                             </TableCell>
+                            <TableCell>{{ appointment.patient.user.name }}</TableCell>
+                            <TableCell>{{ appointment.patient.mobile_phone || 'N/A' }}</TableCell>
+                            <TableCell>{{ appointment.staff.user.name }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
                                     <Button variant="outline" size="sm" as-child>

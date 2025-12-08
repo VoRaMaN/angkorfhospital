@@ -18,7 +18,7 @@ class AppointmentController extends Controller
     {
         $this->authorize('viewAny', Appointment::class);
 
-        $query = Appointment::with(['patient.user', 'staff.user']);
+        $query = Appointment::with(['patient.user', 'staff.user', 'patient']);
 
         // Apply search filter
         if ($search = request('search')) {
@@ -70,7 +70,8 @@ class AppointmentController extends Controller
                     'user' => $appointment->patient->user ? [
                         'name' => $appointment->patient->user->name ?? $appointment->patient->name,
                     ] : ['name' => $appointment->patient->name],
-                ] : ['user' => ['name' => 'Unknown Patient']],
+                    'mobile_phone' => $appointment->patient->mobile_phone ?? null,
+                ] : ['user' => ['name' => 'Unknown Patient'], 'mobile_phone' => null],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [
                         'name' => $appointment->staff->user->name ?? $appointment->staff->name,
@@ -78,8 +79,8 @@ class AppointmentController extends Controller
                 ] : ['user' => ['name' => 'Unknown Staff']],
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'duration_minutes' => $appointment->duration_minutes ?? 30,
-                'appointment_type' => $appointment->appointment_type ?? 'consultation',
-                'status' => $appointment->status,
+                'appointment_type' => $appointment->appointment_type?->value ?? 'consultation',
+                'status' => $appointment->status?->value ?? 'scheduled',
                 'created_at' => $appointment->created_at,
             ];
         });
@@ -457,5 +458,23 @@ class AppointmentController extends Controller
         $filename = 'appointment-letter-'.$appointment->id.'-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Export appointments to CSV.
+     */
+    public function export(): \Illuminate\Http\Response
+    {
+        $this->authorize('viewAny', Appointment::class);
+
+        $filters = [
+            'search' => request('search', ''),
+            'from' => request('from', ''),
+            'to' => request('to', ''),
+        ];
+
+        $exporter = new \App\Exports\AppointmentsExport($filters);
+
+        return $exporter->download();
     }
 }
