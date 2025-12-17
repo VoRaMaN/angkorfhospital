@@ -18,13 +18,15 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { Toaster } from '@/components/ui/sonner';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { processPage, sendBack, completePage } from '@/routes/medical-orders';
 import { show } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Calendar, Clock, Eye, Play, User } from 'lucide-vue-next';
+import { Calendar, Clock, Eye, Play, Trash2, User } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { ref } from 'vue';
 
 interface Props {
@@ -64,6 +66,19 @@ const sendBackOrder = () => {
                 selectedOrder.value = null;
             }
         });
+    }
+};
+
+const deleteVisit = (visitId: number) => {
+    if (confirm('Are you sure you want to delete this visit? This action cannot be undone.')) {
+        router.delete(
+            `/visits/${visitId}`,
+            {
+                onSuccess: () => {
+                    toast.success('Visit deleted successfully!');
+                },
+            },
+        );
     }
 };
 
@@ -134,7 +149,7 @@ const getStatusColor = (status: string) => {
                                     <User class="h-4 w-4 text-muted-foreground" />
                                     <div>
                                         <div class="font-medium">
-                                            {{ visit.patient.user.name }}
+                                            {{ visit.patient?.user?.name || `${visit.patient?.name || ''} ${visit.patient?.surname || ''}`.trim() || 'Unknown Patient' }}
                                         </div>
                                         <div v-if="visit.appointment" class="text-sm text-muted-foreground">
                                             From appointment
@@ -201,6 +216,15 @@ const getStatusColor = (status: string) => {
                                             Complete Visit
                                         </Link>
                                     </Button>
+                                    <Button
+                                        v-if="hasPermission('delete_visits')"
+                                        variant="destructive"
+                                        size="sm"
+                                        @click="deleteVisit(visit.id)"
+                                    >
+                                        <Trash2 class="mr-1 size-4" />
+                                        Delete
+                                    </Button>
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -235,4 +259,5 @@ const getStatusColor = (status: string) => {
             </DialogContent>
         </Dialog>
     </AppLayout>
+    <Toaster />
 </template>

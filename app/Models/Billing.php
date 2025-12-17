@@ -15,6 +15,7 @@ class Billing extends Model
         'appointment_id',
         'visit_id',
         'medical_order_id',
+        'doctor_id',
         'amount',
         'status',
         'billing_date',
@@ -48,5 +49,10 @@ class Billing extends Model
     public function patient()
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Staff::class, 'doctor_id');
     }
 }

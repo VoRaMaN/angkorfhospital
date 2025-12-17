@@ -42,6 +42,7 @@ class Visit extends Model
         'appointment_id',
         'patient_id',
         'staff_id',
+        'doctor_id',
         'visit_date_time',
         'status',
         'notes',
@@ -68,6 +69,11 @@ class Visit extends Model
     public function staff()
     {
         return $this->belongsTo(Staff::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Staff::class, 'doctor_id');
     }
 
     public function medicalOrders()

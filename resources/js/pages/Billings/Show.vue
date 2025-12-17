@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { report as reportRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import {
     ArrowLeft,
     Calendar,
+    CheckCircle,
     DollarSign,
     Download,
     Edit,
@@ -92,6 +93,16 @@ const getStatusVariant = (status: string) => {
             return 'secondary';
     }
 };
+
+const completePayment = () => {
+    if (confirm('Are you sure you want to mark this billing as paid? This will complete the payment and move the order to history.')) {
+        router.patch(`/billings/${props.billing.id}/complete-payment`, {}, {
+            preserveState: false,
+            preserveScroll: false,
+        });
+    }
+};
+
 </script>
 
 <template>
@@ -114,7 +125,14 @@ const getStatusVariant = (status: string) => {
                         View billing information
                     </p>
                 </div>
-                <div class="ml-auto">
+                <div class="ml-auto flex gap-2">
+                    <Button v-if="hasPermission('edit_billings') && props.billing.status !== 'paid'"
+                        variant="default"
+                        @click="completePayment"
+                    >
+                        <CheckCircle class="size-4" />
+                        Complete Payment
+                    </Button>
                     <Button v-if="hasPermission('edit_billings')" variant="outline" as-child>
                         <Link :href="`/billings/${props.billing.id}/edit`">
                             <Edit class="size-4" />

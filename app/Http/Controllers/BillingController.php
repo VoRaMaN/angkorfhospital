@@ -22,9 +22,12 @@ class BillingController extends Controller
 
         $query = Billing::with(['patient.user', 'appointment', 'visit', 'medicalOrder']);
 
-        // Filter by status if provided
+        // Filter by status if provided, otherwise exclude paid billings by default
         if (request('status')) {
             $query->where('status', request('status'));
+        } else {
+            // Default: show only active billings (not paid)
+            $query->where('status', '!=', 'paid');
         }
 
         // Filter by search if provided (search in patient id, patient name and related IDs)
@@ -302,7 +305,33 @@ class BillingController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Billing status updated successfully.');
+        return redirect()->route('billings.show', $billing->id)->with('success', 'Billing status updated successfully.');
+    }
+
+    public function completePayment(Billing $billing): RedirectResponse
+    {
+        $this->authorize('update', $billing);
+
+        // Update billing status to paid
+        $billing->update([
+            'status' => \App\Enums\BillingStatusEnum::PAID,
+        ]);
+
+        // Update related medical order status to PAID
+        if ($billing->medicalOrder) {
+            $billing->medicalOrder->update([
+                'status' => \App\Enums\MedicalOrderStatusEnum::PAID,
+            ]);
+        }
+
+        // Update related visit status to COMPLETED
+        if ($billing->visit) {
+            $billing->visit->update([
+                'status' => \App\Models\Visit::STATUS_COMPLETED,
+            ]);
+        }
+
+        return redirect()->route('billings.index')->with('success', 'Payment completed successfully. Billing moved to history.');
     }
 
     public function destroy(Billing $billing): RedirectResponse

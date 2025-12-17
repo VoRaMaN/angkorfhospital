@@ -9,11 +9,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { show } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { Calendar, Clock, Eye, User } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Calendar, Clock, Eye, Trash2, User } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 interface Visit {
     id: number;
@@ -54,6 +56,19 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/doctors/my-visits',
     },
 ];
+
+const deleteVisit = (visit: Visit) => {
+    if (confirm('Are you sure you want to delete this visit? This action cannot be undone.')) {
+        router.delete(
+            `/visits/${visit.id}`,
+            {
+                onSuccess: () => {
+                    toast.success('Visit deleted successfully!');
+                },
+            },
+        );
+    }
+};
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -132,7 +147,7 @@ const getStatusColor = (status: string) => {
                                     />
                                     <div>
                                         <div class="font-medium">
-                                            {{ visit.patient.user.name }}
+                                            {{ visit.patient?.user?.name || `${visit.patient?.name || ''} ${visit.patient?.surname || ''}`.trim() || 'Unknown Patient' }}
                                         </div>
                                         <div
                                             v-if="visit.appointment"
@@ -204,6 +219,14 @@ const getStatusColor = (status: string) => {
                                             View Details
                                         </Link>
                                     </Button>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        @click="deleteVisit(visit)"
+                                    >
+                                        <Trash2 class="size-4" />
+                                        Delete
+                                    </Button>
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -212,4 +235,5 @@ const getStatusColor = (status: string) => {
             </div>
         </div>
     </AppLayout>
+    <Toaster />
 </template>

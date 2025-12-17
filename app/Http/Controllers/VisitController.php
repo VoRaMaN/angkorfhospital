@@ -19,7 +19,20 @@ class VisitController extends Controller
      */
     public function index(): Response
     {
-        $query = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders']);
+        $query = Visit::with(['patient.user', 'staff.user', 'doctor.user', 'appointment', 'medicalOrders']);
+
+        // Exclude completed visits by default (show only active visits)
+        $query->where('status', '!=', Visit::STATUS_COMPLETED);
+
+        // Date filter
+        $dateFilter = request('date');
+        if ($dateFilter) {
+            // User selected a specific date
+            $query->whereDate('visit_date_time', $dateFilter);
+        } else {
+            // Default: show only today's visits
+            $query->whereDate('visit_date_time', today());
+        }
 
         // Apply search filter
         if ($search = request('search')) {
@@ -59,6 +72,12 @@ class VisitController extends Controller
                         'name' => $visit->staff->user->name ?? $visit->staff->name,
                     ] : ['name' => $visit->staff->name],
                 ] : ['user' => ['name' => 'Unassigned']],
+                'doctor' => $visit->doctor ? [
+                    'id' => $visit->doctor->id,
+                    'user' => $visit->doctor->user ? [
+                        'name' => $visit->doctor->user->name ?? $visit->doctor->name,
+                    ] : ['name' => $visit->doctor->name],
+                ] : null,
                 'appointment' => $visit->appointment,
                 'visit_date_time' => $visit->visit_date_time,
                 'status' => $visit->status,
@@ -80,11 +99,21 @@ class VisitController extends Controller
             ];
         });
 
+        // Get only doctors (role_id = 2)
+        $doctors = \App\Models\Staff::with('user')->where('role_id', 2)->get()->map(function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'name' => $doctor->user ? $doctor->user->name : $doctor->name,
+            ];
+        });
+
         return Inertia::render('Visits/Index', [
             'visits' => $transformedVisits,
             'staff' => $staff,
+            'doctors' => $doctors,
             'filters' => [
                 'search' => request('search', ''),
+                'date' => request('date', today()->toDateString()),
             ],
         ]);
     }
@@ -227,6 +256,28 @@ class VisitController extends Controller
     }
 
     /**
+     * Assign doctor to the visit for treatment.
+     */
+    public function assignDoctor(Request $request, Visit $visit)
+    {
+        $this->authorize('assign_visits', $visit);
+
+        $request->validate([
+            'doctor_id' => 'required|exists:staff,id',
+        ]);
+
+        // Assign doctor to the visit
+        $visit->update(['doctor_id' => $request->doctor_id]);
+
+        // Update billings to track which doctor gets paid
+        foreach ($visit->billings as $billing) {
+            $billing->update(['doctor_id' => $request->doctor_id]);
+        }
+
+        return back()->with('success', 'Doctor assigned successfully.');
+    }
+
+    /**
      * Notify staff that the visit is ready for assignment.
      */
     public function notifyStaff(Visit $visit)
@@ -292,8 +343,46 @@ class VisitController extends Controller
             // ->where('status', Visit::STATUS_ASSIGNED)
             ->get();
 
+        // Transform visits for the frontend
+        $transformedVisits = $visits->map(function ($visit) {
+            return [
+                'id' => $visit->id,
+                'patient' => $visit->patient ? [
+                    'user' => $visit->patient->user ? [
+                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name.' '.$visit->patient->last_name),
+                    ] : ['name' => trim($visit->patient->first_name.' '.$visit->patient->last_name)],
+                    'name' => $visit->patient->first_name,
+                    'surname' => $visit->patient->last_name,
+                ] : ['user' => ['name' => 'Unknown Patient'], 'name' => '', 'surname' => ''],
+                'appointment' => $visit->appointment,
+                'visit_date_time' => $visit->visit_date_time,
+                'status' => $visit->status,
+                'notes' => $visit->notes,
+                'created_at' => $visit->created_at,
+                'medical_orders' => $visit->medicalOrders->map(function ($order) {
+                    return [
+                        'id' => $order->id,
+                        'status' => $order->status->value,
+                    ];
+                }),
+            ];
+        });
+
         return Inertia::render('Visits/MyVisitProcess', [
-            'visits' => $visits,
+            'visits' => $transformedVisits,
         ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Visit $visit)
+    {
+        $this->authorize('delete', $visit);
+
+        $visit->delete();
+
+        return redirect()->route('visits.index')
+            ->with('success', 'Visit deleted successfully.');
     }
 }

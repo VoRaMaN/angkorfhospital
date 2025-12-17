@@ -12,13 +12,22 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { urlIsActive } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
     Building,
     Calendar,
+    ChevronRight,
     ClipboardCheckIcon,
     ClipboardList,
     DollarSign,
@@ -36,8 +45,10 @@ import { index } from '@/routes/appointments';
 import { index as billingsIndex } from '@/routes/billings';
 import { index as departmentsIndex } from '@/routes/departments';
 import {
+    cultureMedium,
     index as inventoryIndex,
     labInventory,
+    plasticWare,
     rxMedicine,
 } from '@/routes/inventory';
 import { index as labPanelIndex } from '@/routes/lab-panels';
@@ -145,6 +156,12 @@ const medicalResourcesNavItems = computed(() => [
         permissions: 'view_lab_packages',
     },
     {
+        title: 'Patches',
+        href: '/settings/patches',
+        icon: LayoutGrid,
+        permissions: 'view_lab_packages',
+    },
+    {
         title: 'All Inventory',
         href: inventoryIndex().url,
         icon: Warehouse,
@@ -156,10 +173,22 @@ const medicalResourcesNavItems = computed(() => [
         icon: Pill,
         permissions: 'view_medications',
     },
+]);
+
+const labInventoryNavItems = computed(() => [
     {
-        title: 'Lab Inventory',
+        title: 'All Lab Items',
         href: labInventory().url,
-        icon: Warehouse,
+        permissions: 'view_inventory',
+    },
+    {
+        title: 'Plastic Ware',
+        href: plasticWare().url,
+        permissions: 'view_inventory',
+    },
+    {
+        title: 'Culture Medium',
+        href: cultureMedium().url,
         permissions: 'view_inventory',
     },
 ]);
@@ -365,6 +394,30 @@ const footerNavItems: NavItem[] = [];
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
+
+                    <!-- Lab Inventory Submenu -->
+                    <Collapsible as-child default-open class="group/collapsible">
+                        <SidebarMenuItem>
+                            <CollapsibleTrigger as-child>
+                                <SidebarMenuButton :tooltip="'Lab Inventory'">
+                                    <Warehouse />
+                                    <span>Lab Inventory</span>
+                                    <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                </SidebarMenuButton>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <SidebarMenuSub>
+                                    <SidebarMenuSubItem v-for="subItem in labInventoryNavItems" :key="subItem.title">
+                                        <SidebarMenuSubButton as-child :is-active="urlIsActive(subItem.href, page.url)">
+                                            <Link :href="subItem.href" :preserve-scroll="true">
+                                                <span>{{ subItem.title }}</span>
+                                            </Link>
+                                        </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                            </CollapsibleContent>
+                        </SidebarMenuItem>
+                    </Collapsible>
                 </SidebarMenu>
             </SidebarGroup>
 

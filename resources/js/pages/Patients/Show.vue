@@ -2,12 +2,24 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Printer, User } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ArrowLeft, Edit, Printer, User, Calendar } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Props {
     patient: {
@@ -101,6 +113,26 @@ const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
 
+const showQuickVisitDialog = ref(false);
+
+const createVisit = () => {
+    router.visit(`/visits/create?patient=${props.patient.id}`);
+};
+
+const sendToNurse = () => {
+    // Create visit and send directly to nurse (awaiting assignment status)
+    router.post('/visits', {
+        patient_id: props.patient.id,
+        visit_date_time: new Date().toISOString(),
+        status: 'awaiting_assignment',
+        notes: 'Quick visit created',
+    }, {
+        onSuccess: () => {
+            showQuickVisitDialog.value = false;
+        }
+    });
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Patients',
@@ -136,6 +168,40 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
+                    <AlertDialog v-model:open="showQuickVisitDialog">
+                        <AlertDialogTrigger as-child>
+                            <Button>
+                                <Calendar class="size-4" />
+                                Quick Visit
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Create Quick Visit</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Choose how you want to proceed with creating this visit:
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <div class="flex flex-col gap-3 py-4">
+                                <Button @click="createVisit" variant="outline" class="justify-start h-auto py-4">
+                                    <div class="text-left">
+                                        <div class="font-semibold">Go to Create Form</div>
+                                        <div class="text-sm text-muted-foreground">Fill in additional visit details</div>
+                                    </div>
+                                </Button>
+                                <Button @click="sendToNurse" variant="outline" class="justify-start h-auto py-4">
+                                    <div class="text-left">
+                                        <div class="font-semibold">Send to Nurse Directly</div>
+                                        <div class="text-sm text-muted-foreground">Create visit and notify nursing staff immediately</div>
+                                    </div>
+                                </Button>
+                            </div>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
                     <Button variant="outline" as-child>
                         <a :href="`/patients/label?patient=${props.patient.id}`" target="_blank" rel="noopener noreferrer">
                             <Printer class="size-4" />
@@ -173,7 +239,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </TabsList>
 
                     <TabsContent value="details" class="mt-6 space-y-6">
-                        
+
                         <!-- Personal Information -->
                         <div class="rounded-lg border p-4">
                             <h3 class="mb-4 flex items-center text-lg font-medium">

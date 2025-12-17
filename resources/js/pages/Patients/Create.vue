@@ -14,6 +14,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
 import { Checkbox } from '@/components/ui/checkbox';
+import { watch } from 'vue';
 
 const props = defineProps<{
     doctors: Array<{ id: number; name: string }>;
@@ -51,9 +52,6 @@ const form = useForm({
     // Address
     address: '',
     building_village: '',
-    moo: '',
-    soi: '',
-    road: '',
     sub_district: '',
     district: '',
     province: '',
@@ -73,7 +71,6 @@ const form = useForm({
     emergency_contact_description_other: '',
     emergency_contact_address_same_as_patient: false,
     emergency_contact_address: '',
-    emergency_contact_road: '',
     emergency_contact_sub_district: '',
     emergency_contact_district: '',
     emergency_contact_province: '',
@@ -93,9 +90,62 @@ const form = useForm({
 // Watch for address changes to copy to emergency contact if needed (optional feature)
 // For now, we'll just keep it simple.
 
-const copyAddressToEmergency = () => {
+// Auto-populate religion based on nationality
+watch(() => form.nationality, (newNationality) => {
+    const nationalityReligionMap: Record<string, string> = {
+        'Cambodian': 'Buddhism',
+        'Thai': 'Buddhism',
+        'Laotian': 'Buddhism',
+        'Myanmar': 'Buddhism',
+        'American': 'Christianity',
+        'British': 'Christianity',
+        'Canadian': 'Christianity',
+        'Australian': 'Christianity',
+        'German': 'Christianity',
+        'French': 'Christianity',
+        'Italian': 'Christianity',
+        'Spanish': 'Christianity',
+        'Portuguese': 'Christianity',
+        'Brazilian': 'Christianity',
+        'Mexican': 'Christianity',
+        'Filipino': 'Christianity',
+        'South Korean': 'Christianity',
+        'Indonesian': 'Islam',
+        'Malaysian': 'Islam',
+        'Pakistani': 'Islam',
+        'Bangladeshi': 'Islam',
+        'Turkish': 'Islam',
+        'Egyptian': 'Islam',
+        'Saudi Arabian': 'Islam',
+        'Emirati': 'Islam',
+        'Moroccan': 'Islam',
+        'Iranian': 'Islam',
+        'Iraqi': 'Islam',
+        'Jordanian': 'Islam',
+        'Lebanese': 'Islam',
+        'Syrian': 'Islam',
+        'Indian': 'Hinduism',
+        'Nepali': 'Hinduism',
+        'Chinese': 'Buddhism',
+        'Japanese': 'Buddhism',
+        'Vietnamese': 'Buddhism',
+        'Singaporean': 'Buddhism',
+    };
+
+    if (newNationality && nationalityReligionMap[newNationality]) {
+        form.religion = nationalityReligionMap[newNationality];
+    }
+});
+
+// Auto-populate gender based on title
+watch(() => form.title, (newTitle) => {
+    if (newTitle === 'Mr.') {
+        form.gender = 'Male';
+    } else if (newTitle === 'Mrs.' || newTitle === 'Ms.') {
+        form.gender = 'Female';
+    }
+});const copyAddressToEmergency = () => {
     form.emergency_contact_address = form.address;
-    form.emergency_contact_road = form.road;
     form.emergency_contact_sub_district = form.sub_district;
     form.emergency_contact_district = form.district;
     form.emergency_contact_province = form.province;
@@ -241,12 +291,63 @@ const copyAddressToEmergency = () => {
                                                     <SelectValue placeholder="Select nationality" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="Thai">Thai</SelectItem>
                                                     <SelectItem value="Cambodian">Cambodian</SelectItem>
+                                                    <SelectItem value="Thai">Thai</SelectItem>
                                                     <SelectItem value="Vietnamese">Vietnamese</SelectItem>
                                                     <SelectItem value="Laotian">Laotian</SelectItem>
-                                                    <SelectItem value="Myanma">Myanma</SelectItem>
+                                                    <SelectItem value="Myanmar">Myanmar</SelectItem>
                                                     <SelectItem value="Chinese">Chinese</SelectItem>
+                                                    <SelectItem value="Japanese">Japanese</SelectItem>
+                                                    <SelectItem value="South Korean">South Korean</SelectItem>
+                                                    <SelectItem value="Filipino">Filipino</SelectItem>
+                                                    <SelectItem value="Indonesian">Indonesian</SelectItem>
+                                                    <SelectItem value="Malaysian">Malaysian</SelectItem>
+                                                    <SelectItem value="Singaporean">Singaporean</SelectItem>
+                                                    <SelectItem value="Indian">Indian</SelectItem>
+                                                    <SelectItem value="Pakistani">Pakistani</SelectItem>
+                                                    <SelectItem value="Bangladeshi">Bangladeshi</SelectItem>
+                                                    <SelectItem value="Nepali">Nepali</SelectItem>
+                                                    <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
+                                                    <SelectItem value="American">American</SelectItem>
+                                                    <SelectItem value="Canadian">Canadian</SelectItem>
+                                                    <SelectItem value="Mexican">Mexican</SelectItem>
+                                                    <SelectItem value="Brazilian">Brazilian</SelectItem>
+                                                    <SelectItem value="British">British</SelectItem>
+                                                    <SelectItem value="French">French</SelectItem>
+                                                    <SelectItem value="German">German</SelectItem>
+                                                    <SelectItem value="Italian">Italian</SelectItem>
+                                                    <SelectItem value="Spanish">Spanish</SelectItem>
+                                                    <SelectItem value="Portuguese">Portuguese</SelectItem>
+                                                    <SelectItem value="Dutch">Dutch</SelectItem>
+                                                    <SelectItem value="Belgian">Belgian</SelectItem>
+                                                    <SelectItem value="Swiss">Swiss</SelectItem>
+                                                    <SelectItem value="Austrian">Austrian</SelectItem>
+                                                    <SelectItem value="Swedish">Swedish</SelectItem>
+                                                    <SelectItem value="Norwegian">Norwegian</SelectItem>
+                                                    <SelectItem value="Danish">Danish</SelectItem>
+                                                    <SelectItem value="Finnish">Finnish</SelectItem>
+                                                    <SelectItem value="Polish">Polish</SelectItem>
+                                                    <SelectItem value="Russian">Russian</SelectItem>
+                                                    <SelectItem value="Ukrainian">Ukrainian</SelectItem>
+                                                    <SelectItem value="Turkish">Turkish</SelectItem>
+                                                    <SelectItem value="Greek">Greek</SelectItem>
+                                                    <SelectItem value="Australian">Australian</SelectItem>
+                                                    <SelectItem value="New Zealander">New Zealander</SelectItem>
+                                                    <SelectItem value="Saudi Arabian">Saudi Arabian</SelectItem>
+                                                    <SelectItem value="Emirati">Emirati</SelectItem>
+                                                    <SelectItem value="Qatari">Qatari</SelectItem>
+                                                    <SelectItem value="Kuwaiti">Kuwaiti</SelectItem>
+                                                    <SelectItem value="Egyptian">Egyptian</SelectItem>
+                                                    <SelectItem value="Moroccan">Moroccan</SelectItem>
+                                                    <SelectItem value="Iranian">Iranian</SelectItem>
+                                                    <SelectItem value="Iraqi">Iraqi</SelectItem>
+                                                    <SelectItem value="Jordanian">Jordanian</SelectItem>
+                                                    <SelectItem value="Lebanese">Lebanese</SelectItem>
+                                                    <SelectItem value="Syrian">Syrian</SelectItem>
+                                                    <SelectItem value="Israeli">Israeli</SelectItem>
+                                                    <SelectItem value="South African">South African</SelectItem>
+                                                    <SelectItem value="Nigerian">Nigerian</SelectItem>
+                                                    <SelectItem value="Kenyan">Kenyan</SelectItem>
                                                     <SelectItem value="Other">Other</SelectItem>
                                                 </SelectContent>
                                             </Select>
@@ -309,24 +410,6 @@ const copyAddressToEmergency = () => {
                                         <td class="p-4 font-medium">Building/Village</td>
                                         <td class="p-4">
                                             <Input v-model="form.building_village" placeholder="Building/Village" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Moo</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.moo" placeholder="Moo" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Soi</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.soi" placeholder="Soi" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Road</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.road" placeholder="Road" />
                                         </td>
                                     </tr>
                                     <tr class="border-b">
@@ -457,15 +540,9 @@ const copyAddressToEmergency = () => {
                                         </td>
                                     </tr>
                                     <tr class="border-b">
-                                        <td class="p-4 font-medium">Address</td>
+                                        <td class="p-4 font-medium">Contact Address</td>
                                         <td class="p-4">
                                             <Input v-model="form.emergency_contact_address" placeholder="Contact Address" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Road</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.emergency_contact_road" placeholder="Road" />
                                         </td>
                                     </tr>
                                     <tr class="border-b">

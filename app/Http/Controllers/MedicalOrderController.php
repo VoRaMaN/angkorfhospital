@@ -6,8 +6,10 @@ use App\Http\Requests\StoreMedicalOrderRequest;
 use App\Http\Requests\UpdateMedicalOrderRequest;
 use App\Models\MedicalOrder;
 use App\Models\MedicalRecord;
+use App\Models\Patch;
 use App\Models\Visit;
 use App\Services\MedicalOrderBillingService;
+use App\Services\MedicalOrderProcessingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,7 +20,11 @@ class MedicalOrderController extends Controller
     public function index(): Response
     {
         $this->authorize('viewAny', MedicalOrder::class);
-        $medicalOrders = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems', 'visit.patient.user', 'visit.staff.user'])->paginate(15);
+
+        // Exclude paid orders by default (show only active orders)
+        $medicalOrders = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems', 'visit.patient.user', 'visit.staff.user'])
+            ->where('status', '!=', \App\Enums\MedicalOrderStatusEnum::PAID)
+            ->paginate(15);
 
         // Transform medical orders for the frontend
         $transformedOrders = $medicalOrders->getCollection()->map(function ($order) {
@@ -140,6 +146,25 @@ class MedicalOrderController extends Controller
             ];
         });
 
+        $patches = Patch::with('inventories')
+            ->get()
+            ->map(function (Patch $patch) {
+                $items = $patch->inventories->map(fn ($item) => [
+                    'id' => $item->id,
+                    'item_name' => $item->item_name,
+                    'unit_price' => $item->unit_price,
+                    'type_of_supply' => $item->type_of_supply->value,
+                    'category' => $item->category,
+                ]);
+
+                return [
+                    'id' => $patch->id,
+                    'name' => $patch->name,
+                    'total_unit_price' => $patch->total_unit_price,
+                    'items' => $items->values(),
+                ];
+            });
+
         return Inertia::render('MedicalOrders/Create', [
             'patients' => $patients,
             'staff' => $staff,
@@ -147,6 +172,7 @@ class MedicalOrderController extends Controller
             'inventoryItems' => $inventoryItems,
             'rxMedicines' => $rxMedicines,
             'medicalServices' => $medicalServices,
+            'patches' => $patches,
         ]);
     }
 
@@ -361,7 +387,7 @@ class MedicalOrderController extends Controller
                 $sellingPrice = $item->inventory?->selling_price;
 
                 // For medical services without inventory, look up price from MedicalService
-                if (!$item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
+                if (! $item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
                     $medicalService = \App\Models\MedicalService::where('name', $item->item_name)->first();
                     if ($medicalService) {
                         $unitPrice = $medicalService->price;
@@ -476,18 +502,21 @@ class MedicalOrderController extends Controller
             return redirect()->back()->with('error', 'Cannot process medical order with no items. Please add at least one item before processing.');
         }
 
-        // Update the status to processed
-        $medicalOrder->update([
-            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
-        ]);
+        // Process the order: notify departments, reduce stock, create billing
+        $processingService = app(MedicalOrderProcessingService::class);
+        $result = $processingService->processOrder($medicalOrder);
 
-        // Update visit status to in_progress when medical order is processing
-        if ($medicalOrder->visit) {
-            $medicalOrder->visit->update(['status' => \App\Models\Visit::STATUS_IN_PROGRESS]);
+        if (! $result['success']) {
+            return redirect()->back()->with('error', $result['error']);
         }
 
-        return redirect()->route('medical-orders.processing-page', $medicalOrder->id)
-            ->with('success', 'Medical order processed successfully.');
+        // Redirect to billing/payment page
+        return redirect()->route('billings.show', $result['billing_id'])
+            ->with('success', sprintf(
+                'Medical order processed successfully! %d department(s) notified. Total amount: $%s',
+                count($result['notifications_sent']),
+                number_format($result['total_amount'], 2)
+            ));
     }
 
     public function processPage(MedicalOrder $medicalOrder)
@@ -559,6 +588,26 @@ class MedicalOrderController extends Controller
             ];
         });
 
+        $patches = Patch::with('inventories')
+            ->get()
+            ->map(function (Patch $patch) {
+                $items = $patch->inventories->map(fn ($item) => [
+                    'id' => $item->id,
+                    'item_name' => $item->item_name,
+                    'unit_price' => $item->unit_price,
+                    'selling_price' => $item->selling_price,
+                    'type_of_supply' => $item->type_of_supply->value,
+                    'category' => $item->category,
+                ]);
+
+                return [
+                    'id' => $patch->id,
+                    'name' => $patch->name,
+                    'total_unit_price' => $patch->total_unit_price,
+                    'items' => $items->values(),
+                ];
+            });
+
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
@@ -600,6 +649,7 @@ class MedicalOrderController extends Controller
             'inventoryItems' => $inventoryItems,
             'rxMedicines' => $rxMedicines,
             'medicalServices' => $medicalServices,
+            'patches' => $patches,
         ]);
     }
 
@@ -758,7 +808,7 @@ class MedicalOrderController extends Controller
         $this->authorize('processAndBill', $medicalOrder);
 
         // Only allow processing if the order is pending or processed
-        if (!in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
+        if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PENDING, \App\Enums\MedicalOrderStatusEnum::PROCESSING, \App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
             return redirect()->back()->with('error', 'This medical order cannot be processed for billing.');
         }
 
@@ -766,7 +816,7 @@ class MedicalOrderController extends Controller
 
         // Check if order can be processed (sufficient inventory)
         $canProcess = $billingService->canProcessOrder($medicalOrder);
-        if (!$canProcess['can_process']) {
+        if (! $canProcess['can_process']) {
             $issues = implode(', ', $canProcess['issues']);
 
             return redirect()->back()->with('error', "Cannot process order due to inventory issues: {$issues}");
@@ -776,7 +826,7 @@ class MedicalOrderController extends Controller
             // Process the order and create billing
             $billing = $billingService->processOrderAndCreateBilling(
                 $medicalOrder,
-                'Processed and billed on ' . now()->format('Y-m-d H:i')
+                'Processed and billed on '.now()->format('Y-m-d H:i')
             );
 
             // Generate medical record after billing is created
@@ -787,9 +837,9 @@ class MedicalOrderController extends Controller
             // Status is already updated in the service, no need to update again
 
             return redirect()->route('medical-orders.show', $medicalOrder)
-                ->with('success', 'Medical order processed successfully. Billing created with total amount: $' . number_format((float) $billing->amount, 2));
+                ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to process medical order: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to process medical order: '.$e->getMessage());
         }
     }
 
@@ -838,12 +888,12 @@ class MedicalOrderController extends Controller
         ]);
 
         // Update the status back to processing and add the reason to notes
-        $currentNotes = $medicalOrder->notes ? $medicalOrder->notes . "\n\n" : '';
-        $revisionNote = 'Sent back for revision on ' . now()->format('Y-m-d H:i') . ":\n" . $request->reason;
+        $currentNotes = $medicalOrder->notes ? $medicalOrder->notes."\n\n" : '';
+        $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason;
 
         $medicalOrder->update([
             'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
-            'notes' => $currentNotes . $revisionNote,
+            'notes' => $currentNotes.$revisionNote,
         ]);
 
         // Reset all order items back to pending status when sent back for revision
@@ -911,7 +961,7 @@ class MedicalOrderController extends Controller
             ],
             'patient_info' => [
                 'id' => $medicalOrder->patient->id,
-                'name' => $medicalOrder->patient->user?->name ?? $medicalOrder->patient->first_name . ' ' . $medicalOrder->patient->last_name,
+                'name' => $medicalOrder->patient->user?->name ?? $medicalOrder->patient->first_name.' '.$medicalOrder->patient->last_name,
                 'date_of_birth' => $medicalOrder->patient->date_of_birth,
                 'gender' => $medicalOrder->patient->gender,
                 'phone_number' => $medicalOrder->patient->phone_number,
@@ -919,7 +969,7 @@ class MedicalOrderController extends Controller
             ],
             'staff_info' => $medicalOrder->staff ? [
                 'id' => $medicalOrder->staff->id,
-                'name' => $medicalOrder->staff->user?->name ?? $medicalOrder->staff->first_name . ' ' . $medicalOrder->staff->last_name,
+                'name' => $medicalOrder->staff->user?->name ?? $medicalOrder->staff->first_name.' '.$medicalOrder->staff->last_name,
                 'role' => $medicalOrder->staff->role?->name ?? 'Unknown',
             ] : null,
             'appointment_info' => $medicalOrder->visit?->appointment ? [
@@ -995,7 +1045,7 @@ class MedicalOrderController extends Controller
             'isPhpEnabled' => true,
         ]);
 
-        $filename = 'medical-order-report-' . $medicalOrder->id . '-' . now()->format('Y-m-d') . '.pdf';
+        $filename = 'medical-order-report-'.$medicalOrder->id.'-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
     }
@@ -1060,7 +1110,7 @@ class MedicalOrderController extends Controller
         // If no specific diagnosis found, generate based on ordered items
         if (empty($diagnosisParts)) {
             $itemTypes = $medicalOrder->orderItems->pluck('item_type')->unique();
-            $diagnosisParts[] = 'Diagnostic evaluation including: ' . implode(', ', $itemTypes->toArray());
+            $diagnosisParts[] = 'Diagnostic evaluation including: '.implode(', ', $itemTypes->toArray());
         }
 
         return implode('; ', $diagnosisParts);
@@ -1096,7 +1146,7 @@ class MedicalOrderController extends Controller
                 }
 
                 if ($details) {
-                    $description .= ' (' . implode(', ', $details) . ')';
+                    $description .= ' ('.implode(', ', $details).')';
                 }
 
                 // Add quantity
@@ -1108,7 +1158,7 @@ class MedicalOrderController extends Controller
                 $itemDescriptions[] = $description;
             }
 
-            $treatmentParts[] = "{$typeLabel}: " . implode(', ', $itemDescriptions);
+            $treatmentParts[] = "{$typeLabel}: ".implode(', ', $itemDescriptions);
         }
 
         return implode('; ', $treatmentParts);
@@ -1140,7 +1190,7 @@ class MedicalOrderController extends Controller
 
         // Add order priority if high
         if ($medicalOrder->priority && in_array($medicalOrder->priority->value, ['urgent', 'stat'])) {
-            $notes[] = ucfirst($medicalOrder->priority->value) . ' priority order';
+            $notes[] = ucfirst($medicalOrder->priority->value).' priority order';
         }
 
         // Add completion information
@@ -1155,7 +1205,7 @@ class MedicalOrderController extends Controller
         // Add staff information
         if ($medicalOrder->staff) {
             $staffName = $medicalOrder->staff->user?->name ??
-                ($medicalOrder->staff->first_name . ' ' . $medicalOrder->staff->last_name);
+                ($medicalOrder->staff->first_name.' '.$medicalOrder->staff->last_name);
             $notes[] = "Ordering physician: {$staffName}";
         }
 
@@ -1197,9 +1247,9 @@ class MedicalOrderController extends Controller
             'patient_info' => [
                 'id' => $medicalRecord->medicalOrder?->patient?->id ?? $medicalRecord->visit?->patient?->id ?? 'N/A',
                 'name' => $medicalRecord->medicalOrder?->patient?->user?->name ??
-                    ($medicalRecord->medicalOrder?->patient?->first_name . ' ' . $medicalRecord->medicalOrder?->patient?->last_name) ??
+                    ($medicalRecord->medicalOrder?->patient?->first_name.' '.$medicalRecord->medicalOrder?->patient?->last_name) ??
                     $medicalRecord->visit?->patient?->user?->name ??
-                    ($medicalRecord->visit?->patient?->first_name . ' ' . $medicalRecord->visit?->patient?->last_name) ??
+                    ($medicalRecord->visit?->patient?->first_name.' '.$medicalRecord->visit?->patient?->last_name) ??
                     'Unknown Patient',
                 'date_of_birth' => $medicalRecord->medicalOrder?->patient?->date_of_birth ?? $medicalRecord->visit?->patient?->date_of_birth ?? 'N/A',
                 'gender' => $medicalRecord->medicalOrder?->patient?->gender ?? $medicalRecord->visit?->patient?->gender ?? 'N/A',
@@ -1211,19 +1261,19 @@ class MedicalOrderController extends Controller
             ],
             'staff_info' => $medicalRecord->medicalOrder?->staff ? [
                 'name' => $medicalRecord->medicalOrder->staff->user?->name ??
-                    ($medicalRecord->medicalOrder->staff->first_name . ' ' . $medicalRecord->medicalOrder->staff->last_name),
+                    ($medicalRecord->medicalOrder->staff->first_name.' '.$medicalRecord->medicalOrder->staff->last_name),
                 'role' => $medicalRecord->medicalOrder->staff->role?->name ?? 'Unknown',
             ] : ($medicalRecord->visit?->staff ? [
-                    'name' => $medicalRecord->visit->staff->user?->name ??
-                        ($medicalRecord->visit->staff->first_name . ' ' . $medicalRecord->visit->staff->last_name),
-                    'role' => $medicalRecord->visit->staff->role?->name ?? 'Unknown',
-                ] : null),
+                'name' => $medicalRecord->visit->staff->user?->name ??
+                    ($medicalRecord->visit->staff->first_name.' '.$medicalRecord->visit->staff->last_name),
+                'role' => $medicalRecord->visit->staff->role?->name ?? 'Unknown',
+            ] : null),
             'visit_info' => $medicalRecord->visit ? [
                 'id' => $medicalRecord->visit->id,
                 'visit_date_time' => $medicalRecord->visit->visit_date_time,
                 'status' => $medicalRecord->visit->status->value,
                 'staff_name' => $medicalRecord->visit->staff?->user?->name ??
-                    ($medicalRecord->visit->staff?->first_name . ' ' . $medicalRecord->visit->staff?->last_name) ?? 'N/A',
+                    ($medicalRecord->visit->staff?->first_name.' '.$medicalRecord->visit->staff?->last_name) ?? 'N/A',
                 'notes' => $medicalRecord->visit->notes,
             ] : null,
             'appointment_info' => $medicalRecord->appointment ? [
@@ -1240,7 +1290,7 @@ class MedicalOrderController extends Controller
                     'priority' => $medicalRecord->medicalOrder->priority,
                     'order_details' => $medicalRecord->medicalOrder->order_details,
                     'ordered_at' => $medicalRecord->medicalOrder->ordered_at,
-                ]
+                ],
             ] : [],
             'medical_services' => [], // Could be populated if needed
         ];
@@ -1256,7 +1306,7 @@ class MedicalOrderController extends Controller
             'isPhpEnabled' => true,
         ]);
 
-        $filename = 'medical-record-' . $medicalRecord->id . '-' . now()->format('Y-m-d') . '.pdf';
+        $filename = 'medical-record-'.$medicalRecord->id.'-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
     }

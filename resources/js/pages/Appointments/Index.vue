@@ -36,7 +36,7 @@ import { ref, watch } from 'vue';
 interface Props {
     appointments: Array<{
         id: number;
-        patient: { 
+        patient: {
             user: { name: string };
             mobile_phone: string | null;
         };
@@ -154,7 +154,7 @@ const exportAppointments = () => {
     if (searchQuery.value) params.append('search', searchQuery.value);
     if (dateFrom.value) params.append('from', dateFrom.value);
     if (dateTo.value) params.append('to', dateTo.value);
-    
+
     const url = `/appointments-export?${params.toString()}`;
     window.open(url, '_blank');
 };
@@ -253,9 +253,9 @@ const exportAppointments = () => {
                                     }}
                                 </Badge>
                             </TableCell>
-                            <TableCell>{{ appointment.patient.user.name }}</TableCell>
+                            <TableCell>{{ appointment.patient?.user?.name || 'Unknown Patient' }}</TableCell>
                             <TableCell>{{ appointment.patient.mobile_phone || 'N/A' }}</TableCell>
-                            <TableCell>{{ appointment.staff.user.name }}</TableCell>
+                            <TableCell>{{ appointment.staff?.user?.name || 'Unassigned' }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
                                     <Button variant="outline" size="sm" as-child>

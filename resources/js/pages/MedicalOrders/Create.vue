@@ -69,6 +69,20 @@ interface RXMedicine {
     selling_price: number;
 }
 
+interface PatchItem {
+    id: number;
+    name: string;
+    unit_price: number;
+    source: string;
+}
+
+interface PatchRow {
+    id: number;
+    name: string;
+    total_unit_price: number;
+    items: PatchItem[];
+}
+
 interface Props {
     patients: Array<{
         id: number;
@@ -97,6 +111,7 @@ interface Props {
         type: string;
         price: number;
     }>;
+    patches: PatchRow[];
 }
 
 const props = defineProps<Props>();
@@ -145,6 +160,11 @@ const form = useForm<{
     ordered_at: new Date().toISOString().split('T')[0],
     order_items: [] as OrderItem[],
 });
+
+const selectedPatchId = ref<string>('');
+const selectedPatch = computed(() =>
+    props.patches.find((p) => p.id.toString() === selectedPatchId.value),
+);
 
 const patientOptions = computed(() => {
     if (!props.patients) return [];
@@ -516,6 +536,26 @@ const groupedOrderItems = computed(() => {
     return groups;
 });
 
+const applyPatch = () => {
+    const patch = selectedPatch.value;
+    if (!patch) {
+        return;
+    }
+
+    patch.items.forEach((item) => {
+        form.order_items.push({
+            inventory_id: item.id,
+            item_type: 'supply',
+            item_name: item.item_name,
+            details: '',
+            quantity_required: 1,
+            notes: `Patch: ${patch.name}`,
+            unit_price: item.unit_price,
+            selling_price: item.unit_price,
+        });
+    });
+};
+
 const getItemTypeDisplayName = (type: string, panelName?: string) => {
     if (panelName) {
         return panelName;
@@ -765,6 +805,75 @@ const getLabItemPrice = (inventoryId: number) => {
                                     <div class="text-xs text-gray-600 dark:text-gray-400 font-medium">Supplies</div>
                                 </div>
                             </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <CardTitle>Apply Patch</CardTitle>
+                                <CardDescription>
+                                    Quickly add predefined item sets to this order
+                                </CardDescription>
+                            </div>
+                            <div class="text-sm text-muted-foreground">
+                                {{ selectedPatch?.total_unit_price?.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) || '--' }}
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent class="space-y-4">
+                        <div class="grid gap-3 md:grid-cols-2">
+                            <div class="space-y-2">
+                                <Label class="text-sm font-medium">Select patch</Label>
+                                <Select v-model="selectedPatchId">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose a patch" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem
+                                            v-for="patch in props.patches"
+                                            :key="patch.id"
+                                            :value="patch.id.toString()"
+                                        >
+                                            {{ patch.name }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div class="space-y-2">
+                                <Label class="text-sm font-medium">Items</Label>
+                                <div
+                                    class="rounded-md border p-3 max-h-40 overflow-y-auto text-sm text-muted-foreground"
+                                >
+                                    <div v-if="!selectedPatch">
+                                        Select a patch to preview items.
+                                    </div>
+                                    <div v-else class="space-y-1">
+                                        <div
+                                            v-for="item in selectedPatch.items"
+                                            :key="`${selectedPatch.id}-${item.source}-${item.id}`"
+                                            class="flex justify-between"
+                                        >
+                                            <span>{{ item.name }} <span class="text-xs text-muted-foreground">({{ item.source }})</span></span>
+                                            <span>
+                                                {{ Number(item.unit_price).toLocaleString(undefined, { style: 'currency', currency: 'USD' }) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <Button
+                                type="button"
+                                :disabled="!selectedPatch"
+                                @click="applyPatch"
+                            >
+                                <Plus class="size-4 mr-2" />
+                                Add patch items
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>

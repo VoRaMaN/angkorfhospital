@@ -1,8 +1,13 @@
 <?php
 
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Settings\LabItemController;
+use App\Http\Controllers\Settings\MedicineController;
+use App\Http\Controllers\Settings\PackageItemController;
 use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\PatchController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\SpecialItemController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
 use App\Http\Controllers\Settings\UserManagementController;
 use Illuminate\Support\Facades\Route;
@@ -53,4 +58,22 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'settings.roles.destroy',
         ],
     ]);
+
+    // Patch Management
+    Route::resource('settings/patches', PatchController::class, [
+        'names' => [
+            'index' => 'settings.patches.index',
+            'create' => 'settings.patches.create',
+            'store' => 'settings.patches.store',
+            'show' => 'settings.patches.show',
+            'edit' => 'settings.patches.edit',
+            'update' => 'settings.patches.update',
+            'destroy' => 'settings.patches.destroy',
+        ],
+    ]);
+
+    Route::resource('settings/package-items', PackageItemController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('settings/special-items', SpecialItemController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('settings/lab-items', LabItemController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('settings/medicines', MedicineController::class)->only(['store', 'update', 'destroy']);
 });

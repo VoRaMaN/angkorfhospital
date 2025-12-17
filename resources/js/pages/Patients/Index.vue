@@ -61,7 +61,7 @@ const performSearch = () => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    
+
     searchTimeout = setTimeout(() => {
         router.get('/patients', {
             search: searchQuery.value,
@@ -133,7 +133,14 @@ watch(searchQuery, () => {
                             :key="patient.id"
                         >
                             <TableCell class="font-mono text-sm">{{ patient.id }}</TableCell>
-                            <TableCell>{{ patient.full_name }}</TableCell>
+                            <TableCell>
+                                <Link
+                                    :href="show({ query: { patient: patient.id } }).url"
+                                    class="font-medium text-primary hover:underline cursor-pointer"
+                                >
+                                    {{ patient.full_name }}
+                                </Link>
+                            </TableCell>
                             <TableCell>{{ patient.user?.email || 'No Email' }}</TableCell>
                             <TableCell>{{ patient.date_of_birth_day }}/{{ patient.date_of_birth_month }}/{{ patient.date_of_birth_year }}</TableCell>
                             <TableCell>{{ patient.gender }}</TableCell>

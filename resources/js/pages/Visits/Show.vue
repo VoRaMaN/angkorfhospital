@@ -32,6 +32,7 @@ import {
     FileText,
     Loader2,
     Stethoscope,
+    Trash2,
     User,
     UserCheck,
     X,
@@ -153,6 +154,20 @@ const cancelVisit = () => {
     }
 };
 
+const deleteVisit = () => {
+    if (confirm('Are you sure you want to delete this visit? This action cannot be undone.')) {
+        router.delete(
+            `/visits/${props.visit.id}`,
+            {
+                onSuccess: () => {
+                    toast.success("Visit deleted successfully!");
+                    router.visit('/visits');
+                },
+            },
+        );
+    }
+};
+
 const getStatusColor = (status: string) => {
     switch (status) {
         case 'pending':
@@ -213,6 +228,15 @@ const getStatusColor = (status: string) => {
                             <X class="mr-1 size-4" />
                             Cancel
                         </Button>
+                        <Button
+                            v-if="hasPermission('delete_visits')"
+                            variant="destructive"
+                            size="sm"
+                            @click="deleteVisit"
+                        >
+                            <Trash2 class="mr-1 size-4" />
+                            Delete
+                        </Button>
                     </div>
                     <Button variant="outline" as-child v-if="hasPermission('edit_visits')">
                         <Link :href="`/visits/${visit.id}/edit`">
@@ -243,7 +267,7 @@ const getStatusColor = (status: string) => {
                                         Patient
                                     </div>
                                     <div class="text-sm">
-                                        {{ visit.patient.user.name }}
+                                        {{ visit.patient?.user?.name || `${visit.patient?.name || ''} ${visit.patient?.surname || ''}`.trim() || 'Unknown Patient' }}
                                     </div>
                                 </div>
                                 <div class="space-y-2">

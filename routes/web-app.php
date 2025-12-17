@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Billings
     Route::resource('billings', BillingController::class);
     Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
+    Route::patch('billings/{billing}/complete-payment', [BillingController::class, 'completePayment'])->name('billings.complete-payment');
     Route::get('billings/{billing}/report', [BillingController::class, 'generateReport'])->name('billings.report');
     Route::get('billings/{billing}/letter', [BillingController::class, 'generateLetter'])->name('billings.letter');
 
@@ -47,6 +48,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('inventory', InventoryController::class);
     Route::get('rx-medicine', [InventoryController::class, 'rxMedicine'])->name('inventory.rx-medicine');
     Route::get('lab-inventory', [InventoryController::class, 'labInventory'])->name('inventory.lab-inventory');
+    Route::get('plastic-ware', [InventoryController::class, 'plasticWare'])->name('inventory.plastic-ware');
+    Route::get('culture-medium', [InventoryController::class, 'cultureMedium'])->name('inventory.culture-medium');
 
     // Lab Panels
     Route::resource('lab-panels', LabPanelController::class);
@@ -102,6 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Visits
     Route::resource('visits', VisitController::class);
     Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
+    Route::patch('visits/{visit}/assign-doctor', [VisitController::class, 'assignDoctor'])->name('visits.assign-doctor');
     Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');
     Route::get('/my-visits', [VisitController::class, 'myVisits'])->name('doctors.my-visits');
     Route::get('/my-to-be-process-visits', [VisitController::class, 'myToBeProcessVisits'])->name('doctors.my-to-be-process-visits');

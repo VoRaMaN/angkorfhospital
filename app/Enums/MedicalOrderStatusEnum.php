@@ -8,6 +8,7 @@ enum MedicalOrderStatusEnum: string
     case PROCESSING = 'processing';
     case PROCESSED = 'processed';
     case COMPLETED = 'completed';
+    case PAID = 'paid';
     case CANCEL = 'cancel';
     case REJECTED = 'rejected';
 
@@ -18,6 +19,7 @@ enum MedicalOrderStatusEnum: string
             self::PROCESSING => 'Processing',
             self::PROCESSED => 'Processed',
             self::COMPLETED => 'Completed',
+            self::PAID => 'Paid',
             self::CANCEL => 'Cancel',
             self::REJECTED => 'Rejected',
         };
@@ -30,6 +32,7 @@ enum MedicalOrderStatusEnum: string
             self::PROCESSING => 'bg-blue-100 text-blue-800',
             self::PROCESSED => 'bg-orange-100 text-orange-800',
             self::COMPLETED => 'bg-green-100 text-green-800',
+            self::PAID => 'bg-emerald-100 text-emerald-800',
             self::CANCEL => 'bg-gray-100 text-gray-800',
             self::REJECTED => 'bg-red-100 text-red-800',
         };

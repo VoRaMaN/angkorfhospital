@@ -96,7 +96,7 @@ class VisitFlowService
                 $visit->update(['status' => Visit::STATUS_COMPLETED]);
 
                 // Create medical record for the visit if it doesn't exist
-                if (!$visit->medicalRecord) {
+                if (! $visit->medicalRecord) {
                     $appointment = $visit->appointment;
                     // Generate diagnosis and treatment based on completed orders
                     $diagnosis = $this->generateDiagnosisFromOrders($visit);
@@ -185,7 +185,7 @@ class VisitFlowService
         $completedOrders = $visit->medicalOrders()->where('status', MedicalOrderStatusEnum::COMPLETED)->get();
         $notes = [];
 
-        $notes[] = 'Visit completed on ' . $visit->visit_date_time->format('M j, Y \a\t g:i A');
+        $notes[] = 'Visit completed on '.$visit->visit_date_time->format('M j, Y \a\t g:i A');
 
         foreach ($completedOrders as $order) {
             $orderNotes = [];
@@ -237,7 +237,7 @@ class VisitFlowService
         ]);
 
         // Also assign staff to the visit if not already assigned
-        if ($medicalOrder->visit && !$medicalOrder->visit->staff_id) {
+        if ($medicalOrder->visit && ! $medicalOrder->visit->staff_id) {
             $medicalOrder->visit->update([
                 'staff_id' => $staffId,
                 'status' => Visit::STATUS_ASSIGNED,
@@ -246,13 +246,16 @@ class VisitFlowService
     }
 
     /**
-     * Get visits awaiting assignment.
+     * Get visits awaiting to be assigned for the current user.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Visit>
      */
     public function getAwaitingToBeAssignVisits(): \Illuminate\Database\Eloquent\Collection
     {
-        return Visit::with(['patient.user', 'appointment', 'medicalOrders'])->get();
+        // Exclude completed visits
+        return Visit::with(['patient.user', 'appointment', 'medicalOrders'])
+            ->where('status', '!=', Visit::STATUS_COMPLETED)
+            ->get();
     }
 
     /**

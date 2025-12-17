@@ -373,7 +373,7 @@ const closeAppointmentDialog = () => {
                                         class="mb-2 flex items-start justify-between"
                                     >
                                         <div class="font-medium">
-                                            {{ appointment.patient.user.name }}
+                                            {{ appointment.patient?.user?.name || 'Unknown Patient' }}
                                         </div>
                                         <Badge
                                             :class="
@@ -452,13 +452,13 @@ const closeAppointmentDialog = () => {
                         <div>
                             <label class="text-sm font-medium">Patient</label>
                             <p class="text-sm text-muted-foreground">
-                                {{ selectedAppointment.patient.user.name }}
+                                {{ selectedAppointment.patient?.user?.name || 'Unknown Patient' }}
                             </p>
                         </div>
                         <div>
                             <label class="text-sm font-medium">Staff</label>
                             <p class="text-sm text-muted-foreground">
-                                {{ selectedAppointment.staff.user.name }}
+                                {{ selectedAppointment.staff?.user?.name || 'Unassigned' }}
                             </p>
                         </div>
                         <div>

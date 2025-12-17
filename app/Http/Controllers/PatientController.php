@@ -534,17 +534,18 @@ class PatientController extends Controller
             $stickerHtml = '
                 <div style="
                     box-sizing: border-box;
-                    width: 57mm; height: 31.5mm;
+                    width: 57mm; height: 30mm;
                     border: none;
                     display: flex; flex-direction: column;
                     align-items: center; justify-content: center;
-                    text-align: center; font-size: 12pt;">
-                    <div style="font-weight: bold;">NAME: '.htmlspecialchars((string)($fullName ?? ""), ENT_QUOTES, "UTF-8").'</div>
-                    <div>ID: '.htmlspecialchars((string)$patient->id, ENT_QUOTES, "UTF-8").'</div>
-                    <div>DOB: '.htmlspecialchars($dob, ENT_QUOTES, "UTF-8").' ('.htmlspecialchars($age, ENT_QUOTES, "UTF-8").')</div>
+                    text-align: center; font-size: 12pt;
+                    line-height: 1.6;       /* added vertical spacing */
+                    letter-spacing: 0.5px;  /* added character spacing */">
+                    <div style="margin-bottom: 4px;"> '.htmlspecialchars((string) ($fullName ?? ''), ENT_QUOTES, 'UTF-8').'</div>
+                    <div style="margin-bottom: 4px;">HN: '.htmlspecialchars((string) $patient->id, ENT_QUOTES, 'UTF-8').'</div>
+                    <div>DOB: '.htmlspecialchars($dob, ENT_QUOTES, 'UTF-8').' ('.htmlspecialchars($age, ENT_QUOTES, 'UTF-8').')</div>
                 </div>
             ';
-
 
             // Build 9 rows × 3 columns = 27 labels
             $rows = '';
@@ -582,26 +583,27 @@ class PatientController extends Controller
                         border-spacing: 0;
                         table-layout: fixed;
                     }
-                    tr { height: 31.5mm; }
+                    tr { height: 30mm; }
                     td {
-                        width: 57mm; height: 31.5mm;
+                        width: 57mm; height: 30mm;
                         padding: 0 0;
                         vertical-align: middle;
                         text-align: center;
                     }
                     .label {
-                    width: 100%;
-                    height: 100%;
-                    box-sizing: border-box;
-                    border: none;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 12pt;
-                    text-align: center;
-                }
-
+                        width: 100%;
+                        height: 100%;
+                        box-sizing: border-box;
+                        border: none;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12pt;
+                        line-height: 1.6;       /* added vertical spacing */
+                        letter-spacing: 0.5px;  /* added character spacing */
+                        text-align: center;
+                    }
                 </style>
             </head>
             <body>

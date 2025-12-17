@@ -34,6 +34,8 @@ interface Props {
             user: {
                 name: string;
             };
+            name?: string;
+            surname?: string;
         };
         appointment: any;
         visit_date_time: string;
@@ -134,7 +136,7 @@ const getStatusColor = (status: string) => {
                                     <User class="h-4 w-4 text-muted-foreground" />
                                     <div>
                                         <div class="font-medium">
-                                            {{ visit.patient.user.name }}
+                                            {{ visit.patient?.user?.name || `${visit.patient?.name || ''} ${visit.patient?.surname || ''}`.trim() || 'Unknown Patient' }}
                                         </div>
                                         <div v-if="visit.appointment" class="text-sm text-muted-foreground">
                                             From appointment

@@ -202,7 +202,7 @@ class MedicalOrderBillingService
     /**
      * Reduce inventory stock for items used in the order
      */
-    protected function reduceInventoryStock(MedicalOrder $medicalOrder): void
+    public function reduceInventoryStock(MedicalOrder $medicalOrder): void
     {
         $inventoryService = app(InventoryService::class);
 

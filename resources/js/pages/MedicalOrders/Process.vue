@@ -31,7 +31,7 @@ import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { index, processWithUpdate, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import {
     Activity,
     AlertCircle,
@@ -75,6 +75,22 @@ interface RXMedicine {
     category: string | null;
     unit_price: number;
     selling_price: number;
+}
+
+interface PatchItem {
+    id: number;
+    item_name: string;
+    unit_price: number;
+    selling_price: number;
+    type_of_supply: string;
+    category: string;
+}
+
+interface PatchRow {
+    id: number;
+    name: string;
+    total_unit_price: number;
+    items: PatchItem[];
 }
 
 interface OrderItem {
@@ -131,6 +147,7 @@ interface Props {
         type: string;
         price: number;
     }>;
+    patches: PatchRow[];
 }
 
 const props = defineProps<Props>();
@@ -159,6 +176,12 @@ const form = useForm<{
         ? props.medicalOrder.order_items.map((item) => ({ ...item }))
         : [],
 });
+
+// Patch selection state
+const selectedPatchId = ref<string>('');
+const selectedPatch = computed(() =>
+    props.patches.find((p) => p.id.toString() === selectedPatchId.value),
+);
 
 // Lab selection state
 const showLabDialog = ref(false);
@@ -477,6 +500,47 @@ const clearAllItems = () => {
     }
 };
 
+// Map inventory type_of_supply to valid medical order item_type
+const mapSupplyTypeToItemType = (supplyType: string): string => {
+    const mapping: Record<string, string> = {
+        'lab_supply': 'lab',
+        'medication': 'rx_medicine',
+        'rx_medicine': 'rx_medicine',
+        'equipment': 'supply',
+        'office_supply': 'supply',
+        'medical_supply': 'supply',
+        'supply': 'supply',
+        'lab': 'lab',
+        'procedure': 'procedure',
+        'imaging': 'imaging',
+        'consultation': 'consultation',
+        'therapy': 'therapy',
+    };
+    return mapping[supplyType.toLowerCase()] || 'supply';
+};
+
+const applyPatch = () => {
+    const patch = selectedPatch.value;
+    if (!patch) {
+        return;
+    }
+
+    patch.items.forEach((item) => {
+        form.order_items.push({
+            inventory_id: item.id,
+            item_type: mapSupplyTypeToItemType(item.type_of_supply),
+            item_name: item.item_name,
+            quantity_required: 1,
+            status: 'pending',
+            notes: `Patch: ${patch.name}`,
+            unit_price: item.unit_price,
+            selling_price: item.selling_price,
+        });
+    });
+
+    selectedPatchId.value = '';
+};
+
 const toggleItemExpansion = (index: number) => {
     if (expandedItems.value.has(index)) {
         expandedItems.value.delete(index);
@@ -581,12 +645,40 @@ const getStatusColor = (status: string) => {
 };
 
 const submitForm = () => {
-    console.log('Submitting form data:', form.data());
-    form.patch(processWithUpdate(props.medicalOrder.id).url, {
-        onSuccess: () => {
-            // The backend handles the redirect to the already processed page
-        },
-    });
+    // Use router.visit with method: 'patch' for better redirect handling
+    router.visit(
+        processWithUpdate(props.medicalOrder.id).url,
+        {
+            method: 'patch',
+            data: {
+                order_details: form.order_details,
+                notes: form.notes,
+                order_items: form.order_items.map(item => ({
+                    id: item.id,
+                    item_type: item.item_type,
+                    item_name: item.item_name,
+                    details: item.details,
+                    dosage: item.dosage,
+                    frequency: item.frequency,
+                    route: item.route,
+                    quantity_required: item.quantity_required,
+                    status: item.status,
+                    notes: item.notes,
+                    inventory_id: item.inventory_id,
+                    unit_price: item.unit_price,
+                    selling_price: item.selling_price,
+                })),
+            },
+            preserveState: false,
+            preserveScroll: false,
+            onError: (errors) => {
+                console.error('Form submission errors:', errors);
+            },
+            onFinish: () => {
+                showConfirmDialog.value = false;
+            },
+        }
+    );
 };
 </script>
 
@@ -737,6 +829,75 @@ const submitForm = () => {
             </Card>
 
             <form @submit.prevent="submitForm" class="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <CardTitle>Apply Patch</CardTitle>
+                                <CardDescription>
+                                    Quickly add predefined item sets to this order
+                                </CardDescription>
+                            </div>
+                            <div class="text-sm text-muted-foreground">
+                                {{ selectedPatch?.total_unit_price?.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) || '--' }}
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent class="space-y-4">
+                        <div class="grid gap-3 md:grid-cols-2">
+                            <div class="space-y-2">
+                                <Label class="text-sm font-medium">Select patch</Label>
+                                <Select v-model="selectedPatchId">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose a patch" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem
+                                            v-for="patch in props.patches"
+                                            :key="patch.id"
+                                            :value="patch.id.toString()"
+                                        >
+                                            {{ patch.name }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div class="space-y-2">
+                                <Label class="text-sm font-medium">Items</Label>
+                                <div
+                                    class="rounded-md border p-3 max-h-40 overflow-y-auto text-sm text-muted-foreground"
+                                >
+                                    <div v-if="!selectedPatch">
+                                        Select a patch to preview items.
+                                    </div>
+                                    <div v-else class="space-y-1">
+                                        <div
+                                            v-for="item in selectedPatch.items"
+                                            :key="item.id"
+                                            class="flex justify-between"
+                                        >
+                                            <span>{{ item.item_name }} <span class="text-xs text-muted-foreground">({{ item.type_of_supply }})</span></span>
+                                            <span>
+                                                {{ Number(item.unit_price).toLocaleString(undefined, { style: 'currency', currency: 'USD' }) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <Button
+                                type="button"
+                                :disabled="!selectedPatch"
+                                @click="applyPatch"
+                            >
+                                <Plus class="size-4 mr-2" />
+                                Add patch items
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader>
                         <div class="flex items-center justify-between">

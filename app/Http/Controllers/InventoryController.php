@@ -141,4 +141,38 @@ class InventoryController extends Controller
             ],
         ]);
     }
+
+    public function plasticWare(): Response
+    {
+        $this->authorize('viewAny', Inventory::class);
+
+        $plasticWare = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::LAB_SUPPLY)
+            ->where('category', 'Plastic Ware')
+            ->get();
+
+        return Inertia::render('Inventories/PlasticWareIndex', [
+            'plasticWare' => $plasticWare,
+            'filters' => [
+                'search' => request('search', ''),
+                'status' => request('status', ''),
+            ],
+        ]);
+    }
+
+    public function cultureMedium(): Response
+    {
+        $this->authorize('viewAny', Inventory::class);
+
+        $cultureMedium = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::LAB_SUPPLY)
+            ->where('category', 'Culture Medium')
+            ->get();
+
+        return Inertia::render('Inventories/CultureMediumIndex', [
+            'cultureMedium' => $cultureMedium,
+            'filters' => [
+                'search' => request('search', ''),
+                'status' => request('status', ''),
+            ],
+        ]);
+    }
 }
