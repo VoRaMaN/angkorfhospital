@@ -145,7 +145,8 @@
 </head>
 <body>
     <div class="letterhead">
-        <h1>Angkor F Clinic</h1>
+        <img src="{{ public_path('images/logo.png') }}" alt="Angkor F Hospital" style="width: 80px; height: 80px; margin: 0 auto 10px; display: block;">
+        <h1>Angkor F Hospital</h1>
         <p>Medical Center</p>
         <p>123 Healthcare Avenue, Medical District</p>
         <p>Phone: (555) 123-4567 | Email: info@angkorfclinic.com</p>
@@ -169,7 +170,7 @@
     </div>
 
     <div class="content">
-        <p>This letter confirms your appointment with Angkor F Clinic.</p>
+        <p>This letter confirms your appointment with Angkor F Hospital.</p>
 
         <div class="appointment-details">
             <div class="detail-row">
@@ -216,12 +217,12 @@
     <div class="closing">
         <p>Sincerely,</p>
         <div class="signature">
-            Angkor F Clinic Staff
+            Angkor F Hospital Staff
         </div>
     </div>
 
     <div class="footer">
-        <p>This is an official appointment confirmation from Angkor F Clinic. Please keep this letter for your records.</p>
+        <p>This is an official appointment confirmation from Angkor F Hospital. Please keep this letter for your records.</p>
         <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }}</p>
     </div>
 </body>

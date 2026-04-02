@@ -106,7 +106,7 @@ const appointmentOptions = computed(() => [
     { value: 'none', label: 'None' },
     ...props.appointments.map((appointment) => ({
         value: appointment.id.toString(),
-        label: `#${appointment.id} - ${appointment.patient.name} - ${new Date(appointment.appointment_date_time).toLocaleDateString()}`,
+        label: `#${appointment.id} - ${appointment.patient.name} - ${appointment.appointment_date_time}`,
     })),
 ]);
 

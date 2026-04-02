@@ -92,7 +92,7 @@ class AppointmentsExport
             $rows[] = [
                 $appointment->patient ? $appointment->patient->id : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
-                $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('Y-m-d') : '',
+                $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('d/m/y') : '',
                 $appointment->patient ? ($appointment->patient->user ? $appointment->patient->user->name : ($appointment->patient->name.' '.$appointment->patient->surname)) : 'Unknown Patient',
                 $appointment->patient ? $appointment->patient->mobile_phone : '',
                 $appointment->staff ? ($appointment->staff->user ? $appointment->staff->user->name : ($appointment->staff->first_name.' '.$appointment->staff->last_name)) : 'Unknown Staff',
@@ -100,7 +100,7 @@ class AppointmentsExport
                 ucfirst(str_replace('_', ' ', $appointment->appointment_type?->value ?? 'consultation')),
                 $appointment->duration_minutes ?? 30,
                 $appointment->reason_for_visit ?? '',
-                $appointment->created_at ? $appointment->created_at->format('Y-m-d H:i:s') : '',
+                $appointment->created_at ? $appointment->created_at->format('d/m/y H:i') : '',
             ];
         }
 

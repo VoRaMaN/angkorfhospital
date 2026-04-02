@@ -1,0 +1,146 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Enums\SupplyTypeEnum;
+use App\Models\Inventory;
+use Illuminate\Database\Seeder;
+
+class InventoryRxMedicineSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $medicines = [
+            ['name' => 'Acide Folique 5mg', 'unit_price' => 0.04, 'stock_quantity' => 0],
+            ['name' => 'Albendazole 400mg', 'unit_price' => 1.50, 'stock_quantity' => 10],
+            ['name' => 'Albumin', 'unit_price' => 70.00, 'stock_quantity' => 0],
+            ['name' => 'Alphachymoral (1box=30tb)', 'unit_price' => 0.08, 'stock_quantity' => 5],
+            ['name' => 'Amoxicilline500mg', 'unit_price' => 0.24, 'stock_quantity' => 100],
+            ['name' => 'Amplin 1mg', 'unit_price' => 0.04, 'stock_quantity' => 100],
+            ['name' => 'Azitro 500mg(1box=3c)', 'unit_price' => 1.50, 'stock_quantity' => 100],
+            ['name' => 'Cefixim 400mg (1box=5tb)', 'unit_price' => 2.00, 'stock_quantity' => 20],
+            ['name' => 'Ceftriaxone 1g(1box=10)', 'unit_price' => 5.00, 'stock_quantity' => 10],
+            ['name' => 'Cephalexine antibiotic suspension 8mg (1box=100fr)', 'unit_price' => 0.10, 'stock_quantity' => 10],
+            ['name' => 'Chlorhexogine 500mg (1box=1000)', 'unit_price' => 1.00, 'stock_quantity' => 100],
+            ['name' => 'Chlorpheniramine 4mg (1 box=100)', 'unit_price' => 1.00, 'stock_quantity' => 10],
+            ['name' => 'Ciprofloxain 500mg', 'unit_price' => 2.20, 'stock_quantity' => 10],
+            ['name' => 'DPlylax 500ml (1box=2dff)', 'unit_price' => 10.00, 'stock_quantity' => 20],
+            ['name' => 'Dexamethasone injection', 'unit_price' => 1.00, 'stock_quantity' => 10],
+            ['name' => 'Dopamin inj', 'unit_price' => 2.00, 'stock_quantity' => 10],
+            ['name' => 'Dorflex inj', 'unit_price' => 2.00, 'stock_quantity' => 15],
+            ['name' => 'Doxyxyne inj', 'unit_price' => 3.00, 'stock_quantity' => 20],
+            ['name' => 'Doxycycline 100mg (1box=1000s)', 'unit_price' => 0.20, 'stock_quantity' => 100],
+            ['name' => 'Duphastan (1box=2000)', 'unit_price' => 1.00, 'stock_quantity' => 2000],
+            ['name' => 'Duphaston 10mg', 'unit_price' => 0.57, 'stock_quantity' => 50],
+            ['name' => 'Erythromycin 500', 'unit_price' => 0.32, 'stock_quantity' => 50],
+            ['name' => 'Femara 2.5mg (box=30)', 'unit_price' => 1.00, 'stock_quantity' => 50],
+            ['name' => 'Fipril (combo (1box=10p)', 'unit_price' => 1.00, 'stock_quantity' => 10],
+            ['name' => 'Fluconazole 200mg', 'unit_price' => 0.50, 'stock_quantity' => 50],
+            ['name' => 'Glucose (50ml-50amp) 50%', 'unit_price' => 2.00, 'stock_quantity' => 10],
+            ['name' => 'Lactose (WE C ig (box=100fr)', 'unit_price' => 8.00, 'stock_quantity' => 2],
+            ['name' => 'Lexol 90(ml)', 'unit_price' => 10.00, 'stock_quantity' => 5],
+            ['name' => 'Mercilon 21', 'unit_price' => 10.00, 'stock_quantity' => 5],
+            ['name' => 'Methadone box', 'unit_price' => 20.00, 'stock_quantity' => 5],
+            ['name' => 'Metronidazol 60ml injection', 'unit_price' => 5.00, 'stock_quantity' => 2],
+            ['name' => 'Metronidazole 500mg (1box=1000)', 'unit_price' => 0.06, 'stock_quantity' => 100],
+            ['name' => 'Metformin 500mg', 'unit_price' => 0.20, 'stock_quantity' => 50],
+            ['name' => 'Moxifloxin (Doxeperloxacin 15mg)', 'unit_price' => 0.40, 'stock_quantity' => 50],
+            ['name' => 'NSS 1000mL big (box=10f)', 'unit_price' => 15.00, 'stock_quantity' => 10],
+            ['name' => 'NSS 10ml', 'unit_price' => 2.00, 'stock_quantity' => 10],
+            ['name' => 'Oxytocin (1box=10ml)', 'unit_price' => 1.00, 'stock_quantity' => 10],
+            ['name' => 'Paracetamol (droftrus v9 100mg)', 'unit_price' => 5.00, 'stock_quantity' => 15],
+            ['name' => 'Prednisolone', 'unit_price' => 0.12, 'stock_quantity' => 60],
+            ['name' => 'Pregna 10mg=10fr(pregnant)', 'unit_price' => 0.50, 'stock_quantity' => 100],
+            ['name' => 'Progeston 10fr', 'unit_price' => 8.00, 'stock_quantity' => 20],
+            ['name' => 'Icy Gel', 'unit_price' => 3.00, 'stock_quantity' => 5],
+            ['name' => 'Ranitropan (1box=250p)', 'unit_price' => 3.00, 'stock_quantity' => 15],
+            ['name' => 'Salbutamol 20mg', 'unit_price' => 0.20, 'stock_quantity' => 20],
+            ['name' => 'Septolien inj', 'unit_price' => 0.40, 'stock_quantity' => 0],
+            ['name' => 'Spisikot (1box=300s)', 'unit_price' => 2.50, 'stock_quantity' => 20],
+            ['name' => 'Lemum (amp)', 'unit_price' => 5.00, 'stock_quantity' => 20],
+            ['name' => 'simulsol inj', 'unit_price' => 2.50, 'stock_quantity' => 15],
+            ['name' => 'Tinposelle 100mg', 'unit_price' => 0.20, 'stock_quantity' => 20],
+            ['name' => 'UTrigot 500mg injection (1box=10mg)', 'unit_price' => 2.50, 'stock_quantity' => 30],
+            ['name' => 'UTrigot 500mg (12ta=12200)', 'unit_price' => 0.21, 'stock_quantity' => 100],
+            ['name' => 'Vitamin C (1box=1000f)', 'unit_price' => 0.08, 'stock_quantity' => 800],
+            ['name' => 'Vitamin Iron ( 1 box=200s)', 'unit_price' => 15.00, 'stock_quantity' => 5],
+            ['name' => 'Proximin 500mg (1box=5000s)', 'unit_price' => 0.50, 'stock_quantity' => 50],
+            ['name' => 'Brennozopirine 25mg', 'unit_price' => 3.00, 'stock_quantity' => 100],
+            ['name' => 'Dobutrex (10mg) (13th)', 'unit_price' => 70.00, 'stock_quantity' => 20],
+            ['name' => 'Doloten 50mg (1box=20tb)', 'unit_price' => 7.50, 'stock_quantity' => 20],
+            ['name' => 'Controdox ( syring-injection )', 'unit_price' => 86.00, 'stock_quantity' => 10],
+            ['name' => 'Ozutral ( syring)300U', 'unit_price' => 260.00, 'stock_quantity' => 10],
+            ['name' => 'Gonal F (syring)600IU', 'unit_price' => 220.00, 'stock_quantity' => 0],
+            ['name' => 'Pregnakdne Box', 'unit_price' => 1.50, 'stock_quantity' => 10],
+            ['name' => 'Propyprera 2mg (tablet)', 'unit_price' => 0.50, 'stock_quantity' => 10],
+            ['name' => 'Provititice 10mg', 'unit_price' => 12.00, 'stock_quantity' => 5],
+            ['name' => 'Novo-Vardenbow ( smart )box', 'unit_price' => 7.00, 'stock_quantity' => 50],
+            ['name' => 'V-Gel (tube)', 'unit_price' => 7.00, 'stock_quantity' => 5],
+            ['name' => 'Desogest 2mg', 'unit_price' => 10.00, 'stock_quantity' => 0],
+            ['name' => 'Urogentine 100mg', 'unit_price' => 0.40, 'stock_quantity' => 10],
+            ['name' => 'Urogentine syrup', 'unit_price' => 1.00, 'stock_quantity' => 10],
+            ['name' => 'Albuterol Vaginal Gel', 'unit_price' => 18.00, 'stock_quantity' => 5],
+            ['name' => 'Oositro GsL', 'unit_price' => 15.00, 'stock_quantity' => 7],
+            ['name' => 'Baby-Ossims Procastil with-DHA', 'unit_price' => 10.00, 'stock_quantity' => 50],
+            ['name' => 'Pregtyitol 500mL', 'unit_price' => 90.00, 'stock_quantity' => 0],
+            ['name' => 'Propoford Ampoul', 'unit_price' => 20.00, 'stock_quantity' => 20],
+            ['name' => 'Fumaural 2ml injection', 'unit_price' => 80.00, 'stock_quantity' => 3],
+            ['name' => 'Foluroge 900IU', 'unit_price' => 500.00, 'stock_quantity' => 15],
+            ['name' => 'Foluroge 900IU', 'unit_price' => 150.00, 'stock_quantity' => 20],
+            ['name' => 'Foluroge 450IU', 'unit_price' => 130.00, 'stock_quantity' => 0],
+            ['name' => 'Monuitsu HP 75IU', 'unit_price' => 35.00, 'stock_quantity' => 0],
+            ['name' => 'Prompton Gel 5000IU', 'unit_price' => 35.00, 'stock_quantity' => 0],
+            ['name' => 'Porure botu', 'unit_price' => 20.00, 'stock_quantity' => 10],
+            ['name' => 'NVEL FORT', 'unit_price' => 1.00, 'stock_quantity' => 20],
+            ['name' => 'BioOG 5000IU (IBOX)', 'unit_price' => 35.00, 'stock_quantity' => 10],
+            ['name' => 'Muningtous (bon)', 'unit_price' => 20.00, 'stock_quantity' => 0],
+            ['name' => 'HCT one', 'unit_price' => 15.00, 'stock_quantity' => 5],
+            ['name' => 'Primola (Sachets)', 'unit_price' => 10.00, 'stock_quantity' => 12],
+            ['name' => 'Primola for grandil', 'unit_price' => 15.00, 'stock_quantity' => 0],
+            ['name' => 'Fogarsi B', 'unit_price' => 15.00, 'stock_quantity' => 0],
+            ['name' => 'Otuflutol', 'unit_price' => 220.00, 'stock_quantity' => 0],
+            ['name' => 'LT-6 Massage Gel tube', 'unit_price' => 15.00, 'stock_quantity' => 5],
+            ['name' => 'LT-6 Massage foam stick', 'unit_price' => 15.00, 'stock_quantity' => 5],
+            ['name' => 'Long time Gel Tube', 'unit_price' => 15.00, 'stock_quantity' => 5],
+            ['name' => 'Plusa-2D', 'unit_price' => 7.00, 'stock_quantity' => 10],
+            ['name' => 'Femdose (bottle)', 'unit_price' => 20.00, 'stock_quantity' => 10],
+            ['name' => 'Crimiolog (bot)', 'unit_price' => 15.00, 'stock_quantity' => 0],
+            ['name' => 'Cartiflexz C (Tab)', 'unit_price' => 1.00, 'stock_quantity' => 5],
+            ['name' => 'DHA C-omplex (Orange 3)', 'unit_price' => 26.00, 'stock_quantity' => 20],
+            ['name' => 'Drefuge(box)', 'unit_price' => 40.00, 'stock_quantity' => 10],
+            ['name' => 'Carbonne', 'unit_price' => 20.00, 'stock_quantity' => 2],
+            ['name' => 'Carbosam(Syrup)', 'unit_price' => 80.00, 'stock_quantity' => 8],
+            ['name' => 'Penil ACT', 'unit_price' => 20.00, 'stock_quantity' => 6],
+            ['name' => 'Smullium tel', 'unit_price' => 18.00, 'stock_quantity' => 1],
+            ['name' => 'Perstibse (Cowplet fil)', 'unit_price' => 15.00, 'stock_quantity' => 10],
+            ['name' => 'Eusi Maginesium', 'unit_price' => 15.00, 'stock_quantity' => 2],
+            ['name' => 'Pragnuex (Kit)', 'unit_price' => 0.10, 'stock_quantity' => 50],
+            ['name' => 'Pregnancy Mini(box)', 'unit_price' => 38.00, 'stock_quantity' => 6],
+            ['name' => 'Pragnaxex (Box)', 'unit_price' => 20.00, 'stock_quantity' => 6],
+            ['name' => 'Pregnaxex Plus', 'unit_price' => 30.00, 'stock_quantity' => 0],
+            ['name' => 'bubfel(mix)', 'unit_price' => 2.00, 'stock_quantity' => 5],
+            ['name' => 'ITK(swag)', 'unit_price' => 50.00, 'stock_quantity' => 10],
+        ];
+
+        foreach ($medicines as $medicine) {
+            Inventory::updateOrCreate(
+                [
+                    'item_name' => $medicine['name'],
+                    'type_of_supply' => SupplyTypeEnum::RX_MEDICINE,
+                ],
+                [
+                    'item_name' => $medicine['name'],
+                    'type_of_supply' => SupplyTypeEnum::RX_MEDICINE,
+                    'unit_price' => $medicine['unit_price'],
+                    'selling_price' => $medicine['unit_price'], // Set selling price same as unit price
+                    'quantity' => $medicine['stock_quantity'],
+                    'unit' => 'box',
+                    'minimum_stock' => 10,
+                ]
+            );
+        }
+    }
+}

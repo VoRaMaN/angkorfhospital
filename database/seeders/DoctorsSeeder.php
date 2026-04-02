@@ -22,9 +22,9 @@ class DoctorsSeeder extends Seeder
                 'last_name' => '',
             ],
             [
-                'email' => 'dr.so@clinic.com',
-                'name' => 'Dr. So',
-                'first_name' => 'So',
+                'email' => 'dr.sosivann@clinic.com',
+                'name' => 'Dr. Sosivann',
+                'first_name' => 'Sosivann',
                 'last_name' => '',
             ],
         ];

@@ -22,15 +22,23 @@ class MedicalOrderController extends Controller
         $this->authorize('viewAny', MedicalOrder::class);
 
         // Exclude paid orders by default (show only active orders)
+        // Also exclude orders without patients
         $medicalOrders = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems', 'visit.patient.user', 'visit.staff.user'])
             ->where('status', '!=', \App\Enums\MedicalOrderStatusEnum::PAID)
+            ->where(function ($query) {
+                // Must have either a patient or a visit with a patient
+                $query->whereNotNull('patient_id')
+                    ->orWhereHas('visit', function ($q) {
+                        $q->whereNotNull('patient_id');
+                    });
+            })
             ->paginate(15);
 
         // Transform medical orders for the frontend
         $transformedOrders = $medicalOrders->getCollection()->map(function ($order) {
             // Get patient from order or visit
             $patient = $order->patient ?? $order->visit?->patient;
-            $patientName = $patient?->user?->name ?? 'Unknown Patient';
+            $patientName = $patient?->user?->name ?? $patient?->name ?? 'Unknown Patient';
 
             // Get staff from order or visit
             $staff = $order->staff ?? $order->visit?->staff;
@@ -608,6 +616,57 @@ class MedicalOrderController extends Controller
                 ];
             });
 
+        $medicineGroups = \App\Models\MedicineGroup::where('is_active', true)
+            ->with(['items.inventory'])
+            ->get()
+            ->map(function ($group) {
+                // Calculate total price
+                $totalPrice = $group->custom_price;
+                if (! $totalPrice) {
+                    $totalPrice = $group->items->sum(function ($item) {
+                        return ($item->inventory->selling_price ?? 0) * $item->quantity;
+                    });
+                }
+
+                return [
+                    'id' => $group->id,
+                    'name' => $group->name,
+                    'description' => $group->description,
+                    'custom_price' => $group->custom_price,
+                    'total_price' => $totalPrice,
+                    'items' => $group->items->map(function ($item) {
+                        return [
+                            'id' => $item->inventory_id,
+                            'item_name' => $item->inventory->item_name ?? 'Unknown',
+                            'dosage' => $item->dosage,
+                            'frequency' => $item->frequency,
+                            'quantity' => $item->quantity,
+                            'unit_price' => $item->inventory->unit_price ?? 0,
+                            'selling_price' => $item->inventory->selling_price ?? 0,
+                        ];
+                    }),
+                ];
+            });
+
+        $specialItems = \App\Models\SpecialItem::where('is_active', true)
+            ->with(['items.inventory'])
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'description' => $item->description,
+                    'unit_price' => (float) $item->unit_price,
+                    'items' => $item->items->map(function ($subItem) {
+                        return [
+                            'id' => $subItem->inventory_id,
+                            'item_name' => $subItem->inventory->item_name ?? 'Unknown',
+                            'quantity' => $subItem->quantity,
+                        ];
+                    }),
+                ];
+            });
+
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
@@ -650,6 +709,8 @@ class MedicalOrderController extends Controller
             'rxMedicines' => $rxMedicines,
             'medicalServices' => $medicalServices,
             'patches' => $patches,
+            'medicineGroups' => $medicineGroups,
+            'specialItems' => $specialItems,
         ]);
     }
 
@@ -974,7 +1035,7 @@ class MedicalOrderController extends Controller
             ] : null,
             'appointment_info' => $medicalOrder->visit?->appointment ? [
                 'id' => $medicalOrder->visit->appointment->id,
-                'appointment_date_time' => $medicalOrder->visit->appointment->appointment_date_time,
+                'appointment_date_time' => $medicalOrder->visit->appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y H:i'),
                 'duration_minutes' => $medicalOrder->visit->appointment->duration_minutes,
                 'reason_for_visit' => $medicalOrder->visit->appointment->reason_for_visit,
                 'status' => $medicalOrder->visit->appointment->status,

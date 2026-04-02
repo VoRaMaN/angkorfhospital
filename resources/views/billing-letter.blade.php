@@ -3,260 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing Statement - {{ $billing->id }}</title>
+    <title>Receipt - {{ $billing->bill_no }}</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Times New Roman', serif;
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.4;
             color: #000;
-            margin: 0;
-            padding: 30px;
-            max-width: 8.5in;
-            margin: 0 auto;
-            page-break-inside: avoid;
+            padding: 40px 60px;
         }
 
-        .letterhead {
-            text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            page-break-inside: avoid;
-        }
-
-        .letterhead h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .letterhead p {
-            margin: 3px 0;
-            font-size: 12px;
-        }
-
-        .date {
-            text-align: right;
-            margin-bottom: 25px;
-            font-size: 12px;
-        }
-
-        .recipient {
-            margin-bottom: 20px;
-            page-break-inside: avoid;
-        }
-
-        .recipient p {
-            margin: 3px 0;
-            font-size: 11px;
-        }
-
-        .salutation {
-            margin-bottom: 20px;
-            font-size: 13px;
-            page-break-inside: avoid;
-        }
-
-        .content {
-            margin-bottom: 25px;
-            page-break-inside: avoid;
-        }
-
-        .content p {
-            margin-bottom: 10px;
-            text-align: justify;
-        }
-
-        .billing-details {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-left: 3px solid #000;
-            margin: 15px 0;
-            page-break-inside: avoid;
-        }
-
-        .detail-row {
+        .header {
             display: table;
             width: 100%;
-            margin-bottom: 8px;
+            margin-bottom: 30px;
         }
 
-        .detail-label {
+        .header-left {
             display: table-cell;
-            width: 140px;
+            width: 60%;
+            vertical-align: top;
+        }
+
+        .header-left h1 {
+            font-size: 14px;
             font-weight: bold;
-            vertical-align: top;
-            font-size: 11px;
+            margin-bottom: 3px;
         }
 
-        .detail-value {
+        .header-left p {
+            font-size: 11px;
+            margin: 2px 0;
+        }
+
+        .header-right {
             display: table-cell;
+            width: 40%;
+            text-align: right;
             vertical-align: top;
+        }
+
+        .bill-box {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .bill-box p {
+            font-size: 11px;
+            margin: 3px 0;
+        }
+
+        .original-box {
+            border: 2px solid #000;
+            padding: 5px 15px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .patient-info {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .patient-left {
+            display: table-cell;
+            width: 60%;
+        }
+
+        .patient-left p {
+            font-size: 11px;
+            margin: 3px 0;
+        }
+
+        .patient-left .label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        .patient-right {
+            display: table-cell;
+            width: 40%;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .patient-right p {
+            font-size: 11px;
+            margin: 3px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th {
+            background-color: #fff;
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        table td {
+            border: 1px solid #000;
+            padding: 8px;
             font-size: 11px;
         }
 
-        .closing {
-            margin-top: 30px;
-            page-break-inside: avoid;
+        table td.description {
+            font-weight: bold;
         }
 
-        .signature {
-            margin-top: 40px;
+        table td.amount,
+        table td.discount,
+        table td.net {
+            text-align: right;
+        }
+
+        .total-row td {
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        .total-words {
+            font-size: 11px;
+            margin-bottom: 30px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 10px;
+            color: #0000FF;
+            margin-bottom: 80px;
+            line-height: 1.6;
+        }
+
+        .signature-section {
+            text-align: right;
+            margin-top: 60px;
+        }
+
+        .signature-line {
             border-top: 1px solid #000;
-            width: 180px;
+            width: 250px;
+            margin-left: auto;
+            padding-top: 5px;
             text-align: center;
-            padding-top: 8px;
             font-size: 11px;
         }
 
-        .footer {
-            position: fixed;
-            bottom: 20px;
-            left: 30px;
-            right: 30px;
-            text-align: center;
-            font-size: 9px;
-            color: #666;
-            border-top: 1px solid #ccc;
-            padding-top: 8px;
-            page-break-inside: avoid;
-        }
-
-        @page {
-            margin: 0.75in;
-            size: letter;
-        }
-
-        /* Force single page */
-        html, body {
-            height: auto !important;
-            overflow: visible !important;
-        }
-
-        /* Prevent any page breaks */
-        * {
-            page-break-inside: avoid;
-            page-break-before: avoid;
-            page-break-after: avoid;
+        .payment-method {
+            font-size: 11px;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div class="letterhead">
-        <h1>Angkor F Clinic</h1>
-        <p>Medical Center</p>
-        <p>123 Healthcare Avenue, Medical District</p>
-        <p>Phone: (555) 123-4567 | Email: info@angkorfclinic.com</p>
-    </div>
-
-    <div class="date">
-        {{ now()->format('F j, Y') }}
-    </div>
-
-    <div class="recipient">
-        @php
-            $patientName = 'Unknown Patient';
-            $patientAddress = '';
-            $patientPhone = '';
-            $patientEmail = '';
-
-            if ($billing->appointment && $billing->appointment->patient) {
-                $patient = $billing->appointment->patient;
-                $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
-                $patientAddress = $patient->address;
-                $patientPhone = $patient->phone_number;
-                $patientEmail = $patient->email ?? $patient->user?->email;
-            } elseif ($billing->visit && $billing->visit->patient) {
-                $patient = $billing->visit->patient;
-                $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
-                $patientAddress = $patient->address;
-                $patientPhone = $patient->phone_number;
-                $patientEmail = $patient->email ?? $patient->user?->email;
-            } elseif ($billing->medicalOrder && $billing->medicalOrder->patient) {
-                $patient = $billing->medicalOrder->patient;
-                $patientName = $patient->user?->name ?? $patient->first_name.' '.$patient->last_name;
-                $patientAddress = $patient->address;
-                $patientPhone = $patient->phone_number;
-                $patientEmail = $patient->email ?? $patient->user?->email;
-            }
-        @endphp
-        <p>{{ $patientName }}</p>
-        <p>{{ $patientAddress }}</p>
-        <p>{{ $patientPhone }}</p>
-        @if($patientEmail)
-        <p>{{ $patientEmail }}</p>
-        @endif
-    </div>
-
-    <div class="salutation">
-        <p>Dear {{ $patientName }},</p>
-    </div>
-
-    <div class="content">
-        <p>This letter contains your billing statement from Angkor F Clinic.</p>
-
-        <div class="billing-details">
-            <div class="detail-row">
-                <div class="detail-label">Billing ID:</div>
-                <div class="detail-value">#{{ $billing->id }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Billing Date:</div>
-                <div class="detail-value">{{ \Carbon\Carbon::parse($billing->billing_date)->format('F j, Y') }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Due Date:</div>
-                <div class="detail-value">{{ $billing->due_date ? \Carbon\Carbon::parse($billing->due_date)->format('F j, Y') : 'N/A' }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Total Amount:</div>
-                <div class="detail-value">${{ number_format($billing->amount, 2) }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Status:</div>
-                <div class="detail-value">{{ $billing->status?->label() ?? $billing->status ?? 'Pending' }}</div>
-            </div>
-            @if($billing->appointment)
-            <div class="detail-row">
-                <div class="detail-label">Appointment:</div>
-                <div class="detail-value">ID #{{ $billing->appointment->id }} - {{ \Carbon\Carbon::parse($billing->appointment->appointment_date_time)->format('M j, Y g:i A') }}</div>
-            </div>
-            @endif
-            @if($billing->visit)
-            <div class="detail-row">
-                <div class="detail-label">Visit:</div>
-                <div class="detail-value">ID #{{ $billing->visit->id }} - {{ \Carbon\Carbon::parse($billing->visit->visit_date_time)->format('M j, Y g:i A') }}</div>
-            </div>
-            @endif
-            @if($billing->medicalOrder)
-            <div class="detail-row">
-                <div class="detail-label">Medical Order:</div>
-                <div class="detail-value">ID #{{ $billing->medicalOrder->id }} - {{ $billing->medicalOrder->order_details }}</div>
-            </div>
-            @endif
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <img src="{{ public_path('images/logo.png') }}" alt="Angkor F Hospital" style="width: 60px; height: 60px; margin-bottom: 5px; display: block;">
+            <h1>Angkor-F Hospital</h1>
+            <p>Phum Sala Kansaeng, Sangkat Svay Dangkum,</p>
+            <p>Siem Reap, Kingdom of Cambodia.</p>
+            <p>Tel: (855) 31 3 5555 88</p>
         </div>
-
-        <p>Please review the billing details above. If you have any questions about this statement or need to make payment arrangements, please contact our billing department at (555) 123-4567.</p>
-
-        <p>Payment is due by the due date shown above. We accept cash, check, and major credit cards.</p>
-
-        @if($billing->notes)
-        <p><strong>Additional Notes:</strong> {{ $billing->notes }}</p>
-        @endif
-    </div>
-
-    <div class="closing">
-        <p>Sincerely,</p>
-        <div class="signature">
-            Angkor F Clinic Billing Department
+        <div class="header-right">
+            <div class="bill-box">
+                <p><strong>Bill No</strong> {{ $billing->bill_no }}</p>
+            </div>
+            <p>Receipt</p>
+            <div class="original-box">Original</div>
         </div>
     </div>
 
-    <div class="footer">
-        <p>This is an official billing statement from Angkor F Clinic. Please keep this statement for your records.</p>
-        <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }}</p>
+    <!-- Patient Info -->
+    <div class="patient-info">
+        <div class="patient-left">
+            <p><span class="label">Patient Name</span> {{ $billing->patient->user->name ?? 'Unknown Patient' }}</p>
+            <p><span class="label">ID</span> {{ $billing->patient->id ?? 'N/A' }}</p>
+        </div>
+        <div class="patient-right">
+            <p>{{ \Carbon\Carbon::parse($billing->billing_date)->format('d/m/y') }}</p>
+            <p>{{ \Carbon\Carbon::parse($billing->created_at)->format('H:i') }}</p>
+        </div>
+    </div>
+
+    <!-- Billing Table -->
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">Description</th>
+                <th style="width: 16%;">Amount</th>
+                <th style="width: 17%;">Discount</th>
+                <th style="width: 17%;">Net Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if($costBreakdown && isset($costBreakdown['groups']))
+                @foreach($costBreakdown['groups'] as $group)
+                    <tr>
+                        <td class="description">
+                            @if($group['type'] === 'lab_test')
+                                Laboratory
+                            @elseif($group['type'] === 'rx_medicine')
+                                Medicine
+                            @else
+                                {{ ucfirst(str_replace('_', ' ', $group['type'])) }}
+                            @endif
+                        </td>
+                        <td class="amount">{{ number_format($group['subtotal'], 2) }}</td>
+                        <td class="discount"></td>
+                        <td class="net">{{ number_format($group['subtotal'], 2) }}</td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td class="description">Medical Services</td>
+                    <td class="amount">{{ number_format($billing->amount, 2) }}</td>
+                    <td class="discount"></td>
+                    <td class="net">{{ number_format($billing->amount, 2) }}</td>
+                </tr>
+            @endif
+            <tr class="total-row">
+                <td class="description">Total</td>
+                <td class="amount">{{ number_format($billing->amount, 2) }}</td>
+                <td class="discount"></td>
+                <td class="net">{{ number_format($billing->amount, 2) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Total in Words -->
+    <div class="total-words">
+        Total amount in letters: <strong>{{ ucwords(convertNumberToWords($billing->amount)) }} USD</strong>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="footer-note">
+        Patients may return the medicine only if they have experienced adverse reaction to that medication.<br>
+        Please keep this receipt for reference.
+    </div>
+
+    <!-- Signature -->
+    <div class="signature-section">
+        <div class="signature-line">
+            Cashier
+        </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="payment-method">
+        Payment By {{ $billing->payment_method ?? 'Cash' }}
     </div>
 </body>
 </html>
+
+@php
+function convertNumberToWords($number) {
+    // Convert to integer (floor the decimal value)
+    $number = floor($number);
+
+    $words = [
+        0 => '', 1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
+        5 => 'five', 6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine',
+        10 => 'ten', 11 => 'eleven', 12 => 'twelve', 13 => 'thirteen',
+        14 => 'fourteen', 15 => 'fifteen', 16 => 'sixteen', 17 => 'seventeen',
+        18 => 'eighteen', 19 => 'nineteen', 20 => 'twenty', 30 => 'thirty',
+        40 => 'forty', 50 => 'fifty', 60 => 'sixty', 70 => 'seventy',
+        80 => 'eighty', 90 => 'ninety'
+    ];
+
+    if ($number < 0) return 'minus ' . convertNumberToWords(abs($number));
+
+    if ($number == 0) return 'zero';
+
+    $string = '';
+
+    if ($number >= 1000) {
+        $thousands = floor($number / 1000);
+        $string .= convertNumberToWords($thousands) . ' thousand ';
+        $number %= 1000;
+    }
+
+    if ($number >= 100) {
+        $hundreds = floor($number / 100);
+        $string .= $words[$hundreds] . ' hundred ';
+        $number %= 100;
+        if ($number > 0) $string .= 'and ';
+    }
+
+    if ($number >= 20) {
+        $tens = floor($number / 10) * 10;
+        $string .= $words[$tens];
+        $number %= 10;
+        if ($number > 0) $string .= '-' . $words[$number];
+    } elseif ($number > 0) {
+        $string .= $words[$number];
+    }
+
+    return trim($string);
+}
+@endphp

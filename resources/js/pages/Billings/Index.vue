@@ -35,6 +35,7 @@ import { useAuth } from '@/composables/useAuth';
 interface Props {
     billings: {
         id: number;
+        bill_no: string;
         patient_id: string | number;
         patient_name: string;
         appointment_id?: number;
@@ -232,6 +233,7 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead>Bill No</TableHead>
                             <TableHead>Patient</TableHead>
                             <TableHead>Appointment</TableHead>
                             <TableHead>Visit</TableHead>
@@ -247,6 +249,7 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="billing in props.billings" :key="billing.id">
+                            <TableCell class="font-medium">{{ billing.bill_no }}</TableCell>
                             <TableCell class="font-medium">{{
                                 billing.patient_name
                                 }}</TableCell>
@@ -317,7 +320,7 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.billings.length === 0">
-                            <TableCell colspan="11" class="text-center text-muted-foreground">
+                            <TableCell colspan="12" class="text-center text-muted-foreground">
                                 No billings found
                             </TableCell>
                         </TableRow>

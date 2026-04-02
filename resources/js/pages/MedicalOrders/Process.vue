@@ -93,6 +93,39 @@ interface PatchRow {
     items: PatchItem[];
 }
 
+interface MedicineGroupItem {
+    id: number;
+    item_name: string;
+    dosage: string | null;
+    frequency: string | null;
+    quantity: number;
+    unit_price: number;
+    selling_price: number;
+}
+
+interface MedicineGroup {
+    id: number;
+    name: string;
+    description: string | null;
+    custom_price: number | null;
+    total_price: number;
+    items: MedicineGroupItem[];
+}
+
+interface SpecialItem {
+    id: number;
+    name: string;
+    description: string | null;
+    unit_price: number;
+    items: SpecialItemSubItem[];
+}
+
+interface SpecialItemSubItem {
+    id: number;
+    item_name: string;
+    quantity: number;
+}
+
 interface OrderItem {
     id?: number;
     item_type: string;
@@ -148,6 +181,8 @@ interface Props {
         price: number;
     }>;
     patches: PatchRow[];
+    medicineGroups: MedicineGroup[];
+    specialItems: SpecialItem[];
 }
 
 const props = defineProps<Props>();
@@ -186,6 +221,8 @@ const selectedPatch = computed(() =>
 // Lab selection state
 const showLabDialog = ref(false);
 const selectedLabItems = ref<number[]>([]);
+const labItemQuantities = ref<Record<number, number>>({});
+const labItemIncludePackage = ref<Record<number, boolean>>({});
 const activeLabPanel = ref<string>(props.labPanels[0]?.id.toString() || '');
 const labSearchQuery = ref('');
 
@@ -193,11 +230,19 @@ const toggleLabItem = (itemId: number, checked: boolean) => {
     if (checked) {
         if (!selectedLabItems.value.includes(itemId)) {
             selectedLabItems.value.push(itemId);
+            if (!labItemQuantities.value[itemId]) {
+                labItemQuantities.value[itemId] = 1;
+            }
+            if (labItemIncludePackage.value[itemId] === undefined) {
+                labItemIncludePackage.value[itemId] = false;
+            }
         }
     } else {
         selectedLabItems.value = selectedLabItems.value.filter(
             (id) => id !== itemId,
         );
+        delete labItemQuantities.value[itemId];
+        delete labItemIncludePackage.value[itemId];
     }
 };
 
@@ -207,26 +252,30 @@ const addSelectedLabItems = () => {
     selectedLabItems.value.forEach((itemId) => {
         const panelItem = allPanelItems.find((item) => item.id === itemId);
         if (panelItem) {
-            // Find the inventory item to get its price
             const inventoryItem = props.inventoryItems.find(
                 (inv) => inv.id === panelItem.id,
             );
 
+            const includePackage = labItemIncludePackage.value[itemId] || false;
+            const qty = labItemQuantities.value[itemId] || 1;
+
             form.order_items.push({
                 item_type: 'lab',
                 item_name: panelItem.item_name,
-                details: panelItem.notes || '',
-                quantity_required: panelItem.quantity_required,
+                details: `${panelItem.notes || ''}${includePackage ? ' (Package Included)' : ''}`,
+                quantity_required: qty,
                 status: 'pending',
-                notes: '',
+                notes: includePackage ? 'Include Package - Not counted in billing' : '',
                 inventory_id: panelItem.id,
-                unit_price: inventoryItem?.unit_price || 0,
-                selling_price: inventoryItem?.selling_price || 0,
+                unit_price: includePackage ? 0 : (inventoryItem?.unit_price || 0),
+                selling_price: includePackage ? 0 : (inventoryItem?.selling_price || 0),
             });
         }
     });
 
     selectedLabItems.value = [];
+    labItemQuantities.value = {};
+    labItemIncludePackage.value = {};
     showLabDialog.value = false;
 };
 
@@ -255,6 +304,8 @@ const filteredLabItems = computed(() => {
 const showRxDialog = ref(false);
 const showConfirmDialog = ref(false);
 const selectedRxItems = ref<number[]>([]);
+const rxItemQuantities = ref<Record<number, number>>({});
+const rxItemIncludePackage = ref<Record<number, boolean>>({});
 const rxSearchQuery = ref('');
 
 const rxCategories = computed(() => {
@@ -271,11 +322,19 @@ const toggleRxItem = (itemId: number, checked: boolean) => {
     if (checked) {
         if (!selectedRxItems.value.includes(itemId)) {
             selectedRxItems.value.push(itemId);
+            if (!rxItemQuantities.value[itemId]) {
+                rxItemQuantities.value[itemId] = 1;
+            }
+            if (rxItemIncludePackage.value[itemId] === undefined) {
+                rxItemIncludePackage.value[itemId] = false;
+            }
         }
     } else {
         selectedRxItems.value = selectedRxItems.value.filter(
             (id) => id !== itemId,
         );
+        delete rxItemQuantities.value[itemId];
+        delete rxItemIncludePackage.value[itemId];
     }
 };
 
@@ -283,28 +342,95 @@ const addSelectedRxItems = () => {
     selectedRxItems.value.forEach((itemId) => {
         const medicine = props.rxMedicines.find((item) => item.id === itemId);
         if (medicine) {
+            const includePackage = rxItemIncludePackage.value[itemId] || false;
+            const qty = rxItemQuantities.value[itemId] || 1;
+
             form.order_items.push({
                 item_type: 'rx_medicine',
                 item_name: medicine.item_name,
-                details: medicine.description || '',
+                details: `${medicine.description || ''}${includePackage ? ' (Package Included)' : ''}`,
                 dosage: '',
                 frequency: '',
                 route: '',
-                quantity_required: 1,
+                quantity_required: qty,
                 status: 'pending',
-                notes: '',
+                notes: includePackage ? 'Include Package - Not counted in billing' : '',
                 inventory_id: medicine.id,
-                unit_price: medicine.unit_price,
-                selling_price: medicine.selling_price,
+                unit_price: includePackage ? 0 : medicine.unit_price,
+                selling_price: includePackage ? 0 : medicine.selling_price,
             });
         }
     });
 
     selectedRxItems.value = [];
+    rxItemQuantities.value = {};
+    rxItemIncludePackage.value = {};
     showRxDialog.value = false;
 };
 
 const selectedRxCount = computed(() => selectedRxItems.value.length);
+
+// Medicine Group selection state
+const showMedicineGroupDialog = ref(false);
+const selectedMedicineGroupId = ref<number | null>(null);
+const medicineGroupIncludePackage = ref(false);
+
+const addMedicineGroup = () => {
+    if (!selectedMedicineGroupId.value) return;
+
+    const group = props.medicineGroups.find((g) => g.id === selectedMedicineGroupId.value);
+    if (!group) return;
+
+    const includePackage = medicineGroupIncludePackage.value;
+
+    // Add all items from the medicine group
+    group.items.forEach((item) => {
+        form.order_items.push({
+            item_type: 'rx_medicine',
+            item_name: item.item_name,
+            details: `From Group: ${group.name}${includePackage ? ' (Package Included)' : ''}`,
+            dosage: item.dosage || '',
+            frequency: item.frequency || '',
+            route: '',
+            quantity_required: item.quantity,
+            status: 'pending',
+            notes: `Medicine Group: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+            inventory_id: item.id,
+            unit_price: includePackage ? 0 : item.unit_price,
+            selling_price: includePackage ? 0 : item.selling_price,
+        });
+    });
+
+    selectedMedicineGroupId.value = null;
+    medicineGroupIncludePackage.value = false;
+    showMedicineGroupDialog.value = false;
+};
+
+// Special Items selection state
+const showSpecialItemDialog = ref(false);
+const selectedSpecialItemId = ref<number | null>(null);
+
+const addSpecialItem = () => {
+    if (!selectedSpecialItemId.value) return;
+
+    const item = props.specialItems.find((i) => i.id === selectedSpecialItemId.value);
+    if (!item) return;
+
+    // Add the special item as a single order item
+    form.order_items.push({
+        item_type: 'special_item',
+        item_name: item.name,
+        details: item.description || '',
+        quantity_required: 1,
+        status: 'pending',
+        notes: `Special Item${item.items.length > 0 ? ' (includes: ' + item.items.map(i => i.item_name).join(', ') + ')' : ''}`,
+        unit_price: item.unit_price,
+        selling_price: item.unit_price,
+    });
+
+    selectedSpecialItemId.value = null;
+    showSpecialItemDialog.value = false;
+};
 
 // Filtered RX medicines
 const filteredRxMedicines = computed(() => {
@@ -925,6 +1051,14 @@ const submitForm = () => {
                                 <Pill class="size-4" />
                                 Add RX Medicines
                             </Button>
+                            <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = true">
+                                <Package class="size-4" />
+                                Add Medicine Group
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" @click="showSpecialItemDialog = true">
+                                <Syringe class="size-4" />
+                                Add Special Item
+                            </Button>
                             <Button type="button" variant="outline" size="sm" @click="showMedicalServiceDialog = true">
                                 <Activity class="size-4" />
                                 Add Procedures/Imaging
@@ -996,40 +1130,67 @@ const submitForm = () => {
                                         </div>
                                         <div class="max-h-96 space-y-2 overflow-y-auto">
                                             <div v-for="item in filteredLabItems" :key="item.id"
-                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent">
-                                                <input type="checkbox" :id="`lab-item-${item.id}`" :checked="selectedLabItems.includes(
-                                                    item.id,
-                                                )
-                                                    " @change="
-                                                        toggleLabItem(
-                                                            item.id,
-                                                            (
-                                                                $event.target as HTMLInputElement
-                                                            ).checked,
-                                                        )
-                                                        "
-                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-                                                <label :for="`lab-item-${item.id}`"
-                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    {{ item.item_name }}
-                                                    <span v-if="item.notes" class="ml-2 text-muted-foreground">({{
-                                                        item.notes
-                                                    }})</span>
-                                                </label>
-                                                <div class="text-right text-xs">
-                                                    <div class="font-medium text-green-600 dark:text-green-400">
-                                                        {{
-                                                            formatPrice(
-                                                                getLabItemPrice(
-                                                                    item.id,
-                                                                ),
+                                                class="rounded-md border p-3 hover:bg-accent">
+                                                <div class="flex items-start space-x-2">
+                                                    <input type="checkbox" :id="`lab-item-${item.id}`" :checked="selectedLabItems.includes(
+                                                        item.id,
+                                                    )
+                                                        " @change="
+                                                            toggleLabItem(
+                                                                item.id,
+                                                                (
+                                                                    $event.target as HTMLInputElement
+                                                                ).checked,
                                                             )
-                                                        }}
+                                                            "
+                                                        class="mt-0.5 h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+                                                    <label :for="`lab-item-${item.id}`"
+                                                        class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                        {{ item.item_name }}
+                                                        <span v-if="item.notes" class="ml-2 text-muted-foreground">({{
+                                                            item.notes
+                                                        }})</span>
+                                                    </label>
+                                                    <div class="text-right text-xs">
+                                                        <div class="font-medium text-green-600 dark:text-green-400">
+                                                            {{
+                                                                formatPrice(
+                                                                    getLabItemPrice(
+                                                                        item.id,
+                                                                    ),
+                                                                )
+                                                            }}
+                                                        </div>
+                                                        <span class="text-muted-foreground">Qty:
+                                                            {{
+                                                                item.quantity_required
+                                                            }}</span>
                                                     </div>
-                                                    <span class="text-muted-foreground">Qty:
-                                                        {{
-                                                            item.quantity_required
-                                                        }}</span>
+                                                </div>
+                                                <div v-if="selectedLabItems.includes(item.id)" class="mt-3 ml-6 flex items-center gap-4 border-t pt-3">
+                                                    <div class="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            :id="`lab-package-${item.id}`"
+                                                            v-model="labItemIncludePackage[item.id]"
+                                                            class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                                        />
+                                                        <label :for="`lab-package-${item.id}`" class="text-xs font-medium cursor-pointer">
+                                                            Include Package
+                                                        </label>
+                                                    </div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <label :for="`lab-qty-${item.id}`" class="text-xs font-medium whitespace-nowrap">
+                                                            QTY:
+                                                        </label>
+                                                        <Input
+                                                            :id="`lab-qty-${item.id}`"
+                                                            type="number"
+                                                            v-model.number="labItemQuantities[item.id]"
+                                                            min="1"
+                                                            class="h-8 w-20 text-xs"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div v-if="
@@ -1092,47 +1253,74 @@ const submitForm = () => {
                                     <TabsContent value="All" class="space-y-4">
                                         <div class="max-h-96 space-y-2 overflow-y-auto">
                                             <div v-for="medicine in filteredRxMedicines" :key="medicine.id"
-                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent">
-                                                <input type="checkbox" :id="`rx-item-${medicine.id}`" :checked="selectedRxItems.includes(
-                                                    medicine.id,
-                                                )
-                                                    " @change="
-                                                        toggleRxItem(
-                                                            medicine.id,
-                                                            (
-                                                                $event.target as HTMLInputElement
-                                                            ).checked,
-                                                        )
-                                                        "
-                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-                                                <label :for="`rx-item-${medicine.id}`"
-                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    {{ medicine.item_name }}
-                                                    <span v-if="
-                                                        medicine.description
-                                                    " class="mt-1 ml-2 block text-xs text-muted-foreground">{{
-                                                            medicine.description
-                                                        }}</span>
-                                                    <span v-if="
-                                                        medicine.dose_unit
-                                                    " class="ml-2 text-xs text-muted-foreground">({{
-                                                            medicine.dose_unit
-                                                        }})</span>
-                                                </label>
-                                                <div class="text-right text-xs">
-                                                    <div class="text-muted-foreground">
-                                                        Stock:
-                                                        {{ medicine.quantity }}
-                                                    </div>
-                                                    <div class="font-medium text-green-600 dark:text-green-400">
-                                                        {{
-                                                            formatPrice(
-                                                                medicine.selling_price,
+                                                class="rounded-md border p-3 hover:bg-accent">
+                                                <div class="flex items-start space-x-2">
+                                                    <input type="checkbox" :id="`rx-item-${medicine.id}`" :checked="selectedRxItems.includes(
+                                                        medicine.id,
+                                                    )
+                                                        " @change="
+                                                            toggleRxItem(
+                                                                medicine.id,
+                                                                (
+                                                                    $event.target as HTMLInputElement
+                                                                ).checked,
                                                             )
-                                                        }}
+                                                            "
+                                                        class="mt-0.5 h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+                                                    <label :for="`rx-item-${medicine.id}`"
+                                                        class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                        {{ medicine.item_name }}
+                                                        <span v-if="
+                                                            medicine.description
+                                                        " class="mt-1 ml-2 block text-xs text-muted-foreground">{{
+                                                                medicine.description
+                                                            }}</span>
+                                                        <span v-if="
+                                                            medicine.dose_unit
+                                                        " class="ml-2 text-xs text-muted-foreground">({{
+                                                                medicine.dose_unit
+                                                            }})</span>
+                                                    </label>
+                                                    <div class="text-right text-xs">
+                                                        <div class="text-muted-foreground">
+                                                            Stock:
+                                                            {{ medicine.quantity }}
+                                                        </div>
+                                                        <div class="font-medium text-green-600 dark:text-green-400">
+                                                            {{
+                                                                formatPrice(
+                                                                    medicine.selling_price,
+                                                                )
+                                                            }}
+                                                        </div>
+                                                        <div v-if="medicine.category" class="text-muted-foreground">
+                                                            {{ medicine.category }}
+                                                        </div>
                                                     </div>
-                                                    <div v-if="medicine.category" class="text-muted-foreground">
-                                                        {{ medicine.category }}
+                                                </div>
+                                                <div v-if="selectedRxItems.includes(medicine.id)" class="mt-3 ml-6 flex items-center gap-4 border-t pt-3">
+                                                    <div class="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            :id="`rx-package-${medicine.id}`"
+                                                            v-model="rxItemIncludePackage[medicine.id]"
+                                                            class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                                        />
+                                                        <label :for="`rx-package-${medicine.id}`" class="text-xs font-medium cursor-pointer">
+                                                            Include Package
+                                                        </label>
+                                                    </div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <label :for="`rx-qty-${medicine.id}`" class="text-xs font-medium whitespace-nowrap">
+                                                            QTY:
+                                                        </label>
+                                                        <Input
+                                                            :id="`rx-qty-${medicine.id}`"
+                                                            type="number"
+                                                            v-model.number="rxItemQuantities[medicine.id]"
+                                                            min="1"
+                                                            class="h-8 w-20 text-xs"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -1150,44 +1338,71 @@ const submitForm = () => {
                                         class="space-y-4">
                                         <div class="max-h-96 space-y-2 overflow-y-auto">
                                             <div v-for="medicine in filteredRxMedicines" :key="medicine.id"
-                                                class="flex items-center space-x-2 rounded-md border p-3 hover:bg-accent">
-                                                <input type="checkbox" :id="`rx-item-cat-${medicine.id}`" :checked="selectedRxItems.includes(
-                                                    medicine.id,
-                                                )
-                                                    " @change="
-                                                        toggleRxItem(
-                                                            medicine.id,
-                                                            (
-                                                                $event.target as HTMLInputElement
-                                                            ).checked,
-                                                        )
-                                                        "
-                                                    class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-                                                <label :for="`rx-item-cat-${medicine.id}`"
-                                                    class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    {{ medicine.item_name }}
-                                                    <span v-if="
-                                                        medicine.description
-                                                    " class="mt-1 ml-2 block text-xs text-muted-foreground">{{
-                                                            medicine.description
-                                                        }}</span>
-                                                    <span v-if="
-                                                        medicine.dose_unit
-                                                    " class="ml-2 text-xs text-muted-foreground">({{
-                                                            medicine.dose_unit
-                                                        }})</span>
-                                                </label>
-                                                <div class="text-right text-xs text-muted-foreground">
-                                                    <div class="text-muted-foreground">
-                                                        Stock:
-                                                        {{ medicine.quantity }}
-                                                    </div>
-                                                    <div class="font-medium text-green-600 dark:text-green-400">
-                                                        {{
-                                                            formatPrice(
-                                                                medicine.selling_price,
+                                                class="rounded-md border p-3 hover:bg-accent">
+                                                <div class="flex items-start space-x-2">
+                                                    <input type="checkbox" :id="`rx-item-cat-${medicine.id}`" :checked="selectedRxItems.includes(
+                                                        medicine.id,
+                                                    )
+                                                        " @change="
+                                                            toggleRxItem(
+                                                                medicine.id,
+                                                                (
+                                                                    $event.target as HTMLInputElement
+                                                                ).checked,
                                                             )
-                                                        }}
+                                                            "
+                                                        class="mt-0.5 h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+                                                    <label :for="`rx-item-cat-${medicine.id}`"
+                                                        class="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                        {{ medicine.item_name }}
+                                                        <span v-if="
+                                                            medicine.description
+                                                        " class="mt-1 ml-2 block text-xs text-muted-foreground">{{
+                                                                medicine.description
+                                                            }}</span>
+                                                        <span v-if="
+                                                            medicine.dose_unit
+                                                        " class="ml-2 text-xs text-muted-foreground">({{
+                                                                medicine.dose_unit
+                                                            }})</span>
+                                                    </label>
+                                                    <div class="text-right text-xs text-muted-foreground">
+                                                        <div class="text-muted-foreground">
+                                                            Stock:
+                                                            {{ medicine.quantity }}
+                                                        </div>
+                                                        <div class="font-medium text-green-600 dark:text-green-400">
+                                                            {{
+                                                                formatPrice(
+                                                                    medicine.selling_price,
+                                                                )
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div v-if="selectedRxItems.includes(medicine.id)" class="mt-3 ml-6 flex items-center gap-4 border-t pt-3">
+                                                    <div class="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            :id="`rx-package-cat-${medicine.id}`"
+                                                            v-model="rxItemIncludePackage[medicine.id]"
+                                                            class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                                        />
+                                                        <label :for="`rx-package-cat-${medicine.id}`" class="text-xs font-medium cursor-pointer">
+                                                            Include Package
+                                                        </label>
+                                                    </div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <label :for="`rx-qty-cat-${medicine.id}`" class="text-xs font-medium whitespace-nowrap">
+                                                            QTY:
+                                                        </label>
+                                                        <Input
+                                                            :id="`rx-qty-cat-${medicine.id}`"
+                                                            type="number"
+                                                            v-model.number="rxItemQuantities[medicine.id]"
+                                                            min="1"
+                                                            class="h-8 w-20 text-xs"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -1202,6 +1417,159 @@ const submitForm = () => {
                                         </div>
                                     </TabsContent>
                                 </Tabs>
+                            </CardContent>
+                        </Card>
+
+                        <!-- Medicine Group Selection Dialog -->
+                        <Card v-if="showMedicineGroupDialog" class="border-primary">
+                            <CardHeader>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle>Select Medicine Group</CardTitle>
+                                        <CardDescription>Choose a pre-configured medicine group</CardDescription>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false">
+                                            Cancel
+                                        </Button>
+                                        <Button type="button" size="sm" @click="addMedicineGroup" :disabled="!selectedMedicineGroupId">
+                                            Add Group
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div class="space-y-4">
+                                    <!-- Include Package Toggle -->
+                                    <div class="flex items-center space-x-2 p-3 rounded-md bg-muted/50">
+                                        <input
+                                            type="checkbox"
+                                            id="medicine-group-include-package"
+                                            v-model="medicineGroupIncludePackage"
+                                            class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                        />
+                                        <label for="medicine-group-include-package" class="text-sm font-medium cursor-pointer">
+                                            Include Package (Price will be $0 - Not counted in billing)
+                                        </label>
+                                    </div>
+
+                                    <div v-for="group in medicineGroups" :key="group.id"
+                                        class="rounded-md border p-4 hover:bg-accent cursor-pointer"
+                                        :class="{ 'border-primary bg-primary/5': selectedMedicineGroupId === group.id }"
+                                        @click="selectedMedicineGroupId = group.id">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        :id="`group-${group.id}`"
+                                                        :value="group.id"
+                                                        v-model="selectedMedicineGroupId"
+                                                        class="h-4 w-4"
+                                                    />
+                                                    <label :for="`group-${group.id}`" class="font-medium cursor-pointer">
+                                                        {{ group.name }}
+                                                    </label>
+                                                </div>
+                                                <p v-if="group.description" class="mt-1 text-sm text-muted-foreground">
+                                                    {{ group.description }}
+                                                </p>
+                                                <div class="mt-3 space-y-2">
+                                                    <p class="text-sm font-medium">Includes:</p>
+                                                    <div class="ml-4 space-y-1">
+                                                        <div v-for="item in group.items" :key="item.id" class="text-sm text-muted-foreground">
+                                                            • {{ item.item_name }}
+                                                            <span v-if="item.dosage"> - {{ item.dosage }}</span>
+                                                            <span v-if="item.frequency"> ({{ item.frequency }})</span>
+                                                            <span class="ml-2">x{{ item.quantity }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="font-semibold" :class="medicineGroupIncludePackage ? 'text-muted-foreground line-through' : 'text-green-600 dark:text-green-400'">
+                                                    {{ formatPrice(group.custom_price || group.total_price) }}
+                                                </div>
+                                                <div v-if="medicineGroupIncludePackage" class="text-xs font-semibold text-green-600 dark:text-green-400">
+                                                    $0.00 (Package)
+                                                </div>
+                                                <div v-else-if="group.custom_price" class="text-xs text-muted-foreground">
+                                                    Package Price
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-if="medicineGroups.length === 0" class="py-8 text-center text-muted-foreground">
+                                        No medicine groups available
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <!-- Special Item Selection Dialog -->
+                        <Card v-if="showSpecialItemDialog" class="border-primary">
+                            <CardHeader>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle>Select Special Item</CardTitle>
+                                        <CardDescription>Choose a special item with custom pricing</CardDescription>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <Button type="button" variant="outline" size="sm" @click="showSpecialItemDialog = false">
+                                            Cancel
+                                        </Button>
+                                        <Button type="button" size="sm" @click="addSpecialItem" :disabled="!selectedSpecialItemId">
+                                            Add Item
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div class="space-y-4">
+                                    <div v-for="item in specialItems" :key="item.id"
+                                        class="rounded-md border p-4 hover:bg-accent cursor-pointer"
+                                        :class="{ 'border-primary bg-primary/5': selectedSpecialItemId === item.id }"
+                                        @click="selectedSpecialItemId = item.id">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        :id="`special-item-${item.id}`"
+                                                        :value="item.id"
+                                                        v-model="selectedSpecialItemId"
+                                                        class="h-4 w-4"
+                                                    />
+                                                    <label :for="`special-item-${item.id}`" class="font-medium cursor-pointer">
+                                                        {{ item.name }}
+                                                    </label>
+                                                </div>
+                                                <p v-if="item.description" class="mt-1 text-sm text-muted-foreground">
+                                                    {{ item.description }}
+                                                </p>
+                                                <div v-if="item.items.length > 0" class="mt-3 space-y-2">
+                                                    <p class="text-sm font-medium">Includes:</p>
+                                                    <div class="ml-4 space-y-1">
+                                                        <div v-for="subItem in item.items" :key="subItem.id" class="text-sm text-muted-foreground">
+                                                            • {{ subItem.item_name }} x{{ subItem.quantity }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="font-semibold text-green-600 dark:text-green-400">
+                                                    {{ formatPrice(item.unit_price) }}
+                                                </div>
+                                                <div class="text-xs text-muted-foreground">
+                                                    Custom Price
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-if="specialItems.length === 0" class="py-8 text-center text-muted-foreground">
+                                        No special items available
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
 

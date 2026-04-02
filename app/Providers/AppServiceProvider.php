@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Billing;
 use App\Models\Staff;
+use App\Observers\BillingObserver;
 use App\Observers\StaffObserver;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Staff::observe(StaffObserver::class);
+        Billing::observe(BillingObserver::class);
 
         // Share minimal auth info with the frontend for permission checks
         Inertia::share('auth', function () {

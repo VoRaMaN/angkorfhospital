@@ -20,6 +20,34 @@ const props = defineProps<{
     doctors: Array<{ id: number; name: string }>;
 }>();
 
+const cambodiaProvinces = [
+    'Banteay Meanchey',
+    'Battambang',
+    'Kampong Cham',
+    'Kampong Chhnang',
+    'Kampong Speu',
+    'Kampong Thom',
+    'Kampot',
+    'Kandal',
+    'Kep',
+    'Koh Kong',
+    'Kratié',
+    'Mondulkiri',
+    'Oddar Meanchey',
+    'Pailin',
+    'Phnom Penh',
+    'Preah Sihanouk',
+    'Preah Vihear',
+    'Pursat',
+    'Prey Veng',
+    'Ratanakiri',
+    'Siem Reap',
+    'Stung Treng',
+    'Svay Rieng',
+    'Takéo',
+    'Tbong Khmum',
+];
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Patients',
@@ -175,122 +203,103 @@ watch(() => form.title, (newTitle) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl">
+            <div class="w-full">
                 <form
                     @submit.prevent="form.post('/patients')"
                     class="space-y-6"
                 >
-                    <!-- Personal Information -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-medium">Personal Information</h3>
-                        <div class="rounded-md border">
-                            <table class="w-full">
-                                <tbody>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium w-1/3">Title</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.title">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select title" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Mr.">Mr.</SelectItem>
-                                                    <SelectItem value="Mrs.">Mrs.</SelectItem>
-                                                    <SelectItem value="Ms.">Ms.</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Name <span class="text-destructive">*</span></td>
-                                        <td class="p-4">
-                                            <Input v-model="form.name" placeholder="Name" />
-                                            <div v-if="form.errors.name" class="text-sm text-destructive mt-1">{{ form.errors.name }}</div>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Surname <span class="text-destructive">*</span></td>
-                                        <td class="p-4">
-                                            <Input v-model="form.surname" placeholder="Surname" />
-                                            <div v-if="form.errors.surname" class="text-sm text-destructive mt-1">{{ form.errors.surname }}</div>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Khmer/China Name</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.khmer_china_name" placeholder="Khmer/China Name" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Khmer/China Surname</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.khmer_china_surname" placeholder="Khmer/China Surname" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Date of Birth <span class="text-destructive">*</span></td>
-                                        <td class="p-4">
-                                            <div class="grid grid-cols-3 gap-4">
-                                                <div>
-                                                    <Input v-model="form.date_of_birth_day" type="number" placeholder="DD" />
-                                                    <div v-if="form.errors.date_of_birth_day" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_day }}</div>
-                                                </div>
-                                                <div>
-                                                    <Input v-model="form.date_of_birth_month" type="number" placeholder="MM" />
-                                                    <div v-if="form.errors.date_of_birth_month" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_month }}</div>
-                                                </div>
-                                                <div>
-                                                    <Input v-model="form.date_of_birth_year" type="number" placeholder="YYYY" />
-                                                    <div v-if="form.errors.date_of_birth_year" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_year }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Gender</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.gender">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select gender" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Male">Male</SelectItem>
-                                                    <SelectItem value="Female">Female</SelectItem>
-                                                    <SelectItem value="Other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">ID Card/Passport</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.id_card_or_passport" placeholder="ID Card/Passport" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Marital Status</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.marital_status">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select marital status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Single">Single</SelectItem>
-                                                    <SelectItem value="Married">Married</SelectItem>
-                                                    <SelectItem value="Divorced">Divorced</SelectItem>
-                                                    <SelectItem value="Widowed">Widowed</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Nationality <span class="text-destructive">*</span></td>
-                                        <td class="p-4">
-                                            <Select v-model="form.nationality">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select nationality" />
-                                                </SelectTrigger>
-                                                <SelectContent>
+                    <!-- Two Column Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left Column: Personal Information -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-medium">Personal Information</h3>
+                            <div class="rounded-md border bg-blue-50 p-6 space-y-4">
+                                <div>
+                                    <label class="text-sm font-medium">Title</label>
+                                    <Select v-model="form.title">
+                                        <SelectTrigger class="mt-1.5">
+                                            <SelectValue placeholder="Select title" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Mr.">Mr.</SelectItem>
+                                            <SelectItem value="Mrs.">Mrs.</SelectItem>
+                                            <SelectItem value="Ms.">Ms.</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Name <span class="text-destructive">*</span></label>
+                                    <Input v-model="form.name" placeholder="Name" class="mt-1.5" />
+                                    <div v-if="form.errors.name" class="text-sm text-destructive mt-1">{{ form.errors.name }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Surname <span class="text-destructive">*</span></label>
+                                    <Input v-model="form.surname" placeholder="Surname" class="mt-1.5" />
+                                    <div v-if="form.errors.surname" class="text-sm text-destructive mt-1">{{ form.errors.surname }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Khmer/China Name</label>
+                                    <Input v-model="form.khmer_china_name" placeholder="Khmer/China Name" class="mt-1.5" />
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Khmer/China Surname</label>
+                                    <Input v-model="form.khmer_china_surname" placeholder="Khmer/China Surname" class="mt-1.5" />
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Date of Birth <span class="text-destructive">*</span></label>
+                                    <div class="grid grid-cols-3 gap-2 mt-1.5">
+                                        <div>
+                                            <Input v-model="form.date_of_birth_day" type="number" placeholder="DD" />
+                                            <div v-if="form.errors.date_of_birth_day" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_day }}</div>
+                                        </div>
+                                        <div>
+                                            <Input v-model="form.date_of_birth_month" type="number" placeholder="MM" />
+                                            <div v-if="form.errors.date_of_birth_month" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_month }}</div>
+                                        </div>
+                                        <div>
+                                            <Input v-model="form.date_of_birth_year" type="number" placeholder="YYYY" />
+                                            <div v-if="form.errors.date_of_birth_year" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_year }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Gender</label>
+                                    <Select v-model="form.gender">
+                                        <SelectTrigger class="mt-1.5">
+                                            <SelectValue placeholder="Select gender" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Male">Male</SelectItem>
+                                            <SelectItem value="Female">Female</SelectItem>
+                                            <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">ID Card/Passport</label>
+                                    <Input v-model="form.id_card_or_passport" placeholder="ID Card/Passport" class="mt-1.5" />
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Marital Status</label>
+                                    <Select v-model="form.marital_status">
+                                        <SelectTrigger class="mt-1.5">
+                                            <SelectValue placeholder="Select marital status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Single">Single</SelectItem>
+                                            <SelectItem value="Married">Married</SelectItem>
+                                            <SelectItem value="Divorced">Divorced</SelectItem>
+                                            <SelectItem value="Widowed">Widowed</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Nationality <span class="text-destructive">*</span></label>
+                                    <Select v-model="form.nationality">
+                                        <SelectTrigger class="mt-1.5">
+                                            <SelectValue placeholder="Select nationality" />
+                                        </SelectTrigger>
+                                        <SelectContent>
                                                     <SelectItem value="Cambodian">Cambodian</SelectItem>
                                                     <SelectItem value="Thai">Thai</SelectItem>
                                                     <SelectItem value="Vietnamese">Vietnamese</SelectItem>
@@ -348,144 +357,139 @@ watch(() => form.title, (newTitle) => {
                                                     <SelectItem value="South African">South African</SelectItem>
                                                     <SelectItem value="Nigerian">Nigerian</SelectItem>
                                                     <SelectItem value="Kenyan">Kenyan</SelectItem>
-                                                    <SelectItem value="Other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <div v-if="form.errors.nationality" class="text-sm text-destructive mt-1">{{ form.errors.nationality }}</div>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Religion</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.religion">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select religion" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Buddhism">Buddhism</SelectItem>
-                                                    <SelectItem value="Christianity">Christianity</SelectItem>
-                                                    <SelectItem value="Islam">Islam</SelectItem>
-                                                    <SelectItem value="Hinduism">Hinduism</SelectItem>
-                                                    <SelectItem value="Other">Other</SelectItem>
-                                                    <SelectItem value="None">None</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-medium">Race</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.race">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select race" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Asian">Asian</SelectItem>
-                                                    <SelectItem value="Caucasian">Caucasian</SelectItem>
-                                                    <SelectItem value="African">African</SelectItem>
-                                                    <SelectItem value="Hispanic">Hispanic</SelectItem>
-                                                    <SelectItem value="Other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <div v-if="form.errors.nationality" class="text-sm text-destructive mt-1">{{ form.errors.nationality }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Religion</label>
+                                    <Select v-model="form.religion">
+                                        <SelectTrigger class="mt-1.5">
+                                            <SelectValue placeholder="Select religion" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Buddhism">Buddhism</SelectItem>
+                                            <SelectItem value="Christianity">Christianity</SelectItem>
+                                            <SelectItem value="Islam">Islam</SelectItem>
+                                            <SelectItem value="Hinduism">Hinduism</SelectItem>
+                                            <SelectItem value="Other">Other</SelectItem>
+                                            <SelectItem value="None">None</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Race</label>
+                                    <Select v-model="form.race">
+                                        <SelectTrigger class="mt-1.5">
+                                            <SelectValue placeholder="Select race" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Asian">Asian</SelectItem>
+                                            <SelectItem value="Caucasian">Caucasian</SelectItem>
+                                            <SelectItem value="African">African</SelectItem>
+                                            <SelectItem value="Hispanic">Hispanic</SelectItem>
+                                            <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Address -->
-                    <div class="space-y-4 border-t pt-4">
-                        <h3 class="text-lg font-medium">Address</h3>
-                        <div class="rounded-md border">
-                            <table class="w-full">
-                                <tbody>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium w-1/3">Address</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.address" placeholder="Address" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Building/Village</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.building_village" placeholder="Building/Village" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Sub-district</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.sub_district" placeholder="Sub-district" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">District</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.district" placeholder="District" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Province</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.province" placeholder="Province" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-medium">Zip Code</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.zip_code" placeholder="Zip Code" />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                        <!-- Right Column: Address and Contact Information -->
+                        <div class="space-y-4">
+                            <!-- Address -->
+                            <div>
+                                <h3 class="text-lg font-medium">Address</h3>
+                                <div class="rounded-md border bg-green-50 p-6 space-y-4 mt-2">
+                                    <div>
+                                        <label class="text-sm font-medium">Address</label>
+                                        <Input v-model="form.address" placeholder="Address" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Province / State / Region</label>
+                                        <Select v-model="form.province">
+                                            <SelectTrigger class="mt-1.5">
+                                                <SelectValue placeholder="Select province or enter custom" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="custom">Other (Type below)</SelectItem>
+                                                <SelectItem v-for="province in cambodiaProvinces" :key="province" :value="province">
+                                                    {{ province }}
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Input
+                                            v-if="form.province === 'custom'"
+                                            v-model="form.province"
+                                            placeholder="Enter province/state/region"
+                                            class="mt-2"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Building/Village</label>
+                                        <Input v-model="form.building_village" placeholder="Building/Village" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Sub-district</label>
+                                        <Input v-model="form.sub_district" placeholder="Sub-district" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">District</label>
+                                        <Input v-model="form.district" placeholder="District" class="mt-1.5" />
+                                    </div>
 
-                    <!-- Contact Information -->
-                    <div class="space-y-4 border-t pt-4">
-                        <h3 class="text-lg font-medium">Contact Information</h3>
-                        <div class="rounded-md border">
-                            <table class="w-full">
-                                <tbody>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium w-1/3">Home Phone</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.home_phone" placeholder="Home Phone" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Mobile Phone</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.mobile_phone" placeholder="Mobile Phone" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Email</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.email" type="email" placeholder="Email Address" />
-                                            <div v-if="form.errors.email" class="text-sm text-destructive mt-1">{{ form.errors.email }}</div>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Occupation</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.occupation" placeholder="Occupation" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Company Name</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.company_name" placeholder="Company Name" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-medium">Company Phone</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.company_phone" placeholder="Company Phone" />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    <div>
+                                        <label class="text-sm font-medium">Zip Code</label>
+                                        <Input v-model="form.zip_code" placeholder="Zip Code" class="mt-1.5" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div>
+                                <h3 class="text-lg font-medium">Contact Information</h3>
+                                <div class="rounded-md border bg-purple-50 p-6 space-y-4 mt-2">
+                                    <div>
+                                        <label class="text-sm font-medium">Home Phone</label>
+                                        <Input v-model="form.home_phone" placeholder="Home Phone" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Mobile Phone</label>
+                                        <Input v-model="form.mobile_phone" placeholder="Mobile Phone" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Email</label>
+                                        <Input v-model="form.email" type="email" placeholder="Email Address" class="mt-1.5" />
+                                        <div v-if="form.errors.email" class="text-sm text-destructive mt-1">{{ form.errors.email }}</div>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Occupation</label>
+                                        <Input v-model="form.occupation" placeholder="Occupation" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Company Name</label>
+                                        <Input v-model="form.company_name" placeholder="Company Name" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Company Phone</label>
+                                        <Input v-model="form.company_phone" placeholder="Company Phone" class="mt-1.5" />
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Referring Doctor</label>
+                                        <Select v-model="form.staff_id">
+                                            <SelectTrigger class="mt-1.5">
+                                                <SelectValue placeholder="Select doctor" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem v-for="doctor in props.doctors" :key="doctor.id" :value="doctor.id.toString()">
+                                                    {{ doctor.name }}
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -585,74 +589,6 @@ watch(() => form.title, (newTitle) => {
                                         <td class="p-4 font-medium">Email</td>
                                         <td class="p-4">
                                             <Input v-model="form.emergency_contact_email" placeholder="Email" />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Payment Information -->
-                    <div class="space-y-4 border-t pt-4">
-                        <h3 class="text-lg font-medium">Payment Information</h3>
-                        <div class="rounded-md border">
-                            <table class="w-full">
-                                <tbody>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium w-1/3">Payment Method</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.payment_method">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select method" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Corporate Contract">Corporate Contract</SelectItem>
-                                                    <SelectItem value="Self-Pay">Self-Pay</SelectItem>
-                                                    <SelectItem value="Insurance">Insurance</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Contract Name</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.contract_name" placeholder="Contract Name" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Insurance Name</td>
-                                        <td class="p-4">
-                                            <Input v-model="form.insurance_name" placeholder="Insurance Name" />
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="p-4 font-medium">Referring Doctor</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.staff_id">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select doctor" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem v-for="doctor in props.doctors" :key="doctor.id" :value="doctor.id.toString()">
-                                                        {{ doctor.name }}
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-medium">Patient Type</td>
-                                        <td class="p-4">
-                                            <Select v-model="form.patient_type">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Patient">Patient</SelectItem>
-                                                    <SelectItem value="Customer">Customer</SelectItem>
-                                                    <SelectItem value="Dependent">Dependent</SelectItem>
-                                                </SelectContent>
-                                            </Select>
                                         </td>
                                     </tr>
                                 </tbody>

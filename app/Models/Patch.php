@@ -12,15 +12,25 @@ class Patch extends Model
 
     protected $fillable = [
         'name',
+        'custom_price',
     ];
 
     public function getTotalUnitPriceAttribute(): float
     {
-        return (float) $this->inventories->sum('unit_price');
+        // If custom price is set, use it; otherwise sum inventory items
+        if ($this->custom_price !== null) {
+            return (float) $this->custom_price;
+        }
+
+        return (float) $this->inventories->sum(function ($inventory) {
+            return $inventory->unit_price * ($inventory->pivot->quantity ?? 1);
+        });
     }
 
     public function inventories(): BelongsToMany
     {
-        return $this->belongsToMany(Inventory::class, 'inventory_patch');
+        return $this->belongsToMany(Inventory::class, 'inventory_patch')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

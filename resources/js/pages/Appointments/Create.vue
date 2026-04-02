@@ -16,14 +16,16 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
 
 interface Props {
-    patients: Array<{ id: number; name: string }>;
+    patients: Array<{ id: number; name: string; surname?: string; id_card_or_passport?: string; date_of_birth_day?: number; date_of_birth_month?: number; date_of_birth_year?: number }>;
     staff: Array<{
         id: number;
         user: { name: string };
         role: { name: string };
     }>;
+    selectedPatient?: { id: number; name: string; surname?: string; date_of_birth_day?: number; date_of_birth_month?: number; date_of_birth_year?: number } | null;
 }
 
 const props = defineProps<Props>();
@@ -39,8 +41,42 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+// Get current time in Phnom Penh timezone and format as DD/MM/YYYY
+const getPhnomPenhDate = () => {
+    const now = new Date();
+    const phnomPenhTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
+    const day = String(phnomPenhTime.getDate()).padStart(2, '0');
+    const month = String(phnomPenhTime.getMonth() + 1).padStart(2, '0');
+    const year = phnomPenhTime.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
+const getPhnomPenhTimeOnly = () => {
+    const now = new Date();
+    const phnomPenhTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
+    const hours = String(phnomPenhTime.getHours()).padStart(2, '0');
+    const minutes = String(phnomPenhTime.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+};
+
+const appointmentDate = ref(getPhnomPenhDate());
+const appointmentTime = ref(getPhnomPenhTimeOnly());
+
+// Computed property to combine date and time into ISO format for backend
+const combinedDateTime = computed(() => {
+    if (!appointmentDate.value || !appointmentTime.value) return '';
+
+    // Parse DD/MM/YYYY
+    const [day, month, year] = appointmentDate.value.split('/');
+    const [hours, minutes] = appointmentTime.value.split(':');
+
+    // Create date in Phnom Penh timezone
+    const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
+    return date.toISOString().slice(0, 16);
+});
+
 const form = useForm({
-    patient_id: '',
+    patient_id: props.selectedPatient?.id?.toString() || '',
     staff_id: '',
     appointment_date_time: '',
     duration_minutes: '30',
@@ -78,8 +114,26 @@ const form = useForm({
             </div>
 
             <div class="max-w-2xl">
+                <!-- Patient Information Display -->
+                <div v-if="props.selectedPatient" class="mb-6 rounded-lg border bg-blue-50 p-4">
+                    <h3 class="mb-2 font-semibold text-blue-900">Selected Patient</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex gap-2">
+                            <span class="font-medium">Name:</span>
+                            <span>{{ props.selectedPatient.name }} {{ props.selectedPatient.surname || '' }}</span>
+                        </div>
+                        <div v-if="props.selectedPatient.date_of_birth_day" class="flex gap-2">
+                            <span class="font-medium">DOB:</span>
+                            <span>{{ props.selectedPatient.date_of_birth_day }}/{{ props.selectedPatient.date_of_birth_month }}/{{ props.selectedPatient.date_of_birth_year }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <form
-                    @submit.prevent="form.post('/appointments')"
+                    @submit.prevent="() => {
+                        form.appointment_date_time = combinedDateTime;
+                        form.post('/appointments');
+                    }"
                     class="space-y-6"
                 >
                     <div class="space-y-2">
@@ -89,12 +143,13 @@ const form = useForm({
                             :options="
                                 props.patients.map((p) => ({
                                     value: p.id.toString(),
-                                    label: p?.name || 'Unknown Patient',
+                                    label: `${p?.name || 'Unknown'} ${p?.surname || ''} ${p?.id_card_or_passport ? '(ID: ' + p.id_card_or_passport + ')' : ''}`.trim(),
                                 }))
                             "
                             placeholder="Select a patient"
-                            search-placeholder="Search patients..."
+                            search-placeholder="Search by name or ID..."
                             empty-text="No patients found."
+                            :disabled="!!props.selectedPatient"
                         />
                         <div
                             v-if="form.errors.patient_id"
@@ -105,7 +160,7 @@ const form = useForm({
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="staff_id">Staff</Label>
+                        <Label for="staff_id">Doctor</Label>
                         <SearchableSelect
                             v-model="form.staff_id"
                             :options="
@@ -114,9 +169,9 @@ const form = useForm({
                                     label: `${s.user?.name || 'Unknown Staff'} (${s.role?.name || 'Staff'})`,
                                 }))
                             "
-                            placeholder="Select staff"
-                            search-placeholder="Search staff..."
-                            empty-text="No staff found."
+                            placeholder="Select doctor"
+                            search-placeholder="Search doctor..."
+                            empty-text="No doctors found."
                         />
                         <div
                             v-if="form.errors.staff_id"
@@ -127,14 +182,29 @@ const form = useForm({
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="appointment_date_time"
-                            >Appointment Date & Time</Label
-                        >
-                        <Input
-                            id="appointment_date_time"
-                            v-model="form.appointment_date_time"
-                            type="datetime-local"
-                        />
+                        <Label>Appointment Date & Time</Label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <Input
+                                    v-model="appointmentDate"
+                                    type="text"
+                                    placeholder="DD/MM/YYYY"
+                                    pattern="\d{2}/\d{2}/\d{4}"
+                                />
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    Format: DD/MM/YYYY
+                                </p>
+                            </div>
+                            <div>
+                                <Input
+                                    v-model="appointmentTime"
+                                    type="time"
+                                />
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    Phnom Penh Time (GMT+7)
+                                </p>
+                            </div>
+                        </div>
                         <div
                             v-if="form.errors.appointment_date_time"
                             class="text-sm text-destructive"
@@ -271,7 +341,7 @@ const form = useForm({
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="reason_for_visit">Reason for Visit</Label>
+                        <Label for="reason_for_visit">Other</Label>
                         <Textarea
                             id="reason_for_visit"
                             v-model="form.reason_for_visit"
@@ -309,6 +379,10 @@ const form = useForm({
                         <Button variant="outline" as-child>
                             <a href="/appointments">Cancel</a>
                         </Button>
+                    </div>
+
+                    <div v-if="props.selectedPatient" class="text-sm text-muted-foreground border-t pt-4">
+                        <p>Note: After creating the appointment, you can print it from the appointment details page.</p>
                     </div>
                 </form>
             </div>

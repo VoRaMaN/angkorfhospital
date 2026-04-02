@@ -23,16 +23,10 @@ class UpdatePatchRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'package_item_ids' => ['sometimes', 'array'],
-            'package_item_ids.*' => ['integer', 'exists:package_items,id'],
-            'special_item_ids' => ['sometimes', 'array'],
-            'special_item_ids.*' => ['integer', 'exists:special_items,id'],
-            'lab_item_ids' => ['sometimes', 'array'],
-            'lab_item_ids.*' => ['integer', 'exists:lab_items,id'],
-            'medicine_ids' => ['sometimes', 'array'],
-            'medicine_ids.*' => ['integer', 'exists:medicines,id'],
-            'rx_medicine_ids' => ['sometimes', 'array'],
-            'rx_medicine_ids.*' => ['integer', 'exists:rx_medicines,id'],
+            'custom_price' => ['nullable', 'numeric', 'min:0'],
+            'inventory_items' => ['sometimes', 'array'],
+            'inventory_items.*.id' => ['required', 'integer', 'exists:inventories,id'],
+            'inventory_items.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
 }

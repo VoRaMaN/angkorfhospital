@@ -101,7 +101,7 @@ class InventoryController extends Controller
     {
         $inventory->update($request->validated());
 
-        return redirect()->route('inventories.index')->with('success', 'Inventory record updated successfully.');
+        return redirect()->route('inventory.rx-medicine')->with('success', 'Inventory record updated successfully.');
     }
 
     public function destroy(Inventory $inventory): RedirectResponse
@@ -109,19 +109,26 @@ class InventoryController extends Controller
         $this->authorize('delete', $inventory);
         $inventory->delete();
 
-        return redirect()->route('inventories.index')->with('success', 'Inventory record deleted successfully.');
+        return redirect()->route('inventory.rx-medicine')->with('success', 'Inventory record deleted successfully.');
     }
 
     public function rxMedicine(): Response
     {
         $this->authorize('viewAny', Inventory::class);
 
-        $rxMedicines = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE)->get();
+        $search = request('search', '');
+
+        $rxMedicines = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE)
+            ->when($search, function ($query, $search) {
+                $query->where('item_name', 'like', "%{$search}%");
+            })
+            ->orderBy('item_name')
+            ->get();
 
         return Inertia::render('Inventories/RXMedicineIndex', [
             'rxMedicines' => $rxMedicines,
             'filters' => [
-                'search' => request('search', ''),
+                'search' => $search,
                 'status' => request('status', ''),
             ],
         ]);

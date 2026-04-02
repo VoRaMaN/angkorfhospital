@@ -29,6 +29,8 @@ interface Props {
         hire_date: string;
         status: string;
         created_at: string;
+        can_edit: boolean;
+        can_delete: boolean;
     }[];
     filters: {
         search: string;
@@ -52,7 +54,7 @@ const performSearch = () => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    
+
     searchTimeout = setTimeout(() => {
         router.get('/staff', {
             search: searchQuery.value,
@@ -157,11 +159,11 @@ const { hasPermission } = useAuth();
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" size="sm" as-child>
-                                        <Link v-if="hasPermission('edit_staff')" :href="edit(member.id).url">
+                                        <Link v-if="member.can_edit" :href="edit(member.id).url">
                                             <Edit class="size-4" />
                                         </Link>
                                     </Button>
-                                    <Button v-if="hasPermission('edit_staff')" variant="ghost" size="sm">
+                                    <Button v-if="member.can_delete" variant="ghost" size="sm">
                                         <Trash2 class="size-4" />
                                     </Button>
                                 </div>

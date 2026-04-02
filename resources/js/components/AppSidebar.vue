@@ -31,6 +31,7 @@ import {
     ClipboardCheckIcon,
     ClipboardList,
     DollarSign,
+    FileText,
     Heart,
     LayoutGrid,
     Pill,
@@ -57,10 +58,13 @@ import { index as medicalRecordsIndex } from '@/routes/medical-records';
 import { index as medicalServicesIndex } from '@/routes/medical-services';
 import { index as patientFilesIndex } from '@/routes/patient-files';
 import { index as patientsIndex } from '@/routes/patients';
+import { index as medicineGroupsIndex } from '@/routes/medicine-groups';
 import { index as rolesIndex } from '@/routes/settings/roles';
 import { index as staffIndex } from '@/routes/staff';
 import { index as staffFilesIndex } from '@/routes/staff-files';
 import { index as visitsIndex } from '@/routes/visits';
+import { index as medicineReportIndex } from '@/routes/medicine-report';
+import { index as billingReportIndex } from '@/routes/billing-report';
 
 import { useAuth } from '@/composables/useAuth';
 import { router } from '@inertiajs/vue3';
@@ -156,7 +160,13 @@ const medicalResourcesNavItems = computed(() => [
         permissions: 'view_lab_packages',
     },
     {
-        title: 'Patches',
+        title: 'Medicine Groups',
+        href: medicineGroupsIndex().url,
+        icon: Pill,
+        permissions: 'view_medications',
+    },
+    {
+        title: 'Packages',
         href: '/settings/patches',
         icon: LayoutGrid,
         permissions: 'view_lab_packages',
@@ -199,6 +209,21 @@ const financialNavItems = computed(() => [
         href: billingsIndex().url,
         icon: DollarSign,
         permissions: 'view_billing',
+    },
+]);
+
+const reportsNavItems = computed(() => [
+    {
+        title: 'Medicine Report',
+        href: medicineReportIndex().url,
+        icon: FileText,
+        permissions: 'view_medications',
+    },
+    {
+        title: 'Billing Report',
+        href: billingReportIndex().url,
+        icon: DollarSign,
+        permissions: 'view_billings',
     },
 ]);
 
@@ -283,6 +308,9 @@ const filteredMedicalResourcesNavItems = computed(() =>
 const filteredFinancialNavItems = computed(() =>
     financialNavItems.value.filter((item) => isAllowed(item.permissions)),
 );
+const filteredReportsNavItems = computed(() =>
+    reportsNavItems.value.filter((item) => isAllowed(item.permissions)),
+);
 const filteredDoctorNavItems = computed(() =>
     doctorNavItems.value.filter((item) => isAllowed(item.permissions)),
 );
@@ -301,6 +329,9 @@ const showMedicalResources = computed(
 );
 const showFinancial = computed(
     () => filteredFinancialNavItems.value.length > 0,
+);
+const showReports = computed(
+    () => filteredReportsNavItems.value.length > 0,
 );
 
 const footerNavItems: NavItem[] = [];
@@ -426,6 +457,21 @@ const footerNavItems: NavItem[] = [];
                 <SidebarGroupLabel>Financial</SidebarGroupLabel>
                 <SidebarMenu>
                     <SidebarMenuItem v-for="item in filteredFinancialNavItems" :key="item.title">
+                        <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
+                            <Link :href="item.href" :preserve-scroll="true">
+                            <component :is="item.icon" />
+                            <span>{{ item.title }}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarGroup>
+
+            <!-- Reports -->
+            <SidebarGroup class="px-2 py-0" v-if="showReports">
+                <SidebarGroupLabel>Reports</SidebarGroupLabel>
+                <SidebarMenu>
+                    <SidebarMenuItem v-for="item in filteredReportsNavItems" :key="item.title">
                         <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)" :tooltip="item.title">
                             <Link :href="item.href" :preserve-scroll="true">
                             <component :is="item.icon" />

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\BillingReportController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FileController;
@@ -10,16 +11,15 @@ use App\Http\Controllers\LabPanelController;
 use App\Http\Controllers\MedicalOrderController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicalServiceController;
+use App\Http\Controllers\MedicineGroupController;
+use App\Http\Controllers\MedicineReportController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientFileController;
+use App\Http\Controllers\SpecialItemController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffFileController;
 use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-})->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Appointments
@@ -54,6 +54,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Lab Panels
     Route::resource('lab-panels', LabPanelController::class);
 
+    // Medicine Groups
+    Route::resource('medicine-groups', MedicineGroupController::class);
+
+    // Special Items
+    Route::resource('special-items', SpecialItemController::class);
+
     // Medical Orders
     Route::resource('medical-orders', MedicalOrderController::class);
     Route::get('medical-orders/{medical_order}/process', [MedicalOrderController::class, 'processPage'])->name('medical-orders.process-page');
@@ -76,6 +82,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Medical Services
     Route::resource('medical-services', MedicalServiceController::class);
+
+    // Medicine Report
+    Route::get('medicine-report', [MedicineReportController::class, 'index'])->name('medicine-report.index');
+    Route::get('medicine-report/export', [MedicineReportController::class, 'export'])->name('medicine-report.export');
+
+    // Billing Report
+    Route::get('billing-report', [BillingReportController::class, 'index'])->name('billing-report.index');
+    Route::get('billing-report/export', [BillingReportController::class, 'export'])->name('billing-report.export');
 
     // Patients
     Route::get('patients', [PatientController::class, 'index'])->name('patients.index');

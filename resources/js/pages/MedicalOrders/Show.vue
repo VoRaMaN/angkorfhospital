@@ -245,14 +245,28 @@ const confirmProcess = () => {
     if (
         confirm('Are you sure you want to start processing this medical order?')
     ) {
+        console.log('Processing medical order:', props.medicalOrder.id);
+        console.log('Route URL:', processRoute(props.medicalOrder.id).url);
+
         // Use router.patch to call the process route
         router.patch(
             processRoute(props.medicalOrder.id).url,
             {},
             {
-                onSuccess: () => {
-                    // Refresh the page to show updated status
-                    window.location.reload();
+                onStart: () => {
+                    console.log('Request started...');
+                },
+                onSuccess: (page) => {
+                    console.log('Successfully processed medical order');
+                    // Inertia will automatically handle the redirect
+                },
+                onError: (errors) => {
+                    console.error('Failed to process medical order:', errors);
+                    const errorMessage = Object.values(errors).flat().join(', ') || 'An unknown error occurred';
+                    alert(`Failed to process medical order: ${errorMessage}`);
+                },
+                onFinish: () => {
+                    console.log('Request finished');
                 },
             },
         );

@@ -23,8 +23,10 @@ class StorePatchRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'inventory_ids' => ['sometimes', 'array'],
-            'inventory_ids.*' => ['integer', 'exists:inventories,id'],
+            'custom_price' => ['nullable', 'numeric', 'min:0'],
+            'inventory_items' => ['sometimes', 'array'],
+            'inventory_items.*.id' => ['required', 'integer', 'exists:inventories,id'],
+            'inventory_items.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
 }

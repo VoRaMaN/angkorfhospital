@@ -292,18 +292,7 @@ const getStatusColor = (status: string) => {
                                         Visit Date & Time
                                     </div>
                                     <div class="text-sm">
-                                        {{
-                                            new Date(
-                                                visit.visit_date_time,
-                                            ).toLocaleDateString()
-                                        }}
-                                        <div class="text-muted-foreground">
-                                            {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleTimeString()
-                                            }}
-                                        </div>
+                                        {{ visit.visit_date_time }}
                                     </div>
                                 </div>
                                 <div class="space-y-2">
@@ -329,12 +318,7 @@ const getStatusColor = (status: string) => {
                                     Related Appointment
                                 </div>
                                 <div class="text-sm">
-                                    Appointment #{{ visit.appointment.id }} -
-                                    {{
-                                        new Date(
-                                            visit.appointment.appointment_date_time,
-                                        ).toLocaleDateString()
-                                    }}
+                                    Appointment #{{ visit.appointment.id }} - {{ visit.appointment.appointment_date_time }}
                                 </div>
                             </div>
 

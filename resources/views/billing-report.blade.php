@@ -154,34 +154,34 @@
             letter-spacing: 0.5px;
         }
 
-        .status-pending { 
-            background-color: rgba(255, 193, 7, 0.2); 
-            color: #856404; 
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #856404;
             border: 1px solid #ffc107;
         }
-        
-        .status-paid { 
-            background-color: rgba(40, 167, 69, 0.2); 
-            color: #155724; 
+
+        .status-paid {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #155724;
             border: 1px solid #28a745;
         }
-        
-        .status-overdue { 
-            background-color: rgba(220, 53, 69, 0.2); 
-            color: #721c24; 
+
+        .status-overdue {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #721c24;
             border: 1px solid #dc3545;
         }
-        
+
         .status-partial {
             background-color: rgba(0, 123, 255, 0.2);
             color: #004085;
             border: 1px solid #007bff;
         }
-        
+
         .status-written-off,
-        .status-cancelled { 
-            background-color: rgba(108, 117, 125, 0.2); 
-            color: #383d41; 
+        .status-cancelled {
+            background-color: rgba(108, 117, 125, 0.2);
+            color: #383d41;
             border: 1px solid #6c757d;
         }
 
@@ -213,7 +213,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>ANGKOR F CLINIC</h1>
+            <img src="{{ public_path('images/logo.png') }}" alt="Angkor F Hospital" style="width: 80px; height: 80px; margin-bottom: 10px;">
+            <h1>ANGKOR F HOSPITAL</h1>
             <div class="subtitle">Billing Statement</div>
             <div class="meta">Generated: {{ now()->format('F j, Y \a\t g:i A') }}</div>
         </div>
@@ -469,7 +470,7 @@
         </div>
 
         <div class="footer">
-            <p>ANGKOR F CLINIC</p>
+            <p>ANGKOR F HOSPITAL</p>
             <p>This is an official billing statement. Please retain for your records.</p>
             <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }} • Confidential Medical Document</p>
         </div>

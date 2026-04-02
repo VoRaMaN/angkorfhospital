@@ -171,12 +171,7 @@ const submit = () => {
                                         >
                                             #{{ appointment.id }} -
                                             {{ appointment.patient.name }}
-                                            -
-                                            {{
-                                                new Date(
-                                                    appointment.appointment_date_time,
-                                                ).toLocaleDateString()
-                                            }}
+                                            - {{ appointment.appointment_date_time }}
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>

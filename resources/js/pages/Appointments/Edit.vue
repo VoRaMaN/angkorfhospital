@@ -16,6 +16,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
 
 interface Props {
     appointment: {
@@ -57,10 +58,42 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+// Parse the appointment datetime from backend (format: YYYY-MM-DDTHH:mm)
+const parseDateTime = (dateTimeStr: string) => {
+    const date = new Date(dateTimeStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return {
+        date: `${day}/${month}/${year}`,
+        time: `${hours}:${minutes}`
+    };
+};
+
+const { date: initialDate, time: initialTime } = parseDateTime(props.appointment.appointment_date_time);
+const appointmentDate = ref(initialDate);
+const appointmentTime = ref(initialTime);
+
+// Computed property to combine date and time into ISO format for backend
+const combinedDateTime = computed(() => {
+    if (!appointmentDate.value || !appointmentTime.value) return '';
+
+    // Parse DD/MM/YYYY
+    const [day, month, year] = appointmentDate.value.split('/');
+    const [hours, minutes] = appointmentTime.value.split(':');
+
+    // Create date in Phnom Penh timezone
+    const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
+    return date.toISOString().slice(0, 16);
+});
+
 const form = useForm({
     patient_id: props.appointment.patient_id.toString(),
     staff_id: props.appointment.staff_id.toString(),
-    appointment_date_time: props.appointment.appointment_date_time,
+    appointment_date_time: '',
     duration_minutes: props.appointment.duration_minutes?.toString() || '30',
     appointment_type: props.appointment.appointment_type || 'consultation',
     status: props.appointment.status,
@@ -98,9 +131,10 @@ const form = useForm({
 
             <div class="max-w-2xl" v-if="hasPermission('edit_appointments')">
                 <form
-                    @submit.prevent="
-                        form.put(`/appointments/${props.appointment.id}`)
-                    "
+                    @submit.prevent="() => {
+                        form.appointment_date_time = combinedDateTime;
+                        form.put(`/appointments/${props.appointment.id}`);
+                    }"
                     class="space-y-6"
                 >
                     <div class="space-y-2">
@@ -151,10 +185,28 @@ const form = useForm({
                         <label class="text-sm font-medium"
                             >Appointment Date & Time</label
                         >
-                        <Input
-                            v-model="form.appointment_date_time"
-                            type="datetime-local"
-                        />
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <Input
+                                    v-model="appointmentDate"
+                                    type="text"
+                                    placeholder="DD/MM/YYYY"
+                                    pattern="\d{2}/\d{2}/\d{4}"
+                                />
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    Format: DD/MM/YYYY
+                                </p>
+                            </div>
+                            <div>
+                                <Input
+                                    v-model="appointmentTime"
+                                    type="time"
+                                />
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    Phnom Penh Time (GMT+7)
+                                </p>
+                            </div>
+                        </div>
                         <div
                             v-if="form.errors.appointment_date_time"
                             class="text-sm text-destructive"

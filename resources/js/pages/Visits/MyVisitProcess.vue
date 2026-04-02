@@ -148,21 +148,7 @@ const getStatusColor = (status: string) => {
                                 <div class="flex items-center gap-2">
                                     <Calendar class="h-4 w-4 text-muted-foreground" />
                                     <div>
-                                        <div>
-                                            {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleDateString()
-                                            }}
-                                        </div>
-                                        <div class="flex items-center gap-1 text-sm text-muted-foreground">
-                                            <Clock class="h-3 w-3" />
-                                            {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleTimeString()
-                                            }}
-                                        </div>
+                                        {{ visit.visit_date_time }}
                                     </div>
                                 </div>
                             </TableCell>

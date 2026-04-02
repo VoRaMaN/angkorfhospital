@@ -25,6 +25,19 @@ class PatientController extends Controller
 
         $query = Patient::with('user');
 
+        // Show all patients or only active patients (with recent activity)
+        $showAll = request('show_all');
+        if (! $showAll) {
+            // Only show patients with appointments or visits TODAY (after midnight, list resets)
+            $query->where(function ($q) {
+                $q->whereHas('appointments', function ($appointmentQuery) {
+                    $appointmentQuery->whereDate('appointment_date_time', '>=', now()->startOfDay());
+                })->orWhereHas('appointments.visits', function ($visitQuery) {
+                    $visitQuery->whereDate('visit_date_time', '>=', now()->startOfDay());
+                });
+            });
+        }
+
         // Search functionality
         $search = request('search');
         if ($search) {
@@ -54,6 +67,7 @@ class PatientController extends Controller
             'patients' => $patients,
             'filters' => [
                 'search' => $search,
+                'show_all' => (bool) $showAll,
             ],
         ]);
     }
@@ -80,7 +94,7 @@ class PatientController extends Controller
         // Create patient record without user account
         $patient = Patient::create($data);
 
-        return redirect()->route('patients.index')
+        return redirect()->route('patients.show', ['patient' => $patient->id])
             ->with('success', 'Patient created successfully.');
     }
 
@@ -96,9 +110,13 @@ class PatientController extends Controller
             'user',
             'appointments.staff',
             'appointments.medicalRecord',
+            'appointments.visits.staff',
             'appointments.visits.medicalRecord',
+            'appointments.visits.medicalOrders.orderItems',
+            'appointments.visits.billings',
             'patientFiles.file',
             'medicalOrders.staff',
+            'medicalOrders.orderItems',
             'staff',
         ]);
 
@@ -108,8 +126,66 @@ class PatientController extends Controller
         $medicalRecords = $medicalRecords->merge($patient->appointments->pluck('visits')->flatten()->pluck('medicalRecord')->filter());
         $uniqueRecords = $medicalRecords->unique('id');
 
-        // Get medical orders data with staff information
-        $medicalOrdersData = $patient->medicalOrders->map(function ($order) {
+        // Get visit history with complete details
+        $visitHistory = $patient->appointments->flatMap(function ($appointment) {
+            return $appointment->visits->map(function ($visit) {
+                // Get medical orders for this visit
+                $medicalOrders = $visit->medicalOrders->map(function ($order) {
+                    return [
+                        'id' => $order->id,
+                        'order_details' => $order->order_details,
+                        'status' => $order->status,
+                        'priority' => $order->priority,
+                        'ordered_at' => $order->ordered_at,
+                        'items' => $order->orderItems->map(function ($item) {
+                            return [
+                                'item_type' => $item->item_type,
+                                'item_name' => $item->item_name,
+                                'quantity' => $item->quantity_required,
+                                'unit_price' => $item->unit_price,
+                                'selling_price' => $item->selling_price,
+                                'status' => $item->status,
+                                'details' => $item->details,
+                                'notes' => $item->notes,
+                            ];
+                        }),
+                    ];
+                });
+
+                // Get billings for this visit
+                $billings = $visit->billings->map(function ($billing) {
+                    return [
+                        'id' => $billing->id,
+                        'total_amount' => $billing->total_amount,
+                        'paid_amount' => $billing->paid_amount,
+                        'payment_status' => $billing->payment_status,
+                        'payment_method' => $billing->payment_method,
+                        'billing_date' => $billing->billing_date,
+                    ];
+                });
+
+                return [
+                    'id' => $visit->id,
+                    'visit_date_time' => $visit->visit_date_time,
+                    'status' => $visit->status,
+                    'priority' => $visit->priority,
+                    'notes' => $visit->notes,
+                    'completed_at' => $visit->completed_at,
+                    'staff_name' => $visit->staff?->user?->name,
+                    'order_details' => $visit->order_details,
+                    'medical_orders' => $medicalOrders,
+                    'billings' => $billings,
+                ];
+            });
+        })->sortByDesc('visit_date_time')->values();
+
+        // Get medical orders data with staff information and order items
+        $medicalOrdersData = $patient->medicalOrders->sortByDesc('ordered_at')->map(function ($order) {
+            // Group order items by type
+            $services = $order->orderItems->where('item_type', 'procedure')->values();
+            $labs = $order->orderItems->whereIn('item_type', ['lab'])->values();
+            $medications = $order->orderItems->where('item_type', 'medication')->values();
+
             return [
                 'id' => $order->id,
                 'type' => $order->type,
@@ -120,6 +196,27 @@ class PatientController extends Controller
                 'completed_at' => $order->completed_at,
                 'staff_name' => $order->staff?->name,
                 'notes' => $order->notes,
+                'services' => $services->map(fn ($item) => [
+                    'name' => $item->item_name,
+                    'details' => $item->details,
+                    'status' => $item->status,
+                    'completed_at' => $item->completed_at,
+                ]),
+                'labs' => $labs->map(fn ($item) => [
+                    'name' => $item->item_name,
+                    'details' => $item->details,
+                    'status' => $item->status,
+                    'completed_at' => $item->completed_at,
+                ]),
+                'medications' => $medications->map(fn ($item) => [
+                    'name' => $item->item_name,
+                    'dosage' => $item->dosage,
+                    'frequency' => $item->frequency,
+                    'route' => $item->route,
+                    'quantity' => $item->quantity_required,
+                    'details' => $item->details,
+                    'status' => $item->status,
+                ]),
             ];
         });
 
@@ -127,6 +224,7 @@ class PatientController extends Controller
             'patient' => array_merge($patient->toArray(), [
                 'medical_records' => $uniqueRecords->toArray(),
                 'medical_orders_data' => $medicalOrdersData->toArray(),
+                'visit_history' => $visitHistory->toArray(),
             ]),
         ]);
     }
@@ -310,7 +408,7 @@ class PatientController extends Controller
         $appointments = $patient->appointments->map(function ($appointment) {
             return [
                 'id' => $appointment->id,
-                'appointment_date_time' => $appointment->appointment_date_time?->toDateTimeString(),
+                'appointment_date_time' => $appointment->appointment_date_time?->setTimezone('Asia/Phnom_Penh')->format('d/m/y H:i'),
                 'staff_name' => $appointment->staff?->user?->name ?? $appointment->staff?->name ?? 'N/A',
                 'reason_for_visit' => $appointment->reason_for_visit ?? null,
                 'status' => $appointment->status ?? null,

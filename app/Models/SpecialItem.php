@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SpecialItem extends Model
 {
@@ -14,10 +14,16 @@ class SpecialItem extends Model
         'name',
         'description',
         'unit_price',
+        'is_active',
     ];
 
-    public function patches(): BelongsToMany
+    protected $casts = [
+        'unit_price' => 'decimal:2',
+        'is_active' => 'boolean',
+    ];
+
+    public function items(): HasMany
     {
-        return $this->belongsToMany(Patch::class, 'patch_special_item');
+        return $this->hasMany(SpecialItemItem::class);
     }
 }

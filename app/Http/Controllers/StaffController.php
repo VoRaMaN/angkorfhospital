@@ -53,6 +53,8 @@ class StaffController extends Controller
                 'hire_date' => $member->hire_date?->format('Y-m-d'),
                 'status' => $member->status ?? 'active',
                 'created_at' => $member->created_at,
+                'can_edit' => auth()->user()->can('update', $member),
+                'can_delete' => auth()->user()->can('delete', $member),
             ];
         });
 

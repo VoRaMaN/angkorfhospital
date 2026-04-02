@@ -21,8 +21,17 @@ class PatchController extends Controller
             ->map(fn (Patch $patch) => [
                 'id' => $patch->id,
                 'name' => $patch->name,
+                'custom_price' => $patch->custom_price,
                 'total_unit_price' => $patch->total_unit_price,
                 'items_count' => $patch->inventories->count(),
+                'items' => $patch->inventories->map(fn ($item) => [
+                    'id' => $item->id,
+                    'item_name' => $item->item_name,
+                    'unit_price' => $item->unit_price,
+                    'category' => $item->category,
+                    'type_of_supply' => $item->type_of_supply,
+                    'quantity' => $item->pivot->quantity,
+                ]),
             ]);
 
         return Inertia::render('settings/Patches/Index', [
@@ -37,13 +46,18 @@ class PatchController extends Controller
 
         $patch = Patch::create([
             'name' => $data['name'],
+            'custom_price' => $data['custom_price'] ?? null,
         ]);
 
-        if (isset($data['inventory_ids'])) {
-            $patch->inventories()->sync($data['inventory_ids']);
+        if (isset($data['inventory_items'])) {
+            $syncData = [];
+            foreach ($data['inventory_items'] as $item) {
+                $syncData[$item['id']] = ['quantity' => $item['quantity'] ?? 1];
+            }
+            $patch->inventories()->sync($syncData);
         }
 
-        return back()->with('success', 'Patch created');
+        return back()->with('success', 'Package created');
     }
 
     public function edit(Patch $patch): Response
@@ -57,6 +71,7 @@ class PatchController extends Controller
                 ->map(fn (Patch $p) => [
                     'id' => $p->id,
                     'name' => $p->name,
+                    'custom_price' => $p->custom_price,
                     'total_unit_price' => $p->total_unit_price,
                     'items_count' => $p->inventories->count(),
                 ]),
@@ -64,7 +79,11 @@ class PatchController extends Controller
             'patch' => [
                 'id' => $patch->id,
                 'name' => $patch->name,
-                'inventory_ids' => $patch->inventories->pluck('id')->toArray(),
+                'custom_price' => $patch->custom_price,
+                'inventory_items' => $patch->inventories->map(fn ($item) => [
+                    'id' => $item->id,
+                    'quantity' => $item->pivot->quantity ?? 1,
+                ])->toArray(),
             ],
         ]);
     }
@@ -75,19 +94,24 @@ class PatchController extends Controller
 
         $patch->update([
             'name' => $data['name'],
+            'custom_price' => $data['custom_price'] ?? null,
         ]);
 
-        if (isset($data['inventory_ids'])) {
-            $patch->inventories()->sync($data['inventory_ids']);
+        if (isset($data['inventory_items'])) {
+            $syncData = [];
+            foreach ($data['inventory_items'] as $item) {
+                $syncData[$item['id']] = ['quantity' => $item['quantity'] ?? 1];
+            }
+            $patch->inventories()->sync($syncData);
         }
 
-        return back()->with('success', 'Patch updated');
+        return back()->with('success', 'Package updated');
     }
 
     public function destroy(Patch $patch): RedirectResponse
     {
         $patch->delete();
 
-        return back()->with('success', 'Patch deleted');
+        return back()->with('success', 'Package deleted');
     }
 }

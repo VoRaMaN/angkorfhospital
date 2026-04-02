@@ -2,17 +2,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
@@ -113,8 +102,6 @@ const props = defineProps<Props>();
 
 const { hasPermission } = useAuth();
 
-const showQuickVisitDialog = ref(false);
-
 const createVisit = () => {
     router.visit(`/visits/create?patient=${props.patient.id}`);
 };
@@ -126,10 +113,6 @@ const sendToNurse = () => {
         visit_date_time: new Date().toISOString(),
         status: 'awaiting_assignment',
         notes: 'Quick visit created',
-    }, {
-        onSuccess: () => {
-            showQuickVisitDialog.value = false;
-        }
     });
 };
 
@@ -168,39 +151,22 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
-                    <AlertDialog v-model:open="showQuickVisitDialog">
-                        <AlertDialogTrigger as-child>
-                            <Button>
-                                <Calendar class="size-4" />
-                                Quick Visit
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Create Quick Visit</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Choose how you want to proceed with creating this visit:
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <div class="flex flex-col gap-3 py-4">
-                                <Button @click="createVisit" variant="outline" class="justify-start h-auto py-4">
-                                    <div class="text-left">
-                                        <div class="font-semibold">Go to Create Form</div>
-                                        <div class="text-sm text-muted-foreground">Fill in additional visit details</div>
-                                    </div>
-                                </Button>
-                                <Button @click="sendToNurse" variant="outline" class="justify-start h-auto py-4">
-                                    <div class="text-left">
-                                        <div class="font-semibold">Send to Nurse Directly</div>
-                                        <div class="text-sm text-muted-foreground">Create visit and notify nursing staff immediately</div>
-                                    </div>
-                                </Button>
-                            </div>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <Button variant="outline" as-child>
+                        <a :href="`/visits?patient=${props.patient.id}`">
+                            <Calendar class="size-4" />
+                            View Visit History
+                        </a>
+                    </Button>
+                    <Button as-child>
+                        <a :href="`/appointments/create?patient=${props.patient.id}`">
+                            <Calendar class="size-4" />
+                            Make Appointment
+                        </a>
+                    </Button>
+                    <Button variant="outline" @click="sendToNurse">
+                        <Calendar class="size-4" />
+                        Quick Visit
+                    </Button>
 
                     <Button variant="outline" as-child>
                         <a :href="`/patients/label?patient=${props.patient.id}`" target="_blank" rel="noopener noreferrer">
@@ -234,7 +200,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <TabsList class="grid w-full grid-cols-4">
                         <TabsTrigger value="details">Patient Details</TabsTrigger>
                         <TabsTrigger value="files">Files</TabsTrigger>
-                        <TabsTrigger value="medical-orders">Medical Orders</TabsTrigger>
+                        <TabsTrigger value="medical-orders">Visit History</TabsTrigger>
                         <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
                     </TabsList>
 
@@ -499,28 +465,28 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h3 class="text-lg font-semibold">Medical Orders</h3>
+                                    <h3 class="text-lg font-semibold">Visit History</h3>
                                     <p class="text-sm text-muted-foreground">
-                                        All medical orders and their current status
+                                        Complete history of all visits, services, labs, medications, and billing
                                     </p>
                                 </div>
                             </div>
 
-                            <div v-if="!props.patient.medical_orders_data || props.patient.medical_orders_data.length === 0"
+                            <div v-if="!props.patient.visit_history || props.patient.visit_history.length === 0"
                                 class="rounded-lg border bg-card p-8 text-center">
-                                <p class="text-muted-foreground">No medical orders found.</p>
+                                <p class="text-muted-foreground">No visit history found.</p>
                             </div>
 
                             <div v-else class="space-y-4">
-                                <div v-for="order in props.patient.medical_orders_data" :key="order.id"
+                                <div v-for="visit in props.patient.visit_history" :key="visit.id"
                                     class="rounded-lg border bg-card p-6">
                                     <div class="grid gap-4 md:grid-cols-2">
                                         <div class="space-y-2">
                                             <dt class="text-sm font-medium text-muted-foreground">
-                                                Order Date
+                                                Visit Date
                                             </dt>
                                             <dd class="text-sm">
-                                                {{ new Date(order.ordered_at).toLocaleString() }}
+                                                {{ new Date(visit.visit_date_time).toLocaleString() }}
                                             </dd>
                                         </div>
 
@@ -530,69 +496,121 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             </dt>
                                             <dd class="text-sm">
                                                 <Badge
-                                                    :variant="order.status === 'Completed' ? 'default' : order.status === 'Processing' ? 'secondary' : 'outline'">
-                                                    {{ order.status }}
+                                                    :variant="visit.status === 'completed' ? 'default' : visit.status === 'processing' ? 'secondary' : 'outline'">
+                                                    {{ visit.status }}
                                                 </Badge>
                                             </dd>
                                         </div>
 
-                                        <div v-if="order.priority" class="space-y-2">
+                                        <div v-if="visit.priority" class="space-y-2">
                                             <dt class="text-sm font-medium text-muted-foreground">
                                                 Priority
                                             </dt>
                                             <dd class="text-sm">
-                                                <Badge variant="destructive" v-if="order.priority === 'STAT'">
-                                                    {{ order.priority }}
+                                                <Badge variant="destructive" v-if="visit.priority === 'stat'">
+                                                    {{ visit.priority }}
                                                 </Badge>
                                                 <Badge variant="secondary" v-else>
-                                                    {{ order.priority }}
+                                                    {{ visit.priority }}
                                                 </Badge>
                                             </dd>
                                         </div>
 
-                                        <div v-if="order.staff_name" class="space-y-2">
+                                        <div v-if="visit.staff_name" class="space-y-2">
                                             <dt class="text-sm font-medium text-muted-foreground">
                                                 Ordered By
                                             </dt>
                                             <dd class="text-sm">
-                                                {{ order.staff_name }}
+                                                {{ visit.staff_name }}
                                             </dd>
                                         </div>
                                     </div>
 
-                                    <div class="mt-4 space-y-4">
-                                        <div class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Order Details
-                                            </dt>
-                                            <dd class="text-sm whitespace-pre-line">
+                                    <!-- Medical Orders Section -->
+                                    <div v-if="visit.medical_orders && visit.medical_orders.length > 0" class="mt-6 space-y-4">
+                                        <h4 class="text-sm font-semibold">Medical Orders</h4>
+                                        <div v-for="order in visit.medical_orders" :key="order.id" class="space-y-3 rounded-md border bg-muted/30 p-4">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm font-medium">Order #{{ order.id }}</span>
+                                                <Badge :variant="order.status.value === 'completed' ? 'default' : 'secondary'">
+                                                    {{ order.status.label }}
+                                                </Badge>
+                                            </div>
+
+                                            <div v-if="order.order_details" class="text-sm text-muted-foreground">
                                                 {{ order.order_details }}
-                                            </dd>
-                                        </div>
+                                            </div>
 
-                                        <div v-if="order.notes" class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Notes
-                                            </dt>
-                                            <dd class="text-sm whitespace-pre-line">
-                                                {{ order.notes }}
-                                            </dd>
-                                        </div>
-
-                                        <div v-if="order.completed_at" class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Completed At
-                                            </dt>
-                                            <dd class="text-sm">
-                                                {{ new Date(order.completed_at).toLocaleString() }}
-                                            </dd>
+                                            <!-- Order Items -->
+                                            <div v-if="order.items && order.items.length > 0" class="space-y-2">
+                                                <div v-for="(item, idx) in order.items" :key="idx" class="flex items-start justify-between rounded border bg-background p-3">
+                                                    <div class="flex-1">
+                                                        <p class="text-sm font-medium">{{ item.item_name }}</p>
+                                                        <p class="text-xs text-muted-foreground">
+                                                            Type: {{ item.item_type }} | Qty: {{ item.quantity }}
+                                                        </p>
+                                                        <p v-if="item.details" class="text-xs text-muted-foreground mt-1">
+                                                            {{ item.details }}
+                                                        </p>
+                                                        <p v-if="item.notes" class="text-xs text-muted-foreground mt-1 italic">
+                                                            Note: {{ item.notes }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="ml-4 text-right">
+                                                        <Badge :variant="item.status.value === 'completed' ? 'default' : 'secondary'" class="mb-2">
+                                                            {{ item.status.label }}
+                                                        </Badge>
+                                                        <p class="text-sm font-medium text-green-600 dark:text-green-400">
+                                                            ${{ (item.selling_price * item.quantity).toFixed(2) }}
+                                                        </p>
+                                                        <p v-if="item.selling_price === 0" class="text-xs text-muted-foreground">
+                                                            (Package)
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="mt-4 pt-4 border-t">
-                                        <p class="text-xs text-muted-foreground">
-                                            Order ID: #{{ order.id }}
-                                        </p>
+                                    <!-- Billing Section -->
+                                    <div v-if="visit.billings && visit.billings.length > 0" class="mt-6 space-y-3">
+                                        <h4 class="text-sm font-semibold">Billing Information</h4>
+                                        <div v-for="billing in visit.billings" :key="billing.id" class="rounded-md border bg-muted/30 p-4">
+                                            <div class="grid gap-3 md:grid-cols-3">
+                                                <div>
+                                                    <dt class="text-xs font-medium text-muted-foreground">Total Amount</dt>
+                                                    <dd class="text-sm font-semibold">${{ billing.total_amount }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium text-muted-foreground">Paid Amount</dt>
+                                                    <dd class="text-sm font-semibold text-green-600">${{ billing.paid_amount }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium text-muted-foreground">Payment Status</dt>
+                                                    <dd>
+                                                        <Badge :variant="billing.payment_status === 'paid' ? 'default' : billing.payment_status === 'partial' ? 'secondary' : 'destructive'">
+                                                            {{ billing.payment_status }}
+                                                        </Badge>
+                                                    </dd>
+                                                </div>
+                                                <div v-if="billing.payment_method">
+                                                    <dt class="text-xs font-medium text-muted-foreground">Payment Method</dt>
+                                                    <dd class="text-sm">{{ billing.payment_method }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium text-muted-foreground">Billing Date</dt>
+                                                    <dd class="text-sm">{{ new Date(billing.billing_date).toLocaleDateString() }}</dd>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Notes -->
+                                    <div v-if="visit.notes" class="mt-4 space-y-2">
+                                        <dt class="text-sm font-medium text-muted-foreground">Notes</dt>
+                                        <dd class="text-sm whitespace-pre-line rounded-md bg-muted/50 p-3">
+                                            {{ visit.notes }}
+                                        </dd>
                                     </div>
                                 </div>
                             </div>

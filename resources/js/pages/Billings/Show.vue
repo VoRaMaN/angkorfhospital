@@ -20,6 +20,7 @@ import { useAuth } from '@/composables/useAuth';
 interface Props {
     billing: {
         id: number;
+        bill_no: string;
         patient_name: string;
         appointment_id?: number;
         visit_id?: number;
@@ -188,6 +189,17 @@ const completePayment = () => {
                 <!-- Main Details -->
                 <div class="rounded-lg border bg-card p-6">
                     <div class="grid gap-6 md:grid-cols-2">
+                        <div class="space-y-2">
+                            <dt
+                                class="flex items-center gap-2 text-sm font-medium text-muted-foreground"
+                            >
+                                <FileText class="size-4" />
+                                Bill No
+                            </dt>
+                            <dd class="text-sm font-medium">
+                                {{ props.billing.bill_no }}
+                            </dd>
+                        </div>
                         <div class="space-y-2">
                             <dt
                                 class="flex items-center gap-2 text-sm font-medium text-muted-foreground"

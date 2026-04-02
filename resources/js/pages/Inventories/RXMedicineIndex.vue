@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -16,8 +17,10 @@ import {
     show as inventoryShow,
 } from '@/routes/inventory';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Plus, Search } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 
 interface Props {
     rxMedicines: Array<{
@@ -29,6 +32,7 @@ interface Props {
         minimum_stock: number;
         type_of_supply: string;
         status: string;
+        selling_price: number;
     }>;
     filters: {
         search: string;
@@ -44,6 +48,23 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
 ];
+
+const searchQuery = ref(props.filters.search || '');
+
+const performSearch = useDebounceFn(() => {
+    router.get(
+        route('inventories.rx-medicine'),
+        { search: searchQuery.value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
+}, 300);
+
+watch(searchQuery, () => {
+    performSearch();
+});
 </script>
 
 <template>
@@ -68,7 +89,19 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Button>
             </div>
 
-            <!-- Filters removed - this page shows all RX medicines -->
+            <!-- Search -->
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <Search
+                        class="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search medicines..."
+                        class="pl-8"
+                    />
+                </div>
+            </div>
 
             <div class="rounded-md border">
                 <Table>
@@ -76,6 +109,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow>
                             <TableHead>Item Name</TableHead>
                             <TableHead>Description</TableHead>
+                            <TableHead>Price</TableHead>
                             <TableHead>Quantity</TableHead>
                             <TableHead>Unit</TableHead>
                             <TableHead>Status</TableHead>
@@ -89,6 +123,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         >
                             <TableCell>{{ item.item_name }}</TableCell>
                             <TableCell>{{ item.description }}</TableCell>
+                            <TableCell>${{ item.selling_price }}</TableCell>
                             <TableCell
                                 >{{ item.quantity }} {{ item.unit }}</TableCell
                             >

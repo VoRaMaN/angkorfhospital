@@ -26,7 +26,6 @@ import {
     edit,
     letter,
     show,
-    updateStatus as updateStatusRoute,
 } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -125,8 +124,15 @@ const updateStatus = async (appointment: any, newStatus: string) => {
 const confirmStatusUpdate = () => {
     if (!selectedAppointment.value || !selectedNewStatus.value) return;
 
+    // Extract numeric ID from appointment (handle both numeric and string formats)
+    let appointmentId = selectedAppointment.value.id;
+    if (typeof appointmentId === 'string' && appointmentId.includes('/')) {
+        // If format is like "25/000002", parse the number after the slash to remove leading zeros
+        appointmentId = parseInt(appointmentId.split('/')[1]);
+    }
+
     router.patch(
-        updateStatusRoute(selectedAppointment.value.id).url,
+        `/appointments/${appointmentId}/status`,
         {
             status: selectedNewStatus.value,
         },
@@ -147,6 +153,15 @@ const cancelStatusUpdate = () => {
     confirmModalOpen.value = false;
     selectedAppointment.value = null;
     selectedNewStatus.value = '';
+};
+
+// Helper function to extract the correct ID from appointment
+const getAppointmentId = (id: string | number): number => {
+    if (typeof id === 'string' && id.includes('/')) {
+        // If format is like "25/000002", parse the number after the slash to remove leading zeros
+        return parseInt(id.split('/')[1]);
+    }
+    return typeof id === 'string' ? parseInt(id) : id;
 };
 
 const exportAppointments = () => {
@@ -259,15 +274,15 @@ const exportAppointments = () => {
                             <TableCell>
                                 <div class="flex gap-2">
                                     <Button variant="outline" size="sm" as-child>
-                                        <Link :href="show(appointment.id).url">View</Link>
+                                        <Link :href="show(getAppointmentId(appointment.id)).url">View</Link>
                                     </Button>
                                     <Button variant="outline" size="sm" as-child v-if="
                                             hasPermission('edit_appointments')
                                         ">
-                                        <Link :href="edit(appointment.id).url">Edit</Link>
+                                        <Link :href="edit(getAppointmentId(appointment.id)).url">Edit</Link>
                                     </Button>
                                     <Button variant="outline" size="sm" as-child>
-                                        <a :href="letter(appointment.id).url" target="_blank"
+                                        <a :href="letter(getAppointmentId(appointment.id)).url" target="_blank"
                                             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
                                             <Printer class="size-4" />
                                             Print
@@ -276,29 +291,6 @@ const exportAppointments = () => {
 
                                     <!-- Status-specific action buttons -->
                                     <template v-if="
-                                            appointment.status ===
-                                                'scheduled' &&
-                                            hasPermission('edit_appointments')
-                                        ">
-                                        <Button variant="default" size="sm" @click="
-                                                updateStatus(
-                                                    appointment,
-                                                    'confirmed',
-                                                )
-                                            ">
-                                            Confirm
-                                        </Button>
-                                        <Button variant="destructive" size="sm" @click="
-                                                updateStatus(
-                                                    appointment,
-                                                    'cancelled',
-                                                )
-                                            ">
-                                            Cancel
-                                        </Button>
-                                    </template>
-
-                                    <template v-else-if="
                                             appointment.status ===
                                                 'confirmed' &&
                                             hasPermission('edit_appointments')

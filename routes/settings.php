@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
         ],
     ]);
 
-    // Patch Management
+    // Package Management
     Route::resource('settings/patches', PatchController::class, [
         'names' => [
             'index' => 'settings.patches.index',
@@ -72,8 +72,35 @@ Route::middleware('auth')->group(function () {
         ],
     ]);
 
-    Route::resource('settings/package-items', PackageItemController::class)->only(['store', 'update', 'destroy']);
-    Route::resource('settings/special-items', SpecialItemController::class)->only(['store', 'update', 'destroy']);
-    Route::resource('settings/lab-items', LabItemController::class)->only(['store', 'update', 'destroy']);
-    Route::resource('settings/medicines', MedicineController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('settings/package-items', PackageItemController::class, [
+        'names' => [
+            'store' => 'settings.package-items.store',
+            'update' => 'settings.package-items.update',
+            'destroy' => 'settings.package-items.destroy',
+        ],
+    ])->only(['store', 'update', 'destroy']);
+
+    Route::resource('settings/special-items', SpecialItemController::class, [
+        'names' => [
+            'store' => 'settings.special-items.store',
+            'update' => 'settings.special-items.update',
+            'destroy' => 'settings.special-items.destroy',
+        ],
+    ])->only(['store', 'update', 'destroy']);
+
+    Route::resource('settings/lab-items', LabItemController::class, [
+        'names' => [
+            'store' => 'settings.lab-items.store',
+            'update' => 'settings.lab-items.update',
+            'destroy' => 'settings.lab-items.destroy',
+        ],
+    ])->only(['store', 'update', 'destroy']);
+
+    Route::resource('settings/medicines', MedicineController::class, [
+        'names' => [
+            'store' => 'settings.medicines.store',
+            'update' => 'settings.medicines.update',
+            'destroy' => 'settings.medicines.destroy',
+        ],
+    ])->only(['store', 'update', 'destroy']);
 });

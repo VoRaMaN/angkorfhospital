@@ -31,8 +31,8 @@ class DoctorController extends Controller
                     'name' => trim($appointment->patient->first_name.' '.$appointment->patient->last_name) ?? 'Unknown Patient',
                     'date_of_birth' => $appointment->patient->date_of_birth,
                 ],
-                'appointment_date' => $appointment->appointment_date_time->format('Y-m-d'),
-                'appointment_time' => $appointment->appointment_date_time->format('H:i'),
+                'appointment_date' => $appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
+                'appointment_time' => $appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('H:i'),
                 'appointment_type' => $appointment->appointment_type ?? 'consultation',
                 'duration_minutes' => $appointment->duration_minutes ?? 30,
                 'status' => $appointment->status,
@@ -80,7 +80,7 @@ class DoctorController extends Controller
                     'email' => $patient->user ? $patient->user->email : $patient->email,
                     'phone' => $patient->phone_number,
                     'date_of_birth' => $patient->date_of_birth,
-                    'last_visit' => $lastAppointment ? $lastAppointment->appointment_date_time->format('Y-m-d') : null,
+                    'last_visit' => $lastAppointment ? $lastAppointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y') : null,
                     'total_appointments' => $doctorAppointments->count(),
                 ];
             })

@@ -21,16 +21,23 @@ class VisitController extends Controller
     {
         $query = Visit::with(['patient.user', 'staff.user', 'doctor.user', 'appointment', 'medicalOrders']);
 
-        // Exclude completed visits by default (show only active visits)
-        $query->where('status', '!=', Visit::STATUS_COMPLETED);
+        // Patient filter - if patient ID is provided, show all visits for that patient
+        $patientFilter = request('patient');
+        if ($patientFilter) {
+            $query->where('patient_id', $patientFilter);
+            // Don't exclude completed visits when viewing patient history
+        } else {
+            // Exclude completed visits by default (show only active visits)
+            $query->where('status', '!=', Visit::STATUS_COMPLETED);
+        }
 
         // Date filter
         $dateFilter = request('date');
         if ($dateFilter) {
             // User selected a specific date
             $query->whereDate('visit_date_time', $dateFilter);
-        } else {
-            // Default: show only today's visits
+        } elseif (! $patientFilter) {
+            // Default: show only today's visits (unless viewing patient history)
             $query->whereDate('visit_date_time', today());
         }
 
@@ -60,12 +67,32 @@ class VisitController extends Controller
 
         // Transform visits for the frontend
         $transformedVisits = $visits->getCollection()->map(function ($visit) {
+            // Build patient name: use user name if exists, otherwise concatenate patient name and surname
+            $patientName = 'Unknown Patient';
+            if ($visit->patient) {
+                if ($visit->patient->user && $visit->patient->user->name) {
+                    $patientName = $visit->patient->user->name;
+                } else {
+                    // For manually created patients, concatenate name and surname
+                    $firstName = $visit->patient->name ?? '';
+                    $lastName = $visit->patient->surname ?? '';
+                    $fullName = trim($firstName.' '.$lastName);
+                    // Only use the concatenated name if it's not empty
+                    if ($fullName !== '') {
+                        $patientName = $fullName;
+                    } else {
+                        // If still empty, try to show at least the ID
+                        $patientName = 'Patient #'.$visit->patient->id;
+                    }
+                }
+            }
+
             return [
                 'id' => $visit->id,
                 'patient' => $visit->patient ? [
-                    'user' => $visit->patient->user ? [
-                        'name' => $visit->patient->user->name ?? $visit->patient->name,
-                    ] : ['name' => $visit->patient->name],
+                    'user' => [
+                        'name' => $patientName,
+                    ],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $visit->staff ? [
                     'user' => $visit->staff->user ? [
@@ -79,10 +106,10 @@ class VisitController extends Controller
                     ] : ['name' => $visit->doctor->name],
                 ] : null,
                 'appointment' => $visit->appointment,
-                'visit_date_time' => $visit->visit_date_time,
+                'visit_date_time' => $visit->visit_date_time->format('d/m/y H:i'),
                 'status' => $visit->status,
                 'notes' => $visit->notes,
-                'created_at' => $visit->created_at,
+                'created_at' => $visit->created_at->format('d/m/y H:i'),
                 'medical_orders' => $visit->medicalOrders->map(function ($order) {
                     return [
                         'id' => $order->id,
@@ -107,6 +134,15 @@ class VisitController extends Controller
             ];
         });
 
+        // Get patient name if filtering by patient
+        $patientName = null;
+        if ($patientFilter) {
+            $patient = \App\Models\Patient::find($patientFilter);
+            if ($patient) {
+                $patientName = trim(($patient->name ?? '').' '.($patient->surname ?? ''));
+            }
+        }
+
         return Inertia::render('Visits/Index', [
             'visits' => $transformedVisits,
             'staff' => $staff,
@@ -114,7 +150,9 @@ class VisitController extends Controller
             'filters' => [
                 'search' => request('search', ''),
                 'date' => request('date', today()->toDateString()),
+                'patient' => $patientFilter,
             ],
+            'patientName' => $patientName,
         ]);
     }
 
@@ -127,7 +165,16 @@ class VisitController extends Controller
         $staff = \App\Models\Staff::with('user')->get();
         $appointments = \App\Models\Appointment::with(['patient.user', 'staff.user'])
             ->where('status', '!=', 'completed')
-            ->get();
+            ->get()
+            ->map(function ($appointment) {
+                return [
+                    'id' => $appointment->id,
+                    'patient' => [
+                        'name' => $appointment->patient->user->name ?? ($appointment->patient->name.' '.$appointment->patient->surname),
+                    ],
+                    'appointment_date_time' => $appointment->appointment_date_time->format('d/m/y H:i'),
+                ];
+            });
 
         return Inertia::render('Visits/Create', [
             'patients' => $patients,
@@ -163,6 +210,30 @@ class VisitController extends Controller
     {
         $visit->load(['patient.user', 'staff.user', 'appointment', 'medicalOrders']);
 
+        // Format dates
+        $visitData = [
+            'id' => $visit->id,
+            'patient' => $visit->patient ? [
+                'user' => [
+                    'name' => $visit->patient->user->name ?? ($visit->patient->name.' '.$visit->patient->surname),
+                ],
+            ] : null,
+            'staff' => $visit->staff ? [
+                'user' => [
+                    'name' => $visit->staff->user->name ?? $visit->staff->name,
+                ],
+            ] : null,
+            'appointment' => $visit->appointment ? [
+                'id' => $visit->appointment->id,
+                'appointment_date_time' => $visit->appointment->appointment_date_time->format('d/m/y H:i'),
+            ] : null,
+            'visit_date_time' => $visit->visit_date_time->format('d/m/y H:i'),
+            'status' => $visit->status,
+            'notes' => $visit->notes,
+            'created_at' => $visit->created_at->format('d/m/y H:i'),
+            'medicalOrders' => $visit->medicalOrders,
+        ];
+
         $staff = \App\Models\Staff::with('user')->get()->map(function ($staff) {
             return [
                 'id' => $staff->id,
@@ -171,7 +242,7 @@ class VisitController extends Controller
         });
 
         return Inertia::render('Visits/Show', [
-            'visit' => $visit,
+            'visit' => $visitData,
             'staff' => $staff,
         ]);
     }
@@ -183,7 +254,17 @@ class VisitController extends Controller
     {
         $patients = \App\Models\Patient::with('user')->get();
         $staff = \App\Models\Staff::with('user')->get();
-        $appointments = \App\Models\Appointment::with(['patient.user', 'staff.user'])->get();
+        $appointments = \App\Models\Appointment::with(['patient.user', 'staff.user'])
+            ->get()
+            ->map(function ($appointment) {
+                return [
+                    'id' => $appointment->id,
+                    'patient' => [
+                        'name' => $appointment->patient->user->name ?? ($appointment->patient->name.' '.$appointment->patient->surname),
+                    ],
+                    'appointment_date_time' => $appointment->appointment_date_time->format('d/m/y H:i'),
+                ];
+            });
 
         return Inertia::render('Visits/Edit', [
             'visit' => $visit,
@@ -298,18 +379,38 @@ class VisitController extends Controller
 
         // Transform visits for the frontend
         $transformedVisits = $visits->map(function ($visit) {
+            // Build patient name: use user name if exists, otherwise concatenate patient name and surname
+            $patientName = 'Unknown Patient';
+            if ($visit->patient) {
+                if ($visit->patient->user && $visit->patient->user->name) {
+                    $patientName = $visit->patient->user->name;
+                } else {
+                    // For manually created patients, concatenate name and surname
+                    $firstName = $visit->patient->name ?? '';
+                    $lastName = $visit->patient->surname ?? '';
+                    $fullName = trim($firstName.' '.$lastName);
+                    // Only use the concatenated name if it's not empty
+                    if ($fullName !== '') {
+                        $patientName = $fullName;
+                    } else {
+                        // If still empty, try to show at least the ID
+                        $patientName = 'Patient #'.$visit->patient->id;
+                    }
+                }
+            }
+
             return [
                 'id' => $visit->id,
                 'patient' => $visit->patient ? [
-                    'user' => $visit->patient->user ? [
-                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name.' '.$visit->patient->last_name),
-                    ] : ['name' => trim($visit->patient->first_name.' '.$visit->patient->last_name)],
+                    'user' => [
+                        'name' => $patientName,
+                    ],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'appointment' => $visit->appointment,
-                'visit_date_time' => $visit->visit_date_time,
+                'visit_date_time' => $visit->visit_date_time->format('d/m/y H:i'),
                 'status' => $visit->status,
                 'notes' => $visit->notes,
-                'created_at' => $visit->created_at,
+                'created_at' => $visit->created_at->format('d/m/y H:i'),
                 'medical_orders' => $visit->medicalOrders->map(function ($order) {
                     return [
                         'id' => $order->id,
@@ -319,12 +420,17 @@ class VisitController extends Controller
             ];
         });
 
-        $staff = \App\Models\Staff::with('user')->get()->map(function ($staff) {
-            return [
-                'id' => $staff->id,
-                'name' => $staff->user ? $staff->user->name : trim($staff->first_name.' '.$staff->last_name),
-            ];
-        });
+        $staff = \App\Models\Staff::with('user')
+            ->whereHas('role', function ($query) {
+                $query->where('name', 'Doctor');
+            })
+            ->get()
+            ->map(function ($staff) {
+                return [
+                    'id' => $staff->id,
+                    'name' => $staff->user ? $staff->user->name : trim($staff->first_name.' '.$staff->last_name),
+                ];
+            });
 
         return Inertia::render('Visits/MyVisits', [
             'visits' => $transformedVisits,
@@ -345,20 +451,40 @@ class VisitController extends Controller
 
         // Transform visits for the frontend
         $transformedVisits = $visits->map(function ($visit) {
+            // Build patient name: use user name if exists, otherwise concatenate patient name and surname
+            $patientName = 'Unknown Patient';
+            if ($visit->patient) {
+                if ($visit->patient->user && $visit->patient->user->name) {
+                    $patientName = $visit->patient->user->name;
+                } else {
+                    // For manually created patients, concatenate name and surname
+                    $firstName = $visit->patient->name ?? '';
+                    $lastName = $visit->patient->surname ?? '';
+                    $fullName = trim($firstName.' '.$lastName);
+                    // Only use the concatenated name if it's not empty
+                    if ($fullName !== '') {
+                        $patientName = $fullName;
+                    } else {
+                        // If still empty, try to show at least the ID
+                        $patientName = 'Patient #'.$visit->patient->id;
+                    }
+                }
+            }
+
             return [
                 'id' => $visit->id,
                 'patient' => $visit->patient ? [
-                    'user' => $visit->patient->user ? [
-                        'name' => $visit->patient->user->name ?? trim($visit->patient->first_name.' '.$visit->patient->last_name),
-                    ] : ['name' => trim($visit->patient->first_name.' '.$visit->patient->last_name)],
-                    'name' => $visit->patient->first_name,
-                    'surname' => $visit->patient->last_name,
+                    'user' => [
+                        'name' => $patientName,
+                    ],
+                    'name' => $visit->patient->name,
+                    'surname' => $visit->patient->surname,
                 ] : ['user' => ['name' => 'Unknown Patient'], 'name' => '', 'surname' => ''],
                 'appointment' => $visit->appointment,
-                'visit_date_time' => $visit->visit_date_time,
+                'visit_date_time' => $visit->visit_date_time->format('d/m/y H:i'),
                 'status' => $visit->status,
                 'notes' => $visit->notes,
-                'created_at' => $visit->created_at,
+                'created_at' => $visit->created_at->format('d/m/y H:i'),
                 'medical_orders' => $visit->medicalOrders->map(function ($order) {
                     return [
                         'id' => $order->id,

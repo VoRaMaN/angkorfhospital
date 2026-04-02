@@ -65,7 +65,7 @@ class AppointmentController extends Controller
         // Transform appointments for the frontend to handle null relationships
         $transformedAppointments = $appointments->getCollection()->map(function ($appointment) {
             return [
-                'id' => $appointment->patient ? $appointment->patient->id : null,
+                'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
                     'user' => $appointment->patient->user ? [
                         'name' => $appointment->patient->user->name ?? $appointment->patient->name,
@@ -132,7 +132,7 @@ class AppointmentController extends Controller
                         'name' => $appointment->staff->user->name ?? $appointment->staff->name,
                     ] : ['name' => $appointment->staff->name],
                 ] : ['user' => ['name' => 'Unknown Staff']],
-                'appointment_date_time' => $appointment->appointment_date_time,
+                'appointment_date_time' => $appointment->appointment_date_time?->setTimezone('Asia/Phnom_Penh')->format('d/m/y H:i'),
                 'duration_minutes' => $appointment->duration_minutes ?? 30,
                 'appointment_type' => $appointment->appointment_type ?? 'consultation',
                 'status' => $appointment->status,
@@ -154,11 +154,22 @@ class AppointmentController extends Controller
         $this->authorize('create', Appointment::class);
 
         $patients = \App\Models\Patient::with('user')->get();
-        $staff = \App\Models\Staff::with('user')->get();
+        $staff = \App\Models\Staff::with(['user', 'role'])
+            ->whereHas('role', function ($query) {
+                $query->where('name', 'Doctor');
+            })
+            ->get();
+
+        // Check if a patient is pre-selected via query parameter
+        $selectedPatient = null;
+        if ($patientId = request('patient')) {
+            $selectedPatient = \App\Models\Patient::find($patientId);
+        }
 
         return Inertia::render('Appointments/Create', [
             'patients' => $patients,
             'staff' => $staff,
+            'selectedPatient' => $selectedPatient,
         ]);
     }
 
@@ -168,7 +179,7 @@ class AppointmentController extends Controller
     public function store(StoreAppointmentRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['status'] = \App\Enums\AppointmentStatusEnum::SCHEDULED;
+        $data['status'] = \App\Enums\AppointmentStatusEnum::CONFIRMED;
 
         $appointment = Appointment::create($data);
 
@@ -205,7 +216,7 @@ class AppointmentController extends Controller
             'id' => $appointment->id,
             'patient_id' => $appointment->patient_id,
             'staff_id' => $appointment->staff_id,
-            'appointment_date_time' => $appointment->appointment_date_time->format('Y-m-d\TH:i'),
+            'appointment_date_time' => $appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('Y-m-d\TH:i'),
             'duration_minutes' => $appointment->duration_minutes,
             'appointment_type' => $appointment->appointment_type,
             'status' => $appointment->status,

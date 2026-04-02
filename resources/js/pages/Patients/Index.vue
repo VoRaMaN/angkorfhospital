@@ -14,7 +14,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/patients';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, Search } from 'lucide-vue-next';
+import { Plus, Search, Eye, EyeOff } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
 interface Props {
@@ -39,6 +39,7 @@ interface Props {
     };
     filters: {
         search: string;
+        show_all: boolean;
     };
 }
 
@@ -47,6 +48,7 @@ const props = defineProps<Props>();
 const { hasPermission } = useAuth();
 
 const searchQuery = ref(props.filters.search || '');
+const showAll = ref(props.filters.show_all || false);
 let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -65,12 +67,26 @@ const performSearch = () => {
     searchTimeout = setTimeout(() => {
         router.get('/patients', {
             search: searchQuery.value,
+            show_all: showAll.value ? '1' : undefined,
             page: 1, // Reset to first page when searching
         }, {
             preserveState: true,
             replace: true,
         });
     }, 300); // 300ms debounce
+};
+
+// Toggle show all patients
+const toggleShowAll = () => {
+    showAll.value = !showAll.value;
+    router.get('/patients', {
+        search: searchQuery.value,
+        show_all: showAll.value ? '1' : undefined,
+        page: 1,
+    }, {
+        preserveState: true,
+        replace: true,
+    });
 };
 
 // Watch for search query changes
@@ -109,6 +125,15 @@ watch(searchQuery, () => {
                         class="pl-10"
                     />
                 </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    @click="toggleShowAll"
+                    class="gap-2"
+                >
+                    <component :is="showAll ? Eye : EyeOff" class="size-4" />
+                    {{ showAll ? 'Hide Inactive' : 'Show All' }}
+                </Button>
                 <div class="text-sm text-muted-foreground">
                     {{ props.patients.total }} patient{{ props.patients.total !== 1 ? 's' : '' }} found
                 </div>
@@ -190,7 +215,7 @@ watch(searchQuery, () => {
                         variant="outline"
                         size="sm"
                         :disabled="props.patients.current_page === 1"
-                        @click="router.get('/patients', { search: searchQuery, page: props.patients.current_page - 1 }, { preserveState: true })"
+                        @click="router.get('/patients', { search: searchQuery, show_all: showAll ? '1' : undefined, page: props.patients.current_page - 1 }, { preserveState: true })"
                     >
                         Previous
                     </Button>
@@ -198,7 +223,7 @@ watch(searchQuery, () => {
                         variant="outline"
                         size="sm"
                         :disabled="props.patients.current_page === props.patients.last_page"
-                        @click="router.get('/patients', { search: searchQuery, page: props.patients.current_page + 1 }, { preserveState: true })"
+                        @click="router.get('/patients', { search: searchQuery, show_all: showAll ? '1' : undefined, page: props.patients.current_page + 1 }, { preserveState: true })"
                     >
                         Next
                     </Button>

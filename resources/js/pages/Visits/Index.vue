@@ -61,7 +61,9 @@ interface Props {
     filters: {
         search: string;
         date: string;
+        patient?: string;
     };
+    patientName?: string;
 }
 
 const props = defineProps<Props>();
@@ -89,6 +91,7 @@ const performSearch = () => {
         router.get('/visits', {
             search: searchQuery.value,
             date: selectedDate.value,
+            patient: props.filters.patient, // Preserve patient filter
             page: 1, // Reset to first page when searching
         }, {
             preserveState: true,
@@ -107,6 +110,7 @@ watch(selectedDate, () => {
     router.get('/visits', {
         search: searchQuery.value,
         date: selectedDate.value,
+        patient: props.filters.patient, // Preserve patient filter
         page: 1,
     }, {
         preserveState: true,
@@ -200,18 +204,26 @@ const getStatusColor = (status: string) => {
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold">Visits</h1>
+                    <h1 class="text-2xl font-bold">
+                        {{ props.filters.patient ? `Visit History - ${props.patientName || 'Patient'}` : 'Visits' }}
+                    </h1>
                     <p class="text-muted-foreground">
-                        Manage patient visits and their associated medical
-                        orders
+                        {{ props.filters.patient ? 'All visits for this patient' : 'Manage patient visits and their associated medical orders' }}
                     </p>
                 </div>
-                <Button as-child v-if="hasPermission('create_visits')">
-                    <Link :href="create().url">
-                    <Plus class="size-4" />
-                    New Visit
-                    </Link>
-                </Button>
+                <div class="flex gap-2">
+                    <Button v-if="props.filters.patient" variant="outline" as-child>
+                        <a :href="`/patients/show?patient=${props.filters.patient}`">
+                            Back to Patient
+                        </a>
+                    </Button>
+                    <Button as-child v-if="hasPermission('create_visits')">
+                        <Link :href="create().url">
+                        <Plus class="size-4" />
+                        New Visit
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div class="flex items-center gap-4">
@@ -286,18 +298,7 @@ const getStatusColor = (status: string) => {
                                 </span>
                             </TableCell>
                             <TableCell>
-                                {{
-                                    new Date(
-                                        visit.visit_date_time,
-                                    ).toLocaleDateString()
-                                }}
-                                <div class="text-sm text-muted-foreground">
-                                    {{
-                                        new Date(
-                                            visit.visit_date_time,
-                                        ).toLocaleTimeString()
-                                    }}
-                                </div>
+                                {{ visit.visit_date_time }}
                             </TableCell>
                             <TableCell>
                                 <Badge :class="getStatusColor(visit.status)">

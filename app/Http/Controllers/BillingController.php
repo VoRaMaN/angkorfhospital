@@ -22,12 +22,9 @@ class BillingController extends Controller
 
         $query = Billing::with(['patient.user', 'appointment', 'visit', 'medicalOrder']);
 
-        // Filter by status if provided, otherwise exclude paid billings by default
+        // Filter by status if provided
         if (request('status')) {
             $query->where('status', request('status'));
-        } else {
-            // Default: show only active billings (not paid)
-            $query->where('status', '!=', 'paid');
         }
 
         // Filter by search if provided (search in patient id, patient name and related IDs)
@@ -62,12 +59,27 @@ class BillingController extends Controller
             $patient = $billing->patient;
             $patientName = 'Unknown Patient';
 
-            if ($patient && $patient->user) {
-                $patientName = $patient->user->name;
+            if ($patient) {
+                if ($patient->user && $patient->user->name) {
+                    $patientName = $patient->user->name;
+                } else {
+                    // For manually created patients, concatenate name and surname
+                    $firstName = $patient->name ?? '';
+                    $lastName = $patient->surname ?? '';
+                    $fullName = trim($firstName.' '.$lastName);
+                    // Only use the concatenated name if it's not empty
+                    if ($fullName !== '') {
+                        $patientName = $fullName;
+                    } else {
+                        // If still empty, try to show at least the ID
+                        $patientName = 'Patient #'.$patient->id;
+                    }
+                }
             }
 
             return [
                 'id' => $billing->id,
+                'bill_no' => $billing->bill_no,
                 'patient_id' => $patient?->id,
                 'patient_name' => $patientName,
                 'appointment_id' => $billing->appointment_id,
@@ -104,7 +116,7 @@ class BillingController extends Controller
 
             return [
                 'id' => $appointment->id,
-                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->format('Y-m-d'),
+                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
             ];
         });
 
@@ -114,7 +126,7 @@ class BillingController extends Controller
 
             return [
                 'id' => $visit->id,
-                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('Y-m-d H:i'),
+                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('d/m/y H:i'),
             ];
         });
 
@@ -189,6 +201,7 @@ class BillingController extends Controller
 
         $transformedBilling = [
             'id' => $billing->id,
+            'bill_no' => $billing->bill_no,
             'patient_name' => $patientName,
             'appointment_id' => $billing->appointment_id,
             'visit_id' => $billing->visit_id,
@@ -219,7 +232,7 @@ class BillingController extends Controller
 
             return [
                 'id' => $appointment->id,
-                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->format('Y-m-d'),
+                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
             ];
         });
 
@@ -231,7 +244,7 @@ class BillingController extends Controller
 
             return [
                 'id' => $visit->id,
-                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('Y-m-d H:i'),
+                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('d/m/y H:i'),
             ];
         });
 
@@ -488,10 +501,17 @@ class BillingController extends Controller
             'appointment.staff.user',
             'visit.staff.user',
             'medicalOrder.staff.user',
+            'medicalOrder.orderItems.inventory',
         ]);
 
+        // Get cost breakdown if medical order exists
+        $costBreakdown = null;
+        if ($billing->medicalOrder) {
+            $costBreakdown = app(MedicalOrderBillingService::class)->getOrderCostBreakdown($billing->medicalOrder);
+        }
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('billing-letter', compact('billing'));
+        $pdf->loadView('billing-letter', compact('billing', 'costBreakdown'));
 
         $pdf->setOptions([
             'isHtml5ParserEnabled' => true,
@@ -501,7 +521,7 @@ class BillingController extends Controller
             'isPhpEnabled' => true,
         ]);
 
-        $filename = 'billing-letter-'.$billing->id.'-'.now()->format('Y-m-d').'.pdf';
+        $filename = 'receipt-'.$billing->bill_no.'-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
     }
