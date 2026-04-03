@@ -37,6 +37,31 @@ class UserSeeder extends Seeder
                 'email' => 'accountant@clinic.com',
                 'role' => 'accountant',
             ],
+            [
+                'name' => 'Billing User',
+                'email' => 'billing@clinic.com',
+                'role' => 'billing',
+            ],
+            [
+                'name' => 'Pharmacist User',
+                'email' => 'pharmacist@clinic.com',
+                'role' => 'pharmacist',
+            ],
+            [
+                'name' => 'Lab User',
+                'email' => 'lab@clinic.com',
+                'role' => 'lab',
+            ],
+            [
+                'name' => 'Inventory User',
+                'email' => 'inventory@clinic.com',
+                'role' => 'inventory',
+            ],
+            [
+                'name' => 'Staff User',
+                'email' => 'staff@clinic.com',
+                'role' => 'staff',
+            ],
         ];
 
         foreach ($users as $userData) {

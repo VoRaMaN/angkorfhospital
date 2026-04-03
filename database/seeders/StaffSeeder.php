@@ -19,11 +19,21 @@ class StaffSeeder extends Seeder
             'nurse' => 3,
             'receptionist' => 4,
             'accountant' => 5,
+            'billing' => 6,
+            'pharmacist' => 7,
+            'lab' => 8,
+            'inventory' => 9,
+            'staff' => 10,
         ];
 
         foreach ($users as $index => $user) {
-            $roleName = $user->roles->first()->name;
-            $roleId = $roleMap[$roleName] ?? 1; // Default to admin if not found
+            $roleName = $user->roles->first()?->name;
+
+            if (! $roleName || $roleName === 'patient') {
+                continue;
+            }
+
+            $roleId = $roleMap[$roleName] ?? 1;
 
             $names = explode(' ', $user->name);
 

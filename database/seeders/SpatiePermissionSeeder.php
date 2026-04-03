@@ -288,5 +288,86 @@ class SpatiePermissionSeeder extends Seeder
             'create_files',
             'edit_files',
         ]);
+
+        $billingRole = Role::firstOrCreate(['name' => 'billing']);
+        $billingRole->syncPermissions([
+            'view_billing',
+            'create_billing',
+            'edit_billing',
+            'delete_billing',
+            'update_billing_status',
+            'view_billings',
+            'create_billings',
+            'edit_billings',
+            'view_patients',
+            'view_visits',
+            'view_medical_orders',
+            'process_and_bill_medical_orders',
+            'confirm_processed_medical_orders',
+            'view_inventory',
+            'view_inventories',
+        ]);
+
+        $pharmacistRole = Role::firstOrCreate(['name' => 'pharmacist']);
+        $pharmacistRole->syncPermissions([
+            'view_medications',
+            'create_medications',
+            'edit_medications',
+            'delete_medications',
+            'view_inventory',
+            'create_inventory',
+            'edit_inventory',
+            'view_inventories',
+            'create_inventories',
+            'edit_inventories',
+            'view_medical_orders',
+            'process_medical_orders',
+            'complete_medical_order_items',
+            'view_patients',
+            'view_billing',
+            'view_billings',
+        ]);
+
+        $labRole = Role::firstOrCreate(['name' => 'lab']);
+        $labRole->syncPermissions([
+            'view_lab_packages',
+            'create_lab_packages',
+            'edit_lab_packages',
+            'delete_lab_packages',
+            'view_lab_panels',
+            'create_lab_panels',
+            'edit_lab_panels',
+            'view_medical_orders',
+            'process_medical_orders',
+            'complete_medical_order_items',
+            'view_patients',
+            'view_medical_records',
+            'view_files',
+            'create_files',
+        ]);
+
+        $inventoryRole = Role::firstOrCreate(['name' => 'inventory']);
+        $inventoryRole->syncPermissions([
+            'view_inventory',
+            'create_inventory',
+            'edit_inventory',
+            'delete_inventory',
+            'view_inventories',
+            'create_inventories',
+            'edit_inventories',
+            'view_medications',
+        ]);
+
+        $staffRole2 = Role::firstOrCreate(['name' => 'staff']);
+        $staffRole2->syncPermissions([
+            'view_patients',
+            'view_appointments',
+            'view_visits',
+            'view_billing',
+            'view_billings',
+            'view_inventory',
+            'view_inventories',
+            'view_files',
+        ]);
     }
 }
