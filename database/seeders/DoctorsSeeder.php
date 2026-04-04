@@ -16,13 +16,13 @@ class DoctorsSeeder extends Seeder
     {
         $doctors = [
             [
-                'email' => 'dr.sokong@clinic.com',
+                'email' => 'drsokong@clinic.com',
                 'name' => 'Dr. Sokong',
                 'first_name' => 'Sokong',
                 'last_name' => '',
             ],
             [
-                'email' => 'dr.sosivann@clinic.com',
+                'email' => 'drsosivann@clinic.com',
                 'name' => 'Dr. Sosivann',
                 'first_name' => 'Sosivann',
                 'last_name' => '',
