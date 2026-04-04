@@ -84,11 +84,12 @@ class UserManagementController extends Controller
     {
         $validated = $request->validated();
 
-        // Create the user
+        // Create the user (auto-verify since created by admin)
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
+            'email_verified_at' => now(),
         ]);
 
         // Create the specific type

@@ -36,6 +36,7 @@ class DoctorsSeeder extends Seeder
                 [
                     'name' => $doctorData['name'],
                     'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
                 ]
             );
 
