@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillingReportController;
@@ -123,6 +124,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');
     Route::get('/my-visits', [VisitController::class, 'myVisits'])->name('doctors.my-visits');
     Route::get('/my-to-be-process-visits', [VisitController::class, 'myToBeProcessVisits'])->name('doctors.my-to-be-process-visits');
+
+    // Activity Log
+    Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
 
 });
 

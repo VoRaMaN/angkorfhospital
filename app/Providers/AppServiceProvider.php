@@ -6,6 +6,9 @@ use App\Models\Billing;
 use App\Models\Staff;
 use App\Observers\BillingObserver;
 use App\Observers\StaffObserver;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -26,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Staff::observe(StaffObserver::class);
         Billing::observe(BillingObserver::class);
+
+        Event::listen(Login::class, \App\Listeners\LogSuccessfulLogin::class);
+        Event::listen(Logout::class, \App\Listeners\LogSuccessfulLogout::class);
 
         // Share minimal auth info with the frontend for permission checks
         Inertia::share('auth', function () {

@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\SupplyTypeEnum;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
     /** @use HasFactory<\Database\Factories\InventoryFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'item_name',

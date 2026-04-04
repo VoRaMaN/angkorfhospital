@@ -35,6 +35,7 @@ import {
     Heart,
     LayoutGrid,
     Pill,
+    ScrollText,
     Shield,
     UserCheck,
     Users2Icon,
@@ -65,6 +66,7 @@ import { index as staffFilesIndex } from '@/routes/staff-files';
 import { index as visitsIndex } from '@/routes/visits';
 import { index as medicineReportIndex } from '@/routes/medicine-report';
 import { index as billingReportIndex } from '@/routes/billing-report';
+import { index as activityLogIndex } from '@/routes/activity-log';
 
 import { useAuth } from '@/composables/useAuth';
 import { router } from '@inertiajs/vue3';
@@ -260,6 +262,12 @@ const managementNavItems = computed(() => [
         href: rolesIndex().url,
         icon: Shield,
         permissions: 'view_roles',
+    },
+    {
+        title: 'Activity Log',
+        href: activityLogIndex().url,
+        icon: ScrollText,
+        permissions: 'view_activity_logs',
     },
 ]);
 

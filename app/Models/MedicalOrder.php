@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\MedicalOrderPriorityEnum;
 use App\Enums\MedicalOrderStatusEnum;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MedicalOrder extends Model
 {
     /** @use HasFactory<\Database\Factories\MedicalOrderFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'visit_id',

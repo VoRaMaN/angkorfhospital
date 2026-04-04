@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatusEnum;
 use App\Enums\AppointmentTypeEnum;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
     /** @use HasFactory<\Database\Factories\AppointmentFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'patient_id',

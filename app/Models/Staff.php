@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Role;
@@ -9,7 +10,7 @@ use Spatie\Permission\Models\Role;
 class Staff extends Model
 {
     /** @use HasFactory<\Database\Factories\StaffFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'user_id',

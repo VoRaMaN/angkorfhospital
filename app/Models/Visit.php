@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\VisitStatusEnum;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Visit extends Model
 {
     /** @use HasFactory<\Database\Factories\VisitFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     public const STATUS_PENDING = VisitStatusEnum::PENDING->value;
 
