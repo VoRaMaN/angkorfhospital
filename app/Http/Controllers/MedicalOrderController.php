@@ -429,6 +429,36 @@ class MedicalOrderController extends Controller
             'inventoryItems' => $inventoryItems,
             'rxMedicines' => $rxMedicines,
             'medicalServices' => $medicalServices,
+            'medicineGroups' => \App\Models\MedicineGroup::where('is_active', true)
+                ->with(['items.inventory'])
+                ->get()
+                ->map(function ($group) {
+                    $totalPrice = $group->custom_price;
+                    if (! $totalPrice) {
+                        $totalPrice = $group->items->sum(function ($item) {
+                            return ($item->inventory->selling_price ?? 0) * $item->quantity;
+                        });
+                    }
+
+                    return [
+                        'id' => $group->id,
+                        'name' => $group->name,
+                        'description' => $group->description,
+                        'custom_price' => $group->custom_price,
+                        'total_price' => $totalPrice,
+                        'items' => $group->items->map(function ($item) {
+                            return [
+                                'id' => $item->inventory_id,
+                                'item_name' => $item->inventory->item_name ?? 'Unknown',
+                                'dosage' => $item->dosage,
+                                'frequency' => $item->frequency,
+                                'quantity' => $item->quantity,
+                                'unit_price' => $item->inventory->unit_price ?? 0,
+                                'selling_price' => $item->inventory->selling_price ?? 0,
+                            ];
+                        }),
+                    ];
+                }),
         ]);
     }
 

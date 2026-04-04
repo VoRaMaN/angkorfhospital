@@ -78,6 +78,25 @@ interface RXMedicine {
     selling_price: number;
 }
 
+interface MedicineGroupItem {
+    id: number;
+    item_name: string;
+    dosage: string | null;
+    frequency: string | null;
+    quantity: number;
+    unit_price: number;
+    selling_price: number;
+}
+
+interface MedicineGroup {
+    id: number;
+    name: string;
+    description: string | null;
+    custom_price: number | null;
+    total_price: number;
+    items: MedicineGroupItem[];
+}
+
 interface OrderItem {
     id?: number;
     item_type: string;
@@ -134,6 +153,7 @@ interface Props {
         type: string;
         price: number;
     }>;
+    medicineGroups: MedicineGroup[];
 }
 
 const props = defineProps<Props>();
@@ -410,6 +430,41 @@ const filteredRxMedicines = computed(() => {
                     .includes(rxSearchQuery.value.toLowerCase())),
     );
 });
+
+// Special Items (Medicine Groups) selection state
+const showMedicineGroupDialog = ref(false);
+const selectedMedicineGroupId = ref<number | null>(null);
+const medicineGroupIncludePackage = ref(false);
+
+const addMedicineGroup = () => {
+    if (!selectedMedicineGroupId.value) return;
+
+    const group = props.medicineGroups.find((g) => g.id === selectedMedicineGroupId.value);
+    if (!group) return;
+
+    const includePackage = medicineGroupIncludePackage.value;
+
+    group.items.forEach((item) => {
+        form.order_items.push({
+            item_type: 'rx_medicine',
+            item_name: item.item_name,
+            details: `From Group: ${group.name}${includePackage ? ' (Package Included)' : ''}`,
+            dosage: item.dosage || '',
+            frequency: item.frequency || '',
+            route: '',
+            quantity_required: item.quantity,
+            status: 'pending',
+            notes: `Special Items: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+            inventory_id: item.id,
+            unit_price: includePackage ? 0 : item.unit_price,
+            selling_price: includePackage ? 0 : item.selling_price,
+        });
+    });
+
+    selectedMedicineGroupId.value = null;
+    medicineGroupIncludePackage.value = false;
+    showMedicineGroupDialog.value = false;
+};
 
 // Medical Services selection state
 const showMedicalServiceDialog = ref(false);
@@ -987,6 +1042,15 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                 type="button"
                                 variant="outline"
                                 size="sm"
+                                @click="showMedicineGroupDialog = true"
+                            >
+                                <Package class="size-4" />
+                                Add Special Items
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
                                 @click="showMedicalServiceDialog = true"
                             >
                                 <Activity class="size-4" />
@@ -1466,6 +1530,92 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                             </CardContent>
                         </Card>
 
+                        <!-- Special Items Selection Dialog -->
+                        <Card v-if="showMedicineGroupDialog" class="border-primary">
+                            <CardHeader>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle>Select Special Items</CardTitle>
+                                        <CardDescription>Choose a pre-configured special items group</CardDescription>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false">
+                                            Cancel
+                                        </Button>
+                                        <Button type="button" size="sm" @click="addMedicineGroup" :disabled="!selectedMedicineGroupId">
+                                            Add Group
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div class="space-y-4">
+                                    <!-- Include Package Toggle -->
+                                    <div class="flex items-center space-x-2 p-3 rounded-md bg-muted/50">
+                                        <input
+                                            type="checkbox"
+                                            id="edit-medicine-group-include-package"
+                                            v-model="medicineGroupIncludePackage"
+                                            class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                        />
+                                        <label for="edit-medicine-group-include-package" class="text-sm font-medium cursor-pointer">
+                                            Include Package (Price will be $0 - Not counted in billing)
+                                        </label>
+                                    </div>
+
+                                    <div v-for="group in medicineGroups" :key="group.id"
+                                        class="rounded-md border p-4 hover:bg-accent cursor-pointer"
+                                        :class="{ 'border-primary bg-primary/5': selectedMedicineGroupId === group.id }"
+                                        @click="selectedMedicineGroupId = group.id">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        :id="`edit-group-${group.id}`"
+                                                        :value="group.id"
+                                                        v-model="selectedMedicineGroupId"
+                                                        class="h-4 w-4"
+                                                    />
+                                                    <label :for="`edit-group-${group.id}`" class="font-medium cursor-pointer">
+                                                        {{ group.name }}
+                                                    </label>
+                                                </div>
+                                                <p v-if="group.description" class="mt-1 text-sm text-muted-foreground">
+                                                    {{ group.description }}
+                                                </p>
+                                                <div class="mt-3 space-y-2">
+                                                    <p class="text-sm font-medium">Includes:</p>
+                                                    <div class="ml-4 space-y-1">
+                                                        <div v-for="item in group.items" :key="item.id" class="text-sm text-muted-foreground">
+                                                            &bull; {{ item.item_name }}
+                                                            <span v-if="item.dosage"> - {{ item.dosage }}</span>
+                                                            <span v-if="item.frequency"> ({{ item.frequency }})</span>
+                                                            <span class="ml-2">x{{ item.quantity }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="font-semibold" :class="medicineGroupIncludePackage ? 'text-muted-foreground line-through' : 'text-green-600 dark:text-green-400'">
+                                                    {{ formatPrice(group.custom_price || group.total_price) }}
+                                                </div>
+                                                <div v-if="medicineGroupIncludePackage" class="text-xs font-semibold text-green-600 dark:text-green-400">
+                                                    $0.00 (Package)
+                                                </div>
+                                                <div v-else-if="group.custom_price" class="text-xs text-muted-foreground">
+                                                    Package Price
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-if="medicineGroups.length === 0" class="py-8 text-center text-muted-foreground">
+                                        No special items available
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
                         <!-- Medical Services Selection Dialog -->
                         <Card v-if="showMedicalServiceDialog" class="border-primary">
                             <CardHeader>
@@ -1687,6 +1837,7 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                 form.order_items.length === 0 &&
                                 !showLabDialog &&
                                 !showRxDialog &&
+                                !showMedicineGroupDialog &&
                                 !showMedicalServiceDialog
                             "
                             class="rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground"
