@@ -16,15 +16,9 @@ class InventoryFactory extends Factory
      */
     public function definition(): array
     {
-        $itemTypes = ['medication', 'lab_supply', 'equipment'];
-        $itemType = fake()->randomElement($itemTypes);
+        $supplyTypes = ['medication', 'rx_medicine', 'lab_supply', 'medical_equipment', 'office_supply', 'cleaning_supply'];
 
         $units = ['tablets', 'capsules', 'boxes', 'pieces', 'ml', 'liters', 'units', 'kits'];
-        $categories = [
-            'medication' => ['Antibiotic', 'Analgesic', 'Antiviral', 'Vitamin'],
-            'lab_supply' => ['Reagent', 'Consumable', 'Test Kit', 'Chemical'],
-            'equipment' => ['PPE', 'Medical Supply', 'Surgical Item'],
-        ];
 
         $quantity = fake()->numberBetween(10, 500);
         $minimumStock = fake()->numberBetween(5, 100);
@@ -32,13 +26,16 @@ class InventoryFactory extends Factory
         return [
             'item_name' => fake()->words(3, true),
             'description' => fake()->sentence(),
-            'item_type' => $itemType,
-            'item_id' => null, // Will be set when creating with specific item
-            'category' => fake()->randomElement($categories[$itemType]),
+            'category' => fake()->randomElement(['Antibiotic', 'Analgesic', 'Reagent', 'Consumable', 'PPE']),
+            'barcode' => fake()->optional(0.5)->ean13(),
+            'type_of_supply' => fake()->randomElement($supplyTypes),
             'quantity' => $quantity,
             'unit' => fake()->randomElement($units),
+            'dose_unit' => fake()->optional(0.5)->randomElement(['mg', 'ml', 'g', 'mcg']),
+            'total_per_box' => fake()->optional(0.5)->numberBetween(10, 100),
             'minimum_stock' => $minimumStock,
             'unit_price' => fake()->randomFloat(2, 1, 200),
+            'selling_price' => fake()->randomFloat(2, 2, 300),
             'supplier' => fake()->company(),
             'location' => fake()->randomElement([
                 'Main Storage',
@@ -49,36 +46,29 @@ class InventoryFactory extends Factory
                 'Emergency',
                 'Central Supply',
             ]),
-            'expiry_date' => $itemType !== 'equipment' ? fake()->dateTimeBetween('now', '+3 years') : null,
+            'expiry_date' => fake()->dateTimeBetween('now', '+3 years'),
+            'alert_days' => fake()->numberBetween(7, 90),
             'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 
     /**
-     * Indicate that the inventory is for a medication
+     * Indicate that the inventory is an RX Medicine
      */
-    public function forMedication(\App\Models\Medication $medication): static
+    public function rxMedicine(): static
     {
         return $this->state(fn (array $attributes) => [
-            'item_name' => $medication->name,
-            'description' => $medication->description,
-            'item_type' => 'medication',
-            'item_id' => $medication->id,
-            'category' => $medication->dosage_form ?? 'General',
+            'type_of_supply' => 'rx_medicine',
         ]);
     }
 
     /**
-     * Indicate that the inventory is for a lab supply
+     * Indicate that the inventory is a lab supply
      */
-    public function forLabSupply(\App\Models\LabSupply $labSupply): static
+    public function labSupply(): static
     {
         return $this->state(fn (array $attributes) => [
-            'item_name' => $labSupply->name,
-            'description' => "Laboratory supply: {$labSupply->category}",
-            'item_type' => 'lab_supply',
-            'item_id' => $labSupply->id,
-            'category' => $labSupply->category,
+            'type_of_supply' => 'lab_supply',
         ]);
     }
 

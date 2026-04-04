@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ActivityLog extends Model
 {
+    use MassPrunable;
+
     protected $fillable = [
         'user_id',
         'action',
@@ -34,6 +37,15 @@ class ActivityLog extends Model
     public function subject(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get the prunable model query.
+     * Prune activity logs older than 90 days.
+     */
+    public function prunable(): \Illuminate\Database\Eloquent\Builder
+    {
+        return static::where('created_at', '<=', now()->subDays(90));
     }
 
     /**

@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Lab Panels
     Route::resource('lab-panels', LabPanelController::class);
 
-    // Medicine Groups
+    // Special Items (Medicine Groups)
     Route::resource('medicine-groups', MedicineGroupController::class);
 
     // Special Items
@@ -126,7 +126,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-to-be-process-visits', [VisitController::class, 'myToBeProcessVisits'])->name('doctors.my-to-be-process-visits');
 
     // Activity Log
-    Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+    Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index')->middleware('can:view_activity_logs');
+    Route::get('activity-log/export', [ActivityLogController::class, 'export'])->name('activity-log.export')->middleware('can:view_activity_logs');
 
 });
 

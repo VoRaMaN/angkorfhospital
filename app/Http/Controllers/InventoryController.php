@@ -101,7 +101,7 @@ class InventoryController extends Controller
     {
         $inventory->update($request->validated());
 
-        return redirect()->route('inventory.rx-medicine')->with('success', 'Inventory record updated successfully.');
+        return redirect()->back()->with('success', 'Inventory record updated successfully.');
     }
 
     public function destroy(Inventory $inventory): RedirectResponse
@@ -109,7 +109,7 @@ class InventoryController extends Controller
         $this->authorize('delete', $inventory);
         $inventory->delete();
 
-        return redirect()->route('inventory.rx-medicine')->with('success', 'Inventory record deleted successfully.');
+        return redirect()->back()->with('success', 'Inventory record deleted successfully.');
     }
 
     public function rxMedicine(): Response

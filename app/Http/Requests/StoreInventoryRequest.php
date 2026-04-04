@@ -24,14 +24,20 @@ class StoreInventoryRequest extends FormRequest
         return [
             'item_name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category' => 'nullable|string|max:255',
+            'barcode' => 'nullable|string|max:255',
             'type_of_supply' => 'required|in:'.implode(',', array_keys(\App\Enums\SupplyTypeEnum::options())),
             'quantity' => 'required|integer|min:0',
             'unit' => 'required|string|max:50',
+            'dose_unit' => 'nullable|string|max:50',
+            'total_per_box' => 'nullable|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
             'unit_price' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
             'supplier' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'expiry_date' => 'nullable|date|after:today',
+            'alert_days' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
         ];
     }

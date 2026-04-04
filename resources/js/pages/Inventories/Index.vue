@@ -17,32 +17,24 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import InventoryEditSheet from '@/components/InventoryEditSheet.vue';
+import type { InventoryItem } from '@/components/InventoryEditSheet.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     create as inventoryCreate,
-    edit as inventoryEdit,
     index as inventoryIndex,
     show as inventoryShow,
 } from '@/routes/inventory';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, Search } from 'lucide-vue-next';
+import { FileEdit, Plus, Search } from 'lucide-vue-next';
 
 import { computed, ref, watch } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
     inventories: {
-        data: Array<{
-            id: number;
-            item_name: string;
-            description: string;
-            quantity: number;
-            unit: string;
-            minimum_stock: number;
-            type_of_supply: string;
-            status: string;
-        }>;
+        data: Array<InventoryItem>;
         links: Array<{
             url: string | null;
             label: string;
@@ -76,6 +68,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 const searchQuery = ref(props.filters.search);
 const selectedType = ref(props.filters.type_of_supply || null);
 const selectedStatus = ref(props.filters.status || null);
+const editSheetOpen = ref(false);
+const selectedItem = ref<InventoryItem | null>(null);
+
+const openEditSheet = (item: InventoryItem) => {
+    selectedItem.value = item;
+    editSheetOpen.value = true;
+};
 
 watch(searchQuery, (value) => {
     updateFilter('search', value);
@@ -177,10 +176,11 @@ const paginationLinks = computed(() => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Item Name</TableHead>
-                            <TableHead>Description</TableHead>
                             <TableHead>Type of Supply</TableHead>
+                            <TableHead>Unit Price</TableHead>
+                            <TableHead>Selling Price</TableHead>
                             <TableHead>Quantity</TableHead>
-                            <TableHead>Unit</TableHead>
+                            <TableHead>Expiry Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -190,8 +190,7 @@ const paginationLinks = computed(() => {
                             v-for="item in props.inventories.data"
                             :key="item.id"
                         >
-                            <TableCell>{{ item.item_name }}</TableCell>
-                            <TableCell>{{ item.description }}</TableCell>
+                            <TableCell class="font-medium">{{ item.item_name }}</TableCell>
                             <TableCell>{{
                                 item.type_of_supply
                                     .replace(/_/g, ' ')
@@ -199,10 +198,14 @@ const paginationLinks = computed(() => {
                                         l.toUpperCase(),
                                     )
                             }}</TableCell>
+                            <TableCell>${{ Number(item.unit_price ?? 0).toFixed(2) }}</TableCell>
+                            <TableCell class="font-semibold">${{ Number(item.selling_price ?? 0).toFixed(2) }}</TableCell>
                             <TableCell
                                 >{{ item.quantity }} {{ item.unit }}</TableCell
                             >
-                            <TableCell>{{ item.unit }}</TableCell>
+                            <TableCell>
+                                {{ item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '—' }}
+                            </TableCell>
                             <TableCell>
                                 <Badge
                                     :variant="
@@ -229,18 +232,17 @@ const paginationLinks = computed(() => {
                                         v-if="hasPermission('edit_inventories')"
                                         variant="outline"
                                         size="sm"
-                                        as-child
+                                        @click="openEditSheet(item)"
                                     >
-                                        <Link :href="inventoryEdit(item.id).url"
-                                            >Edit</Link
-                                        >
+                                        <FileEdit class="mr-1 size-3" />
+                                        Edit Details
                                     </Button>
                                 </div>
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.inventories.data.length === 0">
                             <TableCell
-                                colspan="7"
+                                colspan="8"
                                 class="text-center text-muted-foreground"
                             >
                                 No inventory items found
@@ -249,6 +251,11 @@ const paginationLinks = computed(() => {
                     </TableBody>
                 </Table>
             </div>
+
+            <InventoryEditSheet
+                :item="selectedItem"
+                v-model:open="editSheetOpen"
+            />
 
             <!-- Pagination -->
             <div

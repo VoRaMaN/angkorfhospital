@@ -370,7 +370,7 @@ const addSelectedRxItems = () => {
 
 const selectedRxCount = computed(() => selectedRxItems.value.length);
 
-// Medicine Group selection state
+// Special Items selection state
 const showMedicineGroupDialog = ref(false);
 const selectedMedicineGroupId = ref<number | null>(null);
 const medicineGroupIncludePackage = ref(false);
@@ -383,7 +383,7 @@ const addMedicineGroup = () => {
 
     const includePackage = medicineGroupIncludePackage.value;
 
-    // Add all items from the medicine group
+    // Add all items from the special items group
     group.items.forEach((item) => {
         form.order_items.push({
             item_type: 'rx_medicine',
@@ -394,7 +394,8 @@ const addMedicineGroup = () => {
             route: '',
             quantity_required: item.quantity,
             status: 'pending',
-            notes: `Medicine Group: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+            notes: `Special Items: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+
             inventory_id: item.id,
             unit_price: includePackage ? 0 : item.unit_price,
             selling_price: includePackage ? 0 : item.selling_price,
@@ -1053,7 +1054,7 @@ const submitForm = () => {
                             </Button>
                             <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = true">
                                 <Package class="size-4" />
-                                Add Medicine Group
+                                Add Special Items
                             </Button>
                             <Button type="button" variant="outline" size="sm" @click="showSpecialItemDialog = true">
                                 <Syringe class="size-4" />
@@ -1420,13 +1421,13 @@ const submitForm = () => {
                             </CardContent>
                         </Card>
 
-                        <!-- Medicine Group Selection Dialog -->
+                        <!-- Special Items Selection Dialog -->
                         <Card v-if="showMedicineGroupDialog" class="border-primary">
                             <CardHeader>
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <CardTitle>Select Medicine Group</CardTitle>
-                                        <CardDescription>Choose a pre-configured medicine group</CardDescription>
+                                        <CardTitle>Select Special Items</CardTitle>
+                                        <CardDescription>Choose a pre-configured special items group</CardDescription>
                                     </div>
                                     <div class="flex gap-2">
                                         <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false">
@@ -1500,7 +1501,7 @@ const submitForm = () => {
                                         </div>
                                     </div>
                                     <div v-if="medicineGroups.length === 0" class="py-8 text-center text-muted-foreground">
-                                        No medicine groups available
+                                        No special items available
                                     </div>
                                 </div>
                             </CardContent>

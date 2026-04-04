@@ -6,6 +6,19 @@ use App\Models\ActivityLog;
 
 trait LogsActivity
 {
+    /**
+     * Fields that should be masked in activity log properties.
+     */
+    protected static array $sensitiveFields = [
+        'password',
+        'password_confirmation',
+        'secret',
+        'token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'remember_token',
+    ];
+
     public static function bootLogsActivity(): void
     {
         static::created(function ($model) {
@@ -13,7 +26,7 @@ trait LogsActivity
                 'created',
                 static::getActivityDescription('created', $model),
                 $model,
-                ['attributes' => $model->getAttributes()],
+                ['attributes' => static::maskSensitiveFields($model->getAttributes())],
             );
         });
 
@@ -31,7 +44,10 @@ trait LogsActivity
                 'updated',
                 static::getActivityDescription('updated', $model),
                 $model,
-                ['old' => $old, 'new' => $changes],
+                [
+                    'old' => static::maskSensitiveFields($old),
+                    'new' => static::maskSensitiveFields($changes),
+                ],
             );
         });
 
@@ -42,6 +58,23 @@ trait LogsActivity
                 $model,
             );
         });
+    }
+
+    /**
+     * Mask sensitive fields in the given attributes array.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    protected static function maskSensitiveFields(array $attributes): array
+    {
+        foreach (static::$sensitiveFields as $field) {
+            if (array_key_exists($field, $attributes)) {
+                $attributes[$field] = '********';
+            }
+        }
+
+        return $attributes;
     }
 
     protected static function getActivityDescription(string $action, $model): string

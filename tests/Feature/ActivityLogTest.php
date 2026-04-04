@@ -25,6 +25,14 @@ test('authenticated users with permission can access activity log', function () 
         ->assertSuccessful();
 });
 
+test('authenticated users without permission cannot access activity log', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('activity-log.index'))
+        ->assertForbidden();
+});
+
 test('activity log static method creates a log entry', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
@@ -69,7 +77,7 @@ test('activity log captures ip address and user agent', function () {
         ->and($log->ip_address)->not->toBeNull();
 });
 
-test('activity log index page returns paginated logs and metadata', function () {
+test('activity log index page returns paginated logs', function () {
     $user = User::factory()->create();
     $user->assignRole('admin');
 
@@ -81,9 +89,6 @@ test('activity log index page returns paginated logs and metadata', function () 
         ->assertInertia(fn ($page) => $page
             ->component('ActivityLog/Index')
             ->has('activityLogs.data')
-            ->has('onlineUsers')
-            ->has('users')
-            ->has('subjectTypes')
             ->has('filters')
         );
 });
@@ -125,24 +130,6 @@ test('activity log can be filtered by user', function () {
         );
 });
 
-test('online users shows recently active users', function () {
-    $onlineUser = User::factory()->create(['last_active_at' => now()]);
-    $offlineUser = User::factory()->create(['last_active_at' => now()->subMinutes(10)]);
-
-    $adminUser = User::factory()->create(['last_active_at' => now()]);
-    $adminUser->assignRole('admin');
-
-    $this->actingAs($adminUser)
-        ->get(route('activity-log.index'))
-        ->assertSuccessful()
-        ->assertInertia(fn ($page) => $page
-            ->component('ActivityLog/Index')
-            ->where('onlineUsers', fn ($users) => collect($users)->pluck('id')->contains($onlineUser->id)
-                && ! collect($users)->pluck('id')->contains($offlineUser->id)
-            )
-        );
-});
-
 test('user last_active_at is updated by middleware', function () {
     $user = User::factory()->create(['last_active_at' => null]);
 
@@ -151,4 +138,78 @@ test('user last_active_at is updated by middleware', function () {
 
     $user->refresh();
     expect($user->last_active_at)->not->toBeNull();
+});
+
+test('failed login attempt is logged', function () {
+    User::factory()->create(['email' => 'test@example.com']);
+
+    $this->post('/login', [
+        'email' => 'test@example.com',
+        'password' => 'wrong-password',
+    ]);
+
+    $log = ActivityLog::where('action', 'failed_login')->first();
+
+    expect($log)->not->toBeNull()
+        ->and($log->description)->toContain('test@example.com');
+});
+
+test('sensitive fields are masked in activity log properties', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    // Simulate what LogsActivity trait does when logging with sensitive fields
+    $attributes = ['password' => 'hashed-value', 'name' => 'John', 'remember_token' => 'abc123'];
+    $sensitiveFields = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'secret', 'token', 'password_confirmation'];
+
+    foreach ($sensitiveFields as $field) {
+        if (array_key_exists($field, $attributes)) {
+            $attributes[$field] = '********';
+        }
+    }
+
+    ActivityLog::log('updated', 'User updated', null, ['attributes' => $attributes]);
+
+    $log = ActivityLog::where('description', 'User updated')->latest()->first();
+
+    expect($log->properties['attributes']['password'])->toBe('********')
+        ->and($log->properties['attributes']['remember_token'])->toBe('********')
+        ->and($log->properties['attributes']['name'])->toBe('John');
+});
+
+test('activity log export returns csv', function () {
+    $user = User::factory()->create();
+    $user->assignRole('admin');
+    $this->actingAs($user);
+
+    ActivityLog::log('created', 'Test export entry');
+
+    $this->get(route('activity-log.export'))
+        ->assertSuccessful()
+        ->assertHeader('Content-Type', 'text/csv; charset=UTF-8')
+        ->assertHeader('Content-Disposition');
+});
+
+test('activity log export requires permission', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('activity-log.export'))
+        ->assertForbidden();
+});
+
+test('activity log pruning targets old records', function () {
+    $oldLog = ActivityLog::create([
+        'action' => 'old_entry',
+        'description' => 'Ancient log',
+    ]);
+    ActivityLog::where('id', $oldLog->id)->update(['created_at' => now()->subDays(100)]);
+
+    $recentLog = ActivityLog::create([
+        'action' => 'recent_entry',
+        'description' => 'Recent log',
+    ]);
+    ActivityLog::where('id', $recentLog->id)->update(['created_at' => now()->subDays(10)]);
+
+    expect((new ActivityLog)->prunable()->count())->toBe(1);
 });

@@ -9,27 +9,20 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import InventoryEditSheet from '@/components/InventoryEditSheet.vue';
+import type { InventoryItem } from '@/components/InventoryEditSheet.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     create as inventoryCreate,
-    edit as inventoryEdit,
     show as inventoryShow,
 } from '@/routes/inventory';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { FileEdit, Plus } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Props {
-    cultureMedium: Array<{
-        id: number;
-        item_name: string;
-        description: string;
-        quantity: number;
-        unit: string;
-        minimum_stock: number;
-        type_of_supply: string;
-        status: string;
-    }>;
+    cultureMedium: Array<InventoryItem>;
     filters: {
         search: string;
         status: string;
@@ -37,6 +30,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const editSheetOpen = ref(false);
+const selectedItem = ref<InventoryItem | null>(null);
+
+const openEditSheet = (item: InventoryItem) => {
+    selectedItem.value = item;
+    editSheetOpen.value = true;
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -78,8 +79,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow>
                             <TableHead>Item Name</TableHead>
                             <TableHead>Description</TableHead>
+                            <TableHead>Unit Price</TableHead>
                             <TableHead>Quantity</TableHead>
-                            <TableHead>Unit</TableHead>
+                            <TableHead>Expiry Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -89,12 +91,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                             v-for="item in props.cultureMedium"
                             :key="item.id"
                         >
-                            <TableCell>{{ item.item_name }}</TableCell>
-                            <TableCell>{{ item.description }}</TableCell>
+                            <TableCell class="font-medium">{{ item.item_name }}</TableCell>
+                            <TableCell class="max-w-[200px] truncate">{{ item.description }}</TableCell>
+                            <TableCell>${{ Number(item.unit_price ?? 0).toFixed(2) }}</TableCell>
                             <TableCell
                                 >{{ item.quantity }} {{ item.unit }}</TableCell
                             >
-                            <TableCell>{{ item.unit }}</TableCell>
+                            <TableCell>
+                                {{ item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '—' }}
+                            </TableCell>
                             <TableCell>
                                 <Badge
                                     :variant="
@@ -120,18 +125,17 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        as-child
+                                        @click="openEditSheet(item)"
                                     >
-                                        <Link :href="inventoryEdit(item.id).url"
-                                            >Edit</Link
-                                        >
+                                        <FileEdit class="mr-1 size-3" />
+                                        Edit Details
                                     </Button>
                                 </div>
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.cultureMedium.length === 0">
                             <TableCell
-                                colspan="6"
+                                colspan="7"
                                 class="py-8 text-center text-muted-foreground"
                             >
                                 No culture medium items found. Add items with
@@ -141,6 +145,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </TableBody>
                 </Table>
             </div>
+
+            <InventoryEditSheet
+                :item="selectedItem"
+                v-model:open="editSheetOpen"
+            />
         </div>
     </AppLayout>
 </template>

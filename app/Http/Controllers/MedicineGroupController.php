@@ -104,7 +104,7 @@ class MedicineGroupController extends Controller
         }
 
         return redirect()->route('medicine-groups.index')
-            ->with('success', 'Medicine group created successfully');
+            ->with('success', 'Special item created successfully');
     }
 
     public function edit(MedicineGroup $medicineGroup): Response
@@ -182,7 +182,7 @@ class MedicineGroupController extends Controller
         }
 
         return redirect()->route('medicine-groups.index')
-            ->with('success', 'Medicine group updated successfully');
+            ->with('success', 'Special item updated successfully');
     }
 
     public function destroy(MedicineGroup $medicineGroup)
@@ -190,6 +190,6 @@ class MedicineGroupController extends Controller
         $medicineGroup->delete();
 
         return redirect()->route('medicine-groups.index')
-            ->with('success', 'Medicine group deleted successfully');
+            ->with('success', 'Special item deleted successfully');
     }
 }

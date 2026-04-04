@@ -162,7 +162,7 @@ const medicalResourcesNavItems = computed(() => [
         permissions: 'view_lab_packages',
     },
     {
-        title: 'Medicine Groups',
+        title: 'Special Items',
         href: medicineGroupsIndex().url,
         icon: Pill,
         permissions: 'view_medications',

@@ -6,6 +6,7 @@ use App\Models\Billing;
 use App\Models\Staff;
 use App\Observers\BillingObserver;
 use App\Observers\StaffObserver;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Event;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(Login::class, \App\Listeners\LogSuccessfulLogin::class);
         Event::listen(Logout::class, \App\Listeners\LogSuccessfulLogout::class);
+        Event::listen(Failed::class, \App\Listeners\LogFailedLogin::class);
 
         // Share minimal auth info with the frontend for permission checks
         Inertia::share('auth', function () {
@@ -107,6 +109,7 @@ class AppServiceProvider extends ServiceProvider
                         'delete_roles' => $user->can('delete_roles'),
                         'view_settings' => $user->can('view_settings'),
                         'edit_settings' => $user->can('edit_settings'),
+                        'view_activity_logs' => $user->can('view_activity_logs'),
                     ],
                 ],
             ];

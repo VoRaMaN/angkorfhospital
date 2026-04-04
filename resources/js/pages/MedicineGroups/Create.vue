@@ -70,12 +70,12 @@ const handleSubmit = () => {
 </script>
 
 <template>
-    <AppLayout title="Create Medicine Group">
+    <AppLayout title="Create Special Item">
         <div class="py-12">
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
                 <div class="mb-6">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                        Create Medicine Group
+                        Create Special Item
                     </h2>
                 </div>
 

@@ -10,30 +10,21 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import InventoryEditSheet from '@/components/InventoryEditSheet.vue';
+import type { InventoryItem } from '@/components/InventoryEditSheet.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     create as inventoryCreate,
-    edit as inventoryEdit,
     show as inventoryShow,
 } from '@/routes/inventory';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, Search } from 'lucide-vue-next';
+import { FileEdit, Plus, Search } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
 interface Props {
-    rxMedicines: Array<{
-        id: number;
-        item_name: string;
-        description: string;
-        quantity: number;
-        unit: string;
-        minimum_stock: number;
-        type_of_supply: string;
-        status: string;
-        selling_price: number;
-    }>;
+    rxMedicines: Array<InventoryItem>;
     filters: {
         search: string;
         status: string;
@@ -50,6 +41,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const searchQuery = ref(props.filters.search || '');
+const editSheetOpen = ref(false);
+const selectedItem = ref<InventoryItem | null>(null);
+
+const openEditSheet = (item: InventoryItem) => {
+    selectedItem.value = item;
+    editSheetOpen.value = true;
+};
 
 const performSearch = useDebounceFn(() => {
     router.get(
@@ -109,9 +107,10 @@ watch(searchQuery, () => {
                         <TableRow>
                             <TableHead>Item Name</TableHead>
                             <TableHead>Description</TableHead>
-                            <TableHead>Price</TableHead>
+                            <TableHead>Unit Price</TableHead>
+                            <TableHead>Selling Price</TableHead>
                             <TableHead>Quantity</TableHead>
-                            <TableHead>Unit</TableHead>
+                            <TableHead>Expiry Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -121,13 +120,16 @@ watch(searchQuery, () => {
                             v-for="item in props.rxMedicines"
                             :key="item.id"
                         >
-                            <TableCell>{{ item.item_name }}</TableCell>
-                            <TableCell>{{ item.description }}</TableCell>
-                            <TableCell>${{ item.selling_price }}</TableCell>
+                            <TableCell class="font-medium">{{ item.item_name }}</TableCell>
+                            <TableCell class="max-w-[200px] truncate">{{ item.description }}</TableCell>
+                            <TableCell>${{ Number(item.unit_price ?? 0).toFixed(2) }}</TableCell>
+                            <TableCell class="font-semibold">${{ Number(item.selling_price ?? 0).toFixed(2) }}</TableCell>
                             <TableCell
                                 >{{ item.quantity }} {{ item.unit }}</TableCell
                             >
-                            <TableCell>{{ item.unit }}</TableCell>
+                            <TableCell>
+                                {{ item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '—' }}
+                            </TableCell>
                             <TableCell>
                                 <Badge
                                     :variant="
@@ -153,11 +155,10 @@ watch(searchQuery, () => {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        as-child
+                                        @click="openEditSheet(item)"
                                     >
-                                        <Link :href="inventoryEdit(item.id).url"
-                                            >Edit</Link
-                                        >
+                                        <FileEdit class="mr-1 size-3" />
+                                        Edit Details
                                     </Button>
                                 </div>
                             </TableCell>
@@ -165,6 +166,11 @@ watch(searchQuery, () => {
                     </TableBody>
                 </Table>
             </div>
+
+            <InventoryEditSheet
+                :item="selectedItem"
+                v-model:open="editSheetOpen"
+            />
         </div>
     </AppLayout>
 </template>

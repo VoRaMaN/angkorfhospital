@@ -24,13 +24,21 @@ interface Props {
         id: number;
         item_name: string;
         description: string;
+        category: string;
+        barcode: string;
         quantity: number;
         unit: string;
+        dose_unit: string;
+        total_per_box: number;
         minimum_stock: number;
         type_of_supply: string;
+        unit_price: number;
+        selling_price: number;
         supplier: string;
-        cost_per_unit: number;
+        location: string;
         expiry_date: string;
+        alert_days: number;
+        notes: string;
     };
     typesOfSupply: Record<string, string>;
 }
@@ -53,13 +61,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 const form = useForm({
     item_name: props.item.item_name,
     description: props.item.description,
+    category: props.item.category ?? '',
+    barcode: props.item.barcode ?? '',
     quantity: props.item.quantity,
     unit: props.item.unit,
+    dose_unit: props.item.dose_unit ?? '',
+    total_per_box: props.item.total_per_box,
     minimum_stock: props.item.minimum_stock,
     type_of_supply: props.item.type_of_supply,
+    unit_price: props.item.unit_price,
+    selling_price: props.item.selling_price,
     supplier: props.item.supplier,
-    cost_per_unit: props.item.cost_per_unit,
-    expiry_date: props.item.expiry_date,
+    location: props.item.location ?? '',
+    expiry_date: props.item.expiry_date ? props.item.expiry_date.split('T')[0] : '',
+    alert_days: props.item.alert_days,
+    notes: props.item.notes ?? '',
 });
 </script>
 
@@ -223,23 +239,105 @@ const form = useForm({
 
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
+                            <label class="text-sm font-medium">Category</label>
+                            <Input
+                                v-model="form.category"
+                                placeholder="e.g. Plastic Ware, Culture Medium"
+                            />
+                            <p
+                                v-if="form.errors.category"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.category }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Barcode</label>
+                            <Input
+                                v-model="form.barcode"
+                                placeholder="Enter barcode"
+                            />
+                            <p
+                                v-if="form.errors.barcode"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.barcode }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Dose Unit</label>
+                            <Input
+                                v-model="form.dose_unit"
+                                placeholder="e.g. mg, ml"
+                            />
+                            <p
+                                v-if="form.errors.dose_unit"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.dose_unit }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Total per Box</label>
+                            <Input
+                                v-model="form.total_per_box"
+                                type="number"
+                                min="0"
+                                placeholder="—"
+                            />
+                            <p
+                                v-if="form.errors.total_per_box"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.total_per_box }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-2">
                             <label class="text-sm font-medium"
-                                >Cost per Unit ($)</label
+                                >Unit Price ($)</label
                             >
                             <Input
-                                v-model="form.cost_per_unit"
+                                v-model="form.unit_price"
                                 type="number"
                                 step="0.01"
                                 min="0"
                             />
                             <p
-                                v-if="form.errors.cost_per_unit"
+                                v-if="form.errors.unit_price"
                                 class="text-sm text-red-600"
                             >
-                                {{ form.errors.cost_per_unit }}
+                                {{ form.errors.unit_price }}
                             </p>
                         </div>
 
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium"
+                                >Selling Price ($)</label
+                            >
+                            <Input
+                                v-model="form.selling_price"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                            />
+                            <p
+                                v-if="form.errors.selling_price"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.selling_price }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
                             <label class="text-sm font-medium"
                                 >Expiry Date</label
@@ -252,6 +350,51 @@ const form = useForm({
                                 {{ form.errors.expiry_date }}
                             </p>
                         </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Alert Days</label>
+                            <Input
+                                v-model="form.alert_days"
+                                type="number"
+                                min="0"
+                                placeholder="30"
+                            />
+                            <p
+                                v-if="form.errors.alert_days"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.alert_days }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Location</label>
+                        <Input
+                            v-model="form.location"
+                            placeholder="Storage location"
+                        />
+                        <p
+                            v-if="form.errors.location"
+                            class="text-sm text-red-600"
+                        >
+                            {{ form.errors.location }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Notes</label>
+                        <Textarea
+                            v-model="form.notes"
+                            placeholder="Additional notes"
+                            rows="3"
+                        />
+                        <p
+                            v-if="form.errors.notes"
+                            class="text-sm text-red-600"
+                        >
+                            {{ form.errors.notes }}
+                        </p>
                     </div>
 
                     <div class="flex gap-4">

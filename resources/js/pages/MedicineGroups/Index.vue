@@ -26,19 +26,19 @@ defineProps<{
 }>();
 
 const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this medicine group?')) {
+    if (confirm('Are you sure you want to delete this special item group?')) {
         router.delete(destroy.url(id));
     }
 };
 </script>
 
 <template>
-    <AppLayout title="Medicine Groups">
+    <AppLayout title="Special Items">
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                        Medicine Groups
+                        Special Items
                     </h2>
                     <a
                         :href="create.url()"
@@ -136,7 +136,7 @@ const handleDelete = (id: number) => {
                             v-if="medicineGroups.length === 0"
                             class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                         >
-                            No medicine groups found. Create one to get started.
+                            No special items found. Create one to get started.
                         </div>
                     </div>
                 </div>

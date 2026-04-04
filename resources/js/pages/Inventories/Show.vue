@@ -16,13 +16,21 @@ interface Props {
         id: number;
         item_name: string;
         description: string;
+        category: string;
+        barcode: string;
         quantity: number;
         unit: string;
+        dose_unit: string;
+        total_per_box: number;
         minimum_stock: number;
         type_of_supply: string;
+        unit_price: number;
+        selling_price: number;
         supplier: string;
-        cost_per_unit: number;
+        location: string;
         expiry_date: string;
+        alert_days: number;
+        notes: string;
         status: string;
         created_at: string;
         updated_at: string;
@@ -162,20 +170,67 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <dt
                                 class="text-sm font-medium text-muted-foreground"
                             >
-                                Supplier
+                                Category
                             </dt>
-                            <dd class="text-sm">{{ props.item.supplier }}</dd>
+                            <dd class="text-sm">{{ props.item.category || '—' }}</dd>
                         </div>
 
                         <div class="space-y-2">
                             <dt
                                 class="text-sm font-medium text-muted-foreground"
                             >
-                                Cost per Unit
+                                Supplier
+                            </dt>
+                            <dd class="text-sm">{{ props.item.supplier || '—' }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Barcode
+                            </dt>
+                            <dd class="text-sm">{{ props.item.barcode || '—' }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Unit Price
                             </dt>
                             <dd class="text-sm">
-                                ${{ props.item.cost_per_unit }}
+                                ${{ Number(props.item.unit_price ?? 0).toFixed(2) }}
                             </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Selling Price
+                            </dt>
+                            <dd class="text-sm font-semibold">
+                                ${{ Number(props.item.selling_price ?? 0).toFixed(2) }}
+                            </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Dose Unit
+                            </dt>
+                            <dd class="text-sm">{{ props.item.dose_unit || '—' }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Total per Box
+                            </dt>
+                            <dd class="text-sm">{{ props.item.total_per_box ?? '—' }}</dd>
                         </div>
 
                         <div class="space-y-2">
@@ -190,9 +245,36 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         ? new Date(
                                               props.item.expiry_date,
                                           ).toLocaleDateString()
-                                        : 'N/A'
+                                        : '—'
                                 }}
                             </dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Alert Days
+                            </dt>
+                            <dd class="text-sm">{{ props.item.alert_days ?? '—' }}</dd>
+                        </div>
+
+                        <div class="space-y-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Location
+                            </dt>
+                            <dd class="text-sm">{{ props.item.location || '—' }}</dd>
+                        </div>
+
+                        <div class="space-y-2 md:col-span-2">
+                            <dt
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Notes
+                            </dt>
+                            <dd class="text-sm">{{ props.item.notes || '—' }}</dd>
                         </div>
 
                         <div class="space-y-2">
