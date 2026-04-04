@@ -38,7 +38,7 @@ class MedicalOrderController extends Controller
         $transformedOrders = $medicalOrders->getCollection()->map(function ($order) {
             // Get patient from order or visit
             $patient = $order->patient ?? $order->visit?->patient;
-            $patientName = $patient?->user?->name ?? $patient?->name ?? 'Unknown Patient';
+            $patientName = $patient?->full_name ?: 'Unknown Patient';
 
             // Get staff from order or visit
             $staff = $order->staff ?? $order->visit?->staff;
@@ -82,10 +82,10 @@ class MedicalOrderController extends Controller
     {
         $this->authorize('create', MedicalOrder::class);
 
-        $patients = \App\Models\Patient::with('user')->get()->map(function ($patient) {
+        $patients = \App\Models\Patient::all()->map(function ($patient) {
             return [
                 'id' => $patient->id,
-                'name' => $patient->user?->name ?? 'Unknown Patient',
+                'name' => $patient->full_name ?: 'Unknown Patient',
             ];
         });
 
@@ -237,7 +237,7 @@ class MedicalOrderController extends Controller
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
-            'patient_name' => $medicalOrder->patient?->user?->name ?? 'Unknown Patient',
+            'patient_name' => $medicalOrder->patient?->full_name ?: 'Unknown Patient',
             'staff_id' => $medicalOrder->staff_id,
             'staff_name' => $medicalOrder->staff?->user?->name ?? 'Unknown Staff',
             'order_details' => $medicalOrder->order_details,
@@ -306,12 +306,12 @@ class MedicalOrderController extends Controller
     {
         $this->authorize('update', $medicalOrder);
 
-        $medicalOrder->load(['patient.user', 'staff.user', 'orderItems.inventory', 'visit.patient.user', 'visit.staff.user']);
+        $medicalOrder->load(['patient', 'staff.user', 'orderItems.inventory', 'visit.patient', 'visit.staff.user']);
 
-        $patients = \App\Models\Patient::with('user')->get()->map(function ($patient) {
+        $patients = \App\Models\Patient::all()->map(function ($patient) {
             return [
                 'id' => $patient->id,
-                'name' => $patient->user?->name ?? 'Unknown Patient',
+                'name' => $patient->full_name ?: 'Unknown Patient',
             ];
         });
 
@@ -670,7 +670,7 @@ class MedicalOrderController extends Controller
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
-            'patient_name' => $medicalOrder->patient?->user?->name ?? 'Unknown Patient',
+            'patient_name' => $medicalOrder->patient?->full_name ?: 'Unknown Patient',
             'staff_id' => $medicalOrder->staff_id,
             'staff_name' => $medicalOrder->staff?->user?->name ?? 'Unknown Staff',
             'order_details' => $medicalOrder->order_details,
@@ -745,7 +745,7 @@ class MedicalOrderController extends Controller
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
-            'patient_name' => $medicalOrder->patient?->user?->name ?? 'Unknown Patient',
+            'patient_name' => $medicalOrder->patient?->full_name ?: 'Unknown Patient',
             'staff_id' => $medicalOrder->staff_id,
             'staff_name' => $medicalOrder->staff?->user?->name ?? 'Unknown Staff',
             'order_details' => $medicalOrder->order_details,
@@ -810,7 +810,7 @@ class MedicalOrderController extends Controller
         $transformedOrder = [
             'id' => $medicalOrder->id,
             'patient_id' => $medicalOrder->patient_id,
-            'patient_name' => $medicalOrder->patient?->user?->name ?? $medicalOrder->visit?->patient?->user?->name ?? 'Unknown Patient',
+            'patient_name' => $medicalOrder->patient?->full_name ?: ($medicalOrder->visit?->patient?->full_name ?: 'Unknown Patient'),
             'staff_id' => $medicalOrder->staff_id,
             'staff_name' => $medicalOrder->staff?->user?->name ?? $medicalOrder->visit?->staff?->user?->name ?? 'Unknown Staff',
             'order_details' => $medicalOrder->order_details,

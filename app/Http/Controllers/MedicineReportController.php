@@ -32,7 +32,7 @@ class MedicineReportController extends Controller
 
                     return [
                         'patient_id' => $patientId,
-                        'patient_name' => $patient?->user?->name ?? 'Unknown Patient',
+                        'patient_name' => $patient?->full_name ?: 'Unknown Patient',
                         'medicines' => $items->map(function ($item) {
                             return [
                                 'medicine_name' => $item->item_name,
@@ -103,7 +103,7 @@ class MedicineReportController extends Controller
             foreach ($items as $item) {
                 $patient = $item->medicalOrder->patient;
                 fputcsv($file, [
-                    $patient?->user?->name ?? 'Unknown Patient',
+                    $patient?->full_name ?: 'Unknown Patient',
                     $item->item_name,
                     $item->quantity_required,
                     $item->item_type,

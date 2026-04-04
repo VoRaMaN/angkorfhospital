@@ -174,7 +174,7 @@ class MedicalOrderProcessingService
         // - In-app notification
         // - Push notification
 
-        $patientName = $medicalOrder->patient?->user?->name ?? $medicalOrder->visit?->patient?->user?->name ?? 'Unknown Patient';
+        $patientName = $medicalOrder->patient?->full_name ?: ($medicalOrder->visit?->patient?->full_name ?: 'Unknown Patient');
 
         $message = sprintf(
             'New medical order #%d for patient %s requires %s services. %d item(s) need processing.',

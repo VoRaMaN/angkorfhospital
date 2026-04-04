@@ -44,7 +44,7 @@ class BillingReportController extends Controller
 
                     return [
                         'patient_id' => $patientId,
-                        'patient_name' => $patient?->user?->name ?? 'Unknown Patient',
+                        'patient_name' => $patient?->full_name ?: 'Unknown Patient',
                         'total_amount' => $patientBillings->sum('amount'),
                         'bill_count' => $patientBillings->count(),
                         'billings' => $patientBillings->map(function ($billing) {

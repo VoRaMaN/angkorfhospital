@@ -81,7 +81,7 @@ class MedicalRecordController extends Controller
         $transformedRecords = $medicalRecords->getCollection()->map(function ($record) {
             // Try to get patient from appointment first, then from visit, then from medical order
             $patient = $record->appointment?->patient ?? $record->visit?->patient ?? $record->medicalOrder?->patient;
-            $patientName = $patient?->user?->name ?? 'Unknown Patient';
+            $patientName = $patient?->full_name ?: 'Unknown Patient';
 
             // Try to get staff/doctor from appointment first, then from visit, then from medical order
             $staff = $record->appointment?->staff ?? $record->visit?->staff ?? $record->medicalOrder?->staff;
@@ -116,12 +116,12 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('create', MedicalRecord::class);
 
-        $appointments = Appointment::with(['patient.user', 'staff.user'])
+        $appointments = Appointment::with(['patient', 'staff.user'])
             ->get()
             ->map(function ($appointment) {
                 return [
                     'id' => $appointment->id,
-                    'patient_name' => $appointment->patient?->user?->name ?? 'Unknown Patient',
+                    'patient_name' => $appointment->patient?->full_name ?: 'Unknown Patient',
                     'doctor_name' => $appointment->staff?->user?->name ?? 'Unknown Doctor',
                     'date' => $appointment->appointment_date_time->toDateString(),
                     'time' => $appointment->appointment_date_time->toTimeString(),
@@ -164,7 +164,7 @@ class MedicalRecordController extends Controller
 
         // Try to get patient from appointment first, then from visit, then from medical order
         $patient = $medicalRecord->appointment?->patient ?? $medicalRecord->visit?->patient ?? $medicalRecord->medicalOrder?->patient;
-        $patientName = $patient?->user?->name ?? 'Unknown Patient';
+        $patientName = $patient?->full_name ?: 'Unknown Patient';
 
         // Try to get staff/doctor from appointment first, then from visit, then from medical order
         $staff = $medicalRecord->appointment?->staff ?? $medicalRecord->visit?->staff ?? $medicalRecord->medicalOrder?->staff;
@@ -196,12 +196,12 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('update', $medicalRecord);
 
-        $appointments = Appointment::with(['patient.user', 'staff.user'])
+        $appointments = Appointment::with(['patient', 'staff.user'])
             ->get()
             ->map(function ($appointment) {
                 return [
                     'id' => $appointment->id,
-                    'patient_name' => $appointment->patient?->user?->name ?? 'Unknown Patient',
+                    'patient_name' => $appointment->patient?->full_name ?: 'Unknown Patient',
                     'doctor_name' => $appointment->staff?->user?->name ?? 'Unknown Doctor',
                     'date' => $appointment->appointment_date_time->toDateString(),
                     'time' => $appointment->appointment_date_time->toTimeString(),
@@ -279,7 +279,7 @@ class MedicalRecordController extends Controller
                   $medicalRecord->visit?->patient ??
                   $medicalRecord->medicalOrder?->patient;
 
-        $patientName = $patient?->user?->name ?? 'Unknown Patient';
+        $patientName = $patient?->full_name ?: 'Unknown Patient';
 
         // Try to get staff/doctor from appointment first, then from visit, then from medical order
         $staff = $medicalRecord->appointment?->staff ??
