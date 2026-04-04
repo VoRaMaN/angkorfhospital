@@ -30,25 +30,29 @@ class DoctorsSeeder extends Seeder
         ];
 
         foreach ($doctors as $doctorData) {
-            // Create user account
-            $user = User::create([
-                'name' => $doctorData['name'],
-                'email' => $doctorData['email'],
-                'password' => Hash::make('password'),
-            ]);
+            // Create user account (skip if already exists)
+            $user = User::firstOrCreate(
+                ['email' => $doctorData['email']],
+                [
+                    'name' => $doctorData['name'],
+                    'password' => Hash::make('password'),
+                ]
+            );
 
             // Assign doctor role
             $user->assignRole('doctor');
 
-            // Create staff record
-            Staff::create([
-                'user_id' => $user->id,
-                'first_name' => $doctorData['first_name'],
-                'last_name' => $doctorData['last_name'],
-                'role_id' => 2, // Doctor role ID
-                'contact_number' => '+855'.rand(10000000, 99999999),
-                'hire_date' => now(),
-            ]);
+            // Create staff record (skip if already exists)
+            Staff::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'first_name' => $doctorData['first_name'],
+                    'last_name' => $doctorData['last_name'],
+                    'role_id' => 2, // Doctor role ID
+                    'contact_number' => '+855'.rand(10000000, 99999999),
+                    'hire_date' => now(),
+                ]
+            );
         }
     }
 }

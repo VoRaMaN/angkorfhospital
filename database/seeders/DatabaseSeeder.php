@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PatientSeeder::class,
             InventorySeeder::class,
             LabPackagesSeeder::class,
+            DoctorsSeeder::class,
         ]);
     }
 }
