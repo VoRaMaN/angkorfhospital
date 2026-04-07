@@ -21,18 +21,54 @@ class MedicalOrderController extends Controller
     {
         $this->authorize('viewAny', MedicalOrder::class);
 
-        // Exclude paid orders by default (show only active orders)
-        // Also exclude orders without patients
-        $medicalOrders = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems', 'visit.patient.user', 'visit.staff.user'])
-            ->where('status', '!=', \App\Enums\MedicalOrderStatusEnum::PAID)
+        // Auto-archive: mark expired active medical orders as completed
+        MedicalOrder::whereIn('status', [
+            \App\Enums\MedicalOrderStatusEnum::PENDING,
+            \App\Enums\MedicalOrderStatusEnum::PROCESSING,
+            \App\Enums\MedicalOrderStatusEnum::PROCESSED,
+        ])
+            ->whereDate('ordered_at', '<', today())
+            ->update(['status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED]);
+
+        $query = MedicalOrder::with(['patient.user', 'staff.user', 'orderItems', 'visit.patient.user', 'visit.staff.user'])
+            ->whereNotIn('status', [
+                \App\Enums\MedicalOrderStatusEnum::PAID,
+                \App\Enums\MedicalOrderStatusEnum::COMPLETED,
+                \App\Enums\MedicalOrderStatusEnum::CANCEL,
+                \App\Enums\MedicalOrderStatusEnum::REJECTED,
+            ])
             ->where(function ($query) {
-                // Must have either a patient or a visit with a patient
                 $query->whereNotNull('patient_id')
                     ->orWhereHas('visit', function ($q) {
                         $q->whereNotNull('patient_id');
                     });
-            })
-            ->paginate(15);
+            });
+
+        // Date filter - defaults to today
+        $dateFilter = request('date');
+        if ($dateFilter) {
+            $query->whereDate('ordered_at', $dateFilter);
+        } else {
+            $query->whereDate('ordered_at', today());
+        }
+
+        // Search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient.user', function ($patientQuery) use ($search) {
+                    $patientQuery->where('name', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('staff.user', function ($staffQuery) use ($search) {
+                        $staffQuery->where('name', 'like', '%'.$search.'%');
+                    });
+            });
+        }
+
+        $medicalOrders = $query->paginate(15);
 
         // Transform medical orders for the frontend
         $transformedOrders = $medicalOrders->getCollection()->map(function ($order) {
@@ -74,6 +110,7 @@ class MedicalOrderController extends Controller
             'medicalOrders' => $transformedOrders,
             'filters' => [
                 'search' => request('search', ''),
+                'date' => request('date', today()->toDateString()),
             ],
         ]);
     }

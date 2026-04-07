@@ -14,7 +14,9 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Calendar, Plus, Search, X } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import { Input } from '@/components/ui/input';
 
 const navigateToOrder = (orderId: number) => {
     router.visit(show(orderId).url);
@@ -45,15 +47,55 @@ interface Props {
     }>;
     filters: {
         search: string;
+        date: string;
     };
 }
 
 const props = withDefaults(defineProps<Props>(), {
     medicalOrders: () => [],
-    filters: () => ({ search: '' }),
+    filters: () => ({ search: '', date: '' }),
 });
 
 const { hasPermission } = useAuth();
+
+const searchQuery = ref(props.filters.search || '');
+const selectedDate = ref(props.filters.date || '');
+let searchTimeout: number | null = null;
+
+const performSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    searchTimeout = setTimeout(() => {
+        router.get('/medical-orders', {
+            search: searchQuery.value,
+            date: selectedDate.value,
+            page: 1,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300);
+};
+
+watch(searchQuery, () => {
+    performSearch();
+});
+
+watch(selectedDate, () => {
+    router.get('/medical-orders', {
+        search: searchQuery.value,
+        date: selectedDate.value,
+        page: 1,
+    }, {
+        preserveState: true,
+        replace: true,
+    });
+});
+
+const clearDate = () => {
+    selectedDate.value = new Date().toISOString().split('T')[0];
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -116,6 +158,32 @@ const getPriorityColor = (priority: string) => {
                         Create Medical Order
                     </Link>
                 </Button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="relative max-w-sm flex-1">
+                    <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input v-model="searchQuery" placeholder="Search medical orders..." class="pl-9" />
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <Calendar class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            v-model="selectedDate"
+                            type="date"
+                            class="pl-9 w-48"
+                        />
+                    </div>
+                    <Button
+                        v-if="selectedDate !== new Date().toISOString().split('T')[0]"
+                        variant="ghost"
+                        size="icon"
+                        @click="clearDate"
+                        title="Reset to today"
+                    >
+                        <X class="size-4" />
+                    </Button>
+                </div>
             </div>
 
             <div class="rounded-md border">
