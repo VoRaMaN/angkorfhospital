@@ -19,8 +19,15 @@ class VisitController extends Controller
      */
     public function index(): Response
     {
-        // Auto-archive: mark yesterday's (and older) in-progress visits as completed
-        Visit::where('status', Visit::STATUS_IN_PROGRESS)
+        // Auto-archive: mark yesterday's (and older) active visits as completed
+        Visit::whereIn('status', [
+            Visit::STATUS_PENDING,
+            Visit::STATUS_AWAITING_ASSIGNMENT,
+            Visit::STATUS_ASSIGNED,
+            Visit::STATUS_IN_PROGRESS,
+            Visit::STATUS_SENT_BACK,
+            Visit::STATUS_AWAITING_ACCOUNTANT,
+        ])
             ->whereDate('visit_date_time', '<', today())
             ->update(['status' => Visit::STATUS_COMPLETED]);
 
@@ -448,11 +455,43 @@ class VisitController extends Controller
      */
     public function myToBeProcessVisits(): Response
     {
-        // Get visits assigned to the current user that are in progress
-        $visits = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders'])
-            // ->where('staff_id', auth()->user()->staff->id ?? null)
-            // ->where('status', Visit::STATUS_ASSIGNED)
-            ->get();
+        // Auto-archive: mark expired active visits as completed
+        Visit::whereIn('status', [
+            Visit::STATUS_PENDING,
+            Visit::STATUS_AWAITING_ASSIGNMENT,
+            Visit::STATUS_ASSIGNED,
+            Visit::STATUS_IN_PROGRESS,
+            Visit::STATUS_SENT_BACK,
+            Visit::STATUS_AWAITING_ACCOUNTANT,
+        ])
+            ->whereDate('visit_date_time', '<', today())
+            ->update(['status' => Visit::STATUS_COMPLETED]);
+
+        $query = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders'])
+            ->whereNotIn('status', [Visit::STATUS_COMPLETED, Visit::STATUS_CANCELLED]);
+
+        // Date filter - defaults to today
+        $dateFilter = request('date');
+        if ($dateFilter) {
+            $query->whereDate('visit_date_time', $dateFilter);
+        } else {
+            $query->whereDate('visit_date_time', today());
+        }
+
+        // Search filter
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient.user', function ($patientQuery) use ($search) {
+                    $patientQuery->where('name', 'like', '%'.$search.'%');
+                })
+                    ->orWhereHas('patient', function ($patientQuery) use ($search) {
+                        $patientQuery->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('surname', 'like', '%'.$search.'%');
+                    });
+            });
+        }
+
+        $visits = $query->get();
 
         // Transform visits for the frontend
         $transformedVisits = $visits->map(function ($visit) {
@@ -501,6 +540,10 @@ class VisitController extends Controller
 
         return Inertia::render('Visits/MyVisitProcess', [
             'visits' => $transformedVisits,
+            'filters' => [
+                'search' => request('search', ''),
+                'date' => request('date', today()->toDateString()),
+            ],
         ]);
     }
 
