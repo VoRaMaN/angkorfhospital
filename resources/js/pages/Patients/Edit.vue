@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import DateOfBirthInput from '@/components/DateOfBirthInput.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -310,23 +311,16 @@ const copyAddressToEmergency = () => {
                                             <tr class="border-b">
                                                 <td class="p-4 font-medium">Date of Birth <span class="text-destructive">*</span></td>
                                                 <td class="p-4">
-                                                    <div class="grid grid-cols-3 gap-4">
-                                                        <div class="space-y-2">
-                                                            <Label for="date_of_birth_day">Day</Label>
-                                                            <Input v-model="form.date_of_birth_day" type="number" placeholder="DD" />
-                                                            <div v-if="form.errors.date_of_birth_day" class="text-sm text-destructive">{{ form.errors.date_of_birth_day }}</div>
-                                                        </div>
-                                                        <div class="space-y-2">
-                                                            <Label for="date_of_birth_month">Month</Label>
-                                                            <Input v-model="form.date_of_birth_month" type="number" placeholder="MM" />
-                                                            <div v-if="form.errors.date_of_birth_month" class="text-sm text-destructive">{{ form.errors.date_of_birth_month }}</div>
-                                                        </div>
-                                                        <div class="space-y-2">
-                                                            <Label for="date_of_birth_year">Year</Label>
-                                                            <Input v-model="form.date_of_birth_year" type="number" placeholder="YYYY" />
-                                                            <div v-if="form.errors.date_of_birth_year" class="text-sm text-destructive">{{ form.errors.date_of_birth_year }}</div>
-                                                        </div>
-                                                    </div>
+                                                    <DateOfBirthInput
+                                                        v-model:day="form.date_of_birth_day"
+                                                        v-model:month="form.date_of_birth_month"
+                                                        v-model:year="form.date_of_birth_year"
+                                                        :errors="{
+                                                            day: form.errors.date_of_birth_day,
+                                                            month: form.errors.date_of_birth_month,
+                                                            year: form.errors.date_of_birth_year,
+                                                        }"
+                                                    />
                                                 </td>
                                             </tr>
                                             <tr class="border-b">

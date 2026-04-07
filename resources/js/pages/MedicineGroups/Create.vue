@@ -168,7 +168,7 @@ const handleSubmit = () => {
                                 <div>
                                     <div class="flex items-center justify-between mb-3">
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            Medicines <span class="text-red-500">*</span>
+                                            Medicines (Optional)
                                         </label>
                                         <button
                                             type="button"
@@ -183,9 +183,9 @@ const handleSubmit = () => {
                                         {{ errors.items }}
                                     </p>
 
-                                    <div v-if="formData.items.length === 0" class="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
-                                        <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                            Please add at least one medicine to this group.
+                                    <div v-if="formData.items.length === 0" class="rounded-md bg-blue-50 p-4 dark:bg-blue-900/20">
+                                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                                            No medicines added. You can create this group with just a name and price.
                                         </p>
                                     </div>
 

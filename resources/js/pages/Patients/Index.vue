@@ -17,6 +17,10 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus, Search, Eye, EyeOff } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
+const navigateToPatient = (patientId: string) => {
+    router.visit(show({ query: { patient: patientId } }).url);
+};
+
 interface Props {
     patients: {
         data: Array<{
@@ -156,21 +160,20 @@ watch(searchQuery, () => {
                         <TableRow
                             v-for="patient in props.patients.data"
                             :key="patient.id"
+                            class="cursor-pointer hover:bg-muted/50"
+                            @click="navigateToPatient(patient.id)"
                         >
                             <TableCell class="font-mono text-sm">{{ patient.id }}</TableCell>
                             <TableCell>
-                                <Link
-                                    :href="show({ query: { patient: patient.id } }).url"
-                                    class="font-medium text-primary hover:underline cursor-pointer"
-                                >
+                                <span class="font-medium">
                                     {{ patient.full_name }}
-                                </Link>
+                                </span>
                             </TableCell>
                             <TableCell>{{ patient.user?.email || 'No Email' }}</TableCell>
                             <TableCell>{{ patient.date_of_birth_day }}/{{ patient.date_of_birth_month }}/{{ patient.date_of_birth_year }}</TableCell>
                             <TableCell>{{ patient.gender }}</TableCell>
                             <TableCell>{{ patient.mobile_phone || patient.home_phone }}</TableCell>
-                            <TableCell>
+                            <TableCell @click.stop>
                                 <div class="flex gap-2">
                                     <Button
                                         variant="outline"

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\MedicalOrderStatusEnum;
 use App\Models\Inventory;
 use App\Models\LabPanel;
 use App\Models\LabPanelItem;
+use App\Models\MedicalOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -48,8 +50,41 @@ class LabPanelController extends Controller
 
         $categories = []; // Removed since category field is removed
 
+        // Active medical orders with lab items for lab staff workflow
+        $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems'])
+            ->whereIn('status', [MedicalOrderStatusEnum::PENDING, MedicalOrderStatusEnum::PROCESSING])
+            ->whereHas('orderItems', function ($q) {
+                $q->where('item_type', 'lab');
+            })
+            ->latest('ordered_at')
+            ->get()
+            ->map(function ($order) {
+                $patient = $order->patient ?? $order->visit?->patient;
+
+                return [
+                    'id' => $order->id,
+                    'patient_name' => $patient?->full_name ?? 'Unknown Patient',
+                    'staff_name' => $order->staff?->user?->name ?? 'Unknown Staff',
+                    'status' => $order->status->value,
+                    'status_label' => $order->status->label(),
+                    'priority' => $order->priority->value,
+                    'priority_label' => $order->priority->label(),
+                    'ordered_at' => $order->ordered_at?->format('M d, Y H:i'),
+                    'lab_items' => $order->orderItems->where('item_type', 'lab')->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'item_name' => $item->item_name,
+                            'details' => $item->details,
+                            'status' => $item->status->value,
+                            'status_label' => $item->status->label(),
+                        ];
+                    })->values(),
+                ];
+            });
+
         return Inertia::render('LabPanel/Index', [
             'labPanels' => $labPanels,
+            'activeLabOrders' => $activeLabOrders,
             'categories' => $categories,
             'filters' => $request->only(['search', 'category', 'status']),
         ]);

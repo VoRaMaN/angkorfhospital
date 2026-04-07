@@ -3,7 +3,8 @@
     'dark' => ($appearance ?? 'system') == 'dark',
     'blue' => ($appearance ?? 'system') == 'blue',
     'green' => ($appearance ?? 'system') == 'green',
-    'enterprise' => ($appearance ?? 'system') == 'enterprise'
+    'enterprise' => ($appearance ?? 'system') == 'enterprise',
+    'cit' => ($appearance ?? 'system') == 'cit'
 ])>
     <head>
         <meta charset="utf-8">
@@ -28,6 +29,8 @@
                     document.documentElement.classList.add('green');
                 } else if (appearance === 'enterprise') {
                     document.documentElement.classList.add('enterprise');
+                } else if (appearance === 'cit') {
+                    document.documentElement.classList.add('cit');
                 }
             })();
         </script>

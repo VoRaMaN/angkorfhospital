@@ -10,6 +10,7 @@ enum BillingStatusEnum: string
     case PARTIAL = 'partial';
     case WRITTEN_OFF = 'written_off';
     case CANCELLED = 'cancelled';
+    case REVISION = 'revision';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum BillingStatusEnum: string
             self::PARTIAL => 'Partial',
             self::WRITTEN_OFF => 'Written Off',
             self::CANCELLED => 'Cancelled',
+            self::REVISION => 'Revision',
         };
     }
 
@@ -32,6 +34,7 @@ enum BillingStatusEnum: string
             self::PARTIAL => 'bg-blue-100 text-blue-800',
             self::WRITTEN_OFF => 'bg-gray-100 text-gray-800',
             self::CANCELLED => 'bg-red-100 text-red-800',
+            self::REVISION => 'bg-amber-100 text-amber-800',
         };
     }
 
@@ -44,12 +47,13 @@ enum BillingStatusEnum: string
             self::PARTIAL->value => self::PARTIAL->label(),
             self::WRITTEN_OFF->value => self::WRITTEN_OFF->label(),
             self::CANCELLED->value => self::CANCELLED->label(),
+            self::REVISION->value => self::REVISION->label(),
         ];
     }
 
     public function isActive(): bool
     {
-        return in_array($this, [self::PENDING, self::PARTIAL]);
+        return in_array($this, [self::PENDING, self::PARTIAL, self::REVISION]);
     }
 
     public function isCompleted(): bool

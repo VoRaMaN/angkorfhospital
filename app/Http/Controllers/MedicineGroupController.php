@@ -79,7 +79,7 @@ class MedicineGroupController extends Controller
             'description' => 'nullable|string',
             'custom_price' => 'nullable|numeric|min:0',
             'is_active' => 'boolean',
-            'items' => 'required|array|min:1',
+            'items' => 'nullable|array',
             'items.*.inventory_id' => 'required|exists:inventories,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.dosage' => 'nullable|string',
@@ -93,7 +93,7 @@ class MedicineGroupController extends Controller
             'is_active' => $validated['is_active'] ?? true,
         ]);
 
-        foreach ($validated['items'] as $item) {
+        foreach ($validated['items'] ?? [] as $item) {
             MedicineGroupItem::create([
                 'medicine_group_id' => $group->id,
                 'inventory_id' => $item['inventory_id'],
@@ -153,7 +153,7 @@ class MedicineGroupController extends Controller
             'description' => 'nullable|string',
             'custom_price' => 'nullable|numeric|min:0',
             'is_active' => 'boolean',
-            'items' => 'required|array|min:1',
+            'items' => 'nullable|array',
             'items.*.inventory_id' => 'required|exists:inventories,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.dosage' => 'nullable|string',
@@ -171,7 +171,7 @@ class MedicineGroupController extends Controller
         $medicineGroup->items()->delete();
 
         // Create new items
-        foreach ($validated['items'] as $item) {
+        foreach ($validated['items'] ?? [] as $item) {
             MedicineGroupItem::create([
                 'medicine_group_id' => $medicineGroup->id,
                 'inventory_id' => $item['inventory_id'],

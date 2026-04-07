@@ -19,6 +19,10 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Edit, Eye, Plus, Search, X, Calendar, Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
+const navigateToVisit = (visitId: number) => {
+    router.visit(show(visitId).url);
+};
+
 interface Visit {
     id: number;
     patient: {
@@ -265,7 +269,7 @@ const getStatusColor = (status: string) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="visit in visits" :key="visit.id">
+                        <TableRow v-for="visit in visits" :key="visit.id" class="cursor-pointer hover:bg-muted/50" @click="navigateToVisit(visit.id)">
                             <TableCell>
                                 <div class="font-medium">
                                     {{ visit.patient?.user?.name || `${visit.patient?.name || ''} ${visit.patient?.surname || ''}`.trim() || 'Unknown Patient' }}
@@ -277,7 +281,7 @@ const getStatusColor = (status: string) => {
                             <TableCell>
                                 {{ visit.staff?.user.name || 'Unassigned' }}
                             </TableCell>
-                            <TableCell>
+                            <TableCell @click.stop>
                                 <select
                                     v-if="visit.status !== 'completed' && visit.status !== 'cancelled' && hasPermission('assign_visits')"
                                     :value="visit.doctor?.id || ''"
@@ -305,7 +309,7 @@ const getStatusColor = (status: string) => {
                                     {{ visit.status.replace('_', ' ') }}
                                 </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell @click.stop>
                                 <div class="flex gap-2">
                                     <Button variant="outline" size="sm" as-child v-if="hasPermission('view_visits')">
                                         <Link :href="show(visit.id).url">

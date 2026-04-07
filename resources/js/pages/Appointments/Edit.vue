@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DateInput from '@/components/DateInput.vue';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -187,11 +188,8 @@ const form = useForm({
                         >
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <Input
+                                <DateInput
                                     v-model="appointmentDate"
-                                    type="text"
-                                    placeholder="DD/MM/YYYY"
-                                    pattern="\d{2}/\d{2}/\d{4}"
                                 />
                                 <p class="mt-1 text-xs text-muted-foreground">
                                     Format: DD/MM/YYYY

@@ -829,8 +829,8 @@ class MedicalOrderController extends Controller
                 ->with('error', 'This medical order has already been completed.');
         }
 
-        // Only allow access if the order is in processed status
-        if ($medicalOrder->status !== \App\Enums\MedicalOrderStatusEnum::PROCESSED) {
+        // Allow access if the order is in processed status
+        if (! in_array($medicalOrder->status, [\App\Enums\MedicalOrderStatusEnum::PROCESSED])) {
             return redirect()->route('medical-orders.show', $medicalOrder)
                 ->with('error', 'This medical order is not ready for completion.');
         }
@@ -914,7 +914,45 @@ class MedicalOrderController extends Controller
         }
 
         try {
-            // Process the order and create billing
+            // Check if a billing already exists for this order (revision flow)
+            $existingBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
+                ->whereIn('status', ['pending', 'revision'])
+                ->first();
+
+            if ($existingBilling) {
+                // Revision flow: recalculate amount and update existing billing
+                $totalAmount = $billingService->calculateOrderTotal($medicalOrder);
+
+                // Update the medical order
+                $medicalOrder->update([
+                    'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
+                    'completed_at' => now(),
+                ]);
+
+                // Update all order items to completed
+                $medicalOrder->orderItems()->update([
+                    'status' => 'completed',
+                    'completed_at' => now(),
+                ]);
+
+                // Reduce inventory stock for any new items
+                $billingService->reduceInventoryStock($medicalOrder);
+
+                // Update billing amount and reset to pending
+                $currentNotes = $existingBilling->notes ? $existingBilling->notes."\n\n" : '';
+                $existingBilling->update([
+                    'amount' => $totalAmount,
+                    'status' => \App\Enums\BillingStatusEnum::PENDING,
+                    'notes' => $currentNotes.'Recalculated after revision on '.now()->format('Y-m-d H:i').'. New amount: $'.number_format($totalAmount, 2),
+                ]);
+
+                Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_AWAITING_ACCOUNTANT]);
+
+                return redirect()->route('billings.show', $existingBilling)
+                    ->with('success', 'Medical order revised and billing recalculated. New total: $'.number_format($totalAmount, 2));
+            }
+
+            // Normal flow: process the order and create billing
             $billing = $billingService->processOrderAndCreateBilling(
                 $medicalOrder,
                 'Processed and billed on '.now()->format('Y-m-d H:i')
@@ -924,8 +962,6 @@ class MedicalOrderController extends Controller
             $this->generateMedicalRecord($medicalOrder, $billing);
 
             Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_COMPLETED]);
-
-            // Status is already updated in the service, no need to update again
 
             return redirect()->route('medical-orders.show', $medicalOrder)
                 ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import DateOfBirthInput from '@/components/DateOfBirthInput.vue';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -247,19 +248,17 @@ watch(() => form.title, (newTitle) => {
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium">Date of Birth <span class="text-destructive">*</span></label>
-                                    <div class="grid grid-cols-3 gap-2 mt-1.5">
-                                        <div>
-                                            <Input v-model="form.date_of_birth_day" type="number" placeholder="DD" />
-                                            <div v-if="form.errors.date_of_birth_day" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_day }}</div>
-                                        </div>
-                                        <div>
-                                            <Input v-model="form.date_of_birth_month" type="number" placeholder="MM" />
-                                            <div v-if="form.errors.date_of_birth_month" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_month }}</div>
-                                        </div>
-                                        <div>
-                                            <Input v-model="form.date_of_birth_year" type="number" placeholder="YYYY" />
-                                            <div v-if="form.errors.date_of_birth_year" class="text-sm text-destructive mt-1">{{ form.errors.date_of_birth_year }}</div>
-                                        </div>
+                                    <div class="mt-1.5">
+                                        <DateOfBirthInput
+                                            v-model:day="form.date_of_birth_day"
+                                            v-model:month="form.date_of_birth_month"
+                                            v-model:year="form.date_of_birth_year"
+                                            :errors="{
+                                                day: form.errors.date_of_birth_day,
+                                                month: form.errors.date_of_birth_month,
+                                                year: form.errors.date_of_birth_year,
+                                            }"
+                                        />
                                     </div>
                                 </div>
                                 <div>

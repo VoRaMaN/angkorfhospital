@@ -19,6 +19,11 @@ class VisitController extends Controller
      */
     public function index(): Response
     {
+        // Auto-archive: mark yesterday's (and older) in-progress visits as completed
+        Visit::where('status', Visit::STATUS_IN_PROGRESS)
+            ->whereDate('visit_date_time', '<', today())
+            ->update(['status' => Visit::STATUS_COMPLETED]);
+
         $query = Visit::with(['patient.user', 'staff.user', 'doctor.user', 'appointment', 'medicalOrders']);
 
         // Patient filter - if patient ID is provided, show all visits for that patient
@@ -27,8 +32,8 @@ class VisitController extends Controller
             $query->where('patient_id', $patientFilter);
             // Don't exclude completed visits when viewing patient history
         } else {
-            // Exclude completed visits by default (show only active visits)
-            $query->where('status', '!=', Visit::STATUS_COMPLETED);
+            // Exclude completed and cancelled visits by default (show only active visits)
+            $query->whereNotIn('status', [Visit::STATUS_COMPLETED, Visit::STATUS_CANCELLED]);
         }
 
         // Date filter

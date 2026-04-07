@@ -300,7 +300,7 @@ class BillingController extends Controller
     public function updateStatus(Billing $billing, Request $request): RedirectResponse
     {
         $request->validate([
-            'status' => 'required|in:pending,paid,overdue,partial,written_off,cancelled',
+            'status' => 'required|in:pending,paid,overdue,partial,written_off,cancelled,revision',
         ]);
 
         $this->authorize('updateStatus', $billing);
@@ -524,5 +524,85 @@ class BillingController extends Controller
         $filename = 'receipt-'.$billing->bill_no.'-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Send billing back to nurse for order revision (add/remove items).
+     */
+    public function sendBackToNurse(Request $request, Billing $billing): RedirectResponse
+    {
+        $this->authorize('sendBack', $billing);
+
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        // Must have a linked medical order to send back
+        if (! $billing->medical_order_id || ! $billing->medicalOrder) {
+            return redirect()->back()->with('error', 'This billing has no linked medical order and cannot be sent back for revision.');
+        }
+
+        $medicalOrder = $billing->medicalOrder;
+        $medicalOrder->load('orderItems.inventory');
+
+        // Restore inventory stock before sending back (will be re-reduced when reprocessed)
+        $billingService = app(MedicalOrderBillingService::class);
+        $billingService->restoreInventoryStock($medicalOrder);
+
+        // Track revision in billing notes
+        $currentNotes = $billing->notes ? $billing->notes."\n\n" : '';
+        $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason;
+
+        // Update billing status to revision
+        $billing->update([
+            'status' => \App\Enums\BillingStatusEnum::REVISION,
+            'notes' => $currentNotes.$revisionNote,
+        ]);
+
+        // Reopen the medical order for editing (set to PROCESSING)
+        $orderNotes = $medicalOrder->notes ? $medicalOrder->notes."\n\n" : '';
+        $medicalOrder->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::PROCESSING,
+            'completed_at' => null,
+            'notes' => $orderNotes.'Billing sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason,
+        ]);
+
+        // Reset order items back to pending so nurse can edit
+        $medicalOrder->orderItems()->update([
+            'status' => \App\Enums\MedicalOrderStatusEnum::PENDING->value,
+            'completed_at' => null,
+        ]);
+
+        // Update visit status to sent_back
+        if ($billing->visit) {
+            $billing->visit->update([
+                'status' => Visit::STATUS_SENT_BACK,
+            ]);
+        }
+
+        return redirect()->route('billings.show', $billing)
+            ->with('success', 'Billing has been sent back to the nurse for revision. The medical order is now editable.');
+    }
+
+    /**
+     * Recalculate billing amount from the linked medical order after revision.
+     */
+    public function recalculate(Billing $billing): RedirectResponse
+    {
+        $this->authorize('update', $billing);
+
+        if (! $billing->medical_order_id || ! $billing->medicalOrder) {
+            return redirect()->back()->with('error', 'This billing has no linked medical order to recalculate from.');
+        }
+
+        $billingService = app(MedicalOrderBillingService::class);
+        $newAmount = $billingService->calculateOrderTotal($billing->medicalOrder);
+
+        $billing->update([
+            'amount' => $newAmount,
+        ]);
+
+        return redirect()->route('billings.show', $billing)
+            ->with('success', 'Billing amount recalculated successfully. New total: $'.number_format($newAmount, 2));
     }
 }

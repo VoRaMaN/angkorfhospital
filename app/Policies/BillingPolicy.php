@@ -82,4 +82,20 @@ class BillingPolicy
     {
         return false;
     }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Billing $billing): bool
+    {
+        return $user->can('delete_billing') || $user->hasRole('admin');
+    }
+
+    /**
+     * Determine whether the user can send back the billing to the nurse for revision.
+     */
+    public function sendBack(User $user, Billing $billing): bool
+    {
+        return $user->can('send_back_billing') || $user->hasRole('admin');
+    }
 }

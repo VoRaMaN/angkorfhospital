@@ -82,7 +82,7 @@ const handleDelete = (id: number) => {
                                         {{ group.description || '-' }}
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                        <div class="space-y-1">
+                                        <div v-if="group.items.length > 0" class="space-y-1">
                                             <div v-for="(item, index) in group.items" :key="index" class="text-xs">
                                                 <span class="font-medium text-gray-700 dark:text-gray-300">{{ item.medicine_name }}</span>
                                                 <span class="text-gray-500 dark:text-gray-400">
@@ -92,6 +92,7 @@ const handleDelete = (id: number) => {
                                                 </span>
                                             </div>
                                         </div>
+                                        <span v-else class="text-xs italic text-gray-400 dark:text-gray-500">Group name only</span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                         <div v-if="group.custom_price" class="text-green-600 dark:text-green-400">

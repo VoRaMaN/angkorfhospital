@@ -13,8 +13,12 @@ import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
+
+const navigateToOrder = (orderId: number) => {
+    router.visit(show(orderId).url);
+};
 
 interface OrderItem {
     item_type: string;
@@ -132,6 +136,8 @@ const getPriorityColor = (priority: string) => {
                         <TableRow
                             v-for="order in medicalOrders"
                             :key="order.id"
+                            class="cursor-pointer hover:bg-muted/50"
+                            @click="navigateToOrder(order.id)"
                         >
                             <TableCell>{{ order.patient_name || 'Unknown Patient' }}</TableCell>
                             <TableCell>{{ order.staff_name || 'Unknown Staff' }}</TableCell>
@@ -186,7 +192,7 @@ const getPriorityColor = (priority: string) => {
                                 </Badge>
                             </TableCell>
                             <TableCell>{{ order.ordered_at }}</TableCell>
-                            <TableCell>
+                            <TableCell @click.stop>
                                 <div class="flex gap-2">
                                     <Button
                                         variant="outline"

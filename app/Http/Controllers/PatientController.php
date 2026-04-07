@@ -27,7 +27,10 @@ class PatientController extends Controller
 
         // Show all patients or only active patients (with recent activity)
         $showAll = request('show_all');
-        if (! $showAll) {
+        $search = request('search');
+
+        // When searching, always search all patients regardless of show_all toggle
+        if (! $showAll && ! $search) {
             // Only show patients with appointments or visits TODAY (after midnight, list resets)
             $query->where(function ($q) {
                 $q->whereHas('appointments', function ($appointmentQuery) {
@@ -39,24 +42,40 @@ class PatientController extends Controller
         }
 
         // Search functionality
-        $search = request('search');
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            $searchLower = mb_strtolower(trim($search));
+
+            // Build a LIKE pattern that matches characters even with gaps (e.g. "heis" matches "HEISENBERG")
+            $wildcardPattern = '%'.implode('%', mb_str_split($searchLower)).'%';
+            $substringPattern = '%'.$searchLower.'%';
+
+            $query->where(function ($q) use ($searchLower, $substringPattern, $wildcardPattern) {
                 // Search by patient ID
-                $q->where('id', 'like', '%'.$search.'%')
-                    // Search by name fields
-                    ->orWhere('name', 'like', '%'.$search.'%')
-                    ->orWhere('surname', 'like', '%'.$search.'%')
-                    ->orWhere('khmer_china_name', 'like', '%'.$search.'%')
-                    ->orWhere('khmer_china_surname', 'like', '%'.$search.'%')
+                $q->where('id', 'like', $substringPattern)
+                    // Search by name fields - substring match
+                    ->orWhereRaw('LOWER(name) LIKE ?', [$substringPattern])
+                    ->orWhereRaw('LOWER(surname) LIKE ?', [$substringPattern])
+                    ->orWhereRaw("LOWER(CONCAT(COALESCE(name, ''), ' ', COALESCE(surname, ''))) LIKE ?", [$substringPattern])
+                    ->orWhereRaw('LOWER(COALESCE(khmer_china_name, \'\')) LIKE ?', [$substringPattern])
+                    ->orWhereRaw('LOWER(COALESCE(khmer_china_surname, \'\')) LIKE ?', [$substringPattern])
+                    // Search by name fields - fuzzy/incomplete character match
+                    ->orWhereRaw('LOWER(name) LIKE ?', [$wildcardPattern])
+                    ->orWhereRaw('LOWER(surname) LIKE ?', [$wildcardPattern])
+                    ->orWhereRaw("LOWER(CONCAT(COALESCE(name, ''), ' ', COALESCE(surname, ''))) LIKE ?", [$wildcardPattern])
+                    // Phonetic matching for misspelled names (e.g. "herisen" finds "HEISENBERG")
+                    ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$searchLower])
+                    ->orWhereRaw('SOUNDEX(surname) = SOUNDEX(?)', [$searchLower])
+                    ->orWhereRaw("SOUNDEX(CONCAT(COALESCE(name, ''), ' ', COALESCE(surname, ''))) = SOUNDEX(?)", [$searchLower])
                     // Search by contact info
-                    ->orWhere('mobile_phone', 'like', '%'.$search.'%')
-                    ->orWhere('home_phone', 'like', '%'.$search.'%')
-                    ->orWhere('email', 'like', '%'.$search.'%')
+                    ->orWhere('mobile_phone', 'like', $substringPattern)
+                    ->orWhere('home_phone', 'like', $substringPattern)
+                    ->orWhereRaw('LOWER(COALESCE(email, \'\')) LIKE ?', [$substringPattern])
                     // Search by user account (name and email)
-                    ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('name', 'like', '%'.$search.'%')
-                            ->orWhere('email', 'like', '%'.$search.'%');
+                    ->orWhereHas('user', function ($userQuery) use ($searchLower, $substringPattern, $wildcardPattern) {
+                        $userQuery->whereRaw('LOWER(name) LIKE ?', [$substringPattern])
+                            ->orWhereRaw('LOWER(name) LIKE ?', [$wildcardPattern])
+                            ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$searchLower])
+                            ->orWhereRaw('LOWER(COALESCE(email, \'\')) LIKE ?', [$substringPattern]);
                     });
             });
         }

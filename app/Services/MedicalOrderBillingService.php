@@ -224,6 +224,29 @@ class MedicalOrderBillingService
     }
 
     /**
+     * Restore inventory stock for all items in a medical order (used when sending back for revision).
+     */
+    public function restoreInventoryStock(MedicalOrder $medicalOrder): void
+    {
+        $inventoryService = app(InventoryService::class);
+
+        foreach ($medicalOrder->orderItems as $orderItem) {
+            if ($orderItem->inventory_id && in_array($orderItem->item_type, ['lab', 'rx_medicine', 'supply'])) {
+                $inventory = $orderItem->inventory;
+                $quantity = $orderItem->quantity_required ?? 1;
+
+                if ($inventory) {
+                    $inventoryService->addStock(
+                        $inventory,
+                        $quantity,
+                        "Restored from Medical Order #{$medicalOrder->id} (billing revision)"
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Check if order can be processed (sufficient inventory)
      */
     public function canProcessOrder(MedicalOrder $medicalOrder): array
