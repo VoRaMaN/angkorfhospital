@@ -31,7 +31,7 @@ import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { index, processWithUpdate, show } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import {
     Activity,
     AlertCircle,
@@ -50,6 +50,8 @@ import {
     Trash2,
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+
+const page = usePage<{ flash: { success?: string; error?: string } }>();
 
 interface LabPanelItem {
     id: number;
@@ -303,6 +305,8 @@ const filteredLabItems = computed(() => {
 // RX Medicine selection state
 const showRxDialog = ref(false);
 const showConfirmDialog = ref(false);
+const isProcessing = ref(false);
+const submitError = ref<string | null>(null);
 const selectedRxItems = ref<number[]>([]);
 const rxItemQuantities = ref<Record<number, number>>({});
 const rxItemIncludePackage = ref<Record<number, boolean>>({});
@@ -787,7 +791,9 @@ const getStatusColor = (status: string) => {
 };
 
 const submitForm = () => {
-    // Use router.visit with method: 'patch' for better redirect handling
+    isProcessing.value = true;
+    submitError.value = null;
+
     router.visit(
         processWithUpdate(props.medicalOrder.id).url,
         {
@@ -814,9 +820,10 @@ const submitForm = () => {
             preserveState: false,
             preserveScroll: false,
             onError: (errors) => {
-                console.error('Form submission errors:', errors);
+                submitError.value = Object.values(errors).flat().join(', ');
             },
             onFinish: () => {
+                isProcessing.value = false;
                 showConfirmDialog.value = false;
             },
         }
@@ -971,6 +978,16 @@ const submitForm = () => {
             </Card>
 
             <form @submit.prevent="submitForm" class="space-y-6">
+
+                <!-- Error Messages -->
+                <div v-if="page.props.flash?.error || submitError" class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/50">
+                    <div class="flex items-center gap-2">
+                        <AlertCircle class="size-5 text-red-600 dark:text-red-400 shrink-0" />
+                        <p class="text-sm font-medium text-red-800 dark:text-red-200">
+                            {{ page.props.flash?.error || submitError }}
+                        </p>
+                    </div>
+                </div>
                 <Card>
                     <CardHeader>
                         <div class="flex items-center justify-between">
@@ -2081,10 +2098,10 @@ const submitForm = () => {
                 </div>
 
                 <div class="flex gap-4">
-                    <Button type="button" @click="showConfirmDialog = true" :disabled="form.processing || form.order_items.length === 0
+                    <Button type="button" @click="showConfirmDialog = true" :disabled="isProcessing || form.order_items.length === 0
                         ">
                         {{
-                            form.processing
+                            isProcessing
                                 ? 'Processing...'
                                 : 'Confirm Process'
                         }}
@@ -2120,9 +2137,9 @@ const submitForm = () => {
                 </DialogHeader>
                 <DialogFooter>
                     <Button variant="outline" @click="showConfirmDialog = false">Cancel</Button>
-                    <Button @click="submitForm" :disabled="form.processing || form.order_items.length === 0
+                    <Button @click="submitForm" :disabled="isProcessing || form.order_items.length === 0
                         ">
-                        {{ form.processing ? 'Processing...' : 'Confirm' }}
+                        {{ isProcessing ? 'Processing...' : 'Confirm' }}
                     </Button>
                 </DialogFooter>
             </DialogContent>

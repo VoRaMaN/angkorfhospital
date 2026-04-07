@@ -22,7 +22,7 @@ class UpdateMedicalOrderRequest extends FormRequest
         }
 
         // Only doctors can update medical orders
-        if (! $user->hasRole('Doctor')) {
+        if (! $user->hasRole('doctor')) {
             return false;
         }
 

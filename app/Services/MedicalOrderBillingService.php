@@ -55,6 +55,14 @@ class MedicalOrderBillingService
             }
         }
 
+        // For special items
+        if ($orderItem->item_type === 'special_item') {
+            $specialItem = \App\Models\SpecialItem::where('name', $orderItem->item_name)->first();
+            if ($specialItem) {
+                return $specialItem->unit_price * $quantity;
+            }
+        }
+
         // Fallback: if no price found, return 0
         return 0;
     }
@@ -143,6 +151,7 @@ class MedicalOrderBillingService
             'supply' => 'Supplies',
             'therapy' => 'Therapy',
             'consultation' => 'Consultations',
+            'special_item' => 'Special Items',
             default => ucfirst($itemType),
         };
     }

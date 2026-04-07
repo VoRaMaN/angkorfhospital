@@ -11,7 +11,7 @@ class StoreMedicalRecordRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasRole('Doctor') || $this->user()->hasRole('admin');
+        return $this->user()->hasRole('doctor') || $this->user()->hasRole('admin');
     }
 
     /**
