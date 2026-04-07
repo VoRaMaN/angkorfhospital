@@ -33,7 +33,7 @@ class StoreMedicalOrderRequest extends FormRequest
             'ordered_at' => 'required|date|before_or_equal:now',
             'order_items' => 'nullable|array|min:1',
             'order_items.*.inventory_id' => 'nullable|exists:inventories,id',
-            'order_items.*.item_type' => 'required_with:order_items|string|in:lab,rx_medicine,procedure,imaging,consultation,therapy,supply',
+            'order_items.*.item_type' => 'required_with:order_items|string|in:lab,rx_medicine,procedure,imaging,consultation,therapy,supply,special_item',
             'order_items.*.item_name' => 'required_with:order_items|string|max:255',
             'order_items.*.details' => 'nullable|string|max:1000',
             'order_items.*.dosage' => 'nullable|string|max:100',

@@ -50,7 +50,7 @@ class UpdateMedicalOrderRequest extends FormRequest
             'order_items' => 'nullable|array',
             'order_items.*.id' => 'nullable|exists:medical_order_inventory,id',
             'order_items.*.inventory_id' => 'nullable|exists:inventories,id',
-            'order_items.*.item_type' => 'required_with:order_items|string|in:lab,rx_medicine,procedure,imaging,consultation,therapy,supply',
+            'order_items.*.item_type' => 'required_with:order_items|string|in:lab,rx_medicine,procedure,imaging,consultation,therapy,supply,special_item',
             'order_items.*.item_name' => 'required_with:order_items|string|max:255',
             'order_items.*.details' => 'nullable|string|max:1000',
             'order_items.*.dosage' => 'nullable|string|max:100',

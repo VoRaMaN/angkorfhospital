@@ -750,7 +750,7 @@ class MedicalOrderController extends Controller
             'completed_at' => $medicalOrder->completed_at?->toDateString(),
             'created_at' => $medicalOrder->created_at,
             'updated_at' => $medicalOrder->updated_at,
-            'orderItems' => $medicalOrder->orderItems->map(function ($item) {
+            'order_items' => $medicalOrder->orderItems->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'item_type' => $item->item_type,
