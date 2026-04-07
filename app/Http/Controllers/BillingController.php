@@ -44,12 +44,15 @@ class BillingController extends Controller
             });
         }
 
-        // Filter by billing date range if provided
+        // Filter by billing date range if provided, default to today
         if (request('start_date')) {
             $query->whereDate('billing_date', '>=', request('start_date'));
         }
         if (request('end_date')) {
             $query->whereDate('billing_date', '<=', request('end_date'));
+        }
+        if (! request('start_date') && ! request('end_date')) {
+            $query->whereDate('billing_date', today());
         }
 
         $billings = $query->paginate(15)->appends(request()->only(['search', 'status', 'start_date', 'end_date']));
