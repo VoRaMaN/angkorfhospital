@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { formatDateTime } from '@/lib/utils';
 import { updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { report as reportRoute } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
@@ -301,9 +302,7 @@ const getTypeColor = (type: string) => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.appointment.appointment_date_time,
-                                    ).toLocaleString()
+                                    formatDateTime(props.appointment.appointment_date_time)
                                 }}
                             </dd>
                         </div>
@@ -398,9 +397,7 @@ const getTypeColor = (type: string) => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.appointment.created_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.appointment.created_at)
                                 }}
                             </dd>
                         </div>

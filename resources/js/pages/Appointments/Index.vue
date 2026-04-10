@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { formatDateTime } from '@/lib/utils';
 import {
     calendar,
     create,
@@ -275,7 +276,7 @@ const exportAppointments = () => {
                     <TableBody>
                         <TableRow v-for="appointment in props.appointments" :key="appointment.id">
                             <TableCell>{{
-                                new Date(appointment.appointment_date_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                                formatDateTime(appointment.appointment_date_time)
                             }}</TableCell>
                             <TableCell class="font-mono">{{ appointment.patient_id }}</TableCell>
                             <TableCell>

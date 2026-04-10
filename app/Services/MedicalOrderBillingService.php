@@ -36,6 +36,11 @@ class MedicalOrderBillingService
     {
         $quantity = $orderItem->quantity_required ?? 1;
 
+        // Use stored selling_price if available
+        if ($orderItem->selling_price > 0) {
+            return $orderItem->selling_price * $quantity;
+        }
+
         // For inventory items (lab tests, medicines, supplies)
         if ($orderItem->inventory_id) {
             $inventory = $orderItem->inventory;

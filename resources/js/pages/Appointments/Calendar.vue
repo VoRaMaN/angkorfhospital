@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { formatDateTime } from '@/lib/utils';
 import { calendar, create, index, show } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -210,7 +211,7 @@ const closeAppointmentDialog = () => {
                     >
                         {{
                             selectedDate.toLocaleDateString('en-US', {
-                                month: 'long',
+                                month: 'short',
                                 year: 'numeric',
                             })
                         }}
@@ -230,9 +231,9 @@ const closeAppointmentDialog = () => {
                     on
                     {{
                         selectedDate.toLocaleDateString('en-US', {
+                            day: '2-digit',
                             month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
+                            year: '2-digit',
                         })
                     }}
                 </div>
@@ -308,16 +309,7 @@ const closeAppointmentDialog = () => {
                                             </div>
                                             <div class="text-muted-foreground">
                                                 {{
-                                                    new Date(
-                                                        appointment.appointment_date_time,
-                                                    ).toLocaleTimeString(
-                                                        'en-US',
-                                                        {
-                                                            hour: '2-digit',
-                                                            minute: '2-digit',
-                                                            hour12: false,
-                                                        },
-                                                    )
+                                                    formatDateTime(appointment.appointment_date_time)
                                                 }}
                                             </div>
                                             <div
@@ -344,9 +336,9 @@ const closeAppointmentDialog = () => {
                         <CardHeader>
                             <CardTitle>{{
                                 selectedDate.toLocaleDateString('en-US', {
+                                    day: '2-digit',
                                     month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
+                                    year: '2-digit',
                                 })
                             }}</CardTitle>
                         </CardHeader>
@@ -397,13 +389,7 @@ const closeAppointmentDialog = () => {
                                         <div>
                                             Time:
                                             {{
-                                                new Date(
-                                                    appointment.appointment_date_time,
-                                                ).toLocaleTimeString('en-US', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    hour12: false,
-                                                })
+                                                formatDateTime(appointment.appointment_date_time)
                                             }}
                                             ({{
                                                 appointment.duration_minutes
@@ -467,15 +453,7 @@ const closeAppointmentDialog = () => {
                             >
                             <p class="text-sm text-muted-foreground">
                                 {{
-                                    new Date(
-                                        selectedAppointment.appointment_date_time,
-                                    ).toLocaleString('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })
+                                    formatDateTime(selectedAppointment.appointment_date_time)
                                 }}
                             </p>
                         </div>

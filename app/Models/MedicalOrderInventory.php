@@ -20,6 +20,8 @@ class MedicalOrderInventory extends Model
         'frequency',
         'route',
         'quantity_required',
+        'unit_price',
+        'selling_price',
         'status',
         'notes',
         'completed_at',

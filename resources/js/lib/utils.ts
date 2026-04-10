@@ -17,8 +17,10 @@ export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
     return typeof href === 'string' ? href : href?.url;
 }
 
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 /**
- * Format a date string to DD/MM/YY format
+ * Format a date string to DD/Mon/YY format
  */
 export function formatDate(date: string | Date | null | undefined): string {
     if (!date) return '';
@@ -27,14 +29,14 @@ export function formatDate(date: string | Date | null | undefined): string {
     if (isNaN(d.getTime())) return '';
 
     const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const month = MONTH_ABBR[d.getMonth()];
     const year = String(d.getFullYear()).slice(-2);
 
     return `${day}/${month}/${year}`;
 }
 
 /**
- * Format a datetime string to DD/MM/YY HH:mm format
+ * Format a datetime string to DD/Mon/YY HH:mm format
  */
 export function formatDateTime(date: string | Date | null | undefined): string {
     if (!date) return '';
@@ -43,7 +45,7 @@ export function formatDateTime(date: string | Date | null | undefined): string {
     if (isNaN(d.getTime())) return '';
 
     const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const month = MONTH_ABBR[d.getMonth()];
     const year = String(d.getFullYear()).slice(-2);
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');

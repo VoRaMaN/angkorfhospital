@@ -237,6 +237,8 @@ class MedicalOrderController extends Controller
                     'frequency' => $item['frequency'] ?? null,
                     'route' => $item['route'] ?? null,
                     'quantity_required' => $item['quantity_required'] ?? 1,
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'selling_price' => $item['selling_price'] ?? 0,
                     'status' => \App\Enums\MedicalOrderStatusEnum::PENDING->value,
                     'notes' => $item['notes'] ?? null,
                 ]);
@@ -519,6 +521,8 @@ class MedicalOrderController extends Controller
                     'frequency' => $item['frequency'] ?? null,
                     'route' => $item['route'] ?? null,
                     'quantity_required' => $item['quantity_required'] ?? 1,
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'selling_price' => $item['selling_price'] ?? 0,
                     'status' => $item['status'] ?? 'pending',
                     'notes' => $item['notes'] ?? null,
                 ]);
@@ -564,6 +568,8 @@ class MedicalOrderController extends Controller
                     'frequency' => $item['frequency'] ?? null,
                     'route' => $item['route'] ?? null,
                     'quantity_required' => $item['quantity_required'] ?? 1,
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'selling_price' => $item['selling_price'] ?? 0,
                     'status' => $item['status'] ?? 'pending',
                     'notes' => $item['notes'] ?? null,
                 ]);
