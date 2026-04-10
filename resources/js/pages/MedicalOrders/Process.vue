@@ -49,7 +49,7 @@ import {
     Syringe,
     Trash2,
 } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const page = usePage<{ flash: { success?: string; error?: string } }>();
 
@@ -202,17 +202,51 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const storageKey = `medical-order-draft-${props.medicalOrder.id}`;
+
+const loadDraft = (): { order_details: string; notes: string; order_items: OrderItem[] } | null => {
+    try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            return JSON.parse(saved);
+        }
+    } catch {
+        // ignore
+    }
+    return null;
+};
+
+const draft = loadDraft();
+
 const form = useForm<{
     order_details: string;
     notes: string;
     order_items: OrderItem[];
 }>({
-    order_details: props.medicalOrder.order_details,
-    notes: props.medicalOrder.notes || '',
-    order_items: props.medicalOrder.order_items
-        ? props.medicalOrder.order_items.map((item) => ({ ...item }))
-        : [],
+    order_details: draft?.order_details ?? props.medicalOrder.order_details,
+    notes: draft?.notes ?? props.medicalOrder.notes ?? '',
+    order_items: draft?.order_items
+        ?? (props.medicalOrder.order_items
+            ? props.medicalOrder.order_items.map((item) => ({ ...item }))
+            : []),
 });
+
+// Auto-save draft to localStorage when form changes
+watch(
+    () => ({ order_details: form.order_details, notes: form.notes, order_items: form.order_items }),
+    (val) => {
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(val));
+        } catch {
+            // ignore quota errors
+        }
+    },
+    { deep: true },
+);
+
+const clearDraft = () => {
+    localStorage.removeItem(storageKey);
+};
 
 // Patch selection state
 const selectedPatchId = ref<string>('');
@@ -819,6 +853,9 @@ const submitForm = () => {
             },
             preserveState: false,
             preserveScroll: false,
+            onSuccess: () => {
+                clearDraft();
+            },
             onError: (errors) => {
                 submitError.value = Object.values(errors).flat().join(', ');
             },

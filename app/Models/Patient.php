@@ -133,6 +133,11 @@ class Patient extends Model
         return $this->hasMany(MedicalOrder::class);
     }
 
+    public function visits()
+    {
+        return $this->hasMany(Visit::class);
+    }
+
     public function staff()
     {
         return $this->belongsTo(Staff::class);

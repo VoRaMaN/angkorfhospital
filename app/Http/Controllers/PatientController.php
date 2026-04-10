@@ -129,10 +129,11 @@ class PatientController extends Controller
             'user',
             'appointments.staff',
             'appointments.medicalRecord',
-            'appointments.visits.staff',
-            'appointments.visits.medicalRecord',
-            'appointments.visits.medicalOrders.orderItems',
-            'appointments.visits.billings',
+            'visits.staff',
+            'visits.doctor',
+            'visits.medicalRecord',
+            'visits.medicalOrders.orderItems',
+            'visits.billings',
             'patientFiles.file',
             'medicalOrders.staff',
             'medicalOrders.orderItems',
@@ -142,60 +143,58 @@ class PatientController extends Controller
         // Get medical records from appointments and visits
         $medicalRecords = collect();
         $medicalRecords = $medicalRecords->merge($patient->appointments->pluck('medicalRecord')->filter());
-        $medicalRecords = $medicalRecords->merge($patient->appointments->pluck('visits')->flatten()->pluck('medicalRecord')->filter());
+        $medicalRecords = $medicalRecords->merge($patient->visits->pluck('medicalRecord')->filter());
         $uniqueRecords = $medicalRecords->unique('id');
 
         // Get visit history with complete details
-        $visitHistory = $patient->appointments->flatMap(function ($appointment) {
-            return $appointment->visits->map(function ($visit) {
-                // Get medical orders for this visit
-                $medicalOrders = $visit->medicalOrders->map(function ($order) {
-                    return [
-                        'id' => $order->id,
-                        'order_details' => $order->order_details,
-                        'status' => $order->status,
-                        'priority' => $order->priority,
-                        'ordered_at' => $order->ordered_at,
-                        'items' => $order->orderItems->map(function ($item) {
-                            return [
-                                'item_type' => $item->item_type,
-                                'item_name' => $item->item_name,
-                                'quantity' => $item->quantity_required,
-                                'unit_price' => $item->unit_price,
-                                'selling_price' => $item->selling_price,
-                                'status' => $item->status,
-                                'details' => $item->details,
-                                'notes' => $item->notes,
-                            ];
-                        }),
-                    ];
-                });
-
-                // Get billings for this visit
-                $billings = $visit->billings->map(function ($billing) {
-                    return [
-                        'id' => $billing->id,
-                        'total_amount' => $billing->total_amount,
-                        'paid_amount' => $billing->paid_amount,
-                        'payment_status' => $billing->payment_status,
-                        'payment_method' => $billing->payment_method,
-                        'billing_date' => $billing->billing_date,
-                    ];
-                });
-
+        $visitHistory = $patient->visits->map(function ($visit) {
+            // Get medical orders for this visit
+            $medicalOrders = $visit->medicalOrders->map(function ($order) {
                 return [
-                    'id' => $visit->id,
-                    'visit_date_time' => $visit->visit_date_time,
-                    'status' => $visit->status,
-                    'priority' => $visit->priority,
-                    'notes' => $visit->notes,
-                    'completed_at' => $visit->completed_at,
-                    'staff_name' => $visit->staff?->user?->name,
-                    'order_details' => $visit->order_details,
-                    'medical_orders' => $medicalOrders,
-                    'billings' => $billings,
+                    'id' => $order->id,
+                    'order_details' => $order->order_details,
+                    'status' => $order->status,
+                    'priority' => $order->priority,
+                    'ordered_at' => $order->ordered_at,
+                    'items' => $order->orderItems->map(function ($item) {
+                        return [
+                            'item_type' => $item->item_type,
+                            'item_name' => $item->item_name,
+                            'quantity' => $item->quantity_required,
+                            'unit_price' => $item->unit_price,
+                            'selling_price' => $item->selling_price,
+                            'status' => $item->status,
+                            'details' => $item->details,
+                            'notes' => $item->notes,
+                        ];
+                    }),
                 ];
             });
+
+            // Get billings for this visit
+            $billings = $visit->billings->map(function ($billing) {
+                return [
+                    'id' => $billing->id,
+                    'total_amount' => $billing->total_amount,
+                    'paid_amount' => $billing->paid_amount,
+                    'payment_status' => $billing->payment_status,
+                    'payment_method' => $billing->payment_method,
+                    'billing_date' => $billing->billing_date,
+                ];
+            });
+
+            return [
+                'id' => $visit->id,
+                'visit_date_time' => $visit->visit_date_time,
+                'status' => $visit->status,
+                'priority' => $visit->priority,
+                'notes' => $visit->notes,
+                'completed_at' => $visit->completed_at,
+                'staff_name' => $visit->staff?->user?->name,
+                'order_details' => $visit->order_details,
+                'medical_orders' => $medicalOrders,
+                'billings' => $billings,
+            ];
         })->sortByDesc('visit_date_time')->values();
 
         // Get medical orders data with staff information and order items
