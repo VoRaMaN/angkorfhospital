@@ -35,6 +35,7 @@ import { ref, watch } from 'vue';
 interface Props {
     appointments: Array<{
         id: number;
+        patient_id: string;
         patient: {
             user: { name: string };
             mobile_phone: string | null;
@@ -44,6 +45,13 @@ interface Props {
         duration_minutes: number;
         appointment_type: string;
         status: string;
+        reason_for_visit: string | null;
+        notes: string | null;
+        is_tvs: boolean;
+        is_hormone_test: boolean;
+        opu_time: string | null;
+        et_fet_time: string | null;
+        is_beta_hcg: boolean;
     }>;
     filters: {
         search: string;
@@ -164,6 +172,20 @@ const getAppointmentId = (id: string | number): number => {
     return typeof id === 'string' ? parseInt(id) : id;
 };
 
+const getObjective = (appointment: Props['appointments'][0]) => {
+    const parts: string[] = [];
+    if (appointment.is_tvs) parts.push('TVS');
+    if (appointment.is_hormone_test) parts.push('Hormone');
+    if (appointment.is_beta_hcg) parts.push('Beta HCG');
+    if (appointment.opu_time) parts.push('OPU');
+    if (appointment.et_fet_time) parts.push('ET/FET');
+    if (appointment.appointment_type) {
+        parts.push(appointment.appointment_type.charAt(0).toUpperCase() + appointment.appointment_type.slice(1).replace('_', ' '));
+    }
+    if (appointment.reason_for_visit) parts.push(appointment.reason_for_visit);
+    return parts.join(' ');
+};
+
 const exportAppointments = () => {
     const params = new URLSearchParams();
     if (searchQuery.value) params.append('search', searchQuery.value);
@@ -240,11 +262,13 @@ const exportAppointments = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Time</TableHead>
-                            <TableHead>ID</TableHead>
+                            <TableHead>HN Number</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Patient Name</TableHead>
                             <TableHead>Mobile Number</TableHead>
                             <TableHead>Doctor</TableHead>
+                            <TableHead>Objective</TableHead>
+                            <TableHead>Comment</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -253,7 +277,7 @@ const exportAppointments = () => {
                             <TableCell>{{
                                 new Date(appointment.appointment_date_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                             }}</TableCell>
-                            <TableCell class="font-mono">{{ appointment.id }}</TableCell>
+                            <TableCell class="font-mono">{{ appointment.patient_id }}</TableCell>
                             <TableCell>
                                 <Badge :variant="
                                         appointment.status === 'completed'
@@ -271,6 +295,8 @@ const exportAppointments = () => {
                             <TableCell>{{ appointment.patient?.user?.name || 'Unknown Patient' }}</TableCell>
                             <TableCell>{{ appointment.patient.mobile_phone || 'N/A' }}</TableCell>
                             <TableCell>{{ appointment.staff?.user?.name || 'Unassigned' }}</TableCell>
+                            <TableCell class="max-w-[200px] truncate" :title="getObjective(appointment)">{{ getObjective(appointment) }}</TableCell>
+                            <TableCell class="max-w-[150px] truncate" :title="appointment.notes || ''">{{ appointment.notes || '' }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">
                                     <Button variant="outline" size="sm" as-child>
@@ -398,7 +424,7 @@ const exportAppointments = () => {
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.appointments.length === 0">
-                            <TableCell colspan="7" class="text-center text-muted-foreground">
+                            <TableCell colspan="9" class="text-center text-muted-foreground">
                                 No appointments found
                             </TableCell>
                         </TableRow>

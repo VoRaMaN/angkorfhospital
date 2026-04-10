@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -44,23 +45,31 @@ class AppointmentController extends Controller
         }
 
         // Apply date range filters
-        if ($from = request('from')) {
-            try {
-                $query->whereDate('appointment_date_time', '>=', $from);
-            } catch (\Exception $e) {
-                // Ignore invalid date formats
+        // Default: show today and tomorrow if no date filters provided
+        $hasDateFilter = request('from') || request('to');
+        if (! $hasDateFilter) {
+            $today = Carbon::now('Asia/Phnom_Penh')->startOfDay();
+            $tomorrow = Carbon::now('Asia/Phnom_Penh')->addDay()->endOfDay();
+            $query->whereBetween('appointment_date_time', [$today, $tomorrow]);
+        } else {
+            if ($from = request('from')) {
+                try {
+                    $query->whereDate('appointment_date_time', '>=', $from);
+                } catch (\Exception $e) {
+                    // Ignore invalid date formats
+                }
+            }
+
+            if ($to = request('to')) {
+                try {
+                    $query->whereDate('appointment_date_time', '<=', $to);
+                } catch (\Exception $e) {
+                    // Ignore invalid date formats
+                }
             }
         }
 
-        if ($to = request('to')) {
-            try {
-                $query->whereDate('appointment_date_time', '<=', $to);
-            } catch (\Exception $e) {
-                // Ignore invalid date formats
-            }
-        }
-
-        $appointments = $query->paginate(15);
+        $appointments = $query->orderBy('appointment_date_time', 'asc')->paginate(50);
 
         // Transform appointments for the frontend to handle null relationships
         $transformedAppointments = $appointments->getCollection()->map(function ($appointment) {
@@ -77,10 +86,18 @@ class AppointmentController extends Controller
                         'name' => $appointment->staff->user->name ?? $appointment->staff->name,
                     ] : ['name' => $appointment->staff->name],
                 ] : ['user' => ['name' => 'Unknown Staff']],
+                'patient_id' => $appointment->patient_id,
                 'appointment_date_time' => $appointment->appointment_date_time,
                 'duration_minutes' => $appointment->duration_minutes ?? 30,
                 'appointment_type' => $appointment->appointment_type?->value ?? 'consultation',
                 'status' => $appointment->status?->value ?? 'scheduled',
+                'reason_for_visit' => $appointment->reason_for_visit,
+                'notes' => $appointment->notes,
+                'is_tvs' => $appointment->is_tvs,
+                'is_hormone_test' => $appointment->is_hormone_test,
+                'opu_time' => $appointment->opu_time,
+                'et_fet_time' => $appointment->et_fet_time,
+                'is_beta_hcg' => $appointment->is_beta_hcg,
                 'created_at' => $appointment->created_at,
             ];
         });
