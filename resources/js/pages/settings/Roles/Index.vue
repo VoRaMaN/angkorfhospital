@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -110,7 +111,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 >
                             </TableCell>
                             <TableCell>{{
-                                new Date(role.created_at).toLocaleDateString()
+                                formatDate(role.created_at)
                             }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">

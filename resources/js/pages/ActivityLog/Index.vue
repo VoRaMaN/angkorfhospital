@@ -20,6 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import { index as activityLogIndex } from '@/routes/activity-log';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, Link, router, usePoll } from '@inertiajs/vue3';
@@ -152,11 +153,7 @@ const timeAgo = (dateStr: string) => {
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays < 7) return `${diffDays}d ago`;
 
-    return date.toLocaleDateString();
-};
-
-const formatDateTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString();
+    return formatDate(dateStr);
 };
 
 const subjectLabel = (type: string | null) => {

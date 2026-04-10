@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -197,9 +198,7 @@ const cancelStatusUpdate = () => {
                                         >
                                             DOB:
                                             {{
-                                                new Date(
-                                                    appointment.patient.date_of_birth,
-                                                ).toLocaleDateString()
+                                                formatDate(appointment.patient.date_of_birth)
                                             }}
                                         </div>
                                     </div>
@@ -213,9 +212,7 @@ const cancelStatusUpdate = () => {
                                     <div>
                                         <div>
                                             {{
-                                                new Date(
-                                                    appointment.appointment_date,
-                                                ).toLocaleDateString()
+                                                formatDate(appointment.appointment_date)
                                             }}
                                         </div>
                                         <div

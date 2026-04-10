@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -311,9 +312,7 @@ const sendBackToNurse = () => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.billing.billing_date,
-                                    ).toLocaleDateString()
+                                    formatDate(props.billing.billing_date)
                                 }}
                             </dd>
                         </div>
@@ -340,9 +339,7 @@ const sendBackToNurse = () => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.billing.created_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.billing.created_at)
                                 }}
                             </dd>
                         </div>
@@ -355,9 +352,7 @@ const sendBackToNurse = () => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.billing.updated_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.billing.updated_at)
                                 }}
                             </dd>
                         </div>

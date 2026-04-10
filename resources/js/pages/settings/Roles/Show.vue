@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/utils';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
@@ -134,9 +135,7 @@ const groupedPermissions = computed(() => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.role.created_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.role.created_at)
                                 }}
                             </dd>
                         </div>
@@ -149,9 +148,7 @@ const groupedPermissions = computed(() => {
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.role.updated_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.role.updated_at)
                                 }}
                             </dd>
                         </div>

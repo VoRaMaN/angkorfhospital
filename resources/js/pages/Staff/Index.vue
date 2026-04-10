@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -138,7 +139,7 @@ const { hasPermission } = useAuth();
                             </TableCell>
                             <TableCell>{{ member.department_name }}</TableCell>
                             <TableCell>{{
-                                new Date(member.hire_date).toLocaleDateString()
+                                formatDate(member.hire_date)
                             }}</TableCell>
                             <TableCell>
                                 <Badge

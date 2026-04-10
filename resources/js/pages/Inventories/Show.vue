@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     edit as inventoryEdit,
@@ -242,9 +243,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <dd class="text-sm">
                                 {{
                                     props.item.expiry_date
-                                        ? new Date(
-                                              props.item.expiry_date,
-                                          ).toLocaleDateString()
+                                        ? formatDate(props.item.expiry_date)
                                         : '—'
                                 }}
                             </dd>
@@ -285,9 +284,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.item.created_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.item.created_at)
                                 }}
                             </dd>
                         </div>
@@ -300,9 +297,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.item.updated_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.item.updated_at)
                                 }}
                             </dd>
                         </div>

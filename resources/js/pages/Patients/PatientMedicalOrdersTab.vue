@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -67,7 +68,7 @@ const { hasPermission } = useAuth();
                                 }}</Badge>
                             </TableCell>
                             <TableCell>{{
-                                new Date(order.created_at).toLocaleDateString()
+                                formatDate(order.created_at)
                             }}</TableCell>
                             <TableCell>
                                 <Button variant="outline" size="sm" as-child>

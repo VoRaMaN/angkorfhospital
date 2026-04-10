@@ -3,12 +3,23 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/composables/useAuth';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Printer, User, Calendar } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight } from 'lucide-vue-next';
 import { ref } from 'vue';
+
+const expandedVisits = ref<Set<number>>(new Set());
+
+const toggleVisit = (visitId: number) => {
+    if (expandedVisits.value.has(visitId)) {
+        expandedVisits.value.delete(visitId);
+    } else {
+        expandedVisits.value.add(visitId);
+    }
+};
 
 interface Props {
     patient: {
@@ -477,54 +488,51 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 <p class="text-muted-foreground">No visit history found.</p>
                             </div>
 
-                            <div v-else class="space-y-4">
+                            <div v-else class="space-y-2">
                                 <div v-for="visit in props.patient.visit_history" :key="visit.id"
-                                    class="rounded-lg border bg-card p-6">
-                                    <div class="grid gap-4 md:grid-cols-2">
-                                        <div class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Visit Date
-                                            </dt>
-                                            <dd class="text-sm">
-                                                {{ new Date(visit.visit_date_time).toLocaleString() }}
-                                            </dd>
-                                        </div>
-
-                                        <div class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Status
-                                            </dt>
-                                            <dd class="text-sm">
-                                                <Badge
-                                                    :variant="visit.status === 'completed' ? 'default' : visit.status === 'processing' ? 'secondary' : 'outline'">
-                                                    {{ visit.status }}
-                                                </Badge>
-                                            </dd>
-                                        </div>
-
-                                        <div v-if="visit.priority" class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Priority
-                                            </dt>
-                                            <dd class="text-sm">
-                                                <Badge variant="destructive" v-if="visit.priority === 'stat'">
-                                                    {{ visit.priority }}
-                                                </Badge>
-                                                <Badge variant="secondary" v-else>
-                                                    {{ visit.priority }}
-                                                </Badge>
-                                            </dd>
-                                        </div>
-
-                                        <div v-if="visit.staff_name" class="space-y-2">
-                                            <dt class="text-sm font-medium text-muted-foreground">
-                                                Ordered By
-                                            </dt>
-                                            <dd class="text-sm">
+                                    class="rounded-lg border bg-card overflow-hidden">
+                                    <!-- Collapsed header row -->
+                                    <button
+                                        class="flex w-full items-center gap-4 p-4 text-left hover:bg-muted/50 transition-colors"
+                                        @click="toggleVisit(visit.id)"
+                                    >
+                                        <ChevronRight
+                                            class="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200"
+                                            :class="{ 'rotate-90': expandedVisits.has(visit.id) }"
+                                        />
+                                        <div class="flex flex-1 items-center gap-4 min-w-0">
+                                            <span class="text-sm font-medium whitespace-nowrap">
+                                                {{ formatDateTime(visit.visit_date_time) }}
+                                            </span>
+                                            <span v-if="visit.staff_name" class="text-sm text-muted-foreground truncate">
                                                 {{ visit.staff_name }}
-                                            </dd>
+                                            </span>
                                         </div>
-                                    </div>
+                                        <Badge
+                                            :variant="visit.status === 'completed' ? 'default' : visit.status === 'processing' ? 'secondary' : 'outline'"
+                                            class="shrink-0"
+                                        >
+                                            {{ visit.status }}
+                                        </Badge>
+                                    </button>
+
+                                    <!-- Expanded details -->
+                                    <div v-if="expandedVisits.has(visit.id)" class="border-t px-6 pb-6 pt-4">
+                                        <div class="grid gap-4 md:grid-cols-2">
+                                            <div v-if="visit.priority" class="space-y-2">
+                                                <dt class="text-sm font-medium text-muted-foreground">
+                                                    Priority
+                                                </dt>
+                                                <dd class="text-sm">
+                                                    <Badge variant="destructive" v-if="visit.priority === 'stat'">
+                                                        {{ visit.priority }}
+                                                    </Badge>
+                                                    <Badge variant="secondary" v-else>
+                                                        {{ visit.priority }}
+                                                    </Badge>
+                                                </dd>
+                                            </div>
+                                        </div>
 
                                     <!-- Medical Orders Section -->
                                     <div v-if="visit.medical_orders && visit.medical_orders.length > 0" class="mt-6 space-y-4">
@@ -599,7 +607,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 </div>
                                                 <div>
                                                     <dt class="text-xs font-medium text-muted-foreground">Billing Date</dt>
-                                                    <dd class="text-sm">{{ new Date(billing.billing_date).toLocaleDateString() }}</dd>
+                                                    <dd class="text-sm">{{ formatDate(billing.billing_date) }}</dd>
                                                 </div>
                                             </div>
                                         </div>
@@ -611,6 +619,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         <dd class="text-sm whitespace-pre-line rounded-md bg-muted/50 p-3">
                                             {{ visit.notes }}
                                         </dd>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -642,7 +651,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 Date of Service
                                             </dt>
                                             <dd class="text-sm">
-                                                {{ new Date(record.date_of_service).toLocaleDateString() }}
+                                                {{ formatDate(record.date_of_service) }}
                                             </dd>
                                         </div>
 
@@ -687,7 +696,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                                     <div class="mt-4 pt-4 border-t">
                                         <p class="text-xs text-muted-foreground">
-                                            Created: {{ new Date(record.created_at).toLocaleString() }}
+                                            Created: {{ formatDateTime(record.created_at) }}
                                         </p>
                                     </div>
                                 </div>

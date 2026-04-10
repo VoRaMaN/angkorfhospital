@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { edit, index, report as reportRoute } from '@/routes/medical-records';
 import { type BreadcrumbItem } from '@/types';
@@ -109,9 +110,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <dd class="text-sm">
                                 {{
                                     props.medicalRecord.date_of_service
-                                        ? new Date(
-                                              props.medicalRecord.date_of_service,
-                                          ).toLocaleDateString()
+                                        ? formatDate(props.medicalRecord.date_of_service)
                                         : 'N/A'
                                 }}
                             </dd>
@@ -125,9 +124,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.medicalRecord.created_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.medicalRecord.created_at)
                                 }}
                             </dd>
                         </div>
@@ -182,9 +179,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.medicalRecord.updated_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.medicalRecord.updated_at)
                                 }}
                             </dd>
                         </div>

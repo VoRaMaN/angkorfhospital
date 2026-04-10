@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -97,9 +98,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                             <TableCell>
                                 {{
-                                    new Date(
-                                        patient.date_of_birth,
-                                    ).toLocaleDateString()
+                                    formatDate(patient.date_of_birth)
                                 }}
                             </TableCell>
                             <TableCell>
@@ -111,9 +110,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         class="h-3 w-3 text-muted-foreground"
                                     />
                                     {{
-                                        new Date(
-                                            patient.last_visit,
-                                        ).toLocaleDateString()
+                                        formatDate(patient.last_visit)
                                     }}
                                 </div>
                                 <span v-else class="text-muted-foreground"

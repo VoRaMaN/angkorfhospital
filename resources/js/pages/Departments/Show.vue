@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/utils';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
@@ -84,9 +85,7 @@ const { hasPermission } = useAuth();
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.department.created_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.department.created_at)
                                 }}
                             </dd>
                         </div>
@@ -113,9 +112,7 @@ const { hasPermission } = useAuth();
                             </dt>
                             <dd class="text-sm">
                                 {{
-                                    new Date(
-                                        props.department.updated_at,
-                                    ).toLocaleString()
+                                    formatDateTime(props.department.updated_at)
                                 }}
                             </dd>
                         </div>

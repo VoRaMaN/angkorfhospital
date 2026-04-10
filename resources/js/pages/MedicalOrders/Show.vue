@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/utils';
 import {
     Card,
     CardContent,
@@ -922,9 +923,7 @@ const orderSummary = computed(() => {
                                 </dt>
                                 <dd class="text-sm">
                                     {{
-                                        new Date(
-                                            medicalOrder.created_at,
-                                        ).toLocaleString()
+                                        formatDateTime(medicalOrder.created_at)
                                     }}
                                 </dd>
                             </div>
@@ -937,9 +936,7 @@ const orderSummary = computed(() => {
                                 </dt>
                                 <dd class="text-sm">
                                     {{
-                                        new Date(
-                                            medicalOrder.updated_at,
-                                        ).toLocaleString()
+                                        formatDateTime(medicalOrder.updated_at)
                                     }}
                                 </dd>
                             </div>

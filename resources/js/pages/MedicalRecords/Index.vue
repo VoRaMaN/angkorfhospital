@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -52,7 +53,7 @@ const performSearch = () => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    
+
     searchTimeout = setTimeout(() => {
         router.get('/medical-records', {
             search: searchQuery.value,
@@ -144,11 +145,11 @@ const deleteRecord = (id: number) => {
                             </TableCell>
                             <TableCell>{{
                                 record.date_of_service
-                                    ? new Date(record.date_of_service).toLocaleDateString()
+                                    ? formatDate(record.date_of_service)
                                     : 'N/A'
                             }}</TableCell>
                             <TableCell>{{
-                                new Date(record.created_at).toLocaleDateString()
+                                formatDate(record.created_at)
                             }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">

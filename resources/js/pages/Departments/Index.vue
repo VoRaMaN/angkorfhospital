@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -46,7 +47,7 @@ const performSearch = () => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    
+
     searchTimeout = setTimeout(() => {
         router.get('/departments', {
             search: searchQuery.value,
@@ -118,9 +119,7 @@ const { hasPermission } = useAuth();
                             <TableCell>{{ department.name }}</TableCell>
                             <TableCell>{{ department.description }}</TableCell>
                             <TableCell>{{
-                                new Date(
-                                    department.created_at,
-                                ).toLocaleDateString()
+                                formatDate(department.created_at)
                             }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">

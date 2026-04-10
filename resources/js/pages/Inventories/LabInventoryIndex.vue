@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -96,7 +97,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 >{{ item.quantity }} {{ item.unit }}</TableCell
                             >
                             <TableCell>
-                                {{ item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '—' }}
+                                {{ item.expiry_date ? formatDate(item.expiry_date) : '—' }}
                             </TableCell>
                             <TableCell>
                                 <Badge

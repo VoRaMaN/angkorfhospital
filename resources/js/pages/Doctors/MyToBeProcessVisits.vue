@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate, formatTime } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -163,17 +164,13 @@ const getStatusColor = (status: string) => {
                                     <div>
                                         <div>
                                             {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleDateString()
+                                                formatDate(visit.visit_date_time)
                                             }}
                                         </div>
                                         <div class="flex items-center gap-1 text-sm text-muted-foreground">
                                             <Clock class="h-3 w-3" />
                                             {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleTimeString()
+                                                formatTime(visit.visit_date_time)
                                             }}
                                         </div>
                                     </div>

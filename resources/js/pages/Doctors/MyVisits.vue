@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate, formatTime } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -166,9 +167,7 @@ const getStatusColor = (status: string) => {
                                     <div>
                                         <div>
                                             {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleDateString()
+                                                formatDate(visit.visit_date_time)
                                             }}
                                         </div>
                                         <div
@@ -176,9 +175,7 @@ const getStatusColor = (status: string) => {
                                         >
                                             <Clock class="h-3 w-3" />
                                             {{
-                                                new Date(
-                                                    visit.visit_date_time,
-                                                ).toLocaleTimeString()
+                                                formatTime(visit.visit_date_time)
                                             }}
                                         </div>
                                     </div>

@@ -52,3 +52,18 @@ export function formatDateTime(date: string | Date | null | undefined): string {
 
     return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
+
+/**
+ * Format a datetime string to HH:mm format
+ */
+export function formatTime(date: string | Date | null | undefined): string {
+    if (!date) return '';
+
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    return `${hours}:${minutes}`;
+}

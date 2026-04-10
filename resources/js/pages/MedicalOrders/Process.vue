@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { formatDate } from '@/lib/utils';
 import {
     Select,
     SelectContent,
@@ -930,9 +931,7 @@ const submitForm = () => {
                             <Label class="text-sm font-medium text-muted-foreground">Ordered Date</Label>
                             <p class="text-sm font-medium">
                                 {{
-                                    new Date(
-                                        medicalOrder.ordered_at,
-                                    ).toLocaleDateString()
+                                    formatDate(medicalOrder.ordered_at)
                                 }}
                             </p>
                         </div>

@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDateTime } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -161,9 +162,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </dt>
                                 <dd class="text-sm">
                                     {{
-                                        new Date(
-                                            props.labPanel.created_at,
-                                        ).toLocaleString()
+                                        formatDateTime(props.labPanel.created_at)
                                     }}
                                 </dd>
                             </div>
@@ -176,9 +175,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </dt>
                                 <dd class="text-sm">
                                     {{
-                                        new Date(
-                                            props.labPanel.updated_at,
-                                        ).toLocaleString()
+                                        formatDateTime(props.labPanel.updated_at)
                                     }}
                                 </dd>
                             </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -339,9 +340,7 @@ const formatPrice = (price: number) => {
                         <Label>Created At</Label>
                         <p class="text-sm">
                             {{
-                                new Date(
-                                    viewingService.created_at,
-                                ).toLocaleString()
+                                formatDateTime(viewingService.created_at)
                             }}
                         </p>
                     </div>
@@ -349,9 +348,7 @@ const formatPrice = (price: number) => {
                         <Label>Updated At</Label>
                         <p class="text-sm">
                             {{
-                                new Date(
-                                    viewingService.updated_at,
-                                ).toLocaleString()
+                                formatDateTime(viewingService.updated_at)
                             }}
                         </p>
                     </div>

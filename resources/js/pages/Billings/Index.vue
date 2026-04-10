@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -284,12 +285,10 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                                 </Badge>
                             </TableCell>
                             <TableCell>{{
-                                new Date(
-                                    billing.billing_date,
-                                ).toLocaleDateString()
+                                formatDate(billing.billing_date)
                             }}</TableCell>
                             <TableCell>{{
-                                new Date(billing.due_date).toLocaleDateString()
+                                formatDate(billing.due_date)
                                 }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">

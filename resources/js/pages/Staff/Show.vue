@@ -8,6 +8,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Edit } from 'lucide-vue-next';
 import StaffFilesTab from './StaffFilesTab.vue';
 import { index, edit } from '@/routes/staff';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -136,9 +137,7 @@ const { hasPermission } = useAuth();
                                     <dd class="text-sm">
                                         {{
                                             props.staff.hire_date
-                                                ? new Date(
-                                                    props.staff.hire_date,
-                                                ).toLocaleDateString()
+                                                ? formatDate(props.staff.hire_date)
                                                 : 'Not provided'
                                         }}
                                     </dd>
@@ -185,9 +184,7 @@ const { hasPermission } = useAuth();
                                     </dt>
                                     <dd class="text-sm">
                                         {{
-                                            new Date(
-                                                props.staff.created_at,
-                                            ).toLocaleString()
+                                            formatDateTime(props.staff.created_at)
                                         }}
                                     </dd>
                                 </div>
@@ -200,9 +197,7 @@ const { hasPermission } = useAuth();
                                     </dt>
                                     <dd class="text-sm">
                                         {{
-                                            new Date(
-                                                props.staff.updated_at,
-                                            ).toLocaleString()
+                                            formatDateTime(props.staff.updated_at)
                                         }}
                                     </dd>
                                 </div>

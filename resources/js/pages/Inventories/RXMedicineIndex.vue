@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -128,7 +129,7 @@ watch(searchQuery, () => {
                                 >{{ item.quantity }} {{ item.unit }}</TableCell
                             >
                             <TableCell>
-                                {{ item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '—' }}
+                                {{ item.expiry_date ? formatDate(item.expiry_date) : '—' }}
                             </TableCell>
                             <TableCell>
                                 <Badge
