@@ -31,13 +31,13 @@ class PatientController extends Controller
 
         // When searching, always search all patients regardless of show_all toggle
         if (! $showAll && ! $search) {
-            // Only show patients with appointments or visits TODAY (after midnight, list resets)
+            // Only show patients with appointments or visits TODAY, or created today (after midnight, list resets)
             $query->where(function ($q) {
                 $q->whereHas('appointments', function ($appointmentQuery) {
                     $appointmentQuery->whereDate('appointment_date_time', '>=', now()->startOfDay());
                 })->orWhereHas('appointments.visits', function ($visitQuery) {
                     $visitQuery->whereDate('visit_date_time', '>=', now()->startOfDay());
-                });
+                })->orWhereDate('created_at', now()->toDateString());
             });
         }
 
