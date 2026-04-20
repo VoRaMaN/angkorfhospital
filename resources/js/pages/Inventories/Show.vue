@@ -134,7 +134,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 Quantity
                             </dt>
                             <dd class="text-sm">
-                                {{ props.item.quantity }} {{ props.item.unit }}
+                                {{ props.item.quantity }}
+                                <span v-if="props.item.type_of_supply === 'rx_medicine'">Tablets</span>
+                                <span v-else>{{ props.item.unit }}</span>
                             </dd>
                         </div>
 
@@ -146,7 +148,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </dt>
                             <dd class="text-sm">
                                 {{ props.item.minimum_stock }}
-                                {{ props.item.unit }}
+                                <span v-if="props.item.type_of_supply === 'rx_medicine'">Tablets</span>
+                                <span v-else>{{ props.item.unit }}</span>
                             </dd>
                         </div>
 

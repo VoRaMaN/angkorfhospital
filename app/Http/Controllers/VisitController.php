@@ -307,6 +307,16 @@ class VisitController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // Prevent duplicate visits for the same patient and date
+        $visitDate = date('Y-m-d', strtotime($request->visit_date_time));
+        $duplicate = Visit::where('patient_id', $request->patient_id)
+            ->whereDate('visit_date_time', $visitDate)
+            ->where('id', '!=', $visit->id)
+            ->exists();
+        if ($duplicate) {
+            return back()->withErrors(['visit_date_time' => 'A visit for this patient already exists on this date.']);
+        }
+
         $visit->update($request->all());
 
         return redirect()->route('visits.index')

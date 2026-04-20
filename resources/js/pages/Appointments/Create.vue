@@ -60,18 +60,45 @@ const getPhnomPenhTimeOnly = () => {
     return `${hours}:${minutes}`;
 };
 
-const appointmentDate = ref(getPhnomPenhDate());
+
+// Date dropdowns for day, month, year
+const now = new Date();
+const currentYear = now.getFullYear();
+const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i); // 5 years back and 5 years forward
+const months = [
+    { value: 1, label: 'Jan' },
+    { value: 2, label: 'Feb' },
+    { value: 3, label: 'Mar' },
+    { value: 4, label: 'Apr' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'Jun' },
+    { value: 7, label: 'Jul' },
+    { value: 8, label: 'Aug' },
+    { value: 9, label: 'Sep' },
+    { value: 10, label: 'Oct' },
+    { value: 11, label: 'Nov' },
+    { value: 12, label: 'Dec' },
+];
+const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+const selectedDay = ref(now.getDate());
+const selectedMonth = ref(now.getMonth() + 1);
+const selectedYear = ref(currentYear);
 const appointmentTime = ref(getPhnomPenhTimeOnly());
+
+const appointmentDate = computed(() => {
+    // Pad day and month to 2 digits
+    const day = String(selectedDay.value).padStart(2, '0');
+    const month = String(selectedMonth.value).padStart(2, '0');
+    const year = selectedYear.value;
+    return `${day}/${month}/${year}`;
+});
 
 // Computed property to combine date and time into ISO format for backend
 const combinedDateTime = computed(() => {
     if (!appointmentDate.value || !appointmentTime.value) return '';
-
-    // Parse DD/MM/YYYY
     const [day, month, year] = appointmentDate.value.split('/');
     const [hours, minutes] = appointmentTime.value.split(':');
-
-    // Create date in Phnom Penh timezone
     const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
     return date.toISOString().slice(0, 16);
 });
@@ -185,13 +212,31 @@ const form = useForm({
                     <div class="space-y-2">
                         <Label>Appointment Date & Time</Label>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <DateInput
-                                    v-model="appointmentDate"
-                                />
-                                <p class="mt-1 text-xs text-muted-foreground">
-                                    Format: DD/MM/YYYY
-                                </p>
+                            <div class="flex gap-2 items-center">
+                                <Select v-model="selectedDay.value">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Day" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="d in days" :key="d" :value="d">{{ d }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select v-model="selectedMonth.value">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Month" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select v-model="selectedYear.value">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Year" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="y in years" :key="y" :value="y">{{ y }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div>
                                 <Input

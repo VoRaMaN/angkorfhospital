@@ -1,3 +1,11 @@
+    /**
+     * Determine whether the user can cancel the visit.
+     */
+    public function cancel(User $user, Visit $visit): bool
+    {
+        // Receptionists or users with cancel_visits permission can cancel
+        return $user->can('cancel_visits') || $user->hasRole('receptionist') || $user->hasRole('admin');
+    }
 <?php
 
 namespace App\Policies;

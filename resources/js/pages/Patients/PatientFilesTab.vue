@@ -185,8 +185,27 @@ const submitForm = () => {
                                             <Download class="size-4" />
                                         </a>
                                     </Button>
+                                    <Button
+                                        v-if="hasPermission('delete_patient_files')"
+                                        variant="destructive"
+                                        size="sm"
+                                        @click.prevent="deleteFile(item.id)"
+                                    >
+                                        Delete
+                                    </Button>
                                 </div>
                             </TableCell>
+                        </script>
+
+                        <script lang="ts">
+                        import { router } from '@inertiajs/vue3';
+
+                        function deleteFile(id: number) {
+                            if (confirm('Are you sure you want to delete this file?')) {
+                                router.delete(`/patient-files/${id}`);
+                            }
+                        }
+                        </script>
                         </TableRow>
                         <TableRow
                             v-if="

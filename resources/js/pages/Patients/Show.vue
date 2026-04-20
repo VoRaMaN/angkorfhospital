@@ -9,9 +9,19 @@ import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const expandedVisits = ref<Set<number>>(new Set());
+const visitHistoryDate = ref('');
+const clearVisitHistoryDate = () => {
+    visitHistoryDate.value = '';
+};
+const filteredVisitHistory = computed(() => {
+    if (!visitHistoryDate.value) {
+        return props.patient.visit_history || [];
+    }
+    return (props.patient.visit_history || []).filter(v => v.visit_date_time && v.visit_date_time.startsWith(visitHistoryDate.value));
+});
 
 const toggleVisit = (visitId: number) => {
     if (expandedVisits.value.has(visitId)) {
@@ -208,12 +218,73 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="max-w-4xl">
                 <Tabs default-value="details" class="w-full">
-                    <TabsList class="grid w-full grid-cols-4">
+                    <TabsList class="grid w-full grid-cols-6">
                         <TabsTrigger value="details">Patient Details</TabsTrigger>
                         <TabsTrigger value="files">Files</TabsTrigger>
-                        <TabsTrigger value="medical-orders">Visit History</TabsTrigger>
+                        <TabsTrigger value="visit-history">Visit History</TabsTrigger>
+                        <TabsTrigger value="medical-orders">Medical Orders</TabsTrigger>
                         <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
+                        <TabsTrigger value="medicine-use-report">Medicine Use Report</TabsTrigger>
                     </TabsList>
+                    <TabsContent value="medicine-use-report" class="mt-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <label class="text-sm text-muted-foreground">Date</label>
+                            <input type="date" v-model="medicineReportDate" class="border rounded px-2 py-1" />
+                            <Button variant="ghost" size="sm" @click="clearMedicineReportDate" v-if="medicineReportDate">
+                                Clear
+                            </Button>
+                        </div>
+                        <div v-if="filteredMedicineReport.length === 0" class="rounded-lg border bg-card p-8 text-center">
+                            <p class="text-muted-foreground">No medicine usage found for selected date.</p>
+                        </div>
+                        <div v-else class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Medicine Name</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Frequency</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Route</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="med in filteredMedicineReport" :key="med.id + '-' + med.name + '-' + med.date" class="bg-white">
+                                        <td class="px-4 py-2 whitespace-nowrap">{{ med.date }}</td>
+                                        <td class="px-4 py-2 whitespace-nowrap">{{ med.name }}</td>
+                                        <td class="px-4 py-2 whitespace-nowrap">{{ med.dosage }}</td>
+                                        <td class="px-4 py-2 whitespace-nowrap">{{ med.frequency }}</td>
+                                        <td class="px-4 py-2 whitespace-nowrap">{{ med.route }}</td>
+                                        <td class="px-4 py-2 whitespace-nowrap">{{ med.quantity }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </TabsContent>
+<script setup lang="ts">
+// ...existing imports...
+import { ref, computed } from 'vue';
+
+// ...existing code...
+
+const medicineReportDate = ref('');
+const clearMedicineReportDate = () => {
+    medicineReportDate.value = '';
+};
+const filteredMedicineReport = computed(() => {
+    const meds = (props.patient.medical_orders_data || [])
+        .flatMap(order => (order.medications || []).map(med => ({
+            id: order.id,
+            date: order.ordered_at ? order.ordered_at.slice(0, 10) : '',
+            ...med,
+        })));
+    if (!medicineReportDate.value) {
+        return meds;
+    }
+    return meds.filter(med => med.date === medicineReportDate.value);
+});
+</script>
 
                     <TabsContent value="details" class="mt-6 space-y-6">
 
@@ -472,52 +543,51 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <PatientFilesTab :patient="props.patient" />
                     </TabsContent>
 
-                    <TabsContent value="medical-orders" class="mt-6">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-lg font-semibold">Visit History</h3>
-                                    <p class="text-sm text-muted-foreground">
-                                        Complete history of all visits, services, labs, medications, and billing
-                                    </p>
+                    <TabsContent value="visit-history" class="mt-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <label class="text-sm text-muted-foreground">Date</label>
+                            <input type="date" v-model="visitHistoryDate" class="border rounded px-2 py-1" />
+                            <Button variant="ghost" size="sm" @click="clearVisitHistoryDate" v-if="visitHistoryDate">
+                                Clear
+                            </Button>
+                        </div>
+                        <div v-if="filteredVisitHistory.length === 0" class="rounded-lg border bg-card p-8 text-center">
+                            <p class="text-muted-foreground">No visit history found for selected date.</p>
+                        </div>
+                        <div v-else class="space-y-2">
+                            <div v-for="visit in filteredVisitHistory" :key="visit.id" class="rounded-lg border bg-card overflow-hidden">
+                                <button
+                                    class="flex w-full items-center gap-4 p-4 text-left hover:bg-muted/50 transition-colors"
+                                    @click="toggleVisit(visit.id)"
+                                >
+                                    <ChevronRight
+                                        class="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200"
+                                        :class="{ 'rotate-90': expandedVisits.has(visit.id) }"
+                                    />
+                                    <div class="flex flex-1 items-center gap-4 min-w-0">
+                                        <span class="text-sm font-medium whitespace-nowrap">
+                                            {{ formatDateTime(visit.visit_date_time) }}
+                                        </span>
+                                        <span v-if="visit.staff_name" class="text-sm text-muted-foreground truncate">
+                                            {{ visit.staff_name }}
+                                        </span>
+                                    </div>
+                                    <Badge
+                                        :variant="visit.status === 'completed' ? 'default' : visit.status === 'processing' ? 'secondary' : 'outline'"
+                                        class="shrink-0"
+                                    >
+                                        {{ visit.status }}
+                                    </Badge>
+                                </button>
+                                <div v-if="expandedVisits.has(visit.id)" class="border-t px-6 pb-6 pt-4">
+                                    <!-- ...existing expanded details... -->
                                 </div>
                             </div>
+                        </div>
+                    </TabsContent>
 
-                            <div v-if="!props.patient.visit_history || props.patient.visit_history.length === 0"
-                                class="rounded-lg border bg-card p-8 text-center">
-                                <p class="text-muted-foreground">No visit history found.</p>
-                            </div>
-
-                            <div v-else class="space-y-2">
-                                <div v-for="visit in props.patient.visit_history" :key="visit.id"
-                                    class="rounded-lg border bg-card overflow-hidden">
-                                    <!-- Collapsed header row -->
-                                    <button
-                                        class="flex w-full items-center gap-4 p-4 text-left hover:bg-muted/50 transition-colors"
-                                        @click="toggleVisit(visit.id)"
-                                    >
-                                        <ChevronRight
-                                            class="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200"
-                                            :class="{ 'rotate-90': expandedVisits.has(visit.id) }"
-                                        />
-                                        <div class="flex flex-1 items-center gap-4 min-w-0">
-                                            <span class="text-sm font-medium whitespace-nowrap">
-                                                {{ formatDateTime(visit.visit_date_time) }}
-                                            </span>
-                                            <span v-if="visit.staff_name" class="text-sm text-muted-foreground truncate">
-                                                {{ visit.staff_name }}
-                                            </span>
-                                        </div>
-                                        <Badge
-                                            :variant="visit.status === 'completed' ? 'default' : visit.status === 'processing' ? 'secondary' : 'outline'"
-                                            class="shrink-0"
-                                        >
-                                            {{ visit.status }}
-                                        </Badge>
-                                    </button>
-
-                                    <!-- Expanded details -->
-                                    <div v-if="expandedVisits.has(visit.id)" class="border-t px-6 pb-6 pt-4">
+                    <TabsContent value="medical-orders" class="mt-6">
+                        <!-- ...existing medical orders content... -->
                                         <div class="grid gap-4 md:grid-cols-2">
                                             <div v-if="visit.priority" class="space-y-2">
                                                 <dt class="text-sm font-medium text-muted-foreground">

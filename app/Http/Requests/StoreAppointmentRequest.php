@@ -23,11 +23,11 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patients,id',
-            'staff_id' => 'required|exists:staff,id',
+            'staff_id' => 'nullable|exists:staff,id',
             'appointment_date_time' => 'required|date|after:now',
             'duration_minutes' => 'required|integer|min:15|max:480',
             'appointment_type' => 'required|in:consultation,emergency,follow_up,procedure,checkup,telemedicine,screening,therapy',
-            'reason_for_visit' => 'required|string|max:1000',
+            'reason_for_visit' => 'nullable|string|max:1000',
             'notes' => 'nullable|string|max:2000',
         ];
     }

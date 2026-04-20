@@ -74,6 +74,7 @@ class AppointmentsExport
     {
         $headers = [
             'Patient ID',
+            'Patient Title',
             'Time',
             'Date',
             'Patient Name',
@@ -91,6 +92,7 @@ class AppointmentsExport
         foreach ($appointments as $appointment) {
             $rows[] = [
                 $appointment->patient ? $appointment->patient->id : '',
+                $appointment->patient ? $appointment->patient->title : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('d/m/y') : '',
                 $appointment->patient ? ($appointment->patient->user ? $appointment->patient->user->name : ($appointment->patient->name.' '.$appointment->patient->surname)) : 'Unknown Patient',
