@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/table';
 import { show, store } from '@/routes/patient-files';
 import { useForm } from '@inertiajs/vue3';
-import { Download, Eye, Plus } from 'lucide-vue-next';
+import { Download, Eye, Plus, Trash2 } from 'lucide-vue-next';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -199,7 +199,7 @@ function deleteFile(id: number) {
                                         size="sm"
                                         @click.prevent="deleteFile(item.id)"
                                     >
-                                        Delete
+                                        <Trash2 class="size-4" />
                                     </Button>
                                 </div>
                             </TableCell>

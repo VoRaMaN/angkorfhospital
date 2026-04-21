@@ -133,6 +133,7 @@ class SpatiePermissionSeeder extends Seeder
             'create_files',
             'edit_files',
             'delete_files',
+            'delete_patient_files',
 
             // Activity log
             'view_activity_logs',

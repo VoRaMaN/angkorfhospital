@@ -197,7 +197,7 @@ class PatientFileController extends Controller
      */
     public function destroy(PatientFile $patientFile)
     {
-        $this->authorize('delete', $patientFile->file);
+        $this->authorize('delete', $patientFile);
 
         Storage::delete($patientFile->file->path);
         $patientFile->file->delete();
