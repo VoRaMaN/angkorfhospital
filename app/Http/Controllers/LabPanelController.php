@@ -51,13 +51,16 @@ class LabPanelController extends Controller
         $categories = []; // Removed since category field is removed
 
         // Active medical orders with lab items for lab staff workflow
-        // Show any order that has lab items not yet completed (regardless of overall order status)
+        // Default: today only. Pass start_date/end_date to search a range.
+        $labStartDate = $request->input('lab_start_date', today()->toDateString());
+        $labEndDate = $request->input('lab_end_date', today()->toDateString());
+
         $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems'])
             ->whereNotIn('status', [MedicalOrderStatusEnum::CANCEL, MedicalOrderStatusEnum::REJECTED])
             ->whereHas('orderItems', function ($q) {
-                $q->where('item_type', 'lab')
-                    ->whereNull('completed_at');
+                $q->where('item_type', 'lab');
             })
+            ->whereBetween('ordered_at', [$labStartDate.' 00:00:00', $labEndDate.' 23:59:59'])
             ->latest('ordered_at')
             ->get()
             ->map(function ($order) {
@@ -102,7 +105,10 @@ class LabPanelController extends Controller
             'labPanels' => $labPanels,
             'activeLabOrders' => $activeLabOrders,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category', 'status']),
+            'filters' => array_merge($request->only(['search', 'category', 'status']), [
+                'lab_start_date' => $labStartDate,
+                'lab_end_date' => $labEndDate,
+            ]),
         ]);
     }
 

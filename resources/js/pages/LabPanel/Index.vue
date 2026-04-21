@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,6 +85,10 @@ interface Props {
         search: string;
         category: string;
         status: string;
+        lab_start_date: string;
+        lab_end_date: string;
+        lab_start_date: string;
+        lab_end_date: string;
     };
 }
 
@@ -97,6 +101,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const labStartDate = ref(props.filters.lab_start_date || new Date().toISOString().slice(0, 10));
+const labEndDate = ref(props.filters.lab_end_date || new Date().toISOString().slice(0, 10));
+
+const searchLabOrders = () => {
+    router.get(
+        labPanelIndex().url,
+        { ...props.filters, lab_start_date: labStartDate.value, lab_end_date: labEndDate.value },
+        { preserveState: true, replace: true },
+    );
+};
 const searchQuery = ref(props.filters.search);
 const selectedStatus = ref(props.filters.status || null);
 
@@ -140,25 +154,23 @@ const priorityBadgeVariant = (priority: string) => {
         case 'low': return 'secondary' as const;
         default: return 'secondary' as const;
     }
-};
-
-const { hasPermission } = useAuth();
-
-// Track which lab item has the result form open
-const activeResultForm = ref<number | null>(null);
-
+};// Always refresh so editing re-populates with current saved values
+    resultForms[item.id] = {
+        result_value: item.result_value ?? '',
+        result_unit: item.result_unit ?? '',
+        result_notes: item.result_notes ?? '',
+    };
 // Store form data per item id
 const resultForms = reactive<Record<number, { result_value: string; result_unit: string; result_notes: string }>>({});
 
 const openResultForm = (item: LabItem) => {
     activeResultForm.value = item.id;
-    if (!resultForms[item.id]) {
-        resultForms[item.id] = {
-            result_value: item.result_value ?? '',
-            result_unit: item.result_unit ?? '',
-            result_notes: item.result_notes ?? '',
-        };
-    }
+    // Always refresh so editing re-populates with current saved values
+    resultForms[item.id] = {
+        result_value: item.result_value ?? '',
+        result_unit: item.result_unit ?? '',
+        result_notes: item.result_notes ?? '',
+    };
 };
 
 const saveResult = (orderId: number, itemId: number) => {
@@ -194,22 +206,48 @@ const saveResult = (orderId: number, itemId: number) => {
             </div>
 
             <!-- Active Lab Orders - Lab Staff Reminder -->
-            <div v-if="props.activeLabOrders.length > 0" class="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
+            <div class="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
+                <!-- Date Range Filter -->
+                <div class="mb-4 flex flex-wrap items-end gap-3">
+                    <div>
+                        <Label class="text-xs text-muted-foreground">From</Label>
+                        <Input v-model="labStartDate" type="date" class="mt-1 h-8 w-36 text-sm" />
+                    </div>
+                    <div>
+                        <Label class="text-xs text-muted-foreground">To</Label>
+                        <Input v-model="labEndDate" type="date" class="mt-1 h-8 w-36 text-sm" />
+                    </div>
+                    <Button size="sm" class="h-8" @click="searchLabOrders">
+                        <Search class="mr-1.5 size-3.5" />
+                        Search
+                    </Button>
+                    <Button
+                        size="sm" variant="ghost" class="h-8 text-xs"
+                        @click="labStartDate = new Date().toISOString().slice(0, 10); labEndDate = new Date().toISOString().slice(0, 10); searchLabOrders()"
+                    >
+                        Today
+                    </Button>
+                </div>
+
                 <div class="mb-4 flex items-center justify-between">
                     <h2 class="flex items-center gap-2 text-lg font-semibold">
                         <span class="relative flex size-3">
                             <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
                             <span class="relative inline-flex size-3 rounded-full bg-blue-500"></span>
                         </span>
-                        Lab Orders In Progress
+                        Lab Orders
                         <Badge variant="secondary" class="ml-1">{{ props.activeLabOrders.length }}</Badge>
                     </h2>
                     <p class="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock class="size-3" />
-                        Auto-refreshes on page load
+                        Showing {{ labStartDate === labEndDate ? labStartDate : labStartDate + ' â†’ ' + labEndDate }}
                     </p>
                 </div>
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div v-if="props.activeLabOrders.length === 0" class="rounded-xl border border-dashed p-6 text-center text-muted-foreground">
+                    <FlaskConical class="mx-auto mb-2 size-8 opacity-40" />
+                    <p class="text-sm">No lab orders found for this date range</p>
+                </div>
+                <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <div
                         v-for="order in props.activeLabOrders"
                         :key="order.id"
@@ -290,6 +328,16 @@ const saveResult = (orderId: number, itemId: number) => {
                                                 <ClipboardEdit class="mr-1 size-3" />
                                                 Input Result
                                             </Button>
+                                            <Button
+                                                v-else
+                                                size="sm"
+                                                variant="ghost"
+                                                class="h-7 px-2 text-xs text-muted-foreground"
+                                                @click.stop="openResultForm(item)"
+                                            >
+                                                <ClipboardEdit class="mr-1 size-3" />
+                                                Edit
+                                            </Button>
                                         </div>
                                     </div>
 
@@ -312,7 +360,7 @@ const saveResult = (orderId: number, itemId: number) => {
                                                 <Label class="text-xs">Unit</Label>
                                                 <Input
                                                     v-model="resultForms[item.id].result_unit"
-                                                    placeholder="g/dL, mmol…"
+                                                    placeholder="g/dL, mmolâ€¦"
                                                     class="mt-1 h-8 text-sm"
                                                 />
                                             </div>
@@ -321,7 +369,7 @@ const saveResult = (orderId: number, itemId: number) => {
                                             <Label class="text-xs">Notes (optional)</Label>
                                             <Textarea
                                                 v-model="resultForms[item.id].result_notes"
-                                                placeholder="Additional notes…"
+                                                placeholder="Additional notesâ€¦"
                                                 class="mt-1 min-h-[60px] text-sm"
                                             />
                                         </div>
@@ -350,11 +398,6 @@ const saveResult = (orderId: number, itemId: number) => {
                     </Card>
                     </div>
                 </div>
-            </div>
-
-            <div v-else class="rounded-xl border border-dashed p-6 text-center text-muted-foreground">
-                <FlaskConical class="mx-auto mb-2 size-8 opacity-40" />
-                <p class="text-sm">No active lab orders at the moment</p>
             </div>
 
             <!-- Filters -->
