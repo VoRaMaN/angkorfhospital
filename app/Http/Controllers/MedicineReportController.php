@@ -56,7 +56,7 @@ class MedicineReportController extends Controller
         }
 
         // Always load today's dispensing queue
-        $todayDispensing = MedicalOrder::with(['patient'])
+        $todayDispensing = MedicalOrder::with(['patient', 'orderItems'])
             ->whereHas('orderItems', function ($q) {
                 $q->where('item_type', 'rx_medicine');
             })
@@ -66,18 +66,26 @@ class MedicineReportController extends Controller
             ->get()
             ->map(function ($order) {
                 $patient = $order->patient;
-                $allFinished = $order->orderItems
-                    ->where('item_type', 'rx_medicine')
-                    ->every(fn ($item) => $item->status === MedicalOrderStatusEnum::COMPLETED);
+                $rxItems = $order->orderItems->where('item_type', 'rx_medicine');
+                $allFinished = $rxItems->every(fn ($item) => $item->status === MedicalOrderStatusEnum::COMPLETED);
 
                 return [
                     'id' => $order->id,
+                    'patient_id' => $patient?->id,
                     'patient_name' => $patient?->full_name ?: 'Unknown Patient',
                     'status' => $order->status->value,
                     'status_label' => $order->status->label(),
                     'status_color' => $order->status->color(),
                     'is_finished' => $allFinished,
                     'ordered_at' => $order->ordered_at?->format('H:i'),
+                    'medicines' => $rxItems->map(fn ($item) => [
+                        'medicine_name' => $item->item_name,
+                        'quantity' => $item->quantity_required,
+                        'unit_price' => $item->unit_price,
+                        'selling_price' => $item->selling_price,
+                        'total_cost' => $item->selling_price * $item->quantity_required,
+                        'date' => $order->ordered_at?->format('d/m/y'),
+                    ])->values(),
                 ];
             });
 
@@ -93,17 +101,34 @@ class MedicineReportController extends Controller
 
     public function finish(int $id): \Illuminate\Http\RedirectResponse
     {
-        $order = MedicalOrder::findOrFail($id);
+        $order = MedicalOrder::with('orderItems.inventory')->findOrFail($id);
 
-        $order->orderItems()
-            ->where('item_type', 'rx_medicine')
-            ->whereNot('status', MedicalOrderStatusEnum::COMPLETED)
-            ->update([
+        $inventoryService = app(\App\Services\InventoryService::class);
+
+        foreach ($order->orderItems as $item) {
+            if ($item->item_type !== 'rx_medicine' || $item->status === MedicalOrderStatusEnum::COMPLETED) {
+                continue;
+            }
+
+            // Deduct medicine from stock before marking completed
+            if ($item->inventory_id && $item->inventory) {
+                $quantity = $item->quantity_required ?? 1;
+                if ($item->inventory->quantity >= $quantity) {
+                    $inventoryService->removeStock(
+                        $item->inventory,
+                        $quantity,
+                        "Dispensed to patient via Medical Order #{$order->id}"
+                    );
+                }
+            }
+
+            $item->update([
                 'status' => MedicalOrderStatusEnum::COMPLETED->value,
                 'completed_at' => now(),
             ]);
+        }
 
-        return back()->with('success', 'Medicine marked as dispensed.');
+        return back()->with('success', 'Medicine handed over to patient and stock updated.');
     }
 
     public function export(Request $request)

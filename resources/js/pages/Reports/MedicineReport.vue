@@ -8,7 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { Calendar, CheckCircle2, Download, Eye, FileText, Search } from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar, CheckCircle2, Download, Eye, FileText, Search, User } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { index as medicineReportIndex, exportMethod as medicineReportExport } from '@/routes/medicine-report';
 
@@ -30,14 +31,25 @@ interface MedicineUsage {
     total_cost: number;
 }
 
+interface OrderMedicine {
+    medicine_name: string;
+    quantity: number;
+    unit_price: number;
+    selling_price: number;
+    total_cost: number;
+    date: string;
+}
+
 interface TodayDispensing {
     id: number;
+    patient_id: number;
     patient_name: string;
     status: string;
     status_label: string;
     status_color: string;
     is_finished: boolean;
     ordered_at: string;
+    medicines: OrderMedicine[];
 }
 
 interface Props {
@@ -90,8 +102,23 @@ const exportPatient = (patientId: number) => {
     }}).url;
 };
 
+const selectedOrder = ref<TodayDispensing | null>(null);
+
+const openOrderModal = (order: TodayDispensing) => {
+    selectedOrder.value = order;
+};
+
+const exportOrder = (order: TodayDispensing) => {
+    const today = new Date().toISOString().slice(0, 10);
+    window.location.href = medicineReportExport({ query: {
+        start_date: today,
+        end_date: today,
+        patient_id: order.patient_id,
+    }}).url;
+};
+
 const finishDispensing = (id: number) => {
-    if (confirm('Mark this medicine as dispensed (patient has taken away)?')) {
+    if (confirm('Confirm medicine has been handed to the patient? Stock will be deducted.')) {
         router.patch(`/medicine-report/finish/${id}`, {}, { preserveScroll: true });
     }
 };
@@ -164,8 +191,8 @@ const formatPrice = (price: number) => {
                 </CardContent>
             </Card>
 
-            <!-- Today's Dispensing Queue (shown when no date range selected) -->
-            <div v-if="!startDate || !endDate">
+            <!-- Today's Dispensing Queue (always visible for pharmacists) -->
+            <div>
                 <Card>
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
@@ -173,7 +200,7 @@ const formatPrice = (price: number) => {
                             Today's Medicine Dispensing
                         </CardTitle>
                         <CardDescription>
-                            RX medicine orders for today — mark as finished once patient has collected their medicine
+                            RX medicine orders for today — click Finish once medicine has been handed to the patient (stock will be deducted)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -206,7 +233,16 @@ const formatPrice = (price: number) => {
                                             {{ order.status_label }}
                                         </span>
                                     </TableCell>
-                                    <TableCell class="font-medium">{{ order.patient_name }}</TableCell>
+                                    <TableCell>
+                                        <button
+                                            type="button"
+                                            class="flex items-center gap-1 font-medium text-primary underline-offset-2 hover:underline"
+                                            @click="openOrderModal(order)"
+                                        >
+                                            <User class="h-3.5 w-3.5 shrink-0" />
+                                            {{ order.patient_name }}
+                                        </button>
+                                    </TableCell>
                                     <TableCell>
                                         <div class="flex justify-center gap-2">
                                             <Button
@@ -228,10 +264,10 @@ const formatPrice = (price: number) => {
                                                 <CheckCircle2 class="mr-1 h-3.5 w-3.5" />
                                                 Finish
                                             </Button>
-                                            <span v-else class="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
-                                                <CheckCircle2 class="h-3.5 w-3.5" />
-                                                Dispensed
-                                            </span>
+                                            <Badge v-else variant="outline" class="gap-1 border-green-600 text-green-600">
+                                                <CheckCircle2 class="h-3 w-3" />
+                                                Handed Over
+                                            </Badge>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -241,7 +277,54 @@ const formatPrice = (price: number) => {
                 </Card>
             </div>
 
-            <div v-else-if="medicineUsage.length === 0" class="rounded-lg border bg-muted/50 p-12 text-center">
+            <!-- Patient Order Detail Modal -->
+            <Dialog :open="selectedOrder !== null" @update:open="(v) => { if (!v) selectedOrder = null; }">
+                <DialogContent class="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle class="flex items-center justify-between gap-2">
+                            <span>{{ selectedOrder?.patient_name }}</span>
+                            <Button
+                                v-if="selectedOrder"
+                                size="sm"
+                                variant="outline"
+                                @click="exportOrder(selectedOrder)"
+                            >
+                                <Download class="mr-1.5 h-3.5 w-3.5" />
+                                Export Excel
+                            </Button>
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div v-if="selectedOrder" class="mt-2">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Medicine</TableHead>
+                                    <TableHead class="text-right">Qty</TableHead>
+                                    <TableHead class="text-right">Unit Price</TableHead>
+                                    <TableHead class="text-right">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow v-for="(med, i) in selectedOrder.medicines" :key="i">
+                                    <TableCell class="font-medium">{{ med.medicine_name }}</TableCell>
+                                    <TableCell class="text-right">{{ med.quantity }}</TableCell>
+                                    <TableCell class="text-right">{{ formatPrice(med.selling_price) }}</TableCell>
+                                    <TableCell class="text-right font-semibold text-green-600">{{ formatPrice(med.total_cost) }}</TableCell>
+                                </TableRow>
+                                <TableRow class="bg-muted/50 font-semibold">
+                                    <TableCell colspan="2">Total</TableCell>
+                                    <TableCell></TableCell>
+                                    <TableCell class="text-right text-green-600">
+                                        {{ formatPrice(selectedOrder.medicines.reduce((s, m) => s + m.total_cost, 0)) }}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <div v-if="(startDate && endDate) && medicineUsage.length === 0" class="rounded-lg border bg-muted/50 p-12 text-center">
                 <FileText class="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 class="mt-4 text-lg font-semibold">No Medicine Usage Found</h3>
                 <p class="mt-2 text-sm text-muted-foreground">
@@ -249,7 +332,7 @@ const formatPrice = (price: number) => {
                 </p>
             </div>
 
-            <div v-else class="space-y-6">
+            <div v-if="(startDate && endDate) && medicineUsage.length > 0" class="space-y-6">
                 <div class="rounded-lg border bg-card p-4">
                     <div class="flex items-center justify-between">
                         <div>
