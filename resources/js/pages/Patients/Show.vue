@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight, FlaskConical } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 
 const expandedVisits = ref<Set<number>>(new Set());
@@ -236,13 +236,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="max-w-4xl">
                 <Tabs default-value="details" class="w-full">
-                    <TabsList class="grid w-full grid-cols-6">
+                    <TabsList class="grid w-full grid-cols-7">
                         <TabsTrigger value="details">Patient Details</TabsTrigger>
                         <TabsTrigger value="files">Files</TabsTrigger>
                         <TabsTrigger value="visit-history">Visit History</TabsTrigger>
                         <TabsTrigger value="medical-orders">Medical Orders</TabsTrigger>
                         <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
                         <TabsTrigger value="medicine-use-report">Medicine Use Report</TabsTrigger>
+                        <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
                     </TabsList>
                     <TabsContent value="medicine-use-report" class="mt-6">
                         <div class="flex items-center gap-4 mb-4">
@@ -756,6 +757,47 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </TabsContent>
+
+                    <!-- Lab Results Tab -->
+                    <TabsContent value="lab-results" class="mt-6">
+                        <div v-if="!(props.patient.medical_orders_data || []).some((o: any) => o.labs?.length)" class="rounded-lg border bg-muted/50 p-10 text-center">
+                            <FlaskConical class="mx-auto mb-3 h-10 w-10 opacity-40" />
+                            <p class="text-sm text-muted-foreground">No lab results recorded yet.</p>
+                        </div>
+                        <div v-else class="space-y-4">
+                            <template v-for="order in (props.patient.medical_orders_data || [])" :key="order.id">
+                                <div v-if="order.labs?.length" class="rounded-lg border bg-card">
+                                    <div class="flex items-center justify-between border-b px-4 py-3">
+                                        <div>
+                                            <p class="font-semibold text-sm">Order #{{ order.id }}</p>
+                                            <p class="text-xs text-muted-foreground">{{ order.ordered_at ? order.ordered_at.slice(0, 10) : '' }} &middot; Dr. {{ order.staff_name }}</p>
+                                        </div>
+                                        <Badge :class="order.status?.value === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'" variant="outline">
+                                            {{ order.status?.label || order.status }}
+                                        </Badge>
+                                    </div>
+                                    <div class="divide-y">
+                                        <div v-for="(lab, i) in order.labs" :key="i" class="px-4 py-3">
+                                            <div class="flex items-start justify-between gap-4">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-sm">{{ lab.name }}</p>
+                                                    <p v-if="lab.details" class="text-xs text-muted-foreground">{{ lab.details }}</p>
+                                                </div>
+                                                <div class="text-right shrink-0">
+                                                    <div v-if="lab.result_value" class="text-sm font-bold text-green-700 dark:text-green-400">
+                                                        {{ lab.result_value }}<span v-if="lab.result_unit" class="ml-1 font-normal text-muted-foreground">{{ lab.result_unit }}</span>
+                                                    </div>
+                                                    <span v-else class="text-xs text-muted-foreground italic">Pending</span>
+                                                    <p v-if="lab.result_notes" class="mt-0.5 text-xs text-muted-foreground">{{ lab.result_notes }}</p>
+                                                    <p v-if="lab.completed_at" class="mt-0.5 text-xs text-muted-foreground">{{ lab.completed_at?.slice(0, 10) }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                     </TabsContent>
                 </Tabs>

@@ -225,6 +225,9 @@ class PatientController extends Controller
                     'details' => $item->details,
                     'status' => $item->status,
                     'completed_at' => $item->completed_at,
+                    'result_value' => $item->result_value,
+                    'result_unit' => $item->result_unit,
+                    'result_notes' => $item->result_notes,
                 ]),
                 'medications' => $medications->map(fn ($item) => [
                     'name' => $item->item_name,
