@@ -51,10 +51,12 @@ class LabPanelController extends Controller
         $categories = []; // Removed since category field is removed
 
         // Active medical orders with lab items for lab staff workflow
+        // Show any order that has lab items not yet completed (regardless of overall order status)
         $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems'])
-            ->whereIn('status', [MedicalOrderStatusEnum::PENDING, MedicalOrderStatusEnum::PROCESSING])
+            ->whereNotIn('status', [MedicalOrderStatusEnum::CANCEL, MedicalOrderStatusEnum::REJECTED])
             ->whereHas('orderItems', function ($q) {
-                $q->where('item_type', 'lab');
+                $q->where('item_type', 'lab')
+                    ->whereNull('completed_at');
             })
             ->latest('ordered_at')
             ->get()
