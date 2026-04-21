@@ -121,6 +121,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Visits
     Route::resource('visits', VisitController::class);
+    Route::get('visits-export', [VisitController::class, 'export'])->name('visits.export');
     Route::patch('visits/{visit}/assign-process', [VisitController::class, 'assignAndProcess'])->name('visits.assign-process');
     Route::patch('visits/{visit}/assign-doctor', [VisitController::class, 'assignDoctor'])->name('visits.assign-doctor');
     Route::patch('visits/{visit}/notify-staff', [VisitController::class, 'notifyStaff'])->name('visits.notify-staff');

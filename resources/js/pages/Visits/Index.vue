@@ -16,7 +16,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { create, edit, show, update } from '@/routes/visits';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Edit, Eye, Plus, Search, X, Calendar, Trash2 } from 'lucide-vue-next';
+import { Download, Edit, Eye, Plus, Search, X, Calendar, Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
 const navigateToVisit = (visitId: number) => {
@@ -76,6 +76,14 @@ const { hasPermission } = useAuth();
 
 const searchQuery = ref(props.filters.search || '');
 const selectedDate = ref(props.filters.date || '');
+
+const exportVisits = () => {
+    const params = new URLSearchParams();
+    if (searchQuery.value) params.set('search', searchQuery.value);
+    if (selectedDate.value) params.set('date', selectedDate.value);
+    if (props.filters.patient) params.set('patient', props.filters.patient);
+    window.location.href = `/visits-export?${params.toString()}`;
+};
 let searchTimeout: number | null = null;
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -220,6 +228,10 @@ const getStatusColor = (status: string) => {
                         <a :href="`/patients/show?patient=${props.filters.patient}`">
                             Back to Patient
                         </a>
+                    </Button>
+                    <Button variant="outline" @click="exportVisits" v-if="hasPermission('view_visits')">
+                        <Download class="size-4" />
+                        Export to CSV
                     </Button>
                     <Button as-child v-if="hasPermission('create_visits')">
                         <Link :href="create().url">

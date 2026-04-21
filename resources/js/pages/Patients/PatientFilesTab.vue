@@ -65,6 +65,14 @@ const submitForm = () => {
     }
     form.post(store().url, { forceFormData: true });
 };
+
+import { router } from '@inertiajs/vue3';
+
+function deleteFile(id: number) {
+    if (confirm('Are you sure you want to delete this file?')) {
+        router.delete(`/patient-files/${id}`);
+    }
+}
 </script>
 
 <template>
@@ -195,17 +203,6 @@ const submitForm = () => {
                                     </Button>
                                 </div>
                             </TableCell>
-                        </script>
-
-                        <script lang="ts">
-                        import { router } from '@inertiajs/vue3';
-
-                        function deleteFile(id: number) {
-                            if (confirm('Are you sure you want to delete this file?')) {
-                                router.delete(`/patient-files/${id}`);
-                            }
-                        }
-                        </script>
                         </TableRow>
                         <TableRow
                             v-if="

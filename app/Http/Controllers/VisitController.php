@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\VisitsExport;
 use App\Models\Visit;
 use App\Services\VisitFlowService;
 use Illuminate\Http\Request;
@@ -555,6 +556,21 @@ class VisitController extends Controller
                 'date' => request('date', today()->toDateString()),
             ],
         ]);
+    }
+
+    public function export()
+    {
+        $this->authorize('viewAny', Visit::class);
+
+        $filters = [
+            'search' => request('search', ''),
+            'date' => request('date', ''),
+            'patient' => request('patient', ''),
+            'from' => request('from', ''),
+            'to' => request('to', ''),
+        ];
+
+        return (new VisitsExport($filters))->download();
     }
 
     /**

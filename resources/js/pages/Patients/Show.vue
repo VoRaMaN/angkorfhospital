@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,24 @@ const visitHistoryDate = ref('');
 const clearVisitHistoryDate = () => {
     visitHistoryDate.value = '';
 };
+
+const medicineReportDate = ref('');
+const clearMedicineReportDate = () => {
+    medicineReportDate.value = '';
+};
+const filteredMedicineReport = computed(() => {
+    const meds = (props.patient.medical_orders_data || [])
+        .flatMap((order: any) => ((order.medications || []) as any[]).map((med: any) => ({
+            id: order.id,
+            date: order.ordered_at ? order.ordered_at.slice(0, 10) : '',
+            ...med,
+        })));
+    if (!medicineReportDate.value) {
+        return meds;
+    }
+    return meds.filter((med: any) => med.date === medicineReportDate.value);
+});
+
 const filteredVisitHistory = computed(() => {
     if (!visitHistoryDate.value) {
         return props.patient.visit_history || [];
@@ -262,29 +280,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </table>
                         </div>
                     </TabsContent>
-<script setup lang="ts">
-// ...existing imports...
-import { ref, computed } from 'vue';
-
-// ...existing code...
-
-const medicineReportDate = ref('');
-const clearMedicineReportDate = () => {
-    medicineReportDate.value = '';
-};
-const filteredMedicineReport = computed(() => {
-    const meds = (props.patient.medical_orders_data || [])
-        .flatMap(order => (order.medications || []).map(med => ({
-            id: order.id,
-            date: order.ordered_at ? order.ordered_at.slice(0, 10) : '',
-            ...med,
-        })));
-    if (!medicineReportDate.value) {
-        return meds;
-    }
-    return meds.filter(med => med.date === medicineReportDate.value);
-});
-</script>
 
                     <TabsContent value="details" class="mt-6 space-y-6">
 
@@ -536,7 +531,6 @@ const filteredMedicineReport = computed(() => {
                                 </table>
                             </div>
                         </div>
-
                     </TabsContent>
 
                     <TabsContent value="files" class="mt-6">
@@ -580,29 +574,21 @@ const filteredMedicineReport = computed(() => {
                                     </Badge>
                                 </button>
                                 <div v-if="expandedVisits.has(visit.id)" class="border-t px-6 pb-6 pt-4">
-                                    <!-- ...existing expanded details... -->
-                                </div>
-                            </div>
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value="medical-orders" class="mt-6">
-                        <!-- ...existing medical orders content... -->
-                                        <div class="grid gap-4 md:grid-cols-2">
-                                            <div v-if="visit.priority" class="space-y-2">
-                                                <dt class="text-sm font-medium text-muted-foreground">
-                                                    Priority
-                                                </dt>
-                                                <dd class="text-sm">
-                                                    <Badge variant="destructive" v-if="visit.priority === 'stat'">
-                                                        {{ visit.priority }}
-                                                    </Badge>
-                                                    <Badge variant="secondary" v-else>
-                                                        {{ visit.priority }}
-                                                    </Badge>
-                                                </dd>
-                                            </div>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div v-if="visit.priority" class="space-y-2">
+                                            <dt class="text-sm font-medium text-muted-foreground">
+                                                Priority
+                                            </dt>
+                                            <dd class="text-sm">
+                                                <Badge variant="destructive" v-if="visit.priority === 'stat'">
+                                                    {{ visit.priority }}
+                                                </Badge>
+                                                <Badge variant="secondary" v-else>
+                                                    {{ visit.priority }}
+                                                </Badge>
+                                            </dd>
                                         </div>
+                                    </div>
 
                                     <!-- Medical Orders Section -->
                                     <div v-if="visit.medical_orders && visit.medical_orders.length > 0" class="mt-6 space-y-4">
@@ -689,7 +675,6 @@ const filteredMedicineReport = computed(() => {
                                         <dd class="text-sm whitespace-pre-line rounded-md bg-muted/50 p-3">
                                             {{ visit.notes }}
                                         </dd>
-                                    </div>
                                     </div>
                                 </div>
                             </div>
