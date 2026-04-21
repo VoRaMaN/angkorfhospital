@@ -46,7 +46,18 @@ class VisitController extends Controller
 
         // Date filter
         $dateFilter = request('date');
-        if ($dateFilter) {
+        $fromFilter = request('from');
+        $toFilter = request('to');
+
+        if ($fromFilter || $toFilter) {
+            // Date range filter
+            if ($fromFilter) {
+                $query->whereDate('visit_date_time', '>=', $fromFilter);
+            }
+            if ($toFilter) {
+                $query->whereDate('visit_date_time', '<=', $toFilter);
+            }
+        } elseif ($dateFilter) {
             // User selected a specific date
             $query->whereDate('visit_date_time', $dateFilter);
         } elseif (! $patientFilter) {
@@ -162,7 +173,9 @@ class VisitController extends Controller
             'doctors' => $doctors,
             'filters' => [
                 'search' => request('search', ''),
-                'date' => request('date', today()->toDateString()),
+                'date' => request('date', ''),
+                'from' => request('from', ''),
+                'to' => request('to', ''),
                 'patient' => $patientFilter,
             ],
             'patientName' => $patientName,

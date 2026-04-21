@@ -65,6 +65,8 @@ interface Props {
     filters: {
         search: string;
         date: string;
+        from: string;
+        to: string;
         patient?: string;
     };
     patientName?: string;
@@ -75,12 +77,14 @@ const props = defineProps<Props>();
 const { hasPermission } = useAuth();
 
 const searchQuery = ref(props.filters.search || '');
-const selectedDate = ref(props.filters.date || '');
+const fromDate = ref(props.filters.from || '');
+const toDate = ref(props.filters.to || '');
 
 const exportVisits = () => {
     const params = new URLSearchParams();
     if (searchQuery.value) params.set('search', searchQuery.value);
-    if (selectedDate.value) params.set('date', selectedDate.value);
+    if (fromDate.value) params.set('from', fromDate.value);
+    if (toDate.value) params.set('to', toDate.value);
     if (props.filters.patient) params.set('patient', props.filters.patient);
     window.location.href = `/visits-export?${params.toString()}`;
 };
@@ -102,9 +106,10 @@ const performSearch = () => {
     searchTimeout = setTimeout(() => {
         router.get('/visits', {
             search: searchQuery.value,
-            date: selectedDate.value,
-            patient: props.filters.patient, // Preserve patient filter
-            page: 1, // Reset to first page when searching
+            from: fromDate.value,
+            to: toDate.value,
+            patient: props.filters.patient,
+            page: 1,
         }, {
             preserveState: true,
             replace: true,
@@ -117,12 +122,13 @@ watch(searchQuery, () => {
     performSearch();
 });
 
-// Watch for date changes
-watch(selectedDate, () => {
+// Watch for date range changes
+watch([fromDate, toDate], () => {
     router.get('/visits', {
         search: searchQuery.value,
-        date: selectedDate.value,
-        patient: props.filters.patient, // Preserve patient filter
+        from: fromDate.value,
+        to: toDate.value,
+        patient: props.filters.patient,
         page: 1,
     }, {
         preserveState: true,
@@ -130,8 +136,9 @@ watch(selectedDate, () => {
     });
 });
 
-const clearDate = () => {
-    selectedDate.value = new Date().toISOString().split('T')[0]; // Reset to today
+const clearDateRange = () => {
+    fromDate.value = '';
+    toDate.value = '';
 };
 
 const cancelVisit = (visit: Visit) => {
@@ -251,17 +258,28 @@ const getStatusColor = (status: string) => {
                     <div class="relative">
                         <Calendar class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            v-model="selectedDate"
+                            v-model="fromDate"
                             type="date"
-                            class="pl-9 w-48"
+                            class="pl-9 w-44"
+                            placeholder="From"
+                        />
+                    </div>
+                    <span class="text-muted-foreground text-sm">to</span>
+                    <div class="relative">
+                        <Calendar class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            v-model="toDate"
+                            type="date"
+                            class="pl-9 w-44"
+                            placeholder="To"
                         />
                     </div>
                     <Button
-                        v-if="selectedDate !== new Date().toISOString().split('T')[0]"
+                        v-if="fromDate || toDate"
                         variant="ghost"
                         size="icon"
-                        @click="clearDate"
-                        title="Reset to today"
+                        @click="clearDateRange"
+                        title="Clear date range"
                     >
                         <X class="size-4" />
                     </Button>

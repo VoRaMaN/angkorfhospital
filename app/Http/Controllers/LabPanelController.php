@@ -61,9 +61,20 @@ class LabPanelController extends Controller
             ->map(function ($order) {
                 $patient = $order->patient ?? $order->visit?->patient;
 
+                $dob = null;
+                if ($patient && $patient->date_of_birth_day && $patient->date_of_birth_month && $patient->date_of_birth_year) {
+                    $dob = str_pad($patient->date_of_birth_day, 2, '0', STR_PAD_LEFT)
+                        .'/'.str_pad($patient->date_of_birth_month, 2, '0', STR_PAD_LEFT)
+                        .'/'.$patient->date_of_birth_year;
+                }
+
                 return [
                     'id' => $order->id,
-                    'patient_name' => $patient?->full_name ?? 'Unknown Patient',
+                    'patient_id' => $patient?->id ?? null,
+                    'patient_name' => ($patient?->title ? $patient->title.' ' : '').trim(($patient?->name ?? '').($patient?->surname ? ' '.$patient->surname : '')) ?: 'Unknown Patient',
+                    'patient_id_card' => $patient?->id_card_or_passport ?? null,
+                    'patient_dob' => $dob,
+                    'patient_phone' => $patient?->mobile_phone ?? $patient?->home_phone ?? null,
                     'staff_name' => $order->staff?->user?->name ?? 'Unknown Staff',
                     'status' => $order->status->value,
                     'status_label' => $order->status->label(),

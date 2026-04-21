@@ -213,7 +213,7 @@ const form = useForm({
                         <Label>Appointment Date & Time</Label>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="flex gap-2 items-center">
-                                <Select v-model="selectedDay.value">
+                                <Select v-model="selectedDay">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Day" />
                                     </SelectTrigger>
@@ -221,7 +221,7 @@ const form = useForm({
                                         <SelectItem v-for="d in days" :key="d" :value="d">{{ d }}</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Select v-model="selectedMonth.value">
+                                <Select v-model="selectedMonth">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Month" />
                                     </SelectTrigger>
@@ -229,7 +229,7 @@ const form = useForm({
                                         <SelectItem v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Select v-model="selectedYear.value">
+                                <Select v-model="selectedYear">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Year" />
                                     </SelectTrigger>
@@ -253,71 +253,6 @@ const form = useForm({
                             class="text-sm text-destructive"
                         >
                             {{ form.errors.appointment_date_time }}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <Label for="duration_minutes"
-                                >Duration (minutes)</Label
-                            >
-                            <Input
-                                id="duration_minutes"
-                                v-model="form.duration_minutes"
-                                type="number"
-                                min="15"
-                                max="480"
-                                step="15"
-                            />
-                            <div
-                                v-if="form.errors.duration_minutes"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.duration_minutes }}
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <Label for="appointment_type"
-                                >Appointment Type</Label
-                            >
-                            <Select v-model="form.appointment_type">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="consultation"
-                                        >Consultation</SelectItem
-                                    >
-                                    <SelectItem value="emergency"
-                                        >Emergency</SelectItem
-                                    >
-                                    <SelectItem value="follow_up"
-                                        >Follow-up</SelectItem
-                                    >
-                                    <SelectItem value="procedure"
-                                        >Procedure</SelectItem
-                                    >
-                                    <SelectItem value="checkup"
-                                        >Check-up</SelectItem
-                                    >
-                                    <SelectItem value="telemedicine"
-                                        >Telemedicine</SelectItem
-                                    >
-                                    <SelectItem value="screening"
-                                        >Screening</SelectItem
-                                    >
-                                    <SelectItem value="therapy"
-                                        >Therapy</SelectItem
-                                    >
-                                </SelectContent>
-                            </Select>
-                            <div
-                                v-if="form.errors.appointment_type"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.appointment_type }}
-                            </div>
                         </div>
                     </div>
 

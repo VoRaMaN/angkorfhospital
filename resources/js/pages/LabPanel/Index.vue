@@ -42,7 +42,11 @@ interface LabItem {
 
 interface ActiveLabOrder {
     id: number;
+    patient_id: string | null;
     patient_name: string;
+    patient_id_card: string | null;
+    patient_dob: string | null;
+    patient_phone: string | null;
     staff_name: string;
     status: string;
     status_label: string;
@@ -176,9 +180,15 @@ const { hasPermission } = useAuth();
                     </p>
                 </div>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <Card v-for="order in props.activeLabOrders" :key="order.id"
+                    <a
+                        v-for="order in props.activeLabOrders"
+                        :key="order.id"
+                        :href="`/medical-orders/${order.id}/processing`"
+                        class="block"
+                    >
+                    <Card
                         :class="[
-                            'relative transition-shadow hover:shadow-md',
+                            'relative cursor-pointer transition-shadow hover:shadow-md hover:border-blue-400',
                             order.priority === 'urgent' || order.priority === 'stat'
                                 ? 'border-red-300 dark:border-red-800'
                                 : ''
@@ -191,7 +201,12 @@ const { hasPermission } = useAuth();
                             <div class="flex items-start justify-between gap-2">
                                 <div>
                                     <CardTitle class="text-base">{{ order.patient_name }}</CardTitle>
-                                    <p class="mt-0.5 text-xs text-muted-foreground">
+                                    <div class="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                                        <p v-if="order.patient_id_card">ID: {{ order.patient_id_card }}</p>
+                                        <p v-if="order.patient_dob">DOB: {{ order.patient_dob }}</p>
+                                        <p v-if="order.patient_phone">Tel: {{ order.patient_phone }}</p>
+                                    </div>
+                                    <p class="mt-1 text-xs text-muted-foreground">
                                         Order #{{ order.id }} &middot; {{ order.ordered_at }}
                                     </p>
                                 </div>
@@ -232,6 +247,7 @@ const { hasPermission } = useAuth();
                             </div>
                         </CardContent>
                     </Card>
+                    </a>
                 </div>
             </div>
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DateInput from '@/components/DateInput.vue';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,34 +58,49 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Parse the appointment datetime from backend (format: YYYY-MM-DDTHH:mm)
+// Parse the appointment datetime in Phnom Penh timezone
 const parseDateTime = (dateTimeStr: string) => {
-    const date = new Date(dateTimeStr);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
+    const date = new Date(new Date(dateTimeStr).toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
     return {
-        date: `${day}/${month}/${year}`,
-        time: `${hours}:${minutes}`
+        day: date.getDate(),
+        month: date.getMonth() + 1,
+        year: date.getFullYear(),
+        time: `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
     };
 };
 
-const { date: initialDate, time: initialTime } = parseDateTime(props.appointment.appointment_date_time);
-const appointmentDate = ref(initialDate);
+const now = new Date();
+const currentYear = now.getFullYear();
+const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+const months = [
+    { value: 1, label: 'Jan' },
+    { value: 2, label: 'Feb' },
+    { value: 3, label: 'Mar' },
+    { value: 4, label: 'Apr' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'Jun' },
+    { value: 7, label: 'Jul' },
+    { value: 8, label: 'Aug' },
+    { value: 9, label: 'Sep' },
+    { value: 10, label: 'Oct' },
+    { value: 11, label: 'Nov' },
+    { value: 12, label: 'Dec' },
+];
+const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+const { day: initialDay, month: initialMonth, year: initialYear, time: initialTime } = parseDateTime(props.appointment.appointment_date_time);
+const selectedDay = ref(initialDay);
+const selectedMonth = ref(initialMonth);
+const selectedYear = ref(initialYear);
 const appointmentTime = ref(initialTime);
 
 // Computed property to combine date and time into ISO format for backend
 const combinedDateTime = computed(() => {
-    if (!appointmentDate.value || !appointmentTime.value) return '';
-
-    // Parse DD/MM/YYYY
-    const [day, month, year] = appointmentDate.value.split('/');
+    if (!selectedDay.value || !selectedMonth.value || !selectedYear.value || !appointmentTime.value) return '';
+    const day = String(selectedDay.value).padStart(2, '0');
+    const month = String(selectedMonth.value).padStart(2, '0');
+    const year = selectedYear.value;
     const [hours, minutes] = appointmentTime.value.split(':');
-
-    // Create date in Phnom Penh timezone
     const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
     return date.toISOString().slice(0, 16);
 });
@@ -187,13 +201,31 @@ const form = useForm({
                             >Appointment Date & Time</label
                         >
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <DateInput
-                                    v-model="appointmentDate"
-                                />
-                                <p class="mt-1 text-xs text-muted-foreground">
-                                    Format: DD/MM/YYYY
-                                </p>
+                            <div class="flex gap-2 items-center">
+                                <Select v-model="selectedDay">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Day" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="d in days" :key="d" :value="d">{{ d }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select v-model="selectedMonth">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Month" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select v-model="selectedYear">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Year" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="y in years" :key="y" :value="y">{{ y }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div>
                                 <Input
@@ -210,70 +242,6 @@ const form = useForm({
                             class="text-sm text-destructive"
                         >
                             {{ form.errors.appointment_date_time }}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="text-sm font-medium"
-                                >Duration (minutes)</label
-                            >
-                            <Input
-                                v-model="form.duration_minutes"
-                                type="number"
-                                min="15"
-                                max="480"
-                                step="15"
-                            />
-                            <div
-                                v-if="form.errors.duration_minutes"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.duration_minutes }}
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="text-sm font-medium"
-                                >Appointment Type</label
-                            >
-                            <Select v-model="form.appointment_type">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="consultation"
-                                        >Consultation</SelectItem
-                                    >
-                                    <SelectItem value="emergency"
-                                        >Emergency</SelectItem
-                                    >
-                                    <SelectItem value="follow_up"
-                                        >Follow-up</SelectItem
-                                    >
-                                    <SelectItem value="procedure"
-                                        >Procedure</SelectItem
-                                    >
-                                    <SelectItem value="checkup"
-                                        >Check-up</SelectItem
-                                    >
-                                    <SelectItem value="telemedicine"
-                                        >Telemedicine</SelectItem
-                                    >
-                                    <SelectItem value="screening"
-                                        >Screening</SelectItem
-                                    >
-                                    <SelectItem value="therapy"
-                                        >Therapy</SelectItem
-                                    >
-                                </SelectContent>
-                            </Select>
-                            <div
-                                v-if="form.errors.appointment_type"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.appointment_type }}
-                            </div>
                         </div>
                     </div>
 

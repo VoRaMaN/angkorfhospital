@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\MedicalOrderStatusEnum;
+use App\Models\MedicalOrder;
 use App\Models\MedicalOrderInventory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -53,13 +55,55 @@ class MedicineReportController extends Controller
                 ->values();
         }
 
+        // Always load today's dispensing queue
+        $todayDispensing = MedicalOrder::with(['patient'])
+            ->whereHas('orderItems', function ($q) {
+                $q->where('item_type', 'rx_medicine');
+            })
+            ->whereDate('ordered_at', today())
+            ->whereNotIn('status', [MedicalOrderStatusEnum::CANCEL, MedicalOrderStatusEnum::REJECTED])
+            ->latest('ordered_at')
+            ->get()
+            ->map(function ($order) {
+                $patient = $order->patient;
+                $allFinished = $order->orderItems
+                    ->where('item_type', 'rx_medicine')
+                    ->every(fn ($item) => $item->status === MedicalOrderStatusEnum::COMPLETED);
+
+                return [
+                    'id' => $order->id,
+                    'patient_name' => ($patient?->title ? $patient->title.' ' : '').trim(($patient?->name ?? '').($patient?->surname ? ' '.$patient->surname : '')) ?: 'Unknown Patient',
+                    'status' => $order->status->value,
+                    'status_label' => $order->status->label(),
+                    'status_color' => $order->status->color(),
+                    'is_finished' => $allFinished,
+                    'ordered_at' => $order->ordered_at?->format('H:i'),
+                ];
+            });
+
         return Inertia::render('Reports/MedicineReport', [
             'medicineUsage' => $medicineUsage,
+            'todayDispensing' => $todayDispensing,
             'filters' => [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ],
         ]);
+    }
+
+    public function finish(int $id): \Illuminate\Http\RedirectResponse
+    {
+        $order = MedicalOrder::findOrFail($id);
+
+        $order->orderItems()
+            ->where('item_type', 'rx_medicine')
+            ->whereNot('status', MedicalOrderStatusEnum::COMPLETED)
+            ->update([
+                'status' => MedicalOrderStatusEnum::COMPLETED->value,
+                'completed_at' => now(),
+            ]);
+
+        return back()->with('success', 'Medicine marked as dispensed.');
     }
 
     public function export(Request $request)

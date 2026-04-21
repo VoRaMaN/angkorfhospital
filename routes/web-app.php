@@ -89,6 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Medicine Report
     Route::get('medicine-report', [MedicineReportController::class, 'index'])->name('medicine-report.index');
     Route::get('medicine-report/export', [MedicineReportController::class, 'export'])->name('medicine-report.export');
+    Route::patch('medicine-report/finish/{medical_order}', [MedicineReportController::class, 'finish'])->name('medicine-report.finish');
 
     // Billing Report
     Route::get('billing-report', [BillingReportController::class, 'index'])->name('billing-report.index');

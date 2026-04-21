@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { Calendar, Download, FileText, Search } from 'lucide-vue-next';
+import { Calendar, CheckCircle2, Download, Eye, FileText, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { index as medicineReportIndex, exportMethod as medicineReportExport } from '@/routes/medicine-report';
 
@@ -30,8 +30,19 @@ interface MedicineUsage {
     total_cost: number;
 }
 
+interface TodayDispensing {
+    id: number;
+    patient_name: string;
+    status: string;
+    status_label: string;
+    status_color: string;
+    is_finished: boolean;
+    ordered_at: string;
+}
+
 interface Props {
     medicineUsage: MedicineUsage[];
+    todayDispensing: TodayDispensing[];
     filters: {
         start_date: string;
         end_date: string;
@@ -77,6 +88,12 @@ const exportPatient = (patientId: number) => {
         end_date: endDate.value,
         patient_id: patientId,
     }}).url;
+};
+
+const finishDispensing = (id: number) => {
+    if (confirm('Mark this medicine as dispensed (patient has taken away)?')) {
+        router.patch(`/medicine-report/finish/${id}`, {}, { preserveScroll: true });
+    }
 };
 
 const formatPrice = (price: number) => {
@@ -147,13 +164,81 @@ const formatPrice = (price: number) => {
                 </CardContent>
             </Card>
 
-            <!-- Results -->
-            <div v-if="!startDate || !endDate" class="rounded-lg border bg-muted/50 p-12 text-center">
-                <FileText class="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 class="mt-4 text-lg font-semibold">No Date Range Selected</h3>
-                <p class="mt-2 text-sm text-muted-foreground">
-                    Please select a date range and click search to view the medicine report.
-                </p>
+            <!-- Today's Dispensing Queue (shown when no date range selected) -->
+            <div v-if="!startDate || !endDate">
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="flex items-center gap-2">
+                            <CheckCircle2 class="h-5 w-5 text-green-600" />
+                            Today's Medicine Dispensing
+                        </CardTitle>
+                        <CardDescription>
+                            RX medicine orders for today — mark as finished once patient has collected their medicine
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div v-if="props.todayDispensing.length === 0" class="py-10 text-center text-muted-foreground">
+                            <FileText class="mx-auto mb-3 h-10 w-10 opacity-40" />
+                            <p class="text-sm">No medicine orders for today yet.</p>
+                        </div>
+                        <Table v-else>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead class="w-20">ID</TableHead>
+                                    <TableHead class="w-32">Time</TableHead>
+                                    <TableHead class="w-40">Status</TableHead>
+                                    <TableHead>Patient Name</TableHead>
+                                    <TableHead class="w-48 text-center">Process</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow
+                                    v-for="order in props.todayDispensing"
+                                    :key="order.id"
+                                    :class="order.is_finished ? 'opacity-60' : ''"
+                                >
+                                    <TableCell class="font-mono text-sm">#{{ order.id }}</TableCell>
+                                    <TableCell class="text-sm text-muted-foreground">{{ order.ordered_at }}</TableCell>
+                                    <TableCell>
+                                        <span
+                                            :class="['inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', order.status_color]"
+                                        >
+                                            {{ order.status_label }}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell class="font-medium">{{ order.patient_name }}</TableCell>
+                                    <TableCell>
+                                        <div class="flex justify-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                as-child
+                                            >
+                                                <a :href="`/medical-orders/${order.id}/processing`">
+                                                    <Eye class="mr-1 h-3.5 w-3.5" />
+                                                    View
+                                                </a>
+                                            </Button>
+                                            <Button
+                                                v-if="!order.is_finished"
+                                                size="sm"
+                                                @click="finishDispensing(order.id)"
+                                                class="bg-green-600 hover:bg-green-700"
+                                            >
+                                                <CheckCircle2 class="mr-1 h-3.5 w-3.5" />
+                                                Finish
+                                            </Button>
+                                            <span v-else class="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                                                <CheckCircle2 class="h-3.5 w-3.5" />
+                                                Dispensed
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
             </div>
 
             <div v-else-if="medicineUsage.length === 0" class="rounded-lg border bg-muted/50 p-12 text-center">
