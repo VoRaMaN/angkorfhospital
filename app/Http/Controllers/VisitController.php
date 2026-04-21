@@ -205,6 +205,25 @@ class VisitController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $visitDate = \Carbon\Carbon::parse($request->visit_date_time)->toDateString();
+
+        $existingVisit = Visit::where('patient_id', $request->patient_id)
+            ->whereDate('visit_date_time', $visitDate)
+            ->whereNotIn('status', [Visit::STATUS_CANCELLED])
+            ->first();
+
+        if ($existingVisit) {
+            $message = 'This patient already has a visit on '.
+                \Carbon\Carbon::parse($visitDate)->format('d/m/Y').
+                '. Only one visit per day is allowed.';
+
+            if ($request->wantsJson() || $request->header('X-Inertia')) {
+                return back()->withErrors(['patient_id' => $message])->withInput();
+            }
+
+            return back()->with('error', $message);
+        }
+
         Visit::create($request->all());
 
         return redirect()->route('visits.index')

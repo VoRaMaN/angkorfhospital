@@ -7,9 +7,13 @@ import { formatDate, formatDateTime } from '@/lib/utils';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight, FlaskConical } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
+
+const page = usePage();
+const flashError = computed(() => (page.props as any)?.flash?.error);
+const formErrors = computed(() => (page.props as any)?.errors ?? {});
 
 const expandedVisits = ref<Set<number>>(new Set());
 const visitHistoryDate = ref('');
@@ -232,6 +236,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </Link>
                     </Button>
                 </div>
+            </div>
+
+            <!-- Flash error (e.g. duplicate visit) -->
+            <div v-if="flashError || formErrors.patient_id"
+                class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/20 dark:text-red-400">
+                {{ flashError || formErrors.patient_id }}
             </div>
 
             <div class="max-w-4xl">
