@@ -90,6 +90,9 @@ class LabPanelController extends Controller
                             'details' => $item->details,
                             'status' => $item->status->value,
                             'status_label' => $item->status->label(),
+                            'result_value' => $item->result_value,
+                            'result_unit' => $item->result_unit,
+                            'result_notes' => $item->result_notes,
                         ];
                     })->values(),
                 ];

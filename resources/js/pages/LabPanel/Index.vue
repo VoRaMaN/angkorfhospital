@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -27,9 +29,9 @@ import {
 } from '@/routes/lab-panels';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { FlaskConical, Plus, Search, Clock, AlertCircle } from 'lucide-vue-next';
+import { FlaskConical, Plus, Search, Clock, AlertCircle, CheckCircle2, ClipboardEdit } from 'lucide-vue-next';
 
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, reactive } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface LabItem {
@@ -38,6 +40,9 @@ interface LabItem {
     details: string;
     status: string;
     status_label: string;
+    result_value: string | null;
+    result_unit: string | null;
+    result_notes: string | null;
 }
 
 interface ActiveLabOrder {
@@ -138,6 +143,31 @@ const priorityBadgeVariant = (priority: string) => {
 };
 
 const { hasPermission } = useAuth();
+
+// Track which lab item has the result form open
+const activeResultForm = ref<number | null>(null);
+
+// Store form data per item id
+const resultForms = reactive<Record<number, { result_value: string; result_unit: string; result_notes: string }>>({});
+
+const openResultForm = (item: LabItem) => {
+    activeResultForm.value = item.id;
+    if (!resultForms[item.id]) {
+        resultForms[item.id] = {
+            result_value: item.result_value ?? '',
+            result_unit: item.result_unit ?? '',
+            result_notes: item.result_notes ?? '',
+        };
+    }
+};
+
+const saveResult = (orderId: number, itemId: number) => {
+    const form = resultForms[itemId];
+    router.patch(`/medical-orders/${orderId}/items/${itemId}/lab-result`, form, {
+        preserveScroll: true,
+        onSuccess: () => { activeResultForm.value = null; },
+    });
+};
 </script>
 
 <template>
@@ -180,15 +210,13 @@ const { hasPermission } = useAuth();
                     </p>
                 </div>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <a
+                    <div
                         v-for="order in props.activeLabOrders"
                         :key="order.id"
-                        :href="`/medical-orders/${order.id}/processing`"
-                        class="block"
                     >
                     <Card
                         :class="[
-                            'relative cursor-pointer transition-shadow hover:shadow-md hover:border-blue-400',
+                            'relative transition-shadow hover:shadow-md hover:border-blue-400',
                             order.priority === 'urgent' || order.priority === 'stat'
                                 ? 'border-red-300 dark:border-red-800'
                                 : ''
@@ -226,28 +254,101 @@ const { hasPermission } = useAuth();
                         </CardHeader>
                         <CardContent>
                             <p class="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">Lab Items ({{ order.lab_items.length }})</p>
-                            <div class="space-y-2">
+                            <div class="space-y-3">
                                 <div
                                     v-for="item in order.lab_items"
                                     :key="item.id"
                                     :class="[
-                                        'flex items-center justify-between rounded-md border px-3 py-2 text-sm',
+                                        'rounded-md border px-3 py-2 text-sm',
+                                        item.status === 'completed' ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50' : '',
                                         item.status === 'processing' ? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/50' : '',
                                         item.status === 'pending' ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/50' : '',
                                     ]"
                                 >
-                                    <div>
-                                        <p class="font-medium">{{ item.item_name }}</p>
-                                        <p v-if="item.details" class="text-xs text-muted-foreground">{{ item.details }}</p>
+                                    <!-- Item header row -->
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div>
+                                            <p class="font-medium">{{ item.item_name }}</p>
+                                            <p v-if="item.details" class="text-xs text-muted-foreground">{{ item.details }}</p>
+                                            <!-- Show saved result -->
+                                            <p v-if="item.result_value && item.status === 'completed'" class="mt-1 text-xs font-semibold text-green-700 dark:text-green-400">
+                                                Result: {{ item.result_value }}<span v-if="item.result_unit"> {{ item.result_unit }}</span>
+                                            </p>
+                                            <p v-if="item.result_notes && item.status === 'completed'" class="text-xs text-muted-foreground italic">{{ item.result_notes }}</p>
+                                        </div>
+                                        <div class="flex shrink-0 items-center gap-1.5">
+                                            <Badge :variant="statusBadgeVariant(item.status)" class="text-xs">
+                                                {{ item.status_label }}
+                                            </Badge>
+                                            <Button
+                                                v-if="item.status !== 'completed'"
+                                                size="sm"
+                                                variant="outline"
+                                                class="h-7 px-2 text-xs"
+                                                @click.stop="openResultForm(item)"
+                                            >
+                                                <ClipboardEdit class="mr-1 size-3" />
+                                                Input Result
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <Badge :variant="statusBadgeVariant(item.status)" class="text-xs">
-                                        {{ item.status_label }}
-                                    </Badge>
+
+                                    <!-- Inline result form -->
+                                    <div
+                                        v-if="activeResultForm === item.id"
+                                        class="mt-3 space-y-2 border-t pt-3"
+                                        @click.stop
+                                    >
+                                        <div class="flex gap-2">
+                                            <div class="flex-1">
+                                                <Label class="text-xs">Result Value</Label>
+                                                <Input
+                                                    v-model="resultForms[item.id].result_value"
+                                                    placeholder="e.g. 5.2, Negative, Normal"
+                                                    class="mt-1 h-8 text-sm"
+                                                />
+                                            </div>
+                                            <div class="w-24">
+                                                <Label class="text-xs">Unit</Label>
+                                                <Input
+                                                    v-model="resultForms[item.id].result_unit"
+                                                    placeholder="g/dL, mmol…"
+                                                    class="mt-1 h-8 text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label class="text-xs">Notes (optional)</Label>
+                                            <Textarea
+                                                v-model="resultForms[item.id].result_notes"
+                                                placeholder="Additional notes…"
+                                                class="mt-1 min-h-[60px] text-sm"
+                                            />
+                                        </div>
+                                        <div class="flex justify-end gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                class="h-7 text-xs"
+                                                @click.stop="activeResultForm = null"
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                class="h-7 bg-green-600 text-xs hover:bg-green-700"
+                                                @click.stop="saveResult(order.id, item.id)"
+                                            >
+                                                <CheckCircle2 class="mr-1 size-3" />
+                                                Save & Complete
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    </a>
+                    </div>
                 </div>
             </div>
 

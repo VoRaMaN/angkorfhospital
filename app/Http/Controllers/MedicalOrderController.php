@@ -1106,6 +1106,40 @@ class MedicalOrderController extends Controller
         return redirect()->back()->with('success', 'Order item completed successfully.');
     }
 
+    public function saveLabResult(MedicalOrder $medicalOrder, \App\Models\MedicalOrderInventory $item, Request $request): RedirectResponse
+    {
+        $this->authorize('completeItem', $medicalOrder);
+
+        if ($item->medical_order_id !== $medicalOrder->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'result_value' => 'nullable|string|max:255',
+            'result_unit' => 'nullable|string|max:100',
+            'result_notes' => 'nullable|string|max:2000',
+        ]);
+
+        $item->update([
+            'result_value' => $validated['result_value'],
+            'result_unit' => $validated['result_unit'],
+            'result_notes' => $validated['result_notes'],
+            'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
+            'completed_at' => now(),
+        ]);
+
+        // If all items are now completed, mark the whole order COMPLETED too
+        $anyPending = $medicalOrder->orderItems()->whereNull('completed_at')->exists();
+        if (! $anyPending) {
+            $medicalOrder->update([
+                'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
+                'completed_at' => now(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Lab result saved successfully.');
+    }
+
     /**
      * Generate a comprehensive medical order report as PDF.
      */

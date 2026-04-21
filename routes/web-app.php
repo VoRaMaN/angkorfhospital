@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'completePage'])->name('medical-orders.complete-page');
     Route::patch('medical-orders/{medical_order}/complete', [MedicalOrderController::class, 'complete'])->name('medical-orders.complete');
     Route::patch('medical-orders/{medical_order}/items/{item}/complete', [MedicalOrderController::class, 'completeItem'])->name('medical-orders.complete-item');
+    Route::patch('medical-orders/{medical_order}/items/{item}/lab-result', [MedicalOrderController::class, 'saveLabResult'])->name('medical-orders.save-lab-result');
     Route::patch('medical-orders/{medical_order}/process-and-bill', [MedicalOrderController::class, 'processAndBill'])->name('medical-orders.process-and-bill');
     Route::patch('medical-orders/{medical_order}/confirm-processed', [MedicalOrderController::class, 'confirmProcessed'])->name('medical-orders.confirm-processed');
     Route::get('medical-orders/{medical_order}/cost-breakdown', [MedicalOrderController::class, 'getCostBreakdown'])->name('medical-orders.cost-breakdown');

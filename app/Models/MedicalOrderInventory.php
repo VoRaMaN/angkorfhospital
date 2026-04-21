@@ -25,6 +25,9 @@ class MedicalOrderInventory extends Model
         'status',
         'notes',
         'completed_at',
+        'result_value',
+        'result_unit',
+        'result_notes',
     ];
 
     protected function casts(): array
