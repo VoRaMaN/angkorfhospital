@@ -87,8 +87,6 @@ interface Props {
         status: string;
         lab_start_date: string;
         lab_end_date: string;
-        lab_start_date: string;
-        lab_end_date: string;
     };
 }
 
@@ -154,14 +152,11 @@ const priorityBadgeVariant = (priority: string) => {
         case 'low': return 'secondary' as const;
         default: return 'secondary' as const;
     }
-};// Always refresh so editing re-populates with current saved values
-    resultForms[item.id] = {
-        result_value: item.result_value ?? '',
-        result_unit: item.result_unit ?? '',
-        result_notes: item.result_notes ?? '',
-    };
+};
+
+const activeResultForm = ref<number | null>(null);
 // Store form data per item id
-const resultForms = reactive<Record<number, { result_value: string; result_unit: string; result_notes: string }>>({});
+const resultForms = reactive<Record<number, { result_value: string; result_unit: string; result_notes: string }>>({})
 
 const openResultForm = (item: LabItem) => {
     activeResultForm.value = item.id;
