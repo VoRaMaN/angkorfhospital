@@ -100,7 +100,9 @@ class Patient extends Model
 
     public function getFullNameAttribute(): string
     {
-        return trim(($this->name ?? '').' '.($this->surname ?? ''));
+        $title = $this->title ? $this->title.' ' : '';
+
+        return trim($title.($this->name ?? '').' '.($this->surname ?? ''));
     }
 
     public function getPhoneNumberAttribute(): ?string

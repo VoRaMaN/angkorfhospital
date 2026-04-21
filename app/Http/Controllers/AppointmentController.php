@@ -76,9 +76,9 @@ class AppointmentController extends Controller
             return [
                 'id' => $appointment->id,
                 'patient' => $appointment->patient ? [
-                    'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? $appointment->patient->name,
-                    ] : ['name' => $appointment->patient->name],
+                    'user' => [
+                        'name' => $appointment->patient->full_name ?: 'Unknown Patient',
+                    ],
                     'mobile_phone' => $appointment->patient->mobile_phone ?? null,
                 ] : ['user' => ['name' => 'Unknown Patient'], 'mobile_phone' => null],
                 'staff' => $appointment->staff ? [
@@ -140,9 +140,9 @@ class AppointmentController extends Controller
             return [
                 'id' => $appointment->patient ? $appointment->patient->id : null,
                 'patient' => $appointment->patient ? [
-                    'user' => $appointment->patient->user ? [
-                        'name' => $appointment->patient->user->name ?? $appointment->patient->name,
-                    ] : ['name' => $appointment->patient->name],
+                    'user' => [
+                        'name' => $appointment->patient->full_name ?: 'Unknown Patient',
+                    ],
                 ] : ['user' => ['name' => 'Unknown Patient']],
                 'staff' => $appointment->staff ? [
                     'user' => $appointment->staff->user ? [

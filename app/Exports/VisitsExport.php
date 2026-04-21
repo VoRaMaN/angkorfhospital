@@ -92,15 +92,9 @@ class VisitsExport
 
         foreach ($visits as $visit) {
             $patientTitle = $visit->patient ? ($visit->patient->title ?? '') : '';
-            $patientName = 'Unknown Patient';
-            if ($visit->patient) {
-                if ($visit->patient->user?->name) {
-                    $patientName = $visit->patient->user->name;
-                } else {
-                    $fullName = trim(($visit->patient->name ?? '').' '.($visit->patient->surname ?? ''));
-                    $patientName = $fullName ?: 'Patient #'.$visit->patient->id;
-                }
-            }
+            $patientName = $visit->patient
+                ? (trim(($visit->patient->name ?? '').' '.($visit->patient->surname ?? '')) ?: 'Patient #'.$visit->patient->id)
+                : 'Unknown Patient';
 
             $rows[] = [
                 $visit->id,

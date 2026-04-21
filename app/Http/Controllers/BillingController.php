@@ -63,21 +63,7 @@ class BillingController extends Controller
             $patientName = 'Unknown Patient';
 
             if ($patient) {
-                if ($patient->user && $patient->user->name) {
-                    $patientName = $patient->user->name;
-                } else {
-                    // For manually created patients, concatenate name and surname
-                    $firstName = $patient->name ?? '';
-                    $lastName = $patient->surname ?? '';
-                    $fullName = trim($firstName.' '.$lastName);
-                    // Only use the concatenated name if it's not empty
-                    if ($fullName !== '') {
-                        $patientName = $fullName;
-                    } else {
-                        // If still empty, try to show at least the ID
-                        $patientName = 'Patient #'.$patient->id;
-                    }
-                }
+                $patientName = $patient->full_name ?: 'Patient #'.$patient->id;
             }
 
             return [
@@ -115,31 +101,25 @@ class BillingController extends Controller
 
         // Get appointments without billings
         $appointments = Appointment::with('patient.user')->whereDoesntHave('billings')->get()->map(function ($appointment) {
-            $patientName = $appointment->patient->user ? $appointment->patient->user->name : 'Unknown';
-
             return [
                 'id' => $appointment->id,
-                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
+                'label' => 'Appointment for '.($appointment->patient?->full_name ?: 'Unknown').' on '.$appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
             ];
         });
 
         // Get visits without billings
         $visits = Visit::with('patient.user')->whereDoesntHave('billings')->get()->map(function ($visit) {
-            $patientName = $visit->patient->user ? $visit->patient->user->name : 'Unknown';
-
             return [
                 'id' => $visit->id,
-                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('d/m/y H:i'),
+                'label' => 'Visit for '.($visit->patient?->full_name ?: 'Unknown').' on '.$visit->visit_date_time->format('d/m/y H:i'),
             ];
         });
 
         // Get medical orders without billings
         $medicalOrders = MedicalOrder::with('visit.patient.user')->whereDoesntHave('billings')->get()->map(function ($order) {
-            $patientName = $order->visit?->patient?->user ? $order->visit->patient->user->name : 'Unknown';
-
             return [
                 'id' => $order->id,
-                'label' => 'Order for '.$patientName.' - '.$order->order_details,
+                'label' => 'Order for '.($order->visit?->patient?->full_name ?: 'Unknown').' - '.$order->order_details,
             ];
         });
 
@@ -197,10 +177,7 @@ class BillingController extends Controller
         }
 
         // Get patient name from direct relationship
-        $patientName = 'Unknown Patient';
-        if ($billing->patient && $billing->patient->user) {
-            $patientName = $billing->patient->user->name;
-        }
+        $patientName = $billing->patient?->full_name ?: 'Unknown Patient';
 
         $transformedBilling = [
             'id' => $billing->id,
@@ -231,11 +208,9 @@ class BillingController extends Controller
         $appointments = Appointment::with('patient.user')->where(function ($query) use ($billing) {
             $query->whereDoesntHave('billings')->orWhere('id', $billing->appointment_id);
         })->get()->map(function ($appointment) {
-            $patientName = $appointment->patient->user ? $appointment->patient->user->name : 'Unknown';
-
             return [
                 'id' => $appointment->id,
-                'label' => 'Appointment for '.$patientName.' on '.$appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
+                'label' => 'Appointment for '.($appointment->patient?->full_name ?: 'Unknown').' on '.$appointment->appointment_date_time->setTimezone('Asia/Phnom_Penh')->format('d/m/y'),
             ];
         });
 
@@ -243,11 +218,9 @@ class BillingController extends Controller
         $visits = Visit::with('patient.user')->where(function ($query) use ($billing) {
             $query->whereDoesntHave('billings')->orWhere('id', $billing->visit_id);
         })->get()->map(function ($visit) {
-            $patientName = $visit->patient->user ? $visit->patient->user->name : 'Unknown';
-
             return [
                 'id' => $visit->id,
-                'label' => 'Visit for '.$patientName.' on '.$visit->visit_date_time->format('d/m/y H:i'),
+                'label' => 'Visit for '.($visit->patient?->full_name ?: 'Unknown').' on '.$visit->visit_date_time->format('d/m/y H:i'),
             ];
         });
 
@@ -255,11 +228,9 @@ class BillingController extends Controller
         $medicalOrders = MedicalOrder::with('visit.patient.user')->where(function ($query) use ($billing) {
             $query->whereDoesntHave('billings')->orWhere('id', $billing->medical_order_id);
         })->get()->map(function ($order) {
-            $patientName = $order->visit?->patient?->user ? $order->visit->patient->user->name : 'Unknown';
-
             return [
                 'id' => $order->id,
-                'label' => 'Order for '.$patientName.' - '.$order->order_details,
+                'label' => 'Order for '.($order->visit?->patient?->full_name ?: 'Unknown').' - '.$order->order_details,
             ];
         });
 

@@ -91,25 +91,7 @@ class VisitController extends Controller
 
         // Transform visits for the frontend
         $transformedVisits = $visits->getCollection()->map(function ($visit) {
-            // Build patient name: use user name if exists, otherwise concatenate patient name and surname
-            $patientName = 'Unknown Patient';
-            if ($visit->patient) {
-                if ($visit->patient->user && $visit->patient->user->name) {
-                    $patientName = $visit->patient->user->name;
-                } else {
-                    // For manually created patients, concatenate name and surname
-                    $firstName = $visit->patient->name ?? '';
-                    $lastName = $visit->patient->surname ?? '';
-                    $fullName = trim($firstName.' '.$lastName);
-                    // Only use the concatenated name if it's not empty
-                    if ($fullName !== '') {
-                        $patientName = $fullName;
-                    } else {
-                        // If still empty, try to show at least the ID
-                        $patientName = 'Patient #'.$visit->patient->id;
-                    }
-                }
-            }
+            $patientName = $visit->patient?->full_name ?: ($visit->patient ? 'Patient #'.$visit->patient->id : 'Unknown Patient');
 
             return [
                 'id' => $visit->id,
@@ -163,7 +145,7 @@ class VisitController extends Controller
         if ($patientFilter) {
             $patient = \App\Models\Patient::find($patientFilter);
             if ($patient) {
-                $patientName = trim(($patient->name ?? '').' '.($patient->surname ?? ''));
+                $patientName = $patient->full_name ?: 'Patient #'.$patient->id;
             }
         }
 
@@ -196,7 +178,7 @@ class VisitController extends Controller
                 return [
                     'id' => $appointment->id,
                     'patient' => [
-                        'name' => $appointment->patient->user->name ?? ($appointment->patient->name.' '.$appointment->patient->surname),
+                        'name' => $appointment->patient?->full_name ?: 'Unknown Patient',
                     ],
                     'appointment_date_time' => $appointment->appointment_date_time->format('d/m/y H:i'),
                 ];
@@ -241,7 +223,7 @@ class VisitController extends Controller
             'id' => $visit->id,
             'patient' => $visit->patient ? [
                 'user' => [
-                    'name' => $visit->patient->user->name ?? ($visit->patient->name.' '.$visit->patient->surname),
+                    'name' => $visit->patient->full_name ?: 'Patient #'.$visit->patient->id,
                 ],
             ] : null,
             'staff' => $visit->staff ? [
@@ -286,7 +268,7 @@ class VisitController extends Controller
                 return [
                     'id' => $appointment->id,
                     'patient' => [
-                        'name' => $appointment->patient->user->name ?? ($appointment->patient->name.' '.$appointment->patient->surname),
+                        'name' => $appointment->patient?->full_name ?: 'Unknown Patient',
                     ],
                     'appointment_date_time' => $appointment->appointment_date_time->format('d/m/y H:i'),
                 ];
@@ -415,25 +397,7 @@ class VisitController extends Controller
 
         // Transform visits for the frontend
         $transformedVisits = $visits->map(function ($visit) {
-            // Build patient name: use user name if exists, otherwise concatenate patient name and surname
-            $patientName = 'Unknown Patient';
-            if ($visit->patient) {
-                if ($visit->patient->user && $visit->patient->user->name) {
-                    $patientName = $visit->patient->user->name;
-                } else {
-                    // For manually created patients, concatenate name and surname
-                    $firstName = $visit->patient->name ?? '';
-                    $lastName = $visit->patient->surname ?? '';
-                    $fullName = trim($firstName.' '.$lastName);
-                    // Only use the concatenated name if it's not empty
-                    if ($fullName !== '') {
-                        $patientName = $fullName;
-                    } else {
-                        // If still empty, try to show at least the ID
-                        $patientName = 'Patient #'.$visit->patient->id;
-                    }
-                }
-            }
+            $patientName = $visit->patient?->full_name ?: ($visit->patient ? 'Patient #'.$visit->patient->id : 'Unknown Patient');
 
             return [
                 'id' => $visit->id,
@@ -519,25 +483,7 @@ class VisitController extends Controller
 
         // Transform visits for the frontend
         $transformedVisits = $visits->map(function ($visit) {
-            // Build patient name: use user name if exists, otherwise concatenate patient name and surname
-            $patientName = 'Unknown Patient';
-            if ($visit->patient) {
-                if ($visit->patient->user && $visit->patient->user->name) {
-                    $patientName = $visit->patient->user->name;
-                } else {
-                    // For manually created patients, concatenate name and surname
-                    $firstName = $visit->patient->name ?? '';
-                    $lastName = $visit->patient->surname ?? '';
-                    $fullName = trim($firstName.' '.$lastName);
-                    // Only use the concatenated name if it's not empty
-                    if ($fullName !== '') {
-                        $patientName = $fullName;
-                    } else {
-                        // If still empty, try to show at least the ID
-                        $patientName = 'Patient #'.$visit->patient->id;
-                    }
-                }
-            }
+            $patientName = $visit->patient?->full_name ?: ($visit->patient ? 'Patient #'.$visit->patient->id : 'Unknown Patient');
 
             return [
                 'id' => $visit->id,

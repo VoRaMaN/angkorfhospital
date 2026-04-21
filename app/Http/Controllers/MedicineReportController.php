@@ -72,7 +72,7 @@ class MedicineReportController extends Controller
 
                 return [
                     'id' => $order->id,
-                    'patient_name' => ($patient?->title ? $patient->title.' ' : '').trim(($patient?->name ?? '').($patient?->surname ? ' '.$patient->surname : '')) ?: 'Unknown Patient',
+                    'patient_name' => $patient?->full_name ?: 'Unknown Patient',
                     'status' => $order->status->value,
                     'status_label' => $order->status->label(),
                     'status_color' => $order->status->color(),

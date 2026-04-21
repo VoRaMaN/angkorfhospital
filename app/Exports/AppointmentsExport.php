@@ -95,7 +95,7 @@ class AppointmentsExport
                 $appointment->patient ? $appointment->patient->title : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('d/m/y') : '',
-                $appointment->patient ? ($appointment->patient->user ? $appointment->patient->user->name : ($appointment->patient->name.' '.$appointment->patient->surname)) : 'Unknown Patient',
+                $appointment->patient ? (trim(($appointment->patient->name ?? '').' '.($appointment->patient->surname ?? '')) ?: 'Unknown Patient') : 'Unknown Patient',
                 $appointment->patient ? $appointment->patient->mobile_phone : '',
                 $appointment->staff ? ($appointment->staff->user ? $appointment->staff->user->name : ($appointment->staff->first_name.' '.$appointment->staff->last_name)) : 'Unknown Staff',
                 ucfirst($appointment->status->value),
