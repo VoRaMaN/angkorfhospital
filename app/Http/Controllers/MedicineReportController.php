@@ -128,6 +128,16 @@ class MedicineReportController extends Controller
             ]);
         }
 
+        // If all order items are now completed, mark the whole order as COMPLETED too
+        $order->refresh();
+        $anyPending = $order->orderItems()->whereNull('completed_at')->exists();
+        if (! $anyPending) {
+            $order->update([
+                'status' => MedicalOrderStatusEnum::COMPLETED,
+                'completed_at' => now(),
+            ]);
+        }
+
         return back()->with('success', 'Medicine handed over to patient and stock updated.');
     }
 

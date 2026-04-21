@@ -1094,6 +1094,15 @@ class MedicalOrderController extends Controller
             'completed_at' => now(),
         ]);
 
+        // If all items are now completed, mark the whole order as COMPLETED too
+        $anyPending = $medicalOrder->orderItems()->whereNull('completed_at')->exists();
+        if (! $anyPending) {
+            $medicalOrder->update([
+                'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
+                'completed_at' => now(),
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Order item completed successfully.');
     }
 

@@ -49,16 +49,27 @@ class MedicalOrderProcessingService
             // 6. Create billing record
             $billing = $this->createBilling($medicalOrder);
 
-            // 7. Update order status to COMPLETED after billing created
-            $medicalOrder->update([
-                'status' => MedicalOrderStatusEnum::COMPLETED,
-                'completed_at' => now(),
-            ]);
+            // 7. Update all non-pharmacy/non-lab order items to completed immediately.
+            // rx_medicine items are completed by the pharmacist via Medicine Report (Finish button).
+            // lab items are completed by lab staff via Lab Panel.
+            $medicalOrder->orderItems()
+                ->whereNotIn('item_type', ['rx_medicine', 'lab'])
+                ->update([
+                    'status' => 'completed',
+                    'completed_at' => now(),
+                ]);
 
-            // 8. Update all order items to completed
-            $medicalOrder->orderItems()->update([
-                'status' => 'completed',
-                'completed_at' => now(),
+            // 8. If no pending rx_medicine or lab items, mark order as COMPLETED; otherwise PROCESSING.
+            $hasPendingDepartmentItems = $medicalOrder->orderItems()
+                ->whereIn('item_type', ['rx_medicine', 'lab'])
+                ->whereNull('completed_at')
+                ->exists();
+
+            $medicalOrder->update([
+                'status' => $hasPendingDepartmentItems
+                    ? MedicalOrderStatusEnum::PROCESSING
+                    : MedicalOrderStatusEnum::COMPLETED,
+                'completed_at' => $hasPendingDepartmentItems ? null : now(),
             ]);
 
             return [
