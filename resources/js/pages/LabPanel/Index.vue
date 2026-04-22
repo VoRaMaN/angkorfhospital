@@ -92,6 +92,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { hasPermission } = useAuth();
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Lab Panels',
