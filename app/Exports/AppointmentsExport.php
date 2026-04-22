@@ -73,36 +73,33 @@ class AppointmentsExport
     private function generateCsv($appointments)
     {
         $headers = [
-            'Patient ID',
-            'Patient Title',
-            'Time',
             'Date',
-            'Patient Name',
+            'Time',
+            'ID',
+            'Name',
             'Mobile Number',
             'Doctor',
             'Status',
-            'Appointment Type',
-            'Duration (minutes)',
-            'Reason for Visit',
-            'Created At',
+            'Reason',
+            'Comment',
         ];
 
         $rows = [$headers];
 
         foreach ($appointments as $appointment) {
+            $title = $appointment->patient ? ($appointment->patient->title ? $appointment->patient->title.'. ' : '') : '';
+            $name = $appointment->patient ? trim(($appointment->patient->name ?? '').' '.($appointment->patient->surname ?? '')) : 'Unknown Patient';
+
             $rows[] = [
-                $appointment->patient ? $appointment->patient->id : '',
-                $appointment->patient ? $appointment->patient->title : '',
+                $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('d/m/Y') : '',
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
-                $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('d/m/y') : '',
-                $appointment->patient ? (trim(($appointment->patient->name ?? '').' '.($appointment->patient->surname ?? '')) ?: 'Unknown Patient') : 'Unknown Patient',
+                $appointment->patient ? $appointment->patient->id : '',
+                $title.$name,
                 $appointment->patient ? $appointment->patient->mobile_phone : '',
                 $appointment->staff ? ($appointment->staff->user ? $appointment->staff->user->name : ($appointment->staff->first_name.' '.$appointment->staff->last_name)) : 'Unknown Staff',
                 ucfirst($appointment->status->value),
-                ucfirst(str_replace('_', ' ', $appointment->appointment_type?->value ?? 'consultation')),
-                $appointment->duration_minutes ?? 30,
                 $appointment->reason_for_visit ?? '',
-                $appointment->created_at ? $appointment->created_at->format('d/m/y H:i') : '',
+                $appointment->notes ?? '',
             ];
         }
 

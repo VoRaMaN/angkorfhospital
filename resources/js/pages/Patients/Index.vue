@@ -15,7 +15,7 @@ import { create, edit, show } from '@/routes/patients';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus, Search, Eye, EyeOff } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const navigateToPatient = (patientId: string) => {
     router.visit(show({ query: { patient: patientId } }).url);
@@ -97,6 +97,8 @@ const toggleShowAll = () => {
 watch(searchQuery, () => {
     performSearch();
 });
+
+const hasSearch = computed(() => searchQuery.value.trim() !== '' || showAll.value);
 </script>
 
 <template>
@@ -144,7 +146,7 @@ watch(searchQuery, () => {
             </div>
 
             <div class="rounded-md border">
-                <Table>
+                <Table v-if="hasSearch">
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
@@ -206,6 +208,10 @@ watch(searchQuery, () => {
                         </TableRow>
                     </TableBody>
                 </Table>
+                <div v-else class="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
+                    <Search class="size-10 opacity-30" />
+                    <p class="text-sm">Search for a patient to view results</p>
+                </div>
             </div>
 
             <!-- Pagination -->
