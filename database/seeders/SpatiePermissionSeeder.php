@@ -285,12 +285,14 @@ class SpatiePermissionSeeder extends Seeder
             'view_visits',
             'create_visits',
             'edit_visits',
+            'delete_visits',
             'notify_visits',
             'view_billing',
             'view_billings',
             'view_files',
             'create_files',
             'edit_files',
+            'delete_patient_files',
         ]);
 
         $billingRole = Role::firstOrCreate(['name' => 'billing']);
