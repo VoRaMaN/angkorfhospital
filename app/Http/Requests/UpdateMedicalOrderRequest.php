@@ -62,6 +62,8 @@ class UpdateMedicalOrderRequest extends FormRequest
             'order_items.*.frequency' => 'nullable|string|max:100',
             'order_items.*.route' => 'nullable|string|max:100',
             'order_items.*.quantity_required' => 'nullable|integer|min:1',
+            'order_items.*.unit_price' => 'nullable|numeric|min:0',
+            'order_items.*.selling_price' => 'nullable|numeric|min:0',
             'order_items.*.status' => 'nullable|in:'.implode(',', array_column(MedicalOrderStatusEnum::cases(), 'value')),
             'order_items.*.notes' => 'nullable|string|max:500',
         ];

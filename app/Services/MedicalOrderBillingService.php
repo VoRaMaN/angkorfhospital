@@ -49,8 +49,8 @@ class MedicalOrderBillingService
             }
         }
 
-        // For medical services (procedures, imaging)
-        if (in_array($orderItem->item_type, ['procedure', 'imaging'])) {
+        // For medical services (procedures, imaging, consultation, therapy)
+        if (in_array($orderItem->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
             $service = MedicalService::where('name', $orderItem->item_name)
                 ->where('type', $orderItem->item_type)
                 ->first();

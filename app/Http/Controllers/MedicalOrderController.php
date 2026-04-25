@@ -769,8 +769,8 @@ class MedicalOrderController extends Controller
                     'status' => $item->status->value,
                     'notes' => $item->notes,
                     'inventory_id' => $item->inventory_id,
-                    'unit_price' => $item->inventory?->unit_price,
-                    'selling_price' => $item->inventory?->selling_price,
+                    'unit_price' => $item->unit_price ?: ($item->inventory?->unit_price ?? 0),
+                    'selling_price' => $item->selling_price ?: ($item->inventory?->selling_price ?? 0),
                 ];
             }),
         ];
