@@ -21,6 +21,11 @@ class UpdateMedicalOrderRequest extends FormRequest
             return true;
         }
 
+        // Users with process permission (e.g. nurses) can update during processing
+        if ($user->can('process_medical_orders')) {
+            return true;
+        }
+
         // Only doctors can update medical orders
         if (! $user->hasRole('doctor')) {
             return false;
