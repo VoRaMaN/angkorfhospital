@@ -2,7 +2,6 @@
 import DateInput from '@/components/DateInput.vue';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -260,24 +259,14 @@ const form = useForm({
                         <h3 class="font-medium">Procedure Details</h3>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div class="flex items-center space-x-2">
-                                <Checkbox
-                                    id="is_hormone_test"
-                                    :checked="form.is_hormone_test"
-                                    @update:checked="
-                                        form.is_hormone_test = $event
-                                    "
-                                />
+                                <input type="checkbox" id="is_hormone_test" v-model="form.is_hormone_test" />
                                 <Label for="is_hormone_test"
                                     >Hormone Test</Label
                                 >
                             </div>
 
                             <div class="flex items-center space-x-2">
-                                <Checkbox
-                                    id="is_tvs"
-                                    :checked="form.is_tvs"
-                                    @update:checked="form.is_tvs = $event"
-                                />
+                                <input type="checkbox" id="is_tvs" v-model="form.is_tvs" />
                                 <Label for="is_tvs">TVS</Label>
                             </div>
 
@@ -308,11 +297,7 @@ const form = useForm({
                             </div>
 
                             <div class="flex items-center space-x-2">
-                                <Checkbox
-                                    id="is_beta_hcg"
-                                    :checked="form.is_beta_hcg"
-                                    @update:checked="form.is_beta_hcg = $event"
-                                />
+                                <input type="checkbox" id="is_beta_hcg" v-model="form.is_beta_hcg" />
                                 <Label for="is_beta_hcg">Beta HCG</Label>
                             </div>
                         </div>
