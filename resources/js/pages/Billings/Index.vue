@@ -155,6 +155,17 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
     selectedStatus.value = '';
     isDialogOpen.value = true;
 };
+
+const exportBillings = () => {
+    const params = new URLSearchParams();
+    if (searchQuery.value) params.append('search', searchQuery.value);
+    if (statusFilter.value) params.append('status', statusFilter.value);
+    if (startDate.value) params.append('start_date', startDate.value);
+    if (endDate.value) params.append('end_date', endDate.value);
+
+    const url = `/billings-export?${params.toString()}`;
+    window.open(url, '_blank');
+};
 </script>
 
 <template>
@@ -195,6 +206,9 @@ const openStatusDialog = (billing: Props['billings'][0]) => {
                     <Input v-model="startDate" type="date" class="max-w-[200px]" placeholder="Start date" />
                     <Input v-model="endDate" type="date" class="max-w-[200px]" placeholder="End date" />
                     <Button variant="ghost" size="sm" @click="clearDates">Clear Dates</Button>
+                    <Button variant="outline" size="sm" @click="exportBillings" v-if="hasPermission('view_billings')">
+                        Export to CSV
+                    </Button>
                 </div>
             </div>
 

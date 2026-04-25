@@ -579,4 +579,20 @@ class BillingController extends Controller
         return redirect()->route('billings.show', $billing)
             ->with('success', 'Billing amount recalculated successfully. New total: $'.number_format($newAmount, 2));
     }
+
+    public function export(): \Illuminate\Http\Response
+    {
+        $this->authorize('viewAny', Billing::class);
+
+        $filters = [
+            'search' => request('search', ''),
+            'status' => request('status', ''),
+            'start_date' => request('start_date', ''),
+            'end_date' => request('end_date', ''),
+        ];
+
+        $exporter = new \App\Exports\BillingsExport($filters);
+
+        return $exporter->download();
+    }
 }

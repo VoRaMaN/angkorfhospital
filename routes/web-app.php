@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('appointments-export', [AppointmentController::class, 'export'])->name('appointments.export');
 
     // Billings
+    Route::get('billings-export', [BillingController::class, 'export'])->name('billings.export');
     Route::resource('billings', BillingController::class);
     Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
     Route::patch('billings/{billing}/complete-payment', [BillingController::class, 'completePayment'])->name('billings.complete-payment');
