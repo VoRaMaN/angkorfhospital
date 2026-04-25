@@ -173,8 +173,7 @@
     <!-- Header -->
     <div class="header">
         <div class="header-left">
-            <img src="{{ public_path('images/logo.png') }}" alt="Angkor F Hospital" style="width: 60px; height: 60px; margin-bottom: 5px; display: block;">
-            <h1>Angkor-F Hospital</h1>
+            <img src="{{ public_path('images/logo1.png') }}" alt="Angkor-F Hospital" style="width: 130px; margin-bottom: 5px; display: block;">
             <p>Phum Sala Kansaeng, Sangkat Svay Dangkum,</p>
             <p>Siem Reap, Kingdom of Cambodia.</p>
             <p>Tel: (855) 31 3 5555 88</p>
