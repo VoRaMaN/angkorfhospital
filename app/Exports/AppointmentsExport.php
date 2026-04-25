@@ -82,11 +82,6 @@ class AppointmentsExport
             'Status',
             'Reason',
             'Comment',
-            'Hormone Test',
-            'TVS',
-            'OPU Time',
-            'ET/FET Time',
-            'Beta HCG',
         ];
 
         $rows = [$headers];
@@ -94,6 +89,29 @@ class AppointmentsExport
         foreach ($appointments as $appointment) {
             $title = $appointment->patient ? ($appointment->patient->title ? $appointment->patient->title.' ' : '') : '';
             $name = $appointment->patient ? trim(($appointment->patient->name ?? '').' '.($appointment->patient->surname ?? '')) : 'Unknown Patient';
+
+            $procedures = [];
+            if ($appointment->is_hormone_test) {
+                $procedures[] = 'Hormone Test';
+            }
+            if ($appointment->is_tvs) {
+                $procedures[] = 'TVS';
+            }
+            if ($appointment->opu_time) {
+                $procedures[] = 'OPU: '.$appointment->opu_time;
+            }
+            if ($appointment->et_fet_time) {
+                $procedures[] = 'ET/FET: '.$appointment->et_fet_time;
+            }
+            if ($appointment->is_beta_hcg) {
+                $procedures[] = 'Beta HCG';
+            }
+
+            $reason = $appointment->reason_for_visit ?? '';
+            if (! empty($procedures)) {
+                $procedureStr = implode(', ', $procedures);
+                $reason = $reason ? $reason.'; '.$procedureStr : $procedureStr;
+            }
 
             $rows[] = [
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('d/m/Y') : '',
@@ -103,13 +121,8 @@ class AppointmentsExport
                 $appointment->patient ? $appointment->patient->mobile_phone : '',
                 $appointment->staff ? ($appointment->staff->user ? $appointment->staff->user->name : ($appointment->staff->first_name.' '.$appointment->staff->last_name)) : 'Unknown Staff',
                 ucfirst($appointment->status->value),
-                $appointment->reason_for_visit ?? '',
+                $reason,
                 $appointment->notes ?? '',
-                $appointment->is_hormone_test ? 'Yes' : 'No',
-                $appointment->is_tvs ? 'Yes' : 'No',
-                $appointment->opu_time ?? '',
-                $appointment->et_fet_time ?? '',
-                $appointment->is_beta_hcg ? 'Yes' : 'No',
             ];
         }
 
