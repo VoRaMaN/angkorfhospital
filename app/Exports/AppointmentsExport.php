@@ -87,7 +87,7 @@ class AppointmentsExport
         $rows = [$headers];
 
         foreach ($appointments as $appointment) {
-            $title = $appointment->patient ? ($appointment->patient->title ? $appointment->patient->title.'. ' : '') : '';
+            $title = $appointment->patient ? ($appointment->patient->title ? $appointment->patient->title.' ' : '') : '';
             $name = $appointment->patient ? trim(($appointment->patient->name ?? '').' '.($appointment->patient->surname ?? '')) : 'Unknown Patient';
 
             $rows[] = [

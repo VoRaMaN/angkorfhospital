@@ -206,7 +206,7 @@ const formatDOB = (patient: any) => {
                                 <TableCell>{{ patient.id }}</TableCell>
                                 <TableCell class="font-medium">
                                     <button class="text-primary hover:underline" @click="router.visit(show({ query: { patient: patient.id } }).url)">
-                                        {{ patient.title ? patient.title + '. ' : '' }}{{ patient.name }} {{ patient.surname }}
+                                        {{ patient.title ? patient.title + ' ' : '' }}{{ patient.name }} {{ patient.surname }}
                                     </button>
                                 </TableCell>
                                 <TableCell>{{ patient.mobile_phone || patient.home_phone || 'N/A' }}</TableCell>
@@ -249,7 +249,7 @@ const formatDOB = (patient: any) => {
                                 <TableCell>{{ patient.id }}</TableCell>
                                 <TableCell class="font-medium">
                                     <button class="text-primary hover:underline" @click="router.visit(show({ query: { patient: patient.id } }).url)">
-                                        {{ patient.title ? patient.title + '. ' : '' }}{{ patient.name }} {{ patient.surname }}
+                                        {{ patient.title ? patient.title + ' ' : '' }}{{ patient.name }} {{ patient.surname }}
                                     </button>
                                 </TableCell>
                                 <TableCell>{{ patient.mobile_phone || patient.home_phone || 'N/A' }}</TableCell>
