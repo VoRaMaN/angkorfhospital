@@ -23,7 +23,7 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patients,id',
-            'staff_id' => 'nullable|exists:staff,id',
+            'staff_id' => 'required|exists:staff,id',
             'appointment_date_time' => 'required|date|after:now',
             'duration_minutes' => 'required|integer|min:15|max:480',
             'appointment_type' => 'required|in:consultation,emergency,follow_up,procedure,checkup,telemedicine,screening,therapy',
@@ -44,6 +44,7 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'appointment_date_time.after' => 'Appointment date and time must be in the future.',
+            'staff_id.required' => 'Please select a doctor for this appointment.',
             'duration_minutes.min' => 'Duration must be at least 15 minutes.',
             'duration_minutes.max' => 'Duration cannot exceed 8 hours (480 minutes).',
             'appointment_type.in' => 'Please select a valid appointment type.',
