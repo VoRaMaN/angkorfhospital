@@ -29,6 +29,11 @@ class StoreAppointmentRequest extends FormRequest
             'appointment_type' => 'required|in:consultation,emergency,follow_up,procedure,checkup,telemedicine,screening,therapy',
             'reason_for_visit' => 'nullable|string|max:1000',
             'notes' => 'nullable|string|max:2000',
+            'is_hormone_test' => 'boolean',
+            'is_tvs' => 'boolean',
+            'opu_time' => 'nullable|date_format:H:i',
+            'et_fet_time' => 'nullable|date_format:H:i',
+            'is_beta_hcg' => 'boolean',
         ];
     }
 
