@@ -35,6 +35,11 @@ interface Props {
         status: string;
         reason_for_visit?: string;
         notes?: string;
+        is_hormone_test?: boolean;
+        is_tvs?: boolean;
+        opu_time?: string | null;
+        et_fet_time?: string | null;
+        is_beta_hcg?: boolean;
         created_at: string;
         updated_at: string;
     };
@@ -388,7 +393,47 @@ const getTypeColor = (type: string) => {
                                 {{ props.appointment.notes }}
                             </dd>
                         </div>
+                    </div>
+                </div>
 
+                <!-- Procedure Details -->
+                <div
+                    v-if="
+                        props.appointment.is_hormone_test ||
+                        props.appointment.is_tvs ||
+                        props.appointment.opu_time ||
+                        props.appointment.et_fet_time ||
+                        props.appointment.is_beta_hcg
+                    "
+                    class="rounded-lg border bg-card p-6 mt-4"
+                >
+                    <h2 class="text-lg font-semibold mb-4">Procedure Details</h2>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-2" v-if="props.appointment.is_hormone_test">
+                            <dt class="text-sm font-medium text-muted-foreground">Hormone Test</dt>
+                            <dd class="text-sm">Yes</dd>
+                        </div>
+                        <div class="space-y-2" v-if="props.appointment.is_tvs">
+                            <dt class="text-sm font-medium text-muted-foreground">TVS</dt>
+                            <dd class="text-sm">Yes</dd>
+                        </div>
+                        <div class="space-y-2" v-if="props.appointment.opu_time">
+                            <dt class="text-sm font-medium text-muted-foreground">OPU Time</dt>
+                            <dd class="text-sm">{{ props.appointment.opu_time }}</dd>
+                        </div>
+                        <div class="space-y-2" v-if="props.appointment.et_fet_time">
+                            <dt class="text-sm font-medium text-muted-foreground">ET/FET Time</dt>
+                            <dd class="text-sm">{{ props.appointment.et_fet_time }}</dd>
+                        </div>
+                        <div class="space-y-2" v-if="props.appointment.is_beta_hcg">
+                            <dt class="text-sm font-medium text-muted-foreground">Beta HCG</dt>
+                            <dd class="text-sm">Yes</dd>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg border bg-card p-6 mt-4">
+                    <div class="grid gap-6 md:grid-cols-2">
                         <div class="space-y-2">
                             <dt
                                 class="text-sm font-medium text-muted-foreground"
