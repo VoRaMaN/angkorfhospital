@@ -24,8 +24,8 @@ interface Props {
         id: number;
         patient: {
             user?: { name: string; email?: string } | null;
-            first_name: string;
-            last_name: string;
+            name: string;
+            surname: string;
             email?: string;
         };
         staff: { user: { name: string }; role: { name: string } };
@@ -261,7 +261,7 @@ const getTypeColor = (type: string) => {
                             <dd class="text-sm">
                                 {{
                                     props.appointment.patient.user?.name ||
-                                    `${props.appointment.patient.first_name} ${props.appointment.patient.last_name}`
+                                    `${props.appointment.patient.name} ${props.appointment.patient.surname}`
                                 }}
                             </dd>
                         </div>
@@ -397,37 +397,28 @@ const getTypeColor = (type: string) => {
                 </div>
 
                 <!-- Procedure Details -->
-                <div
-                    v-if="
-                        props.appointment.is_hormone_test ||
-                        props.appointment.is_tvs ||
-                        props.appointment.opu_time ||
-                        props.appointment.et_fet_time ||
-                        props.appointment.is_beta_hcg
-                    "
-                    class="rounded-lg border bg-card p-6 mt-4"
-                >
+                <div class="rounded-lg border bg-card p-6 mt-4">
                     <h2 class="text-lg font-semibold mb-4">Procedure Details</h2>
                     <div class="grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2" v-if="props.appointment.is_hormone_test">
+                        <div class="space-y-2">
                             <dt class="text-sm font-medium text-muted-foreground">Hormone Test</dt>
-                            <dd class="text-sm">Yes</dd>
+                            <dd class="text-sm">{{ props.appointment.is_hormone_test ? 'Yes' : 'No' }}</dd>
                         </div>
-                        <div class="space-y-2" v-if="props.appointment.is_tvs">
+                        <div class="space-y-2">
                             <dt class="text-sm font-medium text-muted-foreground">TVS</dt>
-                            <dd class="text-sm">Yes</dd>
+                            <dd class="text-sm">{{ props.appointment.is_tvs ? 'Yes' : 'No' }}</dd>
                         </div>
-                        <div class="space-y-2" v-if="props.appointment.opu_time">
+                        <div class="space-y-2">
                             <dt class="text-sm font-medium text-muted-foreground">OPU Time</dt>
-                            <dd class="text-sm">{{ props.appointment.opu_time }}</dd>
+                            <dd class="text-sm">{{ props.appointment.opu_time || '—' }}</dd>
                         </div>
-                        <div class="space-y-2" v-if="props.appointment.et_fet_time">
+                        <div class="space-y-2">
                             <dt class="text-sm font-medium text-muted-foreground">ET/FET Time</dt>
-                            <dd class="text-sm">{{ props.appointment.et_fet_time }}</dd>
+                            <dd class="text-sm">{{ props.appointment.et_fet_time || '—' }}</dd>
                         </div>
-                        <div class="space-y-2" v-if="props.appointment.is_beta_hcg">
+                        <div class="space-y-2">
                             <dt class="text-sm font-medium text-muted-foreground">Beta HCG</dt>
-                            <dd class="text-sm">Yes</dd>
+                            <dd class="text-sm">{{ props.appointment.is_beta_hcg ? 'Yes' : 'No' }}</dd>
                         </div>
                     </div>
                 </div>
@@ -461,7 +452,7 @@ const getTypeColor = (type: string) => {
                         <strong>Patient:</strong>
                         {{
                             props.appointment.patient.user?.name ||
-                            `${props.appointment.patient.first_name} ${props.appointment.patient.last_name}`
+                            `${props.appointment.patient.name} ${props.appointment.patient.surname}`
                         }}
                         <br />
                         <strong>Current Status:</strong>
