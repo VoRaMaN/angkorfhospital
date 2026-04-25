@@ -82,6 +82,11 @@ class AppointmentsExport
             'Status',
             'Reason',
             'Comment',
+            'Hormone Test',
+            'TVS',
+            'OPU Time',
+            'ET/FET Time',
+            'Beta HCG',
         ];
 
         $rows = [$headers];
@@ -100,6 +105,11 @@ class AppointmentsExport
                 ucfirst($appointment->status->value),
                 $appointment->reason_for_visit ?? '',
                 $appointment->notes ?? '',
+                $appointment->is_hormone_test ? 'Yes' : 'No',
+                $appointment->is_tvs ? 'Yes' : 'No',
+                $appointment->opu_time ?? '',
+                $appointment->et_fet_time ?? '',
+                $appointment->is_beta_hcg ? 'Yes' : 'No',
             ];
         }
 
