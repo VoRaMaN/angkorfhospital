@@ -175,10 +175,8 @@ class PatientController extends Controller
             $billings = $visit->billings->map(function ($billing) {
                 return [
                     'id' => $billing->id,
-                    'total_amount' => $billing->total_amount,
-                    'paid_amount' => $billing->paid_amount,
-                    'payment_status' => $billing->payment_status,
-                    'payment_method' => $billing->payment_method,
+                    'amount' => $billing->amount,
+                    'status' => $billing->status,
                     'billing_date' => $billing->billing_date,
                 ];
             });
@@ -187,11 +185,8 @@ class PatientController extends Controller
                 'id' => $visit->id,
                 'visit_date_time' => $visit->visit_date_time,
                 'status' => $visit->status,
-                'priority' => $visit->priority,
                 'notes' => $visit->notes,
-                'completed_at' => $visit->completed_at,
                 'staff_name' => $visit->staff?->user?->name,
-                'order_details' => $visit->order_details,
                 'medical_orders' => $medicalOrders,
                 'billings' => $billings,
             ];
@@ -202,11 +197,10 @@ class PatientController extends Controller
             // Group order items by type
             $services = $order->orderItems->where('item_type', 'procedure')->values();
             $labs = $order->orderItems->whereIn('item_type', ['lab'])->values();
-            $medications = $order->orderItems->where('item_type', 'medication')->values();
+            $medications = $order->orderItems->where('item_type', 'rx_medicine')->values();
 
             return [
                 'id' => $order->id,
-                'type' => $order->type,
                 'order_details' => $order->order_details,
                 'status' => $order->status,
                 'priority' => $order->priority,

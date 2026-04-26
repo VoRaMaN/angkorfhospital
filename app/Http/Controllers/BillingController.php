@@ -79,7 +79,7 @@ class BillingController extends Controller
                 'outstanding_amount' => $billing->amount, // TODO: Calculate based on payments
                 'status' => $billing->status,
                 'billing_date' => $billing->billing_date,
-                'due_date' => $billing->billing_date->addDays(30), // TODO: Add due_date field to model
+                'due_date' => $billing->billing_date?->copy()->addDays(30), // TODO: Add due_date field to model
                 'created_at' => $billing->created_at,
             ];
         });
@@ -371,10 +371,10 @@ class BillingController extends Controller
                 'amount' => $billing->amount,
                 'status' => $billing->status,
                 'billing_date' => $billing->billing_date,
-                'due_date' => $billing->due_date,
-                'paid_at' => $billing->paid_at,
-                'payment_method' => $billing->payment_method,
-                'transaction_id' => $billing->transaction_id,
+                'due_date' => null,
+                'paid_at' => null,
+                'payment_method' => null,
+                'transaction_id' => null,
                 'notes' => $billing->notes,
                 'created_at' => $billing->created_at,
                 'updated_at' => $billing->updated_at,
@@ -397,7 +397,6 @@ class BillingController extends Controller
             ] : null,
             'medical_order_info' => $billing->medicalOrder ? [
                 'id' => $billing->medicalOrder->id,
-                'order_type' => $billing->medicalOrder->order_type,
                 'order_details' => $billing->medicalOrder->order_details,
                 'status' => $billing->medicalOrder->status,
                 'priority' => $billing->medicalOrder->priority,
@@ -408,7 +407,6 @@ class BillingController extends Controller
             'medical_orders' => $billing->medicalOrder ? collect([$billing->medicalOrder])->map(function ($order) {
                 return [
                     'id' => $order->id,
-                    'order_type' => $order->order_type,
                     'order_details' => $order->order_details,
                     'status' => $order->status,
                     'priority' => $order->priority,
@@ -418,15 +416,18 @@ class BillingController extends Controller
                 ];
             }) : collect(),
             'order_items' => $billing->medicalOrder?->orderItems->map(function ($item) {
+                $unitPrice = $item->selling_price > 0 ? $item->selling_price : ($item->unit_price > 0 ? $item->unit_price : ($item->inventory?->selling_price ?? $item->inventory?->unit_price ?? 0));
+                $qty = $item->quantity_required ?? 1;
+
                 return [
                     'id' => $item->id,
                     'item_type' => $item->item_type,
-                    'item_name' => $item->inventory?->item_name ?? $item->item_name ?? 'Unknown Item',
-                    'quantity_required' => $item->quantity_required,
+                    'item_name' => $item->item_name ?? $item->inventory?->item_name ?? 'Unknown Item',
+                    'quantity_required' => $qty,
                     'quantity_used' => $item->quantity_used,
                     'unit' => $item->inventory?->unit ?? 'units',
-                    'unit_price' => $item->inventory?->unit_price ?? 0,
-                    'total_cost' => ($item->quantity_used ?? $item->quantity_required ?? 1) * ($item->inventory?->unit_price ?? 0),
+                    'unit_price' => $unitPrice,
+                    'total_cost' => $qty * $unitPrice,
                     'status' => $item->status,
                 ];
             }) ?? collect(),

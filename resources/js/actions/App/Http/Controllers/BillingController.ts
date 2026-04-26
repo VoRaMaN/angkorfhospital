@@ -1,5 +1,83 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+exportMethod.definition = {
+    methods: ["get","head"],
+    url: '/billings-export',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+exportMethod.url = (options?: RouteQueryOptions) => {
+    return exportMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportMethod.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+    const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: exportMethod.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+        exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: exportMethod.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\BillingController::exportMethod
+ * @see app/Http/Controllers/BillingController.php:583
+ * @route '/billings-export'
+ */
+        exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: exportMethod.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    exportMethod.form = exportMethodForm
+/**
 * @see \App\Http\Controllers\BillingController::index
  * @see app/Http/Controllers/BillingController.php:19
  * @route '/billings'
@@ -1175,6 +1253,6 @@ generateLetter.head = (args: { billing: number | { id: number } } | [billing: nu
         })
     
     generateLetter.form = generateLetterForm
-const BillingController = { index, create, store, show, edit, update, destroy, updateStatus, completePayment, sendBackToNurse, recalculate, generateReport, generateLetter }
+const BillingController = { exportMethod, index, create, store, show, edit, update, destroy, updateStatus, completePayment, sendBackToNurse, recalculate, generateReport, generateLetter, export: exportMethod }
 
 export default BillingController
