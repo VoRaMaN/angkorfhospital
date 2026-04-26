@@ -757,6 +757,32 @@ class MedicalOrderController extends Controller
             'created_at' => $medicalOrder->created_at,
             'updated_at' => $medicalOrder->updated_at,
             'order_items' => $medicalOrder->orderItems->map(function ($item) {
+                // Use stored price if > 0, else fall back to inventory price
+                $unitPrice = $item->unit_price > 0
+                    ? (float) $item->unit_price
+                    : ($item->inventory?->unit_price ?? 0);
+                $sellingPrice = $item->selling_price > 0
+                    ? (float) $item->selling_price
+                    : ($item->inventory?->selling_price ?? 0);
+
+                // For non-inventory service types with no price, look up from MedicalService
+                if ($sellingPrice <= 0 && ! $item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
+                    $medicalService = \App\Models\MedicalService::where('name', $item->item_name)->first();
+                    if ($medicalService) {
+                        $unitPrice = (float) $medicalService->price;
+                        $sellingPrice = (float) $medicalService->price;
+                    }
+                }
+
+                // For special items with no price, look up from SpecialItem
+                if ($sellingPrice <= 0 && $item->item_type === 'special_item') {
+                    $specialItem = \App\Models\SpecialItem::where('name', $item->item_name)->first();
+                    if ($specialItem) {
+                        $unitPrice = (float) $specialItem->unit_price;
+                        $sellingPrice = (float) $specialItem->unit_price;
+                    }
+                }
+
                 return [
                     'id' => $item->id,
                     'item_type' => $item->item_type,
@@ -769,8 +795,8 @@ class MedicalOrderController extends Controller
                     'status' => $item->status->value,
                     'notes' => $item->notes,
                     'inventory_id' => $item->inventory_id,
-                    'unit_price' => $item->unit_price ?: ($item->inventory?->unit_price ?? 0),
-                    'selling_price' => $item->selling_price ?: ($item->inventory?->selling_price ?? 0),
+                    'unit_price' => $unitPrice,
+                    'selling_price' => $sellingPrice,
                 ];
             }),
         ];

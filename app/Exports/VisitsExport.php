@@ -101,7 +101,7 @@ class VisitsExport
                 $visit->patient ? $visit->patient->id : '',
                 $patientTitle,
                 $patientName,
-                $visit->patient ? ($visit->patient->mobile_phone ?? '') : '',
+                $this->formatPhone($visit->patient ? ($visit->patient->mobile_phone ?? '') : ''),
                 $visit->visit_date_time ? \Carbon\Carbon::parse($visit->visit_date_time)->format('d/m/y') : '',
                 $visit->visit_date_time ? \Carbon\Carbon::parse($visit->visit_date_time)->format('H:i') : '',
                 ucfirst($visit->status instanceof \BackedEnum ? $visit->status->value : ($visit->status ?? '')),
@@ -125,5 +125,14 @@ class VisitsExport
         }
 
         return $csv;
+    }
+
+    private function formatPhone(?string $phone): string
+    {
+        if (! $phone) {
+            return '';
+        }
+
+        return '="'.$phone.'"';
     }
 }

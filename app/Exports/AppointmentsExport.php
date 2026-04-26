@@ -118,7 +118,7 @@ class AppointmentsExport
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
                 $appointment->patient ? $appointment->patient->id : '',
                 $title.$name,
-                $appointment->patient ? $appointment->patient->mobile_phone : '',
+                $this->formatPhone($appointment->patient ? $appointment->patient->mobile_phone : ''),
                 $appointment->staff ? ($appointment->staff->user ? $appointment->staff->user->name : ($appointment->staff->first_name.' '.$appointment->staff->last_name)) : 'Unknown Staff',
                 ucfirst($appointment->status->value),
                 $reason,
@@ -140,5 +140,14 @@ class AppointmentsExport
         }
 
         return $csv;
+    }
+
+    private function formatPhone(?string $phone): string
+    {
+        if (! $phone) {
+            return '';
+        }
+
+        return '="'.$phone.'"';
     }
 }
