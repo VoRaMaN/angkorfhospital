@@ -175,18 +175,18 @@ const form = useForm({
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-medium">Staff</label>
+                        <label class="text-sm font-medium">Doctor</label>
                         <SearchableSelect
                             v-model="form.staff_id"
                             :options="
                                 props.staff.map((s) => ({
                                     value: s.id.toString(),
-                                    label: `${s.user?.name || 'Unknown Staff'} (${s.role?.name || 'Staff'})`,
+                                    label: `${s.user?.name || 'Unknown Doctor'} (${s.role?.name || 'Doctor'})`,
                                 }))
                             "
-                            placeholder="Select staff"
-                            search-placeholder="Search staff..."
-                            empty-text="No staff found."
+                            placeholder="Select doctor"
+                            search-placeholder="Search doctor..."
+                            empty-text="No doctor found."
                         />
                         <div
                             v-if="form.errors.staff_id"
