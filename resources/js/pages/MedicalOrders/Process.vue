@@ -916,7 +916,7 @@ const submitForm = () => {
                             </p>
                         </div>
                         <div>
-                            <Label class="text-sm font-medium text-muted-foreground">Staff</Label>
+                            <Label class="text-sm font-medium text-muted-foreground">Doctor</Label>
                             <p class="text-sm font-medium">
                                 {{ medicalOrder.staff_name || 'Unassigned' }}
                             </p>
