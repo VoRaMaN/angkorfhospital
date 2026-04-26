@@ -36,6 +36,8 @@ class VisitsExport
             $query->where('patient_id', $this->filters['patient']);
         }
 
+        $hasDateFilter = ! empty($this->filters['date']) || ! empty($this->filters['from']) || ! empty($this->filters['to']);
+
         if (! empty($this->filters['date'])) {
             try {
                 $query->whereDate('visit_date_time', $this->filters['date']);
@@ -60,6 +62,10 @@ class VisitsExport
             }
         }
 
+        if (! $hasDateFilter) {
+            $query->whereDate('visit_date_time', today());
+        }
+
         $visits = $query->orderByDesc('visit_date_time')->get();
 
         $csvContent = $this->generateCsv($visits);
@@ -76,13 +82,11 @@ class VisitsExport
         $headers = [
             'Visit ID',
             'Patient ID',
-            'Patient Title',
-            'Patient Name',
+            'Name',
             'Mobile Number',
             'Date',
             'Time',
             'Status',
-            'Staff',
             'Doctor',
             'Notes',
             'Created At',
@@ -99,13 +103,11 @@ class VisitsExport
             $rows[] = [
                 $visit->id,
                 $visit->patient ? $visit->patient->id : '',
-                $patientTitle,
-                $patientName,
+                trim($patientTitle.' '.$patientName),
                 $this->formatPhone($visit->patient ? ($visit->patient->mobile_phone ?? '') : ''),
                 $visit->visit_date_time ? \Carbon\Carbon::parse($visit->visit_date_time)->format('d/m/y') : '',
                 $visit->visit_date_time ? \Carbon\Carbon::parse($visit->visit_date_time)->format('H:i') : '',
                 ucfirst($visit->status instanceof \BackedEnum ? $visit->status->value : ($visit->status ?? '')),
-                $visit->staff ? ($visit->staff->user?->name ?? $visit->staff->name ?? '') : 'Unassigned',
                 $visit->doctor ? ($visit->doctor->user?->name ?? $visit->doctor->name ?? '') : '',
                 $visit->notes ?? '',
                 $visit->created_at ? $visit->created_at->format('d/m/y H:i') : '',

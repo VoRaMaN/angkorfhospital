@@ -290,7 +290,7 @@ const getTypeColor = (type: string) => {
                             <dt
                                 class="text-sm font-medium text-muted-foreground"
                             >
-                                Staff
+                                Doctor
                             </dt>
                             <dd class="text-sm">
                                 {{ props.appointment.staff.user.name }} ({{
