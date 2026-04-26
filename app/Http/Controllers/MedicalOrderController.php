@@ -591,13 +591,20 @@ class MedicalOrderController extends Controller
             return redirect()->back()->with('error', $result['error']);
         }
 
-        // Redirect to billing/payment page
-        return redirect()->route('billings.show', $result['billing_id'])
-            ->with('success', sprintf(
-                'Medical order processed successfully! %d department(s) notified. Total amount: $%s',
-                count($result['notifications_sent']),
-                number_format($result['total_amount'], 2)
-            ));
+        $successMessage = sprintf(
+            'Medical order processed successfully! %d department(s) notified. Total amount: $%s',
+            count($result['notifications_sent']),
+            number_format($result['total_amount'], 2)
+        );
+
+        // Only redirect to billing if the user has permission to view it
+        if ($request->user()->can('view_billing') || $request->user()->hasRole('admin')) {
+            return redirect()->route('billings.show', $result['billing_id'])
+                ->with('success', $successMessage);
+        }
+
+        return redirect()->route('medical-orders.show', $medicalOrder)
+            ->with('success', 'Medical order processed successfully. Sent to account.');
     }
 
     public function processPage(MedicalOrder $medicalOrder)
@@ -1017,8 +1024,13 @@ class MedicalOrderController extends Controller
 
                 Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_AWAITING_ACCOUNTANT]);
 
-                return redirect()->route('billings.show', $existingBilling)
-                    ->with('success', 'Medical order revised and billing recalculated. New total: $'.number_format($totalAmount, 2));
+                if (auth()->user()->can('view_billing') || auth()->user()->hasRole('admin')) {
+                    return redirect()->route('billings.show', $existingBilling)
+                        ->with('success', 'Medical order revised and billing recalculated. New total: $'.number_format($totalAmount, 2));
+                }
+
+                return redirect()->route('medical-orders.show', $medicalOrder)
+                    ->with('success', 'Medical order revised. Sent to account.');
             }
 
             // Normal flow: process the order and create billing
@@ -1032,8 +1044,13 @@ class MedicalOrderController extends Controller
 
             Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_COMPLETED]);
 
+            if (auth()->user()->can('view_billing') || auth()->user()->hasRole('admin')) {
+                return redirect()->route('billings.show', $billing)
+                    ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
+            }
+
             return redirect()->route('medical-orders.show', $medicalOrder)
-                ->with('success', 'Medical order processed successfully. Billing created with total amount: $'.number_format((float) $billing->amount, 2));
+                ->with('success', 'Medical order processed successfully. Sent to account.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to process medical order: '.$e->getMessage());
         }
