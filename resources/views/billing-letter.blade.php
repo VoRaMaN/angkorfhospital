@@ -190,7 +190,7 @@
     <!-- Patient Info -->
     <div class="patient-info">
         <div class="patient-left">
-            <p><span class="label">Patient Name</span> {{ $billing->patient->user->name ?? 'Unknown Patient' }}</p>
+            <p><span class="label">Patient Name</span> {{ $billing->patient->full_name ?? $billing->patient->user->name ?? 'Unknown Patient' }}</p>
             <p><span class="label">ID</span> {{ $billing->patient->id ?? 'N/A' }}</p>
         </div>
         <div class="patient-right">
