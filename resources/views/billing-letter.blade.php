@@ -213,15 +213,7 @@
             @if($costBreakdown && isset($costBreakdown['groups']))
                 @foreach($costBreakdown['groups'] as $group)
                     <tr>
-                        <td class="description">
-                            @if($group['type'] === 'lab_test')
-                                Laboratory
-                            @elseif($group['type'] === 'rx_medicine')
-                                Medicine
-                            @else
-                                {{ ucfirst(str_replace('_', ' ', $group['type'])) }}
-                            @endif
-                        </td>
+                        <td class="description">{{ $group['name'] }}</td>
                         <td class="amount">{{ number_format($group['subtotal'], 2) }}</td>
                         <td class="discount"></td>
                         <td class="net">{{ number_format($group['subtotal'], 2) }}</td>
