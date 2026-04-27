@@ -56,6 +56,7 @@ interface Props {
         start_date?: string;
         end_date?: string;
     };
+    overdueCount: number;
 }
 
 const props = defineProps<Props>();
@@ -113,7 +114,7 @@ const updateStatus = (billingId: number, newStatus: string) => {
 };
 
 const getAvailableStatuses = (currentStatus: string) => {
-    const allStatuses = ['pending', 'paid', 'overdue', 'partial', 'written_off', 'cancelled'];
+    const allStatuses = ['pending', 'paid', 'overdue', 'partial', 'cancelled'];
     return allStatuses.filter(status => status !== currentStatus);
 };
 
@@ -227,16 +228,15 @@ const exportBillings = () => {
                     <Link href="/billings?status=paid">Paid</Link>
                 </Button>
                 <Button variant="outline" size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'overdue' }" as-child>
-                    <Link href="/billings?status=overdue">Overdue</Link>
+                    :class="{ 'bg-destructive text-destructive-foreground': statusFilter === 'overdue', 'bg-primary text-primary-foreground': statusFilter !== 'overdue' && statusFilter === 'overdue' }" as-child>
+                    <Link href="/billings?status=overdue" class="flex items-center gap-1">
+                        Overdue
+                        <span v-if="props.overdueCount > 0" class="inline-flex items-center justify-center size-5 rounded-full bg-red-500 text-white text-xs font-bold">{{ props.overdueCount > 9 ? '9+' : props.overdueCount }}</span>
+                    </Link>
                 </Button>
                 <Button variant="outline" size="sm"
                     :class="{ 'bg-primary text-primary-foreground': statusFilter === 'partial' }" as-child>
                     <Link href="/billings?status=partial">Partial</Link>
-                </Button>
-                <Button variant="outline" size="sm"
-                    :class="{ 'bg-primary text-primary-foreground': statusFilter === 'written_off' }" as-child>
-                    <Link href="/billings?status=written_off">Written Off</Link>
                 </Button>
                 <Button variant="outline" size="sm"
                     :class="{ 'bg-primary text-primary-foreground': statusFilter === 'cancelled' }" as-child>

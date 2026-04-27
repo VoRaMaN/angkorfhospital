@@ -62,8 +62,18 @@ class MedicalOrderBillingService
 
         // For special items
         if ($orderItem->item_type === 'special_item') {
+            // Try inventory_id first (most reliable)
+            if ($orderItem->inventory_id && $orderItem->inventory) {
+                $price = $orderItem->inventory->selling_price > 0
+                    ? $orderItem->inventory->selling_price
+                    : $orderItem->inventory->unit_price;
+                if ($price > 0) {
+                    return $price * $quantity;
+                }
+            }
+            // Fallback: look up by name
             $specialItem = \App\Models\SpecialItem::where('name', $orderItem->item_name)->first();
-            if ($specialItem) {
+            if ($specialItem && $specialItem->unit_price > 0) {
                 return $specialItem->unit_price * $quantity;
             }
         }

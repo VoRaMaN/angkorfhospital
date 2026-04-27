@@ -13,7 +13,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { report as reportRoute } from '@/routes/billings';
+import { letter as letterRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
@@ -21,9 +21,8 @@ import {
     Calendar,
     CheckCircle,
     DollarSign,
-    Download,
-    Edit,
     FileText,
+    Printer,
     RotateCcw,
     User,
 } from 'lucide-vue-next';
@@ -165,34 +164,41 @@ const sendBackToNurse = () => {
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
-                    <Button v-if="hasPermission('send_back_billing') && props.billing.medical_order_id && (props.billing.status === 'paid' || props.billing.status === 'pending')"
+                    <!-- Process: go to medical order process page (available when not paid) -->
+                    <Button
+                        v-if="hasPermission('edit_billings') && props.billing.medical_order_id && props.billing.status !== 'paid'"
+                        variant="outline"
+                        as-child
+                    >
+                        <Link :href="`/medical-orders/${props.billing.medical_order_id}/process`">
+                            <FileText class="size-4" />
+                            Process
+                        </Link>
+                    </Button>
+                    <!-- Finish: mark as paid -->
+                    <Button
+                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision'"
+                        variant="default"
+                        @click="completePayment"
+                    >
+                        <CheckCircle class="size-4" />
+                        Finish
+                    </Button>
+                    <!-- Send Back -->
+                    <Button
+                        v-if="hasPermission('send_back_billing') && props.billing.medical_order_id && props.billing.status !== 'paid'"
                         variant="outline"
                         class="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/20"
                         @click="showSendBackDialog = true"
                     >
                         <RotateCcw class="size-4" />
-                        Send Back to Nurse
+                        Send Back
                     </Button>
-                    <Button v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision'"
-                        variant="default"
-                        @click="completePayment"
-                    >
-                        <CheckCircle class="size-4" />
-                        Complete Payment
-                    </Button>
-                    <Button v-if="hasPermission('edit_billings')" variant="outline" as-child>
-                        <Link :href="`/billings/${props.billing.id}/edit`">
-                            <Edit class="size-4" />
-                            Edit
-                        </Link>
-                    </Button>
+                    <!-- View bill (receipt PDF) -->
                     <Button variant="outline" as-child>
-                        <a
-                            :href="reportRoute(props.billing.id).url"
-                            target="_blank"
-                        >
-                            <Download class="size-4" />
-                            Download Report
+                        <a :href="letterRoute(props.billing.id).url" target="_blank">
+                            <Printer class="size-4" />
+                            View Bill
                         </a>
                     </Button>
                 </div>

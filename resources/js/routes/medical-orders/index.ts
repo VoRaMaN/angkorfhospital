@@ -597,7 +597,7 @@ destroy.delete = (args: { medical_order: string | number } | [medical_order: str
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
 export const processPage = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -612,7 +612,7 @@ processPage.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
 processPage.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -640,7 +640,7 @@ processPage.url = (args: { medical_order: string | number } | [medical_order: st
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
 processPage.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -649,7 +649,7 @@ processPage.get = (args: { medical_order: string | number } | [medical_order: st
 })
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
 processPage.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -659,7 +659,7 @@ processPage.head = (args: { medical_order: string | number } | [medical_order: s
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
     const processPageForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -669,7 +669,7 @@ processPage.head = (args: { medical_order: string | number } | [medical_order: s
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
         processPageForm.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -678,7 +678,7 @@ processPage.head = (args: { medical_order: string | number } | [medical_order: s
         })
             /**
 * @see \App\Http\Controllers\MedicalOrderController::processPage
- * @see app/Http/Controllers/MedicalOrderController.php:603
+ * @see app/Http/Controllers/MedicalOrderController.php:610
  * @route '/medical-orders/{medical_order}/process'
  */
         processPageForm.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -694,7 +694,7 @@ processPage.head = (args: { medical_order: string | number } | [medical_order: s
     processPage.form = processPageForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
 export const processingPage = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -709,7 +709,7 @@ processingPage.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
 processingPage.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -737,7 +737,7 @@ processingPage.url = (args: { medical_order: string | number } | [medical_order:
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
 processingPage.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -746,7 +746,7 @@ processingPage.get = (args: { medical_order: string | number } | [medical_order:
 })
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
 processingPage.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -756,7 +756,7 @@ processingPage.head = (args: { medical_order: string | number } | [medical_order
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
     const processingPageForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -766,7 +766,7 @@ processingPage.head = (args: { medical_order: string | number } | [medical_order
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
         processingPageForm.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -775,7 +775,7 @@ processingPage.head = (args: { medical_order: string | number } | [medical_order
         })
             /**
 * @see \App\Http\Controllers\MedicalOrderController::processingPage
- * @see app/Http/Controllers/MedicalOrderController.php:793
+ * @see app/Http/Controllers/MedicalOrderController.php:826
  * @route '/medical-orders/{medical_order}/processing'
  */
         processingPageForm.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -875,7 +875,7 @@ processWithUpdate.patch = (args: { medical_order: string | number } | [medical_o
     processWithUpdate.form = processWithUpdateForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
 export const completePage = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -890,7 +890,7 @@ completePage.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
 completePage.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -918,7 +918,7 @@ completePage.url = (args: { medical_order: string | number } | [medical_order: s
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
 completePage.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -927,7 +927,7 @@ completePage.get = (args: { medical_order: string | number } | [medical_order: s
 })
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
 completePage.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -937,7 +937,7 @@ completePage.head = (args: { medical_order: string | number } | [medical_order: 
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
     const completePageForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -947,7 +947,7 @@ completePage.head = (args: { medical_order: string | number } | [medical_order: 
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
         completePageForm.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -956,7 +956,7 @@ completePage.head = (args: { medical_order: string | number } | [medical_order: 
         })
             /**
 * @see \App\Http\Controllers\MedicalOrderController::completePage
- * @see app/Http/Controllers/MedicalOrderController.php:865
+ * @see app/Http/Controllers/MedicalOrderController.php:898
  * @route '/medical-orders/{medical_order}/complete'
  */
         completePageForm.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -972,7 +972,7 @@ completePage.head = (args: { medical_order: string | number } | [medical_order: 
     completePage.form = completePageForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::complete
- * @see app/Http/Controllers/MedicalOrderController.php:928
+ * @see app/Http/Controllers/MedicalOrderController.php:961
  * @route '/medical-orders/{medical_order}/complete'
  */
 export const complete = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -987,7 +987,7 @@ complete.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::complete
- * @see app/Http/Controllers/MedicalOrderController.php:928
+ * @see app/Http/Controllers/MedicalOrderController.php:961
  * @route '/medical-orders/{medical_order}/complete'
  */
 complete.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1015,7 +1015,7 @@ complete.url = (args: { medical_order: string | number } | [medical_order: strin
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::complete
- * @see app/Http/Controllers/MedicalOrderController.php:928
+ * @see app/Http/Controllers/MedicalOrderController.php:961
  * @route '/medical-orders/{medical_order}/complete'
  */
 complete.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1025,7 +1025,7 @@ complete.patch = (args: { medical_order: string | number } | [medical_order: str
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::complete
- * @see app/Http/Controllers/MedicalOrderController.php:928
+ * @see app/Http/Controllers/MedicalOrderController.php:961
  * @route '/medical-orders/{medical_order}/complete'
  */
     const completeForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1040,7 +1040,7 @@ complete.patch = (args: { medical_order: string | number } | [medical_order: str
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::complete
- * @see app/Http/Controllers/MedicalOrderController.php:928
+ * @see app/Http/Controllers/MedicalOrderController.php:961
  * @route '/medical-orders/{medical_order}/complete'
  */
         completeForm.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1056,7 +1056,7 @@ complete.patch = (args: { medical_order: string | number } | [medical_order: str
     complete.form = completeForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completeItem
- * @see app/Http/Controllers/MedicalOrderController.php:1083
+ * @see app/Http/Controllers/MedicalOrderController.php:1126
  * @route '/medical-orders/{medical_order}/items/{item}/complete'
  */
 export const completeItem = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1071,7 +1071,7 @@ completeItem.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completeItem
- * @see app/Http/Controllers/MedicalOrderController.php:1083
+ * @see app/Http/Controllers/MedicalOrderController.php:1126
  * @route '/medical-orders/{medical_order}/items/{item}/complete'
  */
 completeItem.url = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -1099,7 +1099,7 @@ completeItem.url = (args: { medical_order: string | number, item: number | { id:
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::completeItem
- * @see app/Http/Controllers/MedicalOrderController.php:1083
+ * @see app/Http/Controllers/MedicalOrderController.php:1126
  * @route '/medical-orders/{medical_order}/items/{item}/complete'
  */
 completeItem.patch = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1109,7 +1109,7 @@ completeItem.patch = (args: { medical_order: string | number, item: number | { i
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::completeItem
- * @see app/Http/Controllers/MedicalOrderController.php:1083
+ * @see app/Http/Controllers/MedicalOrderController.php:1126
  * @route '/medical-orders/{medical_order}/items/{item}/complete'
  */
     const completeItemForm = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1124,7 +1124,7 @@ completeItem.patch = (args: { medical_order: string | number, item: number | { i
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::completeItem
- * @see app/Http/Controllers/MedicalOrderController.php:1083
+ * @see app/Http/Controllers/MedicalOrderController.php:1126
  * @route '/medical-orders/{medical_order}/items/{item}/complete'
  */
         completeItemForm.patch = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1140,7 +1140,7 @@ completeItem.patch = (args: { medical_order: string | number, item: number | { i
     completeItem.form = completeItemForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::saveLabResult
- * @see app/Http/Controllers/MedicalOrderController.php:1109
+ * @see app/Http/Controllers/MedicalOrderController.php:1152
  * @route '/medical-orders/{medical_order}/items/{item}/lab-result'
  */
 export const saveLabResult = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1155,7 +1155,7 @@ saveLabResult.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::saveLabResult
- * @see app/Http/Controllers/MedicalOrderController.php:1109
+ * @see app/Http/Controllers/MedicalOrderController.php:1152
  * @route '/medical-orders/{medical_order}/items/{item}/lab-result'
  */
 saveLabResult.url = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -1183,7 +1183,7 @@ saveLabResult.url = (args: { medical_order: string | number, item: number | { id
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::saveLabResult
- * @see app/Http/Controllers/MedicalOrderController.php:1109
+ * @see app/Http/Controllers/MedicalOrderController.php:1152
  * @route '/medical-orders/{medical_order}/items/{item}/lab-result'
  */
 saveLabResult.patch = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1193,7 +1193,7 @@ saveLabResult.patch = (args: { medical_order: string | number, item: number | { 
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::saveLabResult
- * @see app/Http/Controllers/MedicalOrderController.php:1109
+ * @see app/Http/Controllers/MedicalOrderController.php:1152
  * @route '/medical-orders/{medical_order}/items/{item}/lab-result'
  */
     const saveLabResultForm = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1208,7 +1208,7 @@ saveLabResult.patch = (args: { medical_order: string | number, item: number | { 
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::saveLabResult
- * @see app/Http/Controllers/MedicalOrderController.php:1109
+ * @see app/Http/Controllers/MedicalOrderController.php:1152
  * @route '/medical-orders/{medical_order}/items/{item}/lab-result'
  */
         saveLabResultForm.patch = (args: { medical_order: string | number, item: number | { id: number } } | [medical_order: string | number, item: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1224,7 +1224,7 @@ saveLabResult.patch = (args: { medical_order: string | number, item: number | { 
     saveLabResult.form = saveLabResultForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processAndBill
- * @see app/Http/Controllers/MedicalOrderController.php:940
+ * @see app/Http/Controllers/MedicalOrderController.php:973
  * @route '/medical-orders/{medical_order}/process-and-bill'
  */
 export const processAndBill = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1239,7 +1239,7 @@ processAndBill.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processAndBill
- * @see app/Http/Controllers/MedicalOrderController.php:940
+ * @see app/Http/Controllers/MedicalOrderController.php:973
  * @route '/medical-orders/{medical_order}/process-and-bill'
  */
 processAndBill.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1267,7 +1267,7 @@ processAndBill.url = (args: { medical_order: string | number } | [medical_order:
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::processAndBill
- * @see app/Http/Controllers/MedicalOrderController.php:940
+ * @see app/Http/Controllers/MedicalOrderController.php:973
  * @route '/medical-orders/{medical_order}/process-and-bill'
  */
 processAndBill.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1277,7 +1277,7 @@ processAndBill.patch = (args: { medical_order: string | number } | [medical_orde
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::processAndBill
- * @see app/Http/Controllers/MedicalOrderController.php:940
+ * @see app/Http/Controllers/MedicalOrderController.php:973
  * @route '/medical-orders/{medical_order}/process-and-bill'
  */
     const processAndBillForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1292,7 +1292,7 @@ processAndBill.patch = (args: { medical_order: string | number } | [medical_orde
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::processAndBill
- * @see app/Http/Controllers/MedicalOrderController.php:940
+ * @see app/Http/Controllers/MedicalOrderController.php:973
  * @route '/medical-orders/{medical_order}/process-and-bill'
  */
         processAndBillForm.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1308,7 +1308,7 @@ processAndBill.patch = (args: { medical_order: string | number } | [medical_orde
     processAndBill.form = processAndBillForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::confirmProcessed
- * @see app/Http/Controllers/MedicalOrderController.php:1016
+ * @see app/Http/Controllers/MedicalOrderController.php:1059
  * @route '/medical-orders/{medical_order}/confirm-processed'
  */
 export const confirmProcessed = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1323,7 +1323,7 @@ confirmProcessed.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::confirmProcessed
- * @see app/Http/Controllers/MedicalOrderController.php:1016
+ * @see app/Http/Controllers/MedicalOrderController.php:1059
  * @route '/medical-orders/{medical_order}/confirm-processed'
  */
 confirmProcessed.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1351,7 +1351,7 @@ confirmProcessed.url = (args: { medical_order: string | number } | [medical_orde
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::confirmProcessed
- * @see app/Http/Controllers/MedicalOrderController.php:1016
+ * @see app/Http/Controllers/MedicalOrderController.php:1059
  * @route '/medical-orders/{medical_order}/confirm-processed'
  */
 confirmProcessed.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1361,7 +1361,7 @@ confirmProcessed.patch = (args: { medical_order: string | number } | [medical_or
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::confirmProcessed
- * @see app/Http/Controllers/MedicalOrderController.php:1016
+ * @see app/Http/Controllers/MedicalOrderController.php:1059
  * @route '/medical-orders/{medical_order}/confirm-processed'
  */
     const confirmProcessedForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1376,7 +1376,7 @@ confirmProcessed.patch = (args: { medical_order: string | number } | [medical_or
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::confirmProcessed
- * @see app/Http/Controllers/MedicalOrderController.php:1016
+ * @see app/Http/Controllers/MedicalOrderController.php:1059
  * @route '/medical-orders/{medical_order}/confirm-processed'
  */
         confirmProcessedForm.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1392,7 +1392,7 @@ confirmProcessed.patch = (args: { medical_order: string | number } | [medical_or
     confirmProcessed.form = confirmProcessedForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
 export const costBreakdown = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1407,7 +1407,7 @@ costBreakdown.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
 costBreakdown.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1435,7 +1435,7 @@ costBreakdown.url = (args: { medical_order: string | number } | [medical_order: 
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
 costBreakdown.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1444,7 +1444,7 @@ costBreakdown.get = (args: { medical_order: string | number } | [medical_order: 
 })
 /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
 costBreakdown.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1454,7 +1454,7 @@ costBreakdown.head = (args: { medical_order: string | number } | [medical_order:
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
     const costBreakdownForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1464,7 +1464,7 @@ costBreakdown.head = (args: { medical_order: string | number } | [medical_order:
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
         costBreakdownForm.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1473,7 +1473,7 @@ costBreakdown.head = (args: { medical_order: string | number } | [medical_order:
         })
             /**
 * @see \App\Http\Controllers\MedicalOrderController::costBreakdown
- * @see app/Http/Controllers/MedicalOrderController.php:1042
+ * @see app/Http/Controllers/MedicalOrderController.php:1085
  * @route '/medical-orders/{medical_order}/cost-breakdown'
  */
         costBreakdownForm.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1573,7 +1573,7 @@ cancelProcessed.patch = (args: { medical_order: string | number } | [medical_ord
     cancelProcessed.form = cancelProcessedForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::sendBack
- * @see app/Http/Controllers/MedicalOrderController.php:1052
+ * @see app/Http/Controllers/MedicalOrderController.php:1095
  * @route '/medical-orders/{medical_order}/send-back'
  */
 export const sendBack = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1588,7 +1588,7 @@ sendBack.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::sendBack
- * @see app/Http/Controllers/MedicalOrderController.php:1052
+ * @see app/Http/Controllers/MedicalOrderController.php:1095
  * @route '/medical-orders/{medical_order}/send-back'
  */
 sendBack.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1616,7 +1616,7 @@ sendBack.url = (args: { medical_order: string | number } | [medical_order: strin
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::sendBack
- * @see app/Http/Controllers/MedicalOrderController.php:1052
+ * @see app/Http/Controllers/MedicalOrderController.php:1095
  * @route '/medical-orders/{medical_order}/send-back'
  */
 sendBack.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1626,7 +1626,7 @@ sendBack.patch = (args: { medical_order: string | number } | [medical_order: str
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::sendBack
- * @see app/Http/Controllers/MedicalOrderController.php:1052
+ * @see app/Http/Controllers/MedicalOrderController.php:1095
  * @route '/medical-orders/{medical_order}/send-back'
  */
     const sendBackForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1641,7 +1641,7 @@ sendBack.patch = (args: { medical_order: string | number } | [medical_order: str
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::sendBack
- * @see app/Http/Controllers/MedicalOrderController.php:1052
+ * @see app/Http/Controllers/MedicalOrderController.php:1095
  * @route '/medical-orders/{medical_order}/send-back'
  */
         sendBackForm.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1657,7 +1657,7 @@ sendBack.patch = (args: { medical_order: string | number } | [medical_order: str
     sendBack.form = sendBackForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
 export const report = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1672,7 +1672,7 @@ report.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
 report.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1700,7 +1700,7 @@ report.url = (args: { medical_order: string | number } | [medical_order: string 
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
 report.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1709,7 +1709,7 @@ report.get = (args: { medical_order: string | number } | [medical_order: string 
 })
 /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
 report.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1719,7 +1719,7 @@ report.head = (args: { medical_order: string | number } | [medical_order: string
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
     const reportForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1729,7 +1729,7 @@ report.head = (args: { medical_order: string | number } | [medical_order: string
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
         reportForm.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1738,7 +1738,7 @@ report.head = (args: { medical_order: string | number } | [medical_order: string
         })
             /**
 * @see \App\Http\Controllers\MedicalOrderController::report
- * @see app/Http/Controllers/MedicalOrderController.php:1146
+ * @see app/Http/Controllers/MedicalOrderController.php:1189
  * @route '/medical-orders/{medical_order}/report'
  */
         reportForm.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1754,7 +1754,7 @@ report.head = (args: { medical_order: string | number } | [medical_order: string
     report.form = reportForm
 /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
 export const medicalRecordReport = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1769,7 +1769,7 @@ medicalRecordReport.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
 medicalRecordReport.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1797,7 +1797,7 @@ medicalRecordReport.url = (args: { medical_order: string | number } | [medical_o
 
 /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
 medicalRecordReport.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1806,7 +1806,7 @@ medicalRecordReport.get = (args: { medical_order: string | number } | [medical_o
 })
 /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
 medicalRecordReport.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1816,7 +1816,7 @@ medicalRecordReport.head = (args: { medical_order: string | number } | [medical_
 
     /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
     const medicalRecordReportForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1826,7 +1826,7 @@ medicalRecordReport.head = (args: { medical_order: string | number } | [medical_
 
             /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
         medicalRecordReportForm.get = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1835,7 +1835,7 @@ medicalRecordReport.head = (args: { medical_order: string | number } | [medical_
         })
             /**
 * @see \App\Http\Controllers\MedicalOrderController::medicalRecordReport
- * @see app/Http/Controllers/MedicalOrderController.php:1436
+ * @see app/Http/Controllers/MedicalOrderController.php:1479
  * @route '/medical-orders/{medical_order}/medical-record-report'
  */
         medicalRecordReportForm.head = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

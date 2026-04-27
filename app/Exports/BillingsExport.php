@@ -15,7 +15,7 @@ class BillingsExport
 
     public function download()
     {
-        $query = Billing::with(['patient', 'doctor.user']);
+        $query = Billing::with(['patient', 'medicalOrder.orderItems.inventory']);
 
         if (! empty($this->filters['search'])) {
             $search = $this->filters['search'];
@@ -63,15 +63,11 @@ class BillingsExport
         $headers = [
             'Bill No',
             'Billing Date',
-            'Due Date',
             'Patient ID',
             'Patient Name',
-            'Appointment',
-            'Visit',
-            'Medical Order',
+            'Medical Order Items',
             'Total Amount',
             'Status',
-            'Notes',
         ];
 
         $rows = [$headers];
@@ -81,18 +77,23 @@ class BillingsExport
             $title = $patient && $patient->title ? $patient->title.' ' : '';
             $name = $patient ? trim(($patient->name ?? '').' '.($patient->surname ?? '')) : 'Unknown Patient';
 
+            // Build medical order items list (e.g. "Embryo Lab, Medicine A, Special Item B")
+            $itemNames = [];
+            if ($billing->medicalOrder && $billing->medicalOrder->orderItems->isNotEmpty()) {
+                foreach ($billing->medicalOrder->orderItems as $item) {
+                    $itemNames[] = $item->item_name ?? $item->inventory?->item_name ?? 'Unknown Item';
+                }
+            }
+            $itemsString = implode(', ', array_unique($itemNames));
+
             $rows[] = [
                 $billing->bill_no ?? '',
                 $billing->billing_date ? $billing->billing_date->format('d/m/Y') : '',
-                $billing->billing_date ? $billing->billing_date->addDays(30)->format('d/m/Y') : '',
                 $patient ? $patient->id : '',
                 $title.$name,
-                $billing->appointment_id ? 'Yes' : 'No',
-                $billing->visit_id ? 'Yes' : 'No',
-                $billing->medical_order_id ? 'Yes' : 'No',
+                $itemsString,
                 number_format((float) $billing->amount, 2),
                 $billing->status instanceof \App\Enums\BillingStatusEnum ? ucfirst($billing->status->value) : ucfirst($billing->status),
-                $billing->notes ?? '',
             ];
         }
 

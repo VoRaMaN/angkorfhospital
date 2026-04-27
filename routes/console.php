@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('model:prune', ['--model' => 'App\\Models\\ActivityLog'])->daily();
+Schedule::command('billings:mark-overdue')->dailyAt('00:05');

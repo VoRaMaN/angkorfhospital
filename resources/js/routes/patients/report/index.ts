@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
 export const download = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ download.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
 download.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ download.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
 download.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ download.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
 download.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ download.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
     const downloadForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ download.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
         downloadForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ download.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PatientController::download
- * @see app/Http/Controllers/PatientController.php:340
+ * @see app/Http/Controllers/PatientController.php:334
  * @route '/patients/report/download'
  */
         downloadForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -180,7 +180,7 @@ const getObjective = (appointment: Props['appointments'][0]) => {
     if (appointment.is_beta_hcg) parts.push('Beta HCG');
     if (appointment.opu_time) parts.push('OPU');
     if (appointment.et_fet_time) parts.push('ET/FET');
-    if (appointment.appointment_type) {
+    if (appointment.appointment_type && appointment.appointment_type !== 'consultation') {
         parts.push(appointment.appointment_type.charAt(0).toUpperCase() + appointment.appointment_type.slice(1).replace('_', ' '));
     }
     if (appointment.reason_for_visit) parts.push(appointment.reason_for_visit);

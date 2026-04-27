@@ -181,7 +181,7 @@ const form = useForm({
                             :options="
                                 props.staff.map((s) => ({
                                     value: s.id.toString(),
-                                    label: `${s.user?.name || 'Unknown Doctor'} (${s.role?.name || 'Doctor'})`,
+                                    label: s.user?.name || 'Unknown Staff',
                                 }))
                             "
                             placeholder="Select doctor"

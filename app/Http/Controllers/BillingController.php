@@ -20,11 +20,22 @@ class BillingController extends Controller
     {
         $this->authorize('viewAny', Billing::class);
 
+        // Auto-mark yesterday's unpaid bills as overdue
+        Billing::whereIn('status', [
+            \App\Enums\BillingStatusEnum::PENDING,
+            \App\Enums\BillingStatusEnum::PARTIAL,
+        ])
+            ->whereDate('billing_date', '<', today())
+            ->update(['status' => \App\Enums\BillingStatusEnum::OVERDUE]);
+
         $query = Billing::with(['patient.user', 'appointment', 'visit', 'medicalOrder']);
 
         // Filter by status if provided
         if (request('status')) {
             $query->where('status', request('status'));
+        } else {
+            // Default: hide paid bills unless explicitly filtered
+            $query->where('status', '!=', \App\Enums\BillingStatusEnum::PAID);
         }
 
         // Filter by search if provided (search in patient id, patient name and related IDs)
@@ -86,6 +97,7 @@ class BillingController extends Controller
 
         return Inertia::render('Billings/Index', [
             'billings' => $transformedBillings,
+            'overdueCount' => Billing::where('status', \App\Enums\BillingStatusEnum::OVERDUE)->count(),
             'filters' => [
                 'search' => request('search', ''),
                 'status' => request('status', ''),
@@ -295,7 +307,7 @@ class BillingController extends Controller
     public function updateStatus(Billing $billing, Request $request): RedirectResponse
     {
         $request->validate([
-            'status' => 'required|in:pending,paid,overdue,partial,written_off,cancelled,revision',
+            'status' => 'required|in:pending,paid,overdue,partial,cancelled,revision',
         ]);
 
         $this->authorize('updateStatus', $billing);
@@ -482,7 +494,7 @@ class BillingController extends Controller
 
         $filename = 'billing-report-'.$billing->id.'-'.now()->format('Y-m-d').'.pdf';
 
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 
     /**
@@ -519,7 +531,7 @@ class BillingController extends Controller
 
         $filename = 'receipt-'.$billing->bill_no.'-'.now()->format('Y-m-d').'.pdf';
 
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 
     /**

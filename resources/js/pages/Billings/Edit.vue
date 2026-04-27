@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { letter as letterRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, DollarSign, Save } from 'lucide-vue-next';
+import { ArrowLeft, DollarSign, Printer, Save } from 'lucide-vue-next';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -95,6 +96,14 @@ const submit = () => {
                     <p class="text-muted-foreground">
                         Update billing information
                     </p>
+                </div>
+                <div class="ml-auto">
+                    <Button variant="outline" as-child>
+                        <a :href="letterRoute(props.billing.id).url" target="_blank">
+                            <Printer class="size-4" />
+                            Print Receipt
+                        </a>
+                    </Button>
                 </div>
             </div>
 
@@ -188,7 +197,6 @@ const submit = () => {
                                     <SelectItem value="paid">Paid</SelectItem>
                                     <SelectItem value="overdue">Overdue</SelectItem>
                                     <SelectItem value="partial">Partial</SelectItem>
-                                    <SelectItem value="written_off">Written Off</SelectItem>
                                     <SelectItem value="cancelled">Cancelled</SelectItem>
                                 </SelectContent>
                             </Select>
