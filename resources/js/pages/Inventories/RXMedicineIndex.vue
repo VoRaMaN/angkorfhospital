@@ -21,7 +21,7 @@ import {
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { AlertTriangle, Download, FileEdit, Plus, Search } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
 interface RxMedicineItem extends InventoryItem {
@@ -33,6 +33,8 @@ interface Props {
     filters: {
         search: string;
         status: string;
+        date_from: string;
+        date_to: string;
     };
     counts: {
         expired: number;
@@ -52,6 +54,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const searchQuery = ref(props.filters.search || '');
 const activeStatus = ref(props.filters.status || '');
+const dateFrom = ref(props.filters.date_from || '');
+const dateTo = ref(props.filters.date_to || '');
 const editSheetOpen = ref(false);
 const selectedItem = ref<RxMedicineItem | null>(null);
 
@@ -60,28 +64,46 @@ const openEditSheet = (item: RxMedicineItem) => {
     editSheetOpen.value = true;
 };
 
-const applyFilter = (status: string) => {
-    activeStatus.value = activeStatus.value === status ? '' : status;
+const navigate = (params: Record<string, string>) => {
     router.get(
         route('inventory.rx-medicine'),
-        { search: searchQuery.value, status: activeStatus.value },
+        params,
         { preserveState: true, replace: true },
     );
 };
 
+const currentParams = () => ({
+    search: searchQuery.value,
+    status: activeStatus.value,
+    date_from: dateFrom.value,
+    date_to: dateTo.value,
+});
+
+const applyFilter = (status: string) => {
+    activeStatus.value = activeStatus.value === status ? '' : status;
+    navigate(currentParams());
+};
+
 const performSearch = useDebounceFn(() => {
-    router.get(
-        route('inventory.rx-medicine'),
-        { search: searchQuery.value, status: activeStatus.value },
-        {
-            preserveState: true,
-            replace: true,
-        }
-    );
+    navigate(currentParams());
 }, 300);
 
 watch(searchQuery, () => {
     performSearch();
+});
+
+watch([dateFrom, dateTo], () => {
+    navigate(currentParams());
+});
+
+const exportUrl = computed(() => {
+    const params = new URLSearchParams();
+    if (searchQuery.value) { params.set('search', searchQuery.value); }
+    if (activeStatus.value) { params.set('status', activeStatus.value); }
+    if (dateFrom.value) { params.set('date_from', dateFrom.value); }
+    if (dateTo.value) { params.set('date_to', dateTo.value); }
+    const qs = params.toString();
+    return route('inventory.rx-medicine.export') + (qs ? '?' + qs : '');
 });
 
 const getStatusBadgeVariant = (status: string) => {
@@ -108,7 +130,7 @@ const getStatusBadgeVariant = (status: string) => {
                 <div class="flex items-center gap-2">
                     <!-- Export Report -->
                     <Button variant="outline" as-child>
-                        <a :href="route('inventory.rx-medicine.export')">
+                        <a :href="exportUrl">
                             <Download class="size-4" />
                             Export Report
                         </a>
@@ -148,7 +170,7 @@ const getStatusBadgeVariant = (status: string) => {
                 </div>
             </div>
 
-            <!-- Search -->
+            <!-- Search + Date Range -->
             <div class="flex items-center gap-2">
                 <div class="relative flex-1">
                     <Search
@@ -159,6 +181,30 @@ const getStatusBadgeVariant = (status: string) => {
                         placeholder="Search medicines..."
                         class="pl-8"
                     />
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-muted-foreground text-sm whitespace-nowrap">Expiry date:</span>
+                    <Input
+                        v-model="dateFrom"
+                        type="date"
+                        class="w-40"
+                        placeholder="From"
+                    />
+                    <span class="text-muted-foreground text-sm">�</span>
+                    <Input
+                        v-model="dateTo"
+                        type="date"
+                        class="w-40"
+                        placeholder="To"
+                    />
+                    <Button
+                        v-if="dateFrom || dateTo"
+                        variant="ghost"
+                        size="sm"
+                        @click="dateFrom = ''; dateTo = ''"
+                    >
+                        Clear
+                    </Button>
                 </div>
             </div>
 
@@ -193,7 +239,7 @@ const getStatusBadgeVariant = (status: string) => {
                                 {{ item.quantity }} {{ item.unit }}
                             </TableCell>
                             <TableCell>
-                                {{ item.expiry_date ? formatDate(item.expiry_date) : 'â€”' }}
+                                {{ item.expiry_date ? formatDate(item.expiry_date) : '—' }}
                             </TableCell>
                             <TableCell>
                                 <Badge

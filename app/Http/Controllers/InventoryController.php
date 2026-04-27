@@ -118,6 +118,8 @@ class InventoryController extends Controller
 
         $search = request('search', '');
         $status = request('status', '');
+        $dateFrom = request('date_from', '');
+        $dateTo = request('date_to', '');
 
         $base = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE);
 
@@ -131,6 +133,8 @@ class InventoryController extends Controller
             ->when($status === 'expired', fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '<', now()->toDateString()))
             ->when($status === 'low_stock', fn ($q) => $q->whereRaw('quantity > 0')->whereRaw('quantity <= minimum_stock'))
             ->when($status === 'out_of_stock', fn ($q) => $q->where('quantity', '<=', 0))
+            ->when($dateFrom, fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '<=', $dateTo))
             ->orderBy('item_name');
 
         return Inertia::render('Inventories/RXMedicineIndex', [
@@ -138,6 +142,8 @@ class InventoryController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
             ],
             'counts' => [
                 'expired' => $expiredCount,
@@ -151,7 +157,18 @@ class InventoryController extends Controller
     {
         $this->authorize('viewAny', Inventory::class);
 
+        $search = request('search', '');
+        $status = request('status', '');
+        $dateFrom = request('date_from', '');
+        $dateTo = request('date_to', '');
+
         $items = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE)
+            ->when($search, fn ($q, $s) => $q->where('item_name', 'like', "%{$s}%"))
+            ->when($status === 'expired', fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '<', now()->toDateString()))
+            ->when($status === 'low_stock', fn ($q) => $q->whereRaw('quantity > 0')->whereRaw('quantity <= minimum_stock'))
+            ->when($status === 'out_of_stock', fn ($q) => $q->where('quantity', '<=', 0))
+            ->when($dateFrom, fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '<=', $dateTo))
             ->orderBy('item_name')
             ->get();
 
@@ -174,9 +191,20 @@ class InventoryController extends Controller
             $csv .= implode(',', array_map(fn ($v) => '"'.str_replace('"', '""', $v).'"', $row))."\n";
         }
 
+        $filenameParts = ['rx-medicine-report'];
+        if ($dateFrom) {
+            $filenameParts[] = 'from-'.$dateFrom;
+        }
+        if ($dateTo) {
+            $filenameParts[] = 'to-'.$dateTo;
+        }
+        if (! $dateFrom && ! $dateTo) {
+            $filenameParts[] = now()->format('Y-m-d');
+        }
+
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="rx-medicine-report-'.now()->format('Y-m-d').'.csv"',
+            'Content-Disposition' => 'attachment; filename="'.implode('-', $filenameParts).'.csv"',
         ]);
     }
 
