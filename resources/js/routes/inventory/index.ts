@@ -1,4 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import rxMedicine281c2a from './rx-medicine'
 /**
 * @see \App\Http\Controllers\InventoryController::index
  * @see app/Http/Controllers/InventoryController.php:14
@@ -695,7 +696,7 @@ rxMedicine.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     rxMedicine.form = rxMedicineForm
 /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
 export const labInventory = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -710,7 +711,7 @@ labInventory.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
 labInventory.url = (options?: RouteQueryOptions) => {
@@ -719,7 +720,7 @@ labInventory.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
 labInventory.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -728,7 +729,7 @@ labInventory.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
 labInventory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -738,7 +739,7 @@ labInventory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
     const labInventoryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -748,7 +749,7 @@ labInventory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
         labInventoryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -757,7 +758,7 @@ labInventory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\InventoryController::labInventory
- * @see app/Http/Controllers/InventoryController.php:137
+ * @see app/Http/Controllers/InventoryController.php:183
  * @route '/lab-inventory'
  */
         labInventoryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -773,7 +774,7 @@ labInventory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     labInventory.form = labInventoryForm
 /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
 export const plasticWare = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -788,7 +789,7 @@ plasticWare.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
 plasticWare.url = (options?: RouteQueryOptions) => {
@@ -797,7 +798,7 @@ plasticWare.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
 plasticWare.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -806,7 +807,7 @@ plasticWare.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
 plasticWare.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -816,7 +817,7 @@ plasticWare.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
     const plasticWareForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -826,7 +827,7 @@ plasticWare.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
         plasticWareForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -835,7 +836,7 @@ plasticWare.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\InventoryController::plasticWare
- * @see app/Http/Controllers/InventoryController.php:152
+ * @see app/Http/Controllers/InventoryController.php:198
  * @route '/plastic-ware'
  */
         plasticWareForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -851,7 +852,7 @@ plasticWare.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     plasticWare.form = plasticWareForm
 /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
 export const cultureMedium = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -866,7 +867,7 @@ cultureMedium.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
 cultureMedium.url = (options?: RouteQueryOptions) => {
@@ -875,7 +876,7 @@ cultureMedium.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
 cultureMedium.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -884,7 +885,7 @@ cultureMedium.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
 cultureMedium.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -894,7 +895,7 @@ cultureMedium.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
     /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
     const cultureMediumForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -904,7 +905,7 @@ cultureMedium.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
             /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
         cultureMediumForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -913,7 +914,7 @@ cultureMedium.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
         })
             /**
 * @see \App\Http\Controllers\InventoryController::cultureMedium
- * @see app/Http/Controllers/InventoryController.php:169
+ * @see app/Http/Controllers/InventoryController.php:215
  * @route '/culture-medium'
  */
         cultureMediumForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -935,7 +936,7 @@ show: Object.assign(show, show),
 edit: Object.assign(edit, edit),
 update: Object.assign(update, update),
 destroy: Object.assign(destroy, destroy),
-rxMedicine: Object.assign(rxMedicine, rxMedicine),
+rxMedicine: Object.assign(rxMedicine, rxMedicine281c2a),
 labInventory: Object.assign(labInventory, labInventory),
 plasticWare: Object.assign(plasticWare, plasticWare),
 cultureMedium: Object.assign(cultureMedium, cultureMedium),

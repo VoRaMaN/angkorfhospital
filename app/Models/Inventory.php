@@ -19,6 +19,7 @@ class Inventory extends Model
         'barcode',
         'type_of_supply',
         'quantity',
+        'original_quantity',
         'unit',
         'dose_unit',
         'total_per_box',
@@ -44,6 +45,17 @@ class Inventory extends Model
             'selling_price' => 'decimal:2',
             'type_of_supply' => \App\Enums\SupplyTypeEnum::class,
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (self $inventory): void {
+            if (is_null($inventory->original_quantity)) {
+                $inventory->original_quantity = $inventory->quantity;
+            }
+        });
     }
 
     /**

@@ -117,20 +117,66 @@ class InventoryController extends Controller
         $this->authorize('viewAny', Inventory::class);
 
         $search = request('search', '');
+        $status = request('status', '');
 
-        $rxMedicines = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE)
-            ->when($search, function ($query, $search) {
-                $query->where('item_name', 'like', "%{$search}%");
-            })
+        $base = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE);
+
+        // Status counts for alert buttons
+        $expiredCount = (clone $base)->whereNotNull('expiry_date')->whereDate('expiry_date', '<', now()->toDateString())->count();
+        $lowStockCount = (clone $base)->whereRaw('quantity > 0')->whereRaw('quantity <= minimum_stock')->count();
+        $outOfStockCount = (clone $base)->where('quantity', '<=', 0)->count();
+
+        $query = (clone $base)
+            ->when($search, fn ($q, $s) => $q->where('item_name', 'like', "%{$s}%"))
+            ->when($status === 'expired', fn ($q) => $q->whereNotNull('expiry_date')->whereDate('expiry_date', '<', now()->toDateString()))
+            ->when($status === 'low_stock', fn ($q) => $q->whereRaw('quantity > 0')->whereRaw('quantity <= minimum_stock'))
+            ->when($status === 'out_of_stock', fn ($q) => $q->where('quantity', '<=', 0))
+            ->orderBy('item_name');
+
+        return Inertia::render('Inventories/RXMedicineIndex', [
+            'rxMedicines' => $query->get(),
+            'filters' => [
+                'search' => $search,
+                'status' => $status,
+            ],
+            'counts' => [
+                'expired' => $expiredCount,
+                'low_stock' => $lowStockCount,
+                'out_of_stock' => $outOfStockCount,
+            ],
+        ]);
+    }
+
+    public function rxMedicineExport(): \Illuminate\Http\Response
+    {
+        $this->authorize('viewAny', Inventory::class);
+
+        $items = Inventory::where('type_of_supply', \App\Enums\SupplyTypeEnum::RX_MEDICINE)
             ->orderBy('item_name')
             ->get();
 
-        return Inertia::render('Inventories/RXMedicineIndex', [
-            'rxMedicines' => $rxMedicines,
-            'filters' => [
-                'search' => $search,
-                'status' => request('status', ''),
-            ],
+        $headers = ['Item Name', 'Description', 'Original Quantity', 'Remaining', 'Unit', 'Unit Price', 'Selling Price', 'Expiry Date', 'Status'];
+
+        $rows = $items->map(fn ($item) => [
+            $item->item_name,
+            $item->description ?? '',
+            $item->original_quantity ?? $item->quantity,
+            $item->quantity,
+            $item->unit,
+            number_format((float) $item->unit_price, 2),
+            number_format((float) $item->selling_price, 2),
+            $item->expiry_date ? $item->expiry_date->format('d/M/y') : '',
+            $item->status,
+        ]);
+
+        $csv = implode(',', $headers)."\n";
+        foreach ($rows as $row) {
+            $csv .= implode(',', array_map(fn ($v) => '"'.str_replace('"', '""', $v).'"', $row))."\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="rx-medicine-report-'.now()->format('Y-m-d').'.csv"',
         ]);
     }
 

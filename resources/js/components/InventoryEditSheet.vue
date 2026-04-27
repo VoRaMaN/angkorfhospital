@@ -44,6 +44,7 @@ export interface InventoryItem {
     alert_days: number | null;
     notes: string | null;
     status: string;
+    original_quantity: number | null;
 }
 
 interface Props {

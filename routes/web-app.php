@@ -52,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inventory
     Route::resource('inventory', InventoryController::class);
     Route::get('rx-medicine', [InventoryController::class, 'rxMedicine'])->name('inventory.rx-medicine');
+    Route::get('rx-medicine/export', [InventoryController::class, 'rxMedicineExport'])->name('inventory.rx-medicine.export');
     Route::get('lab-inventory', [InventoryController::class, 'labInventory'])->name('inventory.lab-inventory');
     Route::get('plastic-ware', [InventoryController::class, 'plasticWare'])->name('inventory.plastic-ware');
     Route::get('culture-medium', [InventoryController::class, 'cultureMedium'])->name('inventory.culture-medium');
