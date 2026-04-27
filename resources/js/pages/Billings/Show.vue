@@ -68,7 +68,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { hasPermission } = useAuth();
+const { hasPermission, isAdmin } = useAuth();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -208,7 +208,7 @@ const sendBackToNurse = () => {
                     </Button>
                     <!-- Send Back: only when pending/overdue/partial (not already in revision) -->
                     <Button
-                        v-if="hasPermission('send_back_billing') && props.billing.medical_order_id && !['paid','revision','revised'].includes(props.billing.status)"
+                        v-if="(hasPermission('send_back_billing') || isAdmin) && props.billing.medical_order_id && !['paid','revision','revised'].includes(props.billing.status)"
                         variant="outline"
                         class="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/20"
                         @click="showSendBackDialog = true"
