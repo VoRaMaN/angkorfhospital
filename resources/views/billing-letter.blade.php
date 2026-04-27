@@ -142,7 +142,7 @@
         }
 
         .footer-note {
-            text-align: center;
+            text-align: left;
             font-size: 10px;
             color: #0000FF;
             margin-bottom: 80px;

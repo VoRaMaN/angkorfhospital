@@ -98,4 +98,12 @@ class BillingPolicy
     {
         return $user->can('send_back_billing') || $user->hasRole('admin');
     }
+
+    /**
+     * Determine whether the user can receive a revised billing from the nurse.
+     */
+    public function receive(User $user, Billing $billing): bool
+    {
+        return $user->can('edit_billing') || $user->hasRole('admin');
+    }
 }

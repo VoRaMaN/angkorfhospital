@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
     Route::patch('billings/{billing}/complete-payment', [BillingController::class, 'completePayment'])->name('billings.complete-payment');
     Route::patch('billings/{billing}/send-back-to-nurse', [BillingController::class, 'sendBackToNurse'])->name('billings.send-back-to-nurse');
+    Route::patch('billings/{billing}/receive', [BillingController::class, 'receive'])->name('billings.receive');
     Route::patch('billings/{billing}/recalculate', [BillingController::class, 'recalculate'])->name('billings.recalculate');
     Route::get('billings/{billing}/report', [BillingController::class, 'generateReport'])->name('billings.report');
     Route::get('billings/{billing}/letter', [BillingController::class, 'generateLetter'])->name('billings.letter');

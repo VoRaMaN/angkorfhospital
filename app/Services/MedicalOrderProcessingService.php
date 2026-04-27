@@ -204,13 +204,29 @@ class MedicalOrderProcessingService
     }
 
     /**
-     * Create billing record from medical order
+     * Create billing record from medical order.
+     * If a billing already exists in 'revision' status for this order (nurse reprocessing after send-back),
+     * update it with revised amounts and set status to 'revised' instead of creating a duplicate.
      */
     protected function createBilling(MedicalOrder $medicalOrder): Billing
     {
         $totalAmount = $this->billingService->calculateOrderTotal($medicalOrder);
         $patientId = $medicalOrder->patient_id ?? $medicalOrder->visit?->patient_id;
         $doctorId = $medicalOrder->visit?->doctor_id;
+
+        $existing = Billing::where('medical_order_id', $medicalOrder->id)
+            ->where('status', \App\Enums\BillingStatusEnum::REVISION->value)
+            ->first();
+
+        if ($existing) {
+            $existing->update([
+                'amount' => $totalAmount,
+                'status' => \App\Enums\BillingStatusEnum::REVISED->value,
+                'notes' => $this->generateBillingNotes($medicalOrder),
+            ]);
+
+            return $existing;
+        }
 
         return Billing::create([
             'patient_id' => $patientId,

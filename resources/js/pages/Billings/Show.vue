@@ -13,7 +13,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { letter as letterRoute } from '@/routes/billings';
+import { letter as letterRoute, receive as receiveRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
@@ -22,6 +22,7 @@ import {
     CheckCircle,
     DollarSign,
     FileText,
+    Inbox,
     Printer,
     RotateCcw,
     User,
@@ -104,6 +105,8 @@ const getStatusVariant = (status: string) => {
             return 'outline';
         case 'revision':
             return 'secondary';
+        case 'revised':
+            return 'outline';
         default:
             return 'secondary';
     }
@@ -116,6 +119,15 @@ const sendingBack = ref(false);
 const completePayment = () => {
     if (confirm('Are you sure you want to mark this billing as paid? This will complete the payment and move the order to history.')) {
         router.patch(`/billings/${props.billing.id}/complete-payment`, {}, {
+            preserveState: false,
+            preserveScroll: false,
+        });
+    }
+};
+
+const receiveRevised = () => {
+    if (confirm('Confirm receipt of the revised billing? The amount will be recalculated and status set to pending.')) {
+        router.patch(receiveRoute(props.billing.id).url, {}, {
             preserveState: false,
             preserveScroll: false,
         });
@@ -175,18 +187,28 @@ const sendBackToNurse = () => {
                             Process
                         </Link>
                     </Button>
-                    <!-- Finish: mark as paid -->
+                    <!-- Finish: mark as paid (not when in revision flow) -->
                     <Button
-                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision'"
+                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision' && props.billing.status !== 'revised'"
                         variant="default"
                         @click="completePayment"
                     >
                         <CheckCircle class="size-4" />
                         Finish
                     </Button>
-                    <!-- Send Back -->
+                    <!-- Receive: accountant acknowledges revised billing from nurse -->
                     <Button
-                        v-if="hasPermission('send_back_billing') && props.billing.medical_order_id && props.billing.status !== 'paid'"
+                        v-if="hasPermission('edit_billings') && props.billing.status === 'revised'"
+                        variant="default"
+                        class="bg-blue-600 hover:bg-blue-700 text-white"
+                        @click="receiveRevised"
+                    >
+                        <Inbox class="size-4" />
+                        Receive
+                    </Button>
+                    <!-- Send Back: only when pending/overdue/partial (not already in revision) -->
+                    <Button
+                        v-if="hasPermission('send_back_billing') && props.billing.medical_order_id && !['paid','revision','revised'].includes(props.billing.status)"
                         variant="outline"
                         class="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/20"
                         @click="showSendBackDialog = true"

@@ -160,7 +160,7 @@ class MedicalOrderBillingService
     {
         return match ($itemType) {
             'lab' => 'Lab Tests',
-            'rx_medicine' => 'Prescription Medicines',
+            'rx_medicine' => 'Medicines',
             'procedure' => 'Procedures',
             'imaging' => 'Imaging',
             'supply' => 'Supplies',
