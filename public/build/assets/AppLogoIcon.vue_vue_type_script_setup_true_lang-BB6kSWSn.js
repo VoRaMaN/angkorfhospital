@@ -1,0 +1,1 @@
+import{d as e,c as o,o as s}from"./app-C_QVCleG.js";const t={src:"/images/logo.svg",alt:""},p=e({inheritAttrs:!1,__name:"AppLogoIcon",props:{className:{}},setup(a){return(c,n)=>(s(),o("img",t))}});export{p as _};

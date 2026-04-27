@@ -16,8 +16,10 @@ import type { InventoryItem } from '@/components/InventoryEditSheet.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     create as inventoryCreate,
+    rxMedicine as rxMedicineRoute,
     show as inventoryShow,
 } from '@/routes/inventory';
+import { exportMethod as rxMedicineExportRoute } from '@/routes/inventory/rx-medicine';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { AlertTriangle, Download, FileEdit, Plus, Search } from 'lucide-vue-next';
@@ -66,7 +68,7 @@ const openEditSheet = (item: RxMedicineItem) => {
 
 const navigate = (params: Record<string, string>) => {
     router.get(
-        route('inventory.rx-medicine'),
+        rxMedicineRoute.url(),
         params,
         { preserveState: true, replace: true },
     );
@@ -103,7 +105,7 @@ const exportUrl = computed(() => {
     if (dateFrom.value) { params.set('date_from', dateFrom.value); }
     if (dateTo.value) { params.set('date_to', dateTo.value); }
     const qs = params.toString();
-    return route('inventory.rx-medicine.export') + (qs ? '?' + qs : '');
+    return rxMedicineExportRoute.url() + (qs ? '?' + qs : '');
 });
 
 const getStatusBadgeVariant = (status: string) => {
