@@ -151,6 +151,27 @@ class BillingController extends Controller
                 if (empty($data['appointment_id']) && $medicalOrder->visit?->appointment_id) {
                     $data['appointment_id'] = $medicalOrder->visit->appointment_id;
                 }
+
+                // Auto-set patient_id from medical order
+                if (empty($data['patient_id']) && $medicalOrder->patient_id) {
+                    $data['patient_id'] = $medicalOrder->patient_id;
+                }
+            }
+        }
+
+        // Auto-derive patient_id from visit if not yet set
+        if (empty($data['patient_id']) && ! empty($data['visit_id'])) {
+            $visit = Visit::find($data['visit_id']);
+            if ($visit) {
+                $data['patient_id'] = $visit->patient_id;
+            }
+        }
+
+        // Auto-derive patient_id from appointment if still not set
+        if (empty($data['patient_id']) && ! empty($data['appointment_id'])) {
+            $appointment = \App\Models\Appointment::find($data['appointment_id']);
+            if ($appointment) {
+                $data['patient_id'] = $appointment->patient_id;
             }
         }
 
