@@ -126,12 +126,10 @@ const completePayment = () => {
 };
 
 const receiveRevised = () => {
-    if (confirm('Confirm receipt of the revised billing? The amount will be recalculated and status set to pending.')) {
-        router.patch(receiveRoute(props.billing.id).url, {}, {
-            preserveState: false,
-            preserveScroll: false,
-        });
-    }
+    router.patch(receiveRoute(props.billing.id).url, {}, {
+        preserveState: false,
+        preserveScroll: false,
+    });
 };
 
 const sendBackToNurse = () => {
@@ -187,15 +185,6 @@ const sendBackToNurse = () => {
                             Process
                         </Link>
                     </Button>
-                    <!-- Finish: mark as paid (not when awaiting receipt or in revision flow) -->
-                    <Button
-                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision' && props.billing.status !== 'revised' && props.billing.status !== 'sent_to_account'"
-                        variant="default"
-                        @click="completePayment"
-                    >
-                        <CheckCircle class="size-4" />
-                        Finish
-                    </Button>
                     <!-- Receive: billing user acknowledges billing sent from nurse -->
                     <Button
                         v-if="hasPermission('edit_billings') && (props.billing.status === 'revised' || props.billing.status === 'sent_to_account')"
@@ -205,6 +194,15 @@ const sendBackToNurse = () => {
                     >
                         <Inbox class="size-4" />
                         Receive
+                    </Button>
+                    <!-- Finish: mark as paid (not when awaiting receipt or in revision flow) -->
+                    <Button
+                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision' && props.billing.status !== 'revised' && props.billing.status !== 'sent_to_account'"
+                        variant="default"
+                        @click="completePayment"
+                    >
+                        <CheckCircle class="size-4" />
+                        Finish
                     </Button>
                     <!-- Send Back: when pending/overdue/partial or sent_to_account (not in revision or revised awaiting receipt) -->
                     <Button
