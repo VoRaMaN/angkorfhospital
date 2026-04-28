@@ -71,10 +71,18 @@ class MedicalOrderBillingService
                     return $price * $quantity;
                 }
             }
-            // Fallback: look up by name
+            // Fallback: look up by name in SpecialItem
             $specialItem = \App\Models\SpecialItem::where('name', $orderItem->item_name)->first();
             if ($specialItem && $specialItem->unit_price > 0) {
                 return $specialItem->unit_price * $quantity;
+            }
+            // Fallback: look up by name in MedicineGroup
+            $medicineGroup = \App\Models\MedicineGroup::where('name', $orderItem->item_name)->first();
+            if ($medicineGroup) {
+                $price = (float) $medicineGroup->total_price;
+                if ($price > 0) {
+                    return $price * $quantity;
+                }
             }
         }
 
