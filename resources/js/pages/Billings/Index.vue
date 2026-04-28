@@ -208,7 +208,7 @@ const exportBillings = () => {
                     <Input v-model="endDate" type="date" class="max-w-[200px]" placeholder="End date" />
                     <Button variant="ghost" size="sm" @click="clearDates">Clear Dates</Button>
                     <Button variant="outline" size="sm" @click="exportBillings" v-if="hasPermission('view_billings')">
-                        Export to Excel
+                        Export to CSV
                     </Button>
                 </div>
             </div>

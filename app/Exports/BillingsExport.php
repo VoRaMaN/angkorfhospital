@@ -50,11 +50,11 @@ class BillingsExport
         $billings = $query->orderBy('billing_date')->get();
 
         $rows = $this->buildRows($billings);
-        $filename = 'billings-'.now()->format('Y-m-d-H-i-s').'.xls';
-        $html = $this->generateExcelHtml($rows);
+        $filename = 'billings-'.now()->format('Y-m-d-H-i-s').'.csv';
+        $csv = $this->generateCsv($rows);
 
-        return response($html, 200, [
-            'Content-Type' => 'application/vnd.ms-excel',
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
@@ -88,39 +88,25 @@ class BillingsExport
         return $rows;
     }
 
-    private function generateExcelHtml(array $rows): string
+    private function generateCsv(array $rows): string
     {
         $headers = ['Bill No', 'Billing Date', 'Patient ID', 'Patient Name', 'Medical Order Items', 'Total Amount', 'Status'];
         $keys = ['bill_no', 'date', 'patient_id', 'patient', 'items', 'amount', 'status'];
 
-        $thead = '<tr>'.implode('', array_map(fn ($h) => '<th style="background:#1e40af;color:#fff;font-weight:bold;border:1px solid #ccc;padding:6px 10px;">'.htmlspecialchars($h).'</th>', $headers)).'</tr>';
-
-        $tbody = '';
-        foreach ($rows as $i => $row) {
-            $bg = $i % 2 === 0 ? '#ffffff' : '#f0f4ff';
-            $tbody .= '<tr>';
-            foreach ($keys as $k) {
-                $tbody .= '<td style="border:1px solid #ccc;padding:5px 10px;background:'.$bg.';">'.htmlspecialchars($row[$k]).'</td>';
+        $escape = function ($field) {
+            $field = str_replace('"', '""', (string) $field);
+            if (str_contains($field, ',') || str_contains($field, '"') || str_contains($field, "\n")) {
+                $field = '"'.$field.'"';
             }
-            $tbody .= '</tr>';
+
+            return $field;
+        };
+
+        $csv = implode(',', array_map($escape, $headers))."\n";
+        foreach ($rows as $row) {
+            $csv .= implode(',', array_map($escape, array_map(fn ($k) => $row[$k], $keys)))."\n";
         }
 
-        return <<<HTML
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:x="urn:schemas-microsoft-com:office:excel"
-      xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="UTF-8">
-<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
-<x:ExcelWorksheet><x:Name>Billings</x:Name>
-<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-</head>
-<body>
-<table border="1" cellspacing="0" cellpadding="4">
-<thead>{$thead}</thead>
-<tbody>{$tbody}</tbody>
-</table>
-</body></html>
-HTML;
+        return $csv;
     }
 }
