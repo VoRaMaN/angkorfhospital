@@ -30,7 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index, processWithUpdate, show } from '@/routes/medical-orders';
+import { index, processAndBill, processWithUpdate, show, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import {
@@ -47,6 +47,7 @@ import {
     Plus,
     Scan,
     Search,
+    Send,
     Syringe,
     Trash2,
 } from 'lucide-vue-next';
@@ -341,6 +342,7 @@ const filteredLabItems = computed(() => {
 const showRxDialog = ref(false);
 const showConfirmDialog = ref(false);
 const isProcessing = ref(false);
+const isSendingToAccount = ref(false);
 const submitError = ref<string | null>(null);
 const selectedRxItems = ref<number[]>([]);
 const rxItemQuantities = ref<Record<number, number>>({});
@@ -836,6 +838,50 @@ const getStatusColor = (status: string) => {
         default:
             return 'text-gray-600';
     }
+};
+
+const sendToAccount = () => {
+    isSendingToAccount.value = true;
+    submitError.value = null;
+
+    router.visit(
+        update(props.medicalOrder.id).url,
+        {
+            method: 'put',
+            data: {
+                order_details: form.order_details,
+                notes: form.notes,
+                order_items: form.order_items.map((item) => ({
+                    id: item.id,
+                    item_type: item.item_type,
+                    item_name: item.item_name,
+                    details: item.details,
+                    dosage: item.dosage,
+                    frequency: item.frequency,
+                    route: item.route,
+                    quantity_required: item.quantity_required,
+                    status: item.status,
+                    notes: item.notes,
+                    inventory_id: item.inventory_id,
+                    unit_price: item.unit_price,
+                    selling_price: item.selling_price,
+                })),
+            },
+            preserveState: false,
+            preserveScroll: false,
+            onSuccess: () => {
+                clearDraft();
+                router.patch(processAndBill(props.medicalOrder.id).url);
+            },
+            onError: (errors) => {
+                submitError.value = Object.values(errors).flat().join(', ');
+            },
+            onFinish: () => {
+                isSendingToAccount.value = false;
+                showConfirmDialog.value = false;
+            },
+        },
+    );
 };
 
 const submitForm = () => {
@@ -2146,13 +2192,18 @@ const submitForm = () => {
                 </div>
 
                 <div class="flex gap-4">
-                    <Button type="button" @click="showConfirmDialog = true" :disabled="isProcessing || form.order_items.length === 0
-                        ">
-                        {{
-                            isProcessing
-                                ? 'Processing...'
-                                : 'Confirm Process'
-                        }}
+                    <Button type="button" @click="showConfirmDialog = true" :disabled="isProcessing || isSendingToAccount || form.order_items.length === 0">
+                        {{ isProcessing ? 'Processing...' : 'Confirm Process' }}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="border-teal-600 text-teal-700 hover:bg-teal-50 dark:border-teal-500 dark:text-teal-400 dark:hover:bg-teal-950/20"
+                        :disabled="isSendingToAccount || isProcessing || form.order_items.length === 0"
+                        @click="sendToAccount"
+                    >
+                        <Send class="mr-2 size-4" />
+                        {{ isSendingToAccount ? 'Sending...' : 'Send to Account' }}
                     </Button>
                     <Button variant="outline" as-child>
                         <a :href="show(props.medicalOrder.id).url">Cancel</a>
