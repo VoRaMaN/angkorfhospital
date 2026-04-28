@@ -93,8 +93,8 @@ class BillingReportController extends Controller
         $filename = 'billing_report_'.$startDate.'_to_'.$endDate.'.csv';
 
         $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
         ];
 
         $callback = function () use ($billings, $groupBy) {
