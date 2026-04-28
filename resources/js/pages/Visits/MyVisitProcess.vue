@@ -245,12 +245,6 @@ const getStatusColor = (status: string) => {
                                         </Link>
                                     </Button>
                                     <Button
-                                        v-if="visit.medical_orders.length > 0 && visit.status === 'awaiting_accountant' && hasPermission('send_back_medical_orders')"
-                                        variant="outline" class="border-red-600 text-red-600" size="sm"
-                                        @click="selectedOrder = visit.medical_orders[0].id; showSendBackDialog = true">
-                                        Send Back
-                                    </Button>
-                                    <Button
                                         v-if="visit.medical_orders.length > 0 && visit.status === 'awaiting_accountant' && hasPermission('complete_medical_orders')"
                                         variant="outline" class="border-blue-600 text-blue-600" size="sm" as-child>
                                         <Link :href="completePage(visit.medical_orders[0].id).url">
