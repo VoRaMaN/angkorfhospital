@@ -461,31 +461,38 @@ const addMedicineGroup = () => {
 };
 
 // Special Items selection state
-const showSpecialItemDialog = ref(false);
-const selectedSpecialItemId = ref<number | null>(null);
+const selectedSpecialItemIds = ref<number[]>([]);
 
-const addSpecialItem = () => {
-    if (!selectedSpecialItemId.value) return;
+const toggleSpecialItem = (itemId: number, checked: boolean) => {
+    if (checked) {
+        if (!selectedSpecialItemIds.value.includes(itemId)) {
+            selectedSpecialItemIds.value.push(itemId);
+        }
+    } else {
+        selectedSpecialItemIds.value = selectedSpecialItemIds.value.filter((id) => id !== itemId);
+    }
+};
 
-    const item = props.specialItems.find((i) => i.id === selectedSpecialItemId.value);
-    if (!item) return;
-
-    // Add the special item as a single order item
-    form.order_items.push({
-        item_type: 'special_item',
-        item_name: item.name,
-        details: item.description || '',
-        quantity_required: 1,
-        status: 'pending',
-        notes: `Special Item${item.items.length > 0 ? ' (includes: ' + item.items.map(i => i.item_name).join(', ') + ')' : ''}`,
-        unit_price: item.unit_price,
-        selling_price: item.unit_price,
+const addSelectedSpecialItems = () => {
+    selectedSpecialItemIds.value.forEach((itemId) => {
+        const item = props.specialItems.find((i) => i.id === itemId);
+        if (!item) return;
+        form.order_items.push({
+            item_type: 'special_item',
+            item_name: item.name,
+            details: item.description || '',
+            quantity_required: 1,
+            status: 'pending',
+            notes: `Special Item${item.items.length > 0 ? ' (includes: ' + item.items.map(i => i.item_name).join(', ') + ')' : ''}`,
+            unit_price: item.unit_price,
+            selling_price: item.unit_price,
+        });
     });
-
-    selectedSpecialItemId.value = null;
-    showSpecialItemDialog.value = false;
+    selectedSpecialItemIds.value = [];
     showMedicineGroupDialog.value = false;
 };
+
+const selectedSpecialItemCount = computed(() => selectedSpecialItemIds.value.length);
 
 // Filtered RX medicines
 const filteredRxMedicines = computed(() => {
@@ -1494,11 +1501,11 @@ const submitForm = () => {
                                         <CardDescription>Choose a pre-configured special items group</CardDescription>
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false">
+                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedSpecialItemIds = []">
                                             Cancel
                                         </Button>
-                                        <Button type="button" size="sm" @click="selectedMedicineGroupId ? addMedicineGroup() : addSpecialItem()" :disabled="!selectedMedicineGroupId && !selectedSpecialItemId">
-                                            Add Item
+                                        <Button type="button" size="sm" @click="selectedMedicineGroupId ? addMedicineGroup() : addSelectedSpecialItems()" :disabled="!selectedMedicineGroupId && selectedSpecialItemCount === 0">
+                                            {{ selectedMedicineGroupId ? 'Add Group' : `Add ${selectedSpecialItemCount > 0 ? '(' + selectedSpecialItemCount + ') ' : ''}Selected` }}
                                         </Button>
                                     </div>
                                 </div>
@@ -1580,18 +1587,17 @@ const submitForm = () => {
                                         <div class="space-y-3">
                                             <div v-for="item in specialItems" :key="`si-${item.id}`"
                                                 class="rounded-md border p-4 hover:bg-accent cursor-pointer"
-                                                :class="{ 'border-primary bg-primary/5': selectedSpecialItemId === item.id }"
-                                                @click="selectedSpecialItemId = item.id; selectedMedicineGroupId = null">
+                                                :class="{ 'border-primary bg-primary/5': selectedSpecialItemIds.includes(item.id) }"
+                                                @click="toggleSpecialItem(item.id, !selectedSpecialItemIds.includes(item.id)); selectedMedicineGroupId = null">
                                                 <div class="flex items-start justify-between">
                                                     <div class="flex-1">
                                                         <div class="flex items-center gap-2">
                                                             <input
-                                                                type="radio"
+                                                                type="checkbox"
                                                                 :id="`special-item-${item.id}`"
-                                                                :value="item.id"
-                                                                v-model="selectedSpecialItemId"
-                                                                @change="selectedMedicineGroupId = null"
-                                                                class="h-4 w-4"
+                                                                :checked="selectedSpecialItemIds.includes(item.id)"
+                                                                @change="toggleSpecialItem(item.id, ($event.target as HTMLInputElement).checked); selectedMedicineGroupId = null"
+                                                                class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                                                             />
                                                             <label :for="`special-item-${item.id}`" class="font-medium cursor-pointer">
                                                                 {{ item.name }}
