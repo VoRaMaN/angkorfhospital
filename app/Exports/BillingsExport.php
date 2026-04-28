@@ -50,11 +50,13 @@ class BillingsExport
         $billings = $query->orderBy('billing_date')->get();
 
         $rows = $this->buildRows($billings);
-        $filename = 'billings-'.now()->format('Y-m-d-H-i-s').'.csv';
-        $csvContent = $this->generateCsvFromRows($rows);
-        $html = $this->generateHtml($rows, $filename, $csvContent);
+        $filename = 'billings-'.now()->format('Y-m-d-H-i-s').'.xls';
+        $html = $this->generateExcelHtml($rows);
 
-        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 
     private function buildRows($billings): array
@@ -86,88 +88,39 @@ class BillingsExport
         return $rows;
     }
 
-    private function generateHtml(array $rows, string $filename, string $csvContent): string
+    private function generateExcelHtml(array $rows): string
     {
         $headers = ['Bill No', 'Billing Date', 'Patient ID', 'Patient Name', 'Medical Order Items', 'Total Amount', 'Status'];
         $keys = ['bill_no', 'date', 'patient_id', 'patient', 'items', 'amount', 'status'];
 
-        $thead = '<tr>'.implode('', array_map(fn ($h) => '<th>'.htmlspecialchars($h).'</th>', $headers)).'</tr>';
+        $thead = '<tr>'.implode('', array_map(fn ($h) => '<th style="background:#1e40af;color:#fff;font-weight:bold;border:1px solid #ccc;padding:6px 10px;">'.htmlspecialchars($h).'</th>', $headers)).'</tr>';
 
         $tbody = '';
-        foreach ($rows as $row) {
-            $tbody .= '<tr>'.implode('', array_map(fn ($k) => '<td>'.htmlspecialchars($row[$k]).'</td>', $keys)).'</tr>';
+        foreach ($rows as $i => $row) {
+            $bg = $i % 2 === 0 ? '#ffffff' : '#f0f4ff';
+            $tbody .= '<tr>';
+            foreach ($keys as $k) {
+                $tbody .= '<td style="border:1px solid #ccc;padding:5px 10px;background:'.$bg.';">'.htmlspecialchars($row[$k]).'</td>';
+            }
+            $tbody .= '</tr>';
         }
-
-        $total = count($rows);
-        $csvBase64 = base64_encode($csvContent);
 
         return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Billings Export</title>
-<style>
-  body { font-family: Arial, sans-serif; padding: 24px; background: #f9fafb; color: #111; }
-  h1 { font-size: 20px; margin-bottom: 4px; }
-  p { color: #555; font-size: 14px; margin-bottom: 16px; }
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .count { font-size: 13px; color: #666; }
-  a.download-btn {
-    background: #1e40af; color: #fff; padding: 8px 16px; border-radius: 6px;
-    text-decoration: none; font-size: 13px; font-weight: 600;
-  }
-  a.download-btn:hover { background: #1d3899; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
-  th { background: #1e40af; color: #fff; padding: 10px 12px; text-align: left; font-size: 13px; }
-  td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #e5e7eb; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #f0f4ff; }
-</style>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
+<x:ExcelWorksheet><x:Name>Billings</x:Name>
+<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
 </head>
 <body>
-<h1>Billings Export</h1>
-<p>Generated on {$this->now()}</p>
-<div class="toolbar">
-  <span class="count">{$total} record(s)</span>
-  <a class="download-btn" href="data:text/csv;base64,{$csvBase64}" download="{$filename}">Download CSV</a>
-</div>
-<table>
-  <thead>{$thead}</thead>
-  <tbody>{$tbody}</tbody>
+<table border="1" cellspacing="0" cellpadding="4">
+<thead>{$thead}</thead>
+<tbody>{$tbody}</tbody>
 </table>
-</body>
-</html>
+</body></html>
 HTML;
-    }
-
-    private function now(): string
-    {
-        return now()->format('d/m/Y H:i:s');
-    }
-
-    private function generateCsvFromRows(array $rows): string
-    {
-        $headers = ['Bill No', 'Billing Date', 'Patient ID', 'Patient Name', 'Medical Order Items', 'Total Amount', 'Status'];
-        $keys = ['bill_no', 'date', 'patient_id', 'patient', 'items', 'amount', 'status'];
-
-        $allRows = [array_combine($keys, $headers)];
-        foreach ($rows as $row) {
-            $allRows[] = $row;
-        }
-
-        $csv = '';
-        foreach ($allRows as $row) {
-            $csv .= implode(',', array_map(function ($field) {
-                $field = str_replace('"', '""', (string) $field);
-                if (str_contains($field, ',') || str_contains($field, '"') || str_contains($field, "\n")) {
-                    $field = '"'.$field.'"';
-                }
-
-                return $field;
-            }, $row))."\n";
-        }
-
-        return $csv;
     }
 }
