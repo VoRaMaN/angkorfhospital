@@ -600,8 +600,8 @@ class BillingController extends Controller
         $this->authorize('receive', $billing);
 
         $receivableStatuses = [
-            \App\Enums\BillingStatusEnum::REVISED->value,
-            \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
+            \App\Enums\BillingStatusEnum::REVISED,
+            \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT,
         ];
 
         if (! in_array($billing->status, $receivableStatuses)) {
