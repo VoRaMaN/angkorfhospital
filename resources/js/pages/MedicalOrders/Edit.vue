@@ -97,6 +97,20 @@ interface MedicineGroup {
     items: MedicineGroupItem[];
 }
 
+interface SpecialItemSubItem {
+    id: number;
+    item_name: string;
+    quantity: number;
+}
+
+interface SpecialItem {
+    id: number;
+    name: string;
+    description: string | null;
+    unit_price: number;
+    items: SpecialItemSubItem[];
+}
+
 interface OrderItem {
     id?: number;
     item_type: string;
@@ -154,6 +168,7 @@ interface Props {
         price: number;
     }>;
     medicineGroups: MedicineGroup[];
+    specialItems: SpecialItem[];
 }
 
 const props = defineProps<Props>();
@@ -434,7 +449,29 @@ const filteredRxMedicines = computed(() => {
 // Special Items (Medicine Groups) selection state
 const showMedicineGroupDialog = ref(false);
 const selectedMedicineGroupId = ref<number | null>(null);
+const selectedSpecialItemId = ref<number | null>(null);
 const medicineGroupIncludePackage = ref(false);
+
+const addSpecialItem = () => {
+    if (!selectedSpecialItemId.value) return;
+
+    const item = props.specialItems.find((i) => i.id === selectedSpecialItemId.value);
+    if (!item) return;
+
+    form.order_items.push({
+        item_type: 'special_item',
+        item_name: item.name,
+        details: item.description || '',
+        quantity_required: 1,
+        status: 'pending',
+        notes: `Special Item${item.items.length > 0 ? ' (includes: ' + item.items.map(i => i.item_name).join(', ') + ')' : ''}`,
+        unit_price: item.unit_price,
+        selling_price: item.unit_price,
+    });
+
+    selectedSpecialItemId.value = null;
+    showMedicineGroupDialog.value = false;
+};
 
 const addMedicineGroup = () => {
     if (!selectedMedicineGroupId.value) return;
@@ -1539,19 +1576,19 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                         <CardDescription>Choose a pre-configured special items group</CardDescription>
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false">
+                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedMedicineGroupId = null; selectedSpecialItemId = null">
                                             Cancel
                                         </Button>
-                                        <Button type="button" size="sm" @click="addMedicineGroup" :disabled="!selectedMedicineGroupId">
-                                            Add Group
+                                        <Button type="button" size="sm" @click="selectedMedicineGroupId ? addMedicineGroup() : addSpecialItem()" :disabled="!selectedMedicineGroupId && !selectedSpecialItemId">
+                                            Add Item
                                         </Button>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent>
                                 <div class="space-y-4">
-                                    <!-- Include Package Toggle -->
-                                    <div class="flex items-center space-x-2 p-3 rounded-md bg-muted/50">
+                                    <!-- Include Package Toggle (only for medicine groups) -->
+                                    <div v-if="medicineGroups.length > 0" class="flex items-center space-x-2 p-3 rounded-md bg-muted/50">
                                         <input
                                             type="checkbox"
                                             id="edit-medicine-group-include-package"
@@ -1563,10 +1600,13 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                         </label>
                                     </div>
 
+                                    <div v-if="medicineGroups.length > 0">
+                                        <div class="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wide">Medicine Groups</div>
+                                    </div>
                                     <div v-for="group in medicineGroups" :key="group.id"
                                         class="rounded-md border p-4 hover:bg-accent cursor-pointer"
                                         :class="{ 'border-primary bg-primary/5': selectedMedicineGroupId === group.id }"
-                                        @click="selectedMedicineGroupId = group.id">
+                                        @click="selectedMedicineGroupId = group.id; selectedSpecialItemId = null">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
@@ -1584,7 +1624,7 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                                 <p v-if="group.description" class="mt-1 text-sm text-muted-foreground">
                                                     {{ group.description }}
                                                 </p>
-                                                <div class="mt-3 space-y-2">
+                                                <div class="mt-3 space-y-2" v-if="group.items.length > 0">
                                                     <p class="text-sm font-medium">Includes:</p>
                                                     <div class="ml-4 space-y-1">
                                                         <div v-for="item in group.items" :key="item.id" class="text-sm text-muted-foreground">
@@ -1594,6 +1634,9 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                                             <span class="ml-2">x{{ item.quantity }}</span>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div v-else class="mt-2">
+                                                    <p class="text-sm italic text-muted-foreground">Group name only (no medicines)</p>
                                                 </div>
                                             </div>
                                             <div class="text-right">
@@ -1609,7 +1652,54 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div v-if="medicineGroups.length === 0" class="py-8 text-center text-muted-foreground">
+
+                                    <!-- Individual Special Items -->
+                                    <div v-if="specialItems.length > 0">
+                                        <div class="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wide">Individual Special Items</div>
+                                        <div class="space-y-3">
+                                            <div v-for="item in specialItems" :key="`si-${item.id}`"
+                                                class="rounded-md border p-4 hover:bg-accent cursor-pointer"
+                                                :class="{ 'border-primary bg-primary/5': selectedSpecialItemId === item.id }"
+                                                @click="selectedSpecialItemId = item.id; selectedMedicineGroupId = null">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <input
+                                                                type="radio"
+                                                                :id="`edit-special-item-${item.id}`"
+                                                                :value="item.id"
+                                                                v-model="selectedSpecialItemId"
+                                                                @change="selectedMedicineGroupId = null"
+                                                                class="h-4 w-4"
+                                                            />
+                                                            <label :for="`edit-special-item-${item.id}`" class="font-medium cursor-pointer">
+                                                                {{ item.name }}
+                                                            </label>
+                                                        </div>
+                                                        <p v-if="item.description" class="mt-1 text-sm text-muted-foreground">
+                                                            {{ item.description }}
+                                                        </p>
+                                                        <div v-if="item.items.length > 0" class="mt-3 space-y-2">
+                                                            <p class="text-sm font-medium">Includes:</p>
+                                                            <div class="ml-4 space-y-1">
+                                                                <div v-for="subItem in item.items" :key="subItem.id" class="text-sm text-muted-foreground">
+                                                                    &bull; {{ subItem.item_name }} x{{ subItem.quantity }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <div class="font-semibold text-green-600 dark:text-green-400">
+                                                            {{ formatPrice(item.unit_price) }}
+                                                        </div>
+                                                        <div class="text-xs text-muted-foreground">Custom Price</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="medicineGroups.length === 0 && specialItems.length === 0" class="py-8 text-center text-muted-foreground">
                                         No special items available
                                     </div>
                                 </div>

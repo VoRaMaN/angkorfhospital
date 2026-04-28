@@ -521,6 +521,24 @@ class MedicalOrderController extends Controller
                         }),
                     ];
                 }),
+            'specialItems' => \App\Models\SpecialItem::where('is_active', true)
+                ->with(['items.inventory'])
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'description' => $item->description,
+                        'unit_price' => (float) $item->unit_price,
+                        'items' => $item->items->map(function ($subItem) {
+                            return [
+                                'id' => $subItem->inventory_id,
+                                'item_name' => $subItem->inventory->item_name ?? 'Unknown',
+                                'quantity' => $subItem->quantity,
+                            ];
+                        }),
+                    ];
+                }),
         ]);
     }
 
