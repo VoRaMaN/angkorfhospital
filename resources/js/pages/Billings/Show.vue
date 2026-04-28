@@ -204,9 +204,9 @@ const sendBackToNurse = () => {
                         <CheckCircle class="size-4" />
                         Finish
                     </Button>
-                    <!-- Send Back: only when sent_to_account (before billing user receives it) -->
+                    <!-- Send Back: when sent_to_account or pending (billing user can reject at either stage) -->
                     <Button
-                        v-if="hasPermission('edit_billings') && props.billing.medical_order_id && props.billing.status === 'sent_to_account'"
+                        v-if="hasPermission('edit_billings') && props.billing.medical_order_id && ['sent_to_account', 'pending'].includes(props.billing.status)"
                         variant="outline"
                         class="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/20"
                         @click="showSendBackDialog = true"
