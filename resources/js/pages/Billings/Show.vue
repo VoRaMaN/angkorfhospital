@@ -176,9 +176,9 @@ const sendBackToNurse = () => {
                     </p>
                 </div>
                 <div class="ml-auto flex gap-2">
-                    <!-- Process: go to medical order process page (available when not paid) -->
+                    <!-- Process: only for users who can process medical orders (not billing-only users) -->
                     <Button
-                        v-if="hasPermission('edit_billings') && props.billing.medical_order_id && props.billing.status !== 'paid'"
+                        v-if="hasPermission('process_medical_orders') && props.billing.medical_order_id && props.billing.status !== 'paid'"
                         variant="outline"
                         as-child
                     >
@@ -187,18 +187,18 @@ const sendBackToNurse = () => {
                             Process
                         </Link>
                     </Button>
-                    <!-- Finish: mark as paid (not when in revision flow) -->
+                    <!-- Finish: mark as paid (not when awaiting receipt or in revision flow) -->
                     <Button
-                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision' && props.billing.status !== 'revised'"
+                        v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision' && props.billing.status !== 'revised' && props.billing.status !== 'sent_to_account'"
                         variant="default"
                         @click="completePayment"
                     >
                         <CheckCircle class="size-4" />
                         Finish
                     </Button>
-                    <!-- Receive: accountant acknowledges revised billing from nurse -->
+                    <!-- Receive: billing user acknowledges billing sent from nurse -->
                     <Button
-                        v-if="hasPermission('edit_billings') && props.billing.status === 'revised'"
+                        v-if="hasPermission('edit_billings') && (props.billing.status === 'revised' || props.billing.status === 'sent_to_account')"
                         variant="default"
                         class="bg-blue-600 hover:bg-blue-700 text-white"
                         @click="receiveRevised"

@@ -307,7 +307,7 @@ class BillingController extends Controller
     public function updateStatus(Billing $billing, Request $request): RedirectResponse
     {
         $request->validate([
-            'status' => 'required|in:pending,paid,overdue,partial,cancelled,revision,revised',
+            'status' => 'required|in:pending,paid,overdue,partial,cancelled,revision,revised,sent_to_account',
         ]);
 
         $this->authorize('updateStatus', $billing);
@@ -593,14 +593,19 @@ class BillingController extends Controller
     }
 
     /**
-     * Accountant receives revised billing from nurse — recalculates amount and sets status to pending.
+     * Accountant receives billing sent by nurse — recalculates amount and sets status to pending.
      */
     public function receive(Billing $billing): RedirectResponse
     {
         $this->authorize('receive', $billing);
 
-        if ($billing->status !== \App\Enums\BillingStatusEnum::REVISED->value) {
-            return redirect()->back()->with('error', 'This billing is not in a revised state and cannot be received.');
+        $receivableStatuses = [
+            \App\Enums\BillingStatusEnum::REVISED->value,
+            \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
+        ];
+
+        if (! in_array($billing->status, $receivableStatuses)) {
+            return redirect()->back()->with('error', 'This billing cannot be received at this stage.');
         }
 
         if ($billing->medical_order_id && $billing->medicalOrder) {
@@ -616,7 +621,7 @@ class BillingController extends Controller
         }
 
         return redirect()->route('billings.show', $billing)
-            ->with('success', 'Revised billing received. You can now review and complete payment.');
+            ->with('success', 'Billing received. You can now review and complete payment.');
     }
 
     /**

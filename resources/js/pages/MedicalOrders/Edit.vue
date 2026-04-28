@@ -32,9 +32,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index, update } from '@/routes/medical-orders';
+import { index, processAndBill, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import {
     Activity,
     ArrowLeft,
@@ -46,6 +46,7 @@ import {
     Plus,
     Scan,
     Search,
+    Send,
     Syringe,
     Trash2,
     UserCheck,
@@ -246,6 +247,14 @@ const staffOptions = computed(() => {
 const submitForm = () => {
     console.log('Submitting form data:', form.data());
     form.put(update(props.medicalOrder.id).url);
+};
+
+const sendToAccount = () => {
+    form.put(update(props.medicalOrder.id).url, {
+        onSuccess: () => {
+            router.patch(processAndBill(props.medicalOrder.id).url);
+        },
+    });
 };
 
 const priorities = [
@@ -2580,6 +2589,16 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                 ? 'Updating...'
                                 : 'Update Medical Order'
                         }}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="border-teal-600 text-teal-700 hover:bg-teal-50 dark:border-teal-500 dark:text-teal-400 dark:hover:bg-teal-950/20"
+                        :disabled="form.processing"
+                        @click="sendToAccount"
+                    >
+                        <Send class="mr-2 size-4" />
+                        Send to Account
                     </Button>
                     <Button variant="outline" as-child>
                         <a :href="index().url">Cancel</a>

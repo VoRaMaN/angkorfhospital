@@ -221,7 +221,7 @@ class MedicalOrderProcessingService
         if ($existing) {
             $existing->update([
                 'amount' => $totalAmount,
-                'status' => \App\Enums\BillingStatusEnum::REVISED->value,
+                'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
                 'notes' => $this->generateBillingNotes($medicalOrder),
             ]);
 
@@ -235,7 +235,7 @@ class MedicalOrderProcessingService
             'medical_order_id' => $medicalOrder->id,
             'doctor_id' => $doctorId,
             'amount' => $totalAmount,
-            'status' => 'pending',
+            'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
             'billing_date' => now()->toDateString(),
             'notes' => $this->generateBillingNotes($medicalOrder),
         ]);

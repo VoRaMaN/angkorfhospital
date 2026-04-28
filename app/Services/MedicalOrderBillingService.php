@@ -222,7 +222,7 @@ class MedicalOrderBillingService
                 'visit_id' => $medicalOrder->visit_id,
                 'medical_order_id' => $medicalOrder->id,
                 'amount' => $totalAmount,
-                'status' => 'pending',
+                'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
                 'billing_date' => now()->toDateString(),
                 'notes' => $notes ?? "Medical Order #{$medicalOrder->id} - {$medicalOrder->order_details}",
             ]);

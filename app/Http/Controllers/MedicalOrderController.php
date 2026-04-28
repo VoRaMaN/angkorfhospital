@@ -574,7 +574,7 @@ class MedicalOrderController extends Controller
         if ($request->has('order_items')) {
             $medicalOrder->load('orderItems');
             $linkedBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
-                ->whereIn('status', ['pending', 'revision'])
+                ->whereIn('status', ['pending', 'revision', 'sent_to_account'])
                 ->first();
 
             if ($linkedBilling) {
@@ -1078,11 +1078,11 @@ class MedicalOrderController extends Controller
                 // Reduce inventory stock for any new items
                 $billingService->reduceInventoryStock($medicalOrder);
 
-                // Update billing amount and reset to pending
+                // Update billing amount and set to sent_to_account so billing user must Receive
                 $currentNotes = $existingBilling->notes ? $existingBilling->notes."\n\n" : '';
                 $existingBilling->update([
                     'amount' => $totalAmount,
-                    'status' => \App\Enums\BillingStatusEnum::PENDING,
+                    'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT,
                     'notes' => $currentNotes.'Recalculated after revision on '.now()->format('Y-m-d H:i').'. New amount: $'.number_format($totalAmount, 2),
                 ]);
 
