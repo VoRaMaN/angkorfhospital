@@ -570,6 +570,20 @@ class MedicalOrderController extends Controller
             }
         }
 
+        // Recalculate any linked pending billing so the amount stays in sync
+        if ($request->has('order_items')) {
+            $medicalOrder->load('orderItems');
+            $linkedBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
+                ->whereIn('status', ['pending', 'revision'])
+                ->first();
+
+            if ($linkedBilling) {
+                $billingService = app(MedicalOrderBillingService::class);
+                $newAmount = $billingService->calculateOrderTotal($medicalOrder);
+                $linkedBilling->update(['amount' => $newAmount]);
+            }
+        }
+
         return redirect()->route('medical-orders.index')->with('success', 'Medical order updated successfully.');
     }
 

@@ -448,9 +448,19 @@ const filteredRxMedicines = computed(() => {
 
 // Special Items (Medicine Groups) selection state
 const showMedicineGroupDialog = ref(false);
-const selectedMedicineGroupId = ref<number | null>(null);
+const selectedMedicineGroupIds = ref<number[]>([]);
 const selectedSpecialItemIds = ref<number[]>([]);
 const medicineGroupIncludePackage = ref(false);
+
+const toggleMedicineGroup = (groupId: number, checked: boolean) => {
+    if (checked) {
+        if (!selectedMedicineGroupIds.value.includes(groupId)) {
+            selectedMedicineGroupIds.value.push(groupId);
+        }
+    } else {
+        selectedMedicineGroupIds.value = selectedMedicineGroupIds.value.filter((id) => id !== groupId);
+    }
+};
 
 const toggleSpecialItem = (itemId: number, checked: boolean) => {
     if (checked) {
@@ -484,34 +494,45 @@ const addSelectedSpecialItems = () => {
 const selectedSpecialItemCount = computed(() => selectedSpecialItemIds.value.length);
 
 const addMedicineGroup = () => {
-    if (!selectedMedicineGroupId.value) return;
-
-    const group = props.medicineGroups.find((g) => g.id === selectedMedicineGroupId.value);
-    if (!group) return;
-
     const includePackage = medicineGroupIncludePackage.value;
-
-    group.items.forEach((item) => {
-        form.order_items.push({
-            item_type: 'rx_medicine',
-            item_name: item.item_name,
-            details: `From Group: ${group.name}${includePackage ? ' (Package Included)' : ''}`,
-            dosage: item.dosage || '',
-            frequency: item.frequency || '',
-            route: '',
-            quantity_required: item.quantity,
-            status: 'pending',
-            notes: `Special Items: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
-            inventory_id: item.id,
-            unit_price: includePackage ? 0 : item.unit_price,
-            selling_price: includePackage ? 0 : item.selling_price,
+    selectedMedicineGroupIds.value.forEach((groupId) => {
+        const group = props.medicineGroups.find((g) => g.id === groupId);
+        if (!group) return;
+        group.items.forEach((item) => {
+            form.order_items.push({
+                item_type: 'rx_medicine',
+                item_name: item.item_name,
+                details: `From Group: ${group.name}${includePackage ? ' (Package Included)' : ''}`,
+                dosage: item.dosage || '',
+                frequency: item.frequency || '',
+                route: '',
+                quantity_required: item.quantity,
+                status: 'pending',
+                notes: `Special Items: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+                inventory_id: item.id,
+                unit_price: includePackage ? 0 : item.unit_price,
+                selling_price: includePackage ? 0 : item.selling_price,
+            });
         });
+        if (group.items.length === 0) {
+            form.order_items.push({
+                item_type: 'special_item',
+                item_name: group.name,
+                details: group.description || '',
+                quantity_required: 1,
+                status: 'pending',
+                notes: `Special Items: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+                unit_price: includePackage ? 0 : (group.custom_price || group.total_price || 0),
+                selling_price: includePackage ? 0 : (group.custom_price || group.total_price || 0),
+            });
+        }
     });
-
-    selectedMedicineGroupId.value = null;
+    selectedMedicineGroupIds.value = [];
     medicineGroupIncludePackage.value = false;
     showMedicineGroupDialog.value = false;
 };
+
+const selectedMedicineGroupCount = computed(() => selectedMedicineGroupIds.value.length);
 
 // Medical Services selection state
 const showMedicalServiceDialog = ref(false);
@@ -1586,11 +1607,11 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                         <CardDescription>Choose a pre-configured special items group</CardDescription>
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedMedicineGroupId = null; selectedSpecialItemIds = []">
+                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedMedicineGroupIds = []; selectedSpecialItemIds = []">
                                             Cancel
                                         </Button>
-                                        <Button type="button" size="sm" @click="selectedMedicineGroupId ? addMedicineGroup() : addSelectedSpecialItems()" :disabled="!selectedMedicineGroupId && selectedSpecialItemCount === 0">
-                                            {{ selectedMedicineGroupId ? 'Add Group' : `Add ${selectedSpecialItemCount > 0 ? '(' + selectedSpecialItemCount + ') ' : ''}Selected` }}
+                                        <Button type="button" size="sm" @click="selectedMedicineGroupIds.length > 0 ? addMedicineGroup() : addSelectedSpecialItems()" :disabled="selectedMedicineGroupCount === 0 && selectedSpecialItemCount === 0">
+                                            Add {{ (selectedMedicineGroupCount + selectedSpecialItemCount) > 0 ? `(${selectedMedicineGroupCount + selectedSpecialItemCount}) ` : '' }}Selected
                                         </Button>
                                     </div>
                                 </div>
@@ -1615,17 +1636,17 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                     </div>
                                     <div v-for="group in medicineGroups" :key="group.id"
                                         class="rounded-md border p-4 hover:bg-accent cursor-pointer"
-                                        :class="{ 'border-primary bg-primary/5': selectedMedicineGroupId === group.id }"
-                                        @click="selectedMedicineGroupId = group.id; selectedSpecialItemId = null">
+                                        :class="{ 'border-primary bg-primary/5': selectedMedicineGroupIds.includes(group.id) }"
+                                        @click="toggleMedicineGroup(group.id, !selectedMedicineGroupIds.includes(group.id))">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
                                                     <input
-                                                        type="radio"
+                                                        type="checkbox"
                                                         :id="`edit-group-${group.id}`"
-                                                        :value="group.id"
-                                                        v-model="selectedMedicineGroupId"
-                                                        class="h-4 w-4"
+                                                        :checked="selectedMedicineGroupIds.includes(group.id)"
+                                                        @change="toggleMedicineGroup(group.id, ($event.target as HTMLInputElement).checked)"
+                                                        class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                                                     />
                                                     <label :for="`edit-group-${group.id}`" class="font-medium cursor-pointer">
                                                         {{ group.name }}
