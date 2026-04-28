@@ -203,7 +203,7 @@ class InventoryController extends Controller
         }
 
         return response($csv, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/plain; charset=UTF-8',
             'Content-Disposition' => 'inline; filename="'.implode('-', $filenameParts).'.csv"',
         ]);
     }

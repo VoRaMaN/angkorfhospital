@@ -66,7 +66,7 @@ class AppointmentsExport
         $filename = 'appointments-'.now()->format('Y-m-d-H-i-s').'.csv';
 
         return response($csvContent)
-            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Type', 'text/plain; charset=UTF-8')
             ->header('Content-Disposition', 'inline; filename="'.$filename.'"');
     }
 
