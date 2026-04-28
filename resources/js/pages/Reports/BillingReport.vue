@@ -75,13 +75,13 @@ const searchReport = () => {
 };
 
 const exportReport = () => {
-    window.location.href = billingReportExport({
+    window.open(billingReportExport({
         query: {
             start_date: startDate.value,
             end_date: endDate.value,
             group_by: groupBy.value,
         },
-    }).url;
+    }).url, '_blank');
 };
 
 const getStatusColor = (status: string) => {

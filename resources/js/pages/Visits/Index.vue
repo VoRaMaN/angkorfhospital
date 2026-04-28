@@ -86,7 +86,7 @@ const exportVisits = () => {
     if (fromDate.value) params.set('from', fromDate.value);
     if (toDate.value) params.set('to', toDate.value);
     if (props.filters.patient) params.set('patient', props.filters.patient);
-    window.location.href = `/visits-export?${params.toString()}`;
+    window.open(`/visits-export?${params.toString()}`, '_blank');
 };
 let searchTimeout: number | null = null;
 

@@ -88,18 +88,18 @@ const searchReport = () => {
 };
 
 const exportAll = () => {
-    window.location.href = medicineReportExport({ query: {
+    window.open(medicineReportExport({ query: {
         start_date: startDate.value,
         end_date: endDate.value,
-    }}).url;
+    }}).url, '_blank');
 };
 
 const exportPatient = (patientId: number) => {
-    window.location.href = medicineReportExport({ query: {
+    window.open(medicineReportExport({ query: {
         start_date: startDate.value,
         end_date: endDate.value,
         patient_id: patientId,
-    }}).url;
+    }}).url, '_blank');
 };
 
 const selectedOrder = ref<TodayDispensing | null>(null);
@@ -110,11 +110,11 @@ const openOrderModal = (order: TodayDispensing) => {
 
 const exportOrder = (order: TodayDispensing) => {
     const today = new Date().toISOString().slice(0, 10);
-    window.location.href = medicineReportExport({ query: {
+    window.open(medicineReportExport({ query: {
         start_date: today,
         end_date: today,
         patient_id: order.patient_id,
-    }}).url;
+    }}).url, '_blank');
 };
 
 const finishDispensing = (id: number) => {

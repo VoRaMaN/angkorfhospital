@@ -185,7 +185,7 @@ const exportUrl = computed(() => {
                     <p class="text-muted-foreground">Monitor system activity and user sessions</p>
                 </div>
                 <div class="ml-auto">
-                    <Button variant="outline" size="sm" as="a" :href="exportUrl">
+                    <Button variant="outline" size="sm" as="a" :href="exportUrl" target="_blank">
                         <Download class="mr-1 size-4" />
                         Export CSV
                     </Button>
