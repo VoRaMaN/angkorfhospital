@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, CheckCircle2, Download, Eye, FileText, Search, User } from 'lucide-vue-next';
+import { Calendar, CheckCircle2, ChevronDown, ChevronRight, Download, Eye, FileText, Search, User } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { index as medicineReportIndex, exportMethod as medicineReportExport } from '@/routes/medicine-report';
 
@@ -125,6 +125,17 @@ const finishDispensing = (id: number) => {
 
 const formatPrice = (price: number) => {
     return `$${price.toFixed(2)}`;
+};
+
+const expandedPatients = ref<number[]>([]);
+
+const togglePatient = (patientId: number) => {
+    const idx = expandedPatients.value.indexOf(patientId);
+    if (idx >= 0) {
+        expandedPatients.value.splice(idx, 1);
+    } else {
+        expandedPatients.value.push(patientId);
+    }
 };
 </script>
 
@@ -332,7 +343,8 @@ const formatPrice = (price: number) => {
                 </p>
             </div>
 
-            <div v-if="(startDate && endDate) && medicineUsage.length > 0" class="space-y-6">
+            <div v-if="(startDate && endDate) && medicineUsage.length > 0" class="space-y-4">
+                <!-- Summary Stats -->
                 <div class="rounded-lg border bg-card p-4">
                     <div class="flex items-center justify-between">
                         <div>
@@ -354,59 +366,82 @@ const formatPrice = (price: number) => {
                     </div>
                 </div>
 
-                <Card v-for="usage in medicineUsage" :key="usage.patient_id">
-                    <CardHeader>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <CardTitle>{{ usage.patient_name }}</CardTitle>
-                                <CardDescription>
-                                    {{ usage.medicines.length }} medicine(s) | Total: {{ formatPrice(usage.total_cost) }}
-                                </CardDescription>
-                            </div>
-                            <Button @click="exportPatient(usage.patient_id)" variant="outline" size="sm">
-                                <Download class="mr-2 h-4 w-4" />
-                                Export
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Medicine Name</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead class="text-right">Quantity</TableHead>
-                                    <TableHead class="text-right">Unit Price</TableHead>
-                                    <TableHead class="text-right">Total</TableHead>
-                                    <TableHead>Date</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow v-for="(medicine, idx) in usage.medicines" :key="idx">
-                                    <TableCell class="font-medium">{{ medicine.medicine_name }}</TableCell>
+                <!-- Collapsible Patient Table -->
+                <div class="rounded-lg border bg-card overflow-hidden">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Patient Name</TableHead>
+                                <TableHead class="text-right w-48">Total Medicines</TableHead>
+                                <TableHead class="text-right w-48">Total Cost</TableHead>
+                                <TableHead class="w-28 text-center">Export</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <template v-for="usage in medicineUsage" :key="usage.patient_id">
+                                <!-- Summary Row -->
+                                <TableRow
+                                    class="cursor-pointer hover:bg-muted/40"
+                                    @click="togglePatient(usage.patient_id)"
+                                >
                                     <TableCell>
-                                        <Badge variant="secondary">{{ medicine.type }}</Badge>
+                                        <span class="flex items-center gap-2 font-medium text-primary">
+                                            <ChevronDown v-if="expandedPatients.includes(usage.patient_id)" class="h-4 w-4 shrink-0" />
+                                            <ChevronRight v-else class="h-4 w-4 shrink-0" />
+                                            {{ usage.patient_name }}
+                                        </span>
                                     </TableCell>
-                                    <TableCell class="text-right">{{ medicine.quantity }}</TableCell>
-                                    <TableCell class="text-right">{{ formatPrice(medicine.selling_price) }}</TableCell>
-                                    <TableCell class="text-right font-semibold text-green-600">
-                                        {{ formatPrice(medicine.total_cost) }}
-                                    </TableCell>
-                                    <TableCell>{{ medicine.date }}</TableCell>
-                                </TableRow>
-                                <TableRow class="bg-muted/50 font-semibold">
-                                    <TableCell colspan="2">Total</TableCell>
                                     <TableCell class="text-right">{{ usage.total_medicines }}</TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell class="text-right text-green-600">
-                                        {{ formatPrice(usage.total_cost) }}
+                                    <TableCell class="text-right font-semibold text-green-600">{{ formatPrice(usage.total_cost) }}</TableCell>
+                                    <TableCell class="text-center">
+                                        <Button size="sm" variant="outline" @click.stop="exportPatient(usage.patient_id)">
+                                            <Download class="h-3.5 w-3.5" />
+                                        </Button>
                                     </TableCell>
-                                    <TableCell></TableCell>
                                 </TableRow>
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+
+                                <!-- Expanded Detail Row -->
+                                <TableRow v-if="expandedPatients.includes(usage.patient_id)">
+                                    <TableCell colspan="4" class="p-0 bg-muted/20">
+                                        <div class="px-10 py-3">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Medicine Name</TableHead>
+                                                        <TableHead>Type</TableHead>
+                                                        <TableHead class="text-right">Quantity</TableHead>
+                                                        <TableHead class="text-right">Unit Price</TableHead>
+                                                        <TableHead class="text-right">Total</TableHead>
+                                                        <TableHead>Date</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    <TableRow v-for="(medicine, idx) in usage.medicines" :key="idx">
+                                                        <TableCell class="font-medium">{{ medicine.medicine_name }}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant="secondary">{{ medicine.type }}</Badge>
+                                                        </TableCell>
+                                                        <TableCell class="text-right">{{ medicine.quantity }}</TableCell>
+                                                        <TableCell class="text-right">{{ formatPrice(medicine.unit_price) }}</TableCell>
+                                                        <TableCell class="text-right font-semibold text-green-600">{{ formatPrice(medicine.total_cost) }}</TableCell>
+                                                        <TableCell>{{ medicine.date }}</TableCell>
+                                                    </TableRow>
+                                                    <TableRow class="bg-muted/50 font-semibold">
+                                                        <TableCell colspan="2">Total</TableCell>
+                                                        <TableCell class="text-right">{{ usage.total_medicines }}</TableCell>
+                                                        <TableCell></TableCell>
+                                                        <TableCell class="text-right text-green-600">{{ formatPrice(usage.total_cost) }}</TableCell>
+                                                        <TableCell></TableCell>
+                                                    </TableRow>
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </template>
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         </div>
     </AppLayout>
