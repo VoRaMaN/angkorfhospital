@@ -6,6 +6,8 @@ use App\Models\Visit;
 
 class VisitsExport
 {
+    use \App\Traits\RendersExportHtml;
+
     protected $filters;
 
     public function __construct($filters = [])
@@ -68,32 +70,16 @@ class VisitsExport
 
         $visits = $query->orderByDesc('visit_date_time')->get();
 
-        $csvContent = $this->generateCsv($visits);
-
+        $headers = ['Visit ID', 'Patient ID', 'Name', 'Mobile', 'Date', 'Time', 'Status', 'Doctor', 'Notes', 'Created At'];
+        $rows = $this->buildRows($visits);
         $filename = 'visits-'.now()->format('Y-m-d-H-i-s').'.csv';
 
-        return response($csvContent)
-            ->header('Content-Type', 'text/plain; charset=UTF-8')
-            ->header('Content-Disposition', 'inline; filename="'.$filename.'"');
+        return $this->renderExportHtml('Visits Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 
-    private function generateCsv($visits): string
+    private function buildRows($visits): array
     {
-        $headers = [
-            'Visit ID',
-            'Patient ID',
-            'Name',
-            'Mobile Number',
-            'Date',
-            'Time',
-            'Status',
-            'Doctor',
-            'Notes',
-            'Created At',
-        ];
-
-        $rows = [$headers];
-
+        $rows = [];
         foreach ($visits as $visit) {
             $patientTitle = $visit->patient ? ($visit->patient->title ?? '') : '';
             $patientName = $visit->patient
@@ -104,7 +90,7 @@ class VisitsExport
                 $visit->id,
                 $visit->patient ? $visit->patient->id : '',
                 trim($patientTitle.' '.$patientName),
-                $this->formatPhone($visit->patient ? ($visit->patient->mobile_phone ?? '') : ''),
+                $visit->patient ? ($visit->patient->mobile_phone ?? '') : '',
                 $visit->visit_date_time ? \Carbon\Carbon::parse($visit->visit_date_time)->format('d/m/y') : '',
                 $visit->visit_date_time ? \Carbon\Carbon::parse($visit->visit_date_time)->format('H:i') : '',
                 ucfirst($visit->status instanceof \BackedEnum ? $visit->status->value : ($visit->status ?? '')),
@@ -114,27 +100,6 @@ class VisitsExport
             ];
         }
 
-        $csv = '';
-        foreach ($rows as $row) {
-            $csv .= implode(',', array_map(function ($field) {
-                $field = (string) $field;
-                if (str_contains($field, ',') || str_contains($field, '"') || str_contains($field, "\n")) {
-                    return '"'.str_replace('"', '""', $field).'"';
-                }
-
-                return $field;
-            }, $row))."\n";
-        }
-
-        return $csv;
-    }
-
-    private function formatPhone(?string $phone): string
-    {
-        if (! $phone) {
-            return '';
-        }
-
-        return '="'.$phone.'"';
+        return $rows;
     }
 }

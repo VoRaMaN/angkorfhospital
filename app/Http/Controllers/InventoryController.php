@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInventoryRequest;
 use App\Http\Requests\UpdateInventoryRequest;
 use App\Models\Inventory;
+use App\Traits\RendersExportHtml;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class InventoryController extends Controller
 {
+    use RendersExportHtml;
+
     public function index(): Response
     {
         $this->authorize('viewAny', Inventory::class);
@@ -172,8 +175,7 @@ class InventoryController extends Controller
             ->orderBy('item_name')
             ->get();
 
-        $headers = ['Item Name', 'Description', 'Original Quantity', 'Remaining', 'Unit', 'Unit Price', 'Selling Price', 'Expiry Date', 'Status'];
-
+        $headers = ['Item Name', 'Description', 'Original Qty', 'Remaining', 'Unit', 'Unit Price', 'Selling Price', 'Expiry Date', 'Status'];
         $rows = $items->map(fn ($item) => [
             $item->item_name,
             $item->description ?? '',
@@ -184,12 +186,7 @@ class InventoryController extends Controller
             number_format((float) $item->selling_price, 2),
             $item->expiry_date ? $item->expiry_date->format('d/M/y') : '',
             $item->status,
-        ]);
-
-        $csv = implode(',', $headers)."\n";
-        foreach ($rows as $row) {
-            $csv .= implode(',', array_map(fn ($v) => '"'.str_replace('"', '""', $v).'"', $row))."\n";
-        }
+        ])->toArray();
 
         $filenameParts = ['rx-medicine-report'];
         if ($dateFrom) {
@@ -202,10 +199,9 @@ class InventoryController extends Controller
             $filenameParts[] = now()->format('Y-m-d');
         }
 
-        return response($csv, 200, [
-            'Content-Type' => 'text/plain; charset=UTF-8',
-            'Content-Disposition' => 'inline; filename="'.implode('-', $filenameParts).'.csv"',
-        ]);
+        $filename = implode('-', $filenameParts).'.csv';
+
+        return $this->renderExportHtml('RX Medicine Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 
     public function labInventory(): Response

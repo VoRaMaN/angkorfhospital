@@ -132,7 +132,7 @@ const getStatusBadgeVariant = (status: string) => {
                 <div class="flex items-center gap-2">
                     <!-- Export Report -->
                     <Button variant="outline" as-child>
-                        <a :href="exportUrl">
+                        <a :href="exportUrl" target="_blank">
                             <Download class="size-4" />
                             Export Report
                         </a>

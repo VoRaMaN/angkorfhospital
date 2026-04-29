@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Enums\MedicalOrderStatusEnum;
 use App\Models\MedicalOrder;
 use App\Models\MedicalOrderInventory;
+use App\Traits\RendersExportHtml;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class MedicineReportController extends Controller
 {
+    use RendersExportHtml;
+
     public function index(Request $request): Response
     {
         $startDate = $request->input('start_date');
@@ -165,37 +168,20 @@ class MedicineReportController extends Controller
 
         $items = $query->get();
 
-        // Create CSV
+        $headers = ['Patient Name', 'Medicine Name', 'Quantity', 'Type', 'Date', 'Unit Price', 'Selling Price', 'Total'];
+        $rows = $items->map(fn ($item) => [
+            $item->medicalOrder->patient?->full_name ?: 'Unknown Patient',
+            $item->item_name,
+            $item->quantity_required,
+            $item->item_type,
+            $item->medicalOrder->ordered_at->format('d/m/y'),
+            number_format((float) $item->unit_price, 2),
+            number_format((float) $item->selling_price, 2),
+            number_format((float) ($item->selling_price * $item->quantity_required), 2),
+        ])->toArray();
+
         $filename = 'medicine_report_'.$startDate.'_to_'.$endDate.'.csv';
-        $headers = [
-            'Content-Type' => 'text/plain; charset=UTF-8',
-            'Content-Disposition' => 'inline; filename="'.$filename.'"',
-        ];
 
-        $callback = function () use ($items) {
-            $file = fopen('php://output', 'w');
-
-            // Add CSV headers
-            fputcsv($file, ['Patient Name', 'Medicine Name', 'Quantity', 'Type', 'Date', 'Unit Price', 'Selling Price', 'Total Cost']);
-
-            // Add data
-            foreach ($items as $item) {
-                $patient = $item->medicalOrder->patient;
-                fputcsv($file, [
-                    $patient?->full_name ?: 'Unknown Patient',
-                    $item->item_name,
-                    $item->quantity_required,
-                    $item->item_type,
-                    $item->medicalOrder->ordered_at->format('d/m/y'),
-                    $item->unit_price,
-                    $item->selling_price,
-                    $item->selling_price * $item->quantity_required,
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $this->renderExportHtml('Medicine Report Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 }

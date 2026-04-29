@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Billing;
+use App\Traits\RendersExportHtml;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class BillingReportController extends Controller
 {
+    use RendersExportHtml;
+
     public function index(Request $request): Response
     {
         $startDate = $request->input('start_date');
@@ -89,81 +92,38 @@ class BillingReportController extends Controller
             ->orderBy('billing_date', 'asc')
             ->get();
 
-        // Create CSV
+        if ($groupBy === 'day') {
+            $headers = ['Date', 'Bill No', 'Patient Name', 'Amount', 'Status', 'Payment Method'];
+            $rows = $billings->map(fn ($billing) => [
+                $billing->billing_date->format('d/m/y'),
+                $billing->bill_no,
+                $billing->patient?->user?->name ?? 'Unknown',
+                number_format($billing->amount, 2),
+                $billing->status instanceof \BackedEnum ? $billing->status->value : $billing->status,
+                $billing->payment_method ?? 'N/A',
+            ])->toArray();
+        } elseif ($groupBy === 'month') {
+            $headers = ['Year-Month', 'Patient Name', 'Total Bills', 'Total Amount'];
+            $rows = [];
+            $grouped = $billings->groupBy(fn ($billing) => $billing->billing_date->format('Y-m').'_'.$billing->patient_id);
+            foreach ($grouped as $key => $group) {
+                $yearMonth = explode('_', $key)[0];
+                $patient = $group->first()->patient;
+                $rows[] = [$yearMonth, $patient?->user?->name ?? 'Unknown', $group->count(), number_format($group->sum('amount'), 2)];
+            }
+        } else {
+            $headers = ['Year', 'Patient Name', 'Total Bills', 'Total Amount'];
+            $rows = [];
+            $grouped = $billings->groupBy(fn ($billing) => $billing->billing_date->format('Y').'_'.$billing->patient_id);
+            foreach ($grouped as $key => $group) {
+                $year = explode('_', $key)[0];
+                $patient = $group->first()->patient;
+                $rows[] = [$year, $patient?->user?->name ?? 'Unknown', $group->count(), number_format($group->sum('amount'), 2)];
+            }
+        }
+
         $filename = 'billing_report_'.$startDate.'_to_'.$endDate.'.csv';
 
-        $headers = [
-            'Content-Type' => 'text/plain; charset=UTF-8',
-            'Content-Disposition' => 'inline; filename="'.$filename.'"',
-        ];
-
-        $callback = function () use ($billings, $groupBy) {
-            $file = fopen('php://output', 'w');
-
-            // Add CSV headers based on grouping
-            if ($groupBy === 'year') {
-                fputcsv($file, ['Year', 'Patient Name', 'Total Bills', 'Total Amount', 'Status']);
-            } elseif ($groupBy === 'month') {
-                fputcsv($file, ['Year-Month', 'Patient Name', 'Total Bills', 'Total Amount', 'Status']);
-            } else {
-                fputcsv($file, ['Date', 'Bill No', 'Patient Name', 'Amount', 'Status', 'Payment Method']);
-            }
-
-            if ($groupBy === 'day') {
-                // Day-by-day detailed view
-                foreach ($billings as $billing) {
-                    fputcsv($file, [
-                        $billing->billing_date->format('d/m/y'),
-                        $billing->bill_no,
-                        $billing->patient?->user?->name ?? 'Unknown',
-                        number_format($billing->amount, 2),
-                        $billing->status,
-                        $billing->payment_method ?? 'N/A',
-                    ]);
-                }
-            } elseif ($groupBy === 'month') {
-                // Group by year-month and patient
-                $grouped = $billings->groupBy(function ($billing) {
-                    return $billing->billing_date->format('Y-m').'_'.$billing->patient_id;
-                });
-
-                foreach ($grouped as $key => $group) {
-                    $parts = explode('_', $key);
-                    $yearMonth = $parts[0];
-                    $patient = $group->first()->patient;
-
-                    fputcsv($file, [
-                        $yearMonth,
-                        $patient?->user?->name ?? 'Unknown',
-                        $group->count(),
-                        number_format($group->sum('amount'), 2),
-                        'Mixed',
-                    ]);
-                }
-            } else {
-                // Group by year and patient
-                $grouped = $billings->groupBy(function ($billing) {
-                    return $billing->billing_date->format('Y').'_'.$billing->patient_id;
-                });
-
-                foreach ($grouped as $key => $group) {
-                    $parts = explode('_', $key);
-                    $year = $parts[0];
-                    $patient = $group->first()->patient;
-
-                    fputcsv($file, [
-                        $year,
-                        $patient?->user?->name ?? 'Unknown',
-                        $group->count(),
-                        number_format($group->sum('amount'), 2),
-                        'Mixed',
-                    ]);
-                }
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $this->renderExportHtml('Billing Report Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 }

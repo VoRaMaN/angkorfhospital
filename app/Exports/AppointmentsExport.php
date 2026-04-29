@@ -6,6 +6,8 @@ use App\Models\Appointment;
 
 class AppointmentsExport
 {
+    use \App\Traits\RendersExportHtml;
+
     protected $filters;
 
     public function __construct($filters = [])
@@ -60,32 +62,16 @@ class AppointmentsExport
 
         $appointments = $query->get();
 
-        // Create CSV content
-        $csvContent = $this->generateCsv($appointments);
-
+        $headers = ['Date', 'Time', 'ID', 'Name', 'Mobile', 'Doctor', 'Status', 'Reason', 'Comment'];
+        $rows = $this->buildRows($appointments);
         $filename = 'appointments-'.now()->format('Y-m-d-H-i-s').'.csv';
 
-        return response($csvContent)
-            ->header('Content-Type', 'text/plain; charset=UTF-8')
-            ->header('Content-Disposition', 'inline; filename="'.$filename.'"');
+        return $this->renderExportHtml('Appointments Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 
-    private function generateCsv($appointments)
+    private function buildRows($appointments): array
     {
-        $headers = [
-            'Date',
-            'Time',
-            'ID',
-            'Name',
-            'Mobile Number',
-            'Doctor',
-            'Status',
-            'Reason',
-            'Comment',
-        ];
-
-        $rows = [$headers];
-
+        $rows = [];
         foreach ($appointments as $appointment) {
             $title = $appointment->patient ? ($appointment->patient->title ? $appointment->patient->title.' ' : '') : '';
             $name = $appointment->patient ? trim(($appointment->patient->name ?? '').' '.($appointment->patient->surname ?? '')) : 'Unknown Patient';
@@ -118,7 +104,7 @@ class AppointmentsExport
                 $appointment->appointment_date_time ? \Carbon\Carbon::parse($appointment->appointment_date_time)->format('H:i') : '',
                 $appointment->patient ? $appointment->patient->id : '',
                 $title.$name,
-                $this->formatPhone($appointment->patient ? $appointment->patient->mobile_phone : ''),
+                $appointment->patient ? ($appointment->patient->mobile_phone ?? '') : '',
                 $appointment->staff ? ($appointment->staff->user ? $appointment->staff->user->name : ($appointment->staff->first_name.' '.$appointment->staff->last_name)) : 'Unknown Staff',
                 ucfirst($appointment->status->value),
                 $reason,
@@ -126,28 +112,6 @@ class AppointmentsExport
             ];
         }
 
-        // Convert to CSV string
-        $csv = '';
-        foreach ($rows as $row) {
-            $csv .= implode(',', array_map(function ($field) {
-                // Escape fields containing commas, quotes, or newlines
-                if (str_contains($field, ',') || str_contains($field, '"') || str_contains($field, "\n")) {
-                    return '"'.str_replace('"', '""', $field).'"';
-                }
-
-                return $field;
-            }, $row))."\n";
-        }
-
-        return $csv;
-    }
-
-    private function formatPhone(?string $phone): string
-    {
-        if (! $phone) {
-            return '';
-        }
-
-        return '="'.$phone.'"';
+        return $rows;
     }
 }

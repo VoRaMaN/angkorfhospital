@@ -6,6 +6,8 @@ use App\Models\Billing;
 
 class BillingsExport
 {
+    use \App\Traits\RendersExportHtml;
+
     protected $filters;
 
     public function __construct($filters = [])
@@ -49,14 +51,11 @@ class BillingsExport
 
         $billings = $query->orderBy('billing_date')->get();
 
+        $headers = ['Bill No', 'Billing Date', 'Patient ID', 'Patient Name', 'Medical Order Items', 'Total Amount', 'Status'];
         $rows = $this->buildRows($billings);
         $filename = 'billings-'.now()->format('Y-m-d-H-i-s').'.csv';
-        $csv = $this->generateCsv($rows);
 
-        return response($csv, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-        ]);
+        return $this->renderExportHtml('Billings Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 
     private function buildRows($billings): array
@@ -75,38 +74,16 @@ class BillingsExport
             }
 
             $rows[] = [
-                'bill_no' => $billing->bill_no ?? '',
-                'date' => $billing->billing_date ? $billing->billing_date->format('d/m/Y') : '',
-                'patient_id' => $patient ? $patient->id : '',
-                'patient' => $title.$name,
-                'items' => implode(', ', array_unique($itemNames)),
-                'amount' => number_format((float) $billing->amount, 2),
-                'status' => $billing->status instanceof \App\Enums\BillingStatusEnum ? ucfirst($billing->status->value) : ucfirst($billing->status),
+                $billing->bill_no ?? '',
+                $billing->billing_date ? $billing->billing_date->format('d/m/Y') : '',
+                $patient ? $patient->id : '',
+                $title.$name,
+                implode(', ', array_unique($itemNames)),
+                number_format((float) $billing->amount, 2),
+                $billing->status instanceof \App\Enums\BillingStatusEnum ? ucfirst($billing->status->value) : ucfirst($billing->status),
             ];
         }
 
         return $rows;
-    }
-
-    private function generateCsv(array $rows): string
-    {
-        $headers = ['Bill No', 'Billing Date', 'Patient ID', 'Patient Name', 'Medical Order Items', 'Total Amount', 'Status'];
-        $keys = ['bill_no', 'date', 'patient_id', 'patient', 'items', 'amount', 'status'];
-
-        $escape = function ($field) {
-            $field = str_replace('"', '""', (string) $field);
-            if (str_contains($field, ',') || str_contains($field, '"') || str_contains($field, "\n")) {
-                $field = '"'.$field.'"';
-            }
-
-            return $field;
-        };
-
-        $csv = implode(',', array_map($escape, $headers))."\n";
-        foreach ($rows as $row) {
-            $csv .= implode(',', array_map($escape, array_map(fn ($k) => $row[$k], $keys)))."\n";
-        }
-
-        return $csv;
     }
 }

@@ -6,6 +6,8 @@ use App\Models\ActivityLog;
 
 class ActivityLogExport
 {
+    use \App\Traits\RendersExportHtml;
+
     /** @var array<string, mixed> */
     protected array $filters;
 
@@ -40,34 +42,19 @@ class ActivityLogExport
 
         $logs = $query->get();
 
-        $csvContent = $this->generateCsv($logs);
-
+        $headers = ['ID', 'User', 'Action', 'Description', 'Model', 'Model ID', 'IP Address', 'User Agent', 'Date & Time'];
+        $rows = $this->buildRows($logs);
         $filename = 'activity-log-'.now()->format('Y-m-d-H-i-s').'.csv';
 
-        return response($csvContent)
-            ->header('Content-Type', 'text/plain; charset=UTF-8')
-            ->header('Content-Disposition', 'inline; filename="'.$filename.'"');
+        return $this->renderExportHtml('Activity Log Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }
 
     /**
      * @param  \Illuminate\Database\Eloquent\Collection<int, ActivityLog>  $logs
      */
-    private function generateCsv($logs): string
+    private function buildRows($logs): array
     {
-        $headers = [
-            'ID',
-            'User',
-            'Action',
-            'Description',
-            'Model',
-            'Model ID',
-            'IP Address',
-            'User Agent',
-            'Date & Time',
-        ];
-
-        $rows = [$headers];
-
+        $rows = [];
         foreach ($logs as $log) {
             $rows[] = [
                 $log->id,
@@ -82,18 +69,6 @@ class ActivityLogExport
             ];
         }
 
-        $csv = '';
-        foreach ($rows as $row) {
-            $csv .= implode(',', array_map(function ($field) {
-                $field = (string) $field;
-                if (str_contains($field, ',') || str_contains($field, '"') || str_contains($field, "\n")) {
-                    return '"'.str_replace('"', '""', $field).'"';
-                }
-
-                return $field;
-            }, $row))."\n";
-        }
-
-        return $csv;
+        return $rows;
     }
 }
