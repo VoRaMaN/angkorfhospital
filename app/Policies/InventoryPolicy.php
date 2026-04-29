@@ -12,7 +12,7 @@ class InventoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('doctor');
+        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('doctor') || $user->hasRole('pharmacist') || $user->hasRole('inventory');
     }
 
     /**
@@ -20,7 +20,7 @@ class InventoryPolicy
      */
     public function view(User $user, Inventory $inventory): bool
     {
-        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('doctor');
+        return $user->can('view_inventory') || $user->hasRole('admin') || $user->hasRole('doctor') || $user->hasRole('pharmacist') || $user->hasRole('inventory');
     }
 
     /**
@@ -28,7 +28,7 @@ class InventoryPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_inventory') || $user->hasRole('admin');
+        return $user->can('create_inventory') || $user->hasRole('admin') || $user->hasRole('pharmacist') || $user->hasRole('inventory');
     }
 
     /**
@@ -36,7 +36,7 @@ class InventoryPolicy
      */
     public function update(User $user, Inventory $inventory): bool
     {
-        return $user->can('edit_inventory') || $user->hasRole('admin');
+        return $user->can('edit_inventory') || $user->hasRole('admin') || $user->hasRole('pharmacist') || $user->hasRole('inventory');
     }
 
     /**
@@ -44,7 +44,7 @@ class InventoryPolicy
      */
     public function delete(User $user, Inventory $inventory): bool
     {
-        return $user->can('delete_inventory') || $user->hasRole('admin');
+        return $user->can('delete_inventory') || $user->hasRole('admin') || $user->hasRole('pharmacist') || $user->hasRole('inventory');
     }
 
     /**
