@@ -8,8 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, CheckCircle2, ChevronDown, ChevronRight, Download, Eye, FileText, Search, User } from 'lucide-vue-next';
+import { Calendar, CheckCircle2, ChevronDown, ChevronRight, Download, Eye, FileText, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { index as medicineReportIndex, exportMethod as medicineReportExport } from '@/routes/medicine-report';
 
@@ -104,10 +103,6 @@ const exportPatient = (patientId: number) => {
 
 const selectedOrder = ref<TodayDispensing | null>(null);
 
-const openOrderModal = (order: TodayDispensing) => {
-    selectedOrder.value = order;
-};
-
 const exportOrder = (order: TodayDispensing) => {
     const today = new Date().toISOString().slice(0, 10);
     window.open(medicineReportExport({ query: {
@@ -135,6 +130,17 @@ const togglePatient = (patientId: number) => {
         expandedPatients.value.splice(idx, 1);
     } else {
         expandedPatients.value.push(patientId);
+    }
+};
+
+const expandedOrders = ref<number[]>([]);
+
+const toggleOrder = (orderId: number) => {
+    const idx = expandedOrders.value.indexOf(orderId);
+    if (idx >= 0) {
+        expandedOrders.value.splice(idx, 1);
+    } else {
+        expandedOrders.value.push(orderId);
     }
 };
 </script>
@@ -230,110 +236,95 @@ const togglePatient = (patientId: number) => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <TableRow
-                                    v-for="order in props.todayDispensing"
-                                    :key="order.id"
-                                    :class="order.is_finished ? 'opacity-60' : ''"
-                                >
-                                    <TableCell class="font-mono text-sm">#{{ order.id }}</TableCell>
-                                    <TableCell class="text-sm text-muted-foreground">{{ order.ordered_at }}</TableCell>
-                                    <TableCell>
-                                        <span
-                                            :class="['inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', order.status_color]"
-                                        >
-                                            {{ order.status_label }}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <button
-                                            type="button"
-                                            class="flex items-center gap-1 font-medium text-primary underline-offset-2 hover:underline"
-                                            @click="openOrderModal(order)"
-                                        >
-                                            <User class="h-3.5 w-3.5 shrink-0" />
-                                            {{ order.patient_name }}
-                                        </button>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div class="flex justify-center gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                as-child
+                                <template v-for="order in props.todayDispensing" :key="order.id">
+                                    <TableRow :class="order.is_finished ? 'opacity-60' : ''">
+                                        <TableCell class="font-mono text-sm">#{{ order.id }}</TableCell>
+                                        <TableCell class="text-sm text-muted-foreground">{{ order.ordered_at }}</TableCell>
+                                        <TableCell>
+                                            <span :class="['inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', order.status_color]">
+                                                {{ order.status_label }}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <button
+                                                type="button"
+                                                class="flex items-center gap-1 font-medium text-primary underline-offset-2 hover:underline"
+                                                @click="toggleOrder(order.id)"
                                             >
-                                                <a :href="`/medical-orders/${order.id}/processing`">
-                                                    <Eye class="mr-1 h-3.5 w-3.5" />
-                                                    View
-                                                </a>
-                                            </Button>
-                                            <Button
-                                                v-if="!order.is_finished"
-                                                size="sm"
-                                                @click="finishDispensing(order.id)"
-                                                class="bg-green-600 hover:bg-green-700"
-                                            >
-                                                <CheckCircle2 class="mr-1 h-3.5 w-3.5" />
-                                                Finish
-                                            </Button>
-                                            <Badge v-else variant="outline" class="gap-1 border-green-600 text-green-600">
-                                                <CheckCircle2 class="h-3 w-3" />
-                                                Handed Over
-                                            </Badge>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
+                                                <ChevronDown v-if="expandedOrders.includes(order.id)" class="h-3.5 w-3.5 shrink-0" />
+                                                <ChevronRight v-else class="h-3.5 w-3.5 shrink-0" />
+                                                {{ order.patient_name }}
+                                            </button>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div class="flex justify-center gap-2">
+                                                <Button variant="outline" size="sm" as-child>
+                                                    <a :href="`/medical-orders/${order.id}/processing`">
+                                                        <Eye class="mr-1 h-3.5 w-3.5" />
+                                                        View
+                                                    </a>
+                                                </Button>
+                                                <Button
+                                                    v-if="!order.is_finished"
+                                                    size="sm"
+                                                    @click="finishDispensing(order.id)"
+                                                    class="bg-green-600 hover:bg-green-700"
+                                                >
+                                                    <CheckCircle2 class="mr-1 h-3.5 w-3.5" />
+                                                    Finish
+                                                </Button>
+                                                <Badge v-else variant="outline" class="gap-1 border-green-600 text-green-600">
+                                                    <CheckCircle2 class="h-3 w-3" />
+                                                    Handed Over
+                                                </Badge>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <!-- Expanded medicine detail -->
+                                    <TableRow v-if="expandedOrders.includes(order.id)">
+                                        <TableCell colspan="5" class="p-0 bg-muted/20">
+                                            <div class="px-10 py-3">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead>Medicine</TableHead>
+                                                            <TableHead class="text-right w-24">Qty</TableHead>
+                                                            <TableHead class="text-right w-32">Unit Price</TableHead>
+                                                            <TableHead class="text-right w-32">Total</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        <TableRow v-for="(med, i) in order.medicines" :key="i">
+                                                            <TableCell class="font-medium">{{ med.medicine_name }}</TableCell>
+                                                            <TableCell class="text-right">{{ med.quantity }}</TableCell>
+                                                            <TableCell class="text-right">{{ formatPrice(med.selling_price) }}</TableCell>
+                                                            <TableCell class="text-right font-semibold text-green-600">{{ formatPrice(med.total_cost) }}</TableCell>
+                                                        </TableRow>
+                                                        <TableRow class="bg-muted/50 font-semibold">
+                                                            <TableCell colspan="2">Total</TableCell>
+                                                            <TableCell></TableCell>
+                                                            <TableCell class="text-right text-green-600">
+                                                                {{ formatPrice(order.medicines.reduce((s, m) => s + m.total_cost, 0)) }}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                </Table>
+                                                <div class="mt-2 flex justify-end">
+                                                    <Button size="sm" variant="outline" @click="exportOrder(order)">
+                                                        <Download class="mr-1.5 h-3.5 w-3.5" />
+                                                        Export
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
                             </TableBody>
                         </Table>
                     </CardContent>
                 </Card>
             </div>
-
-            <!-- Patient Order Detail Modal -->
-            <Dialog :open="selectedOrder !== null" @update:open="(v) => { if (!v) selectedOrder = null; }">
-                <DialogContent class="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle class="flex items-center justify-between gap-2">
-                            <span>{{ selectedOrder?.patient_name }}</span>
-                            <Button
-                                v-if="selectedOrder"
-                                size="sm"
-                                variant="outline"
-                                @click="exportOrder(selectedOrder)"
-                            >
-                                <Download class="mr-1.5 h-3.5 w-3.5" />
-                                Export Excel
-                            </Button>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div v-if="selectedOrder" class="mt-2">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Medicine</TableHead>
-                                    <TableHead class="text-right">Qty</TableHead>
-                                    <TableHead class="text-right">Unit Price</TableHead>
-                                    <TableHead class="text-right">Total</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow v-for="(med, i) in selectedOrder.medicines" :key="i">
-                                    <TableCell class="font-medium">{{ med.medicine_name }}</TableCell>
-                                    <TableCell class="text-right">{{ med.quantity }}</TableCell>
-                                    <TableCell class="text-right">{{ formatPrice(med.selling_price) }}</TableCell>
-                                    <TableCell class="text-right font-semibold text-green-600">{{ formatPrice(med.total_cost) }}</TableCell>
-                                </TableRow>
-                                <TableRow class="bg-muted/50 font-semibold">
-                                    <TableCell colspan="2">Total</TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell class="text-right text-green-600">
-                                        {{ formatPrice(selectedOrder.medicines.reduce((s, m) => s + m.total_cost, 0)) }}
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </div>
-                </DialogContent>
-            </Dialog>
 
             <div v-if="(startDate && endDate) && medicineUsage.length === 0" class="rounded-lg border bg-muted/50 p-12 text-center">
                 <FileText class="mx-auto h-12 w-12 text-muted-foreground" />
