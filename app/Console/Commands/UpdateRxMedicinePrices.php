@@ -11,147 +11,148 @@ class UpdateRxMedicinePrices extends Command
 {
     protected $signature = 'inventory:update-rx-medicine-prices {--dry-run : Preview changes without updating}';
 
-    protected $description = 'Update RX medicine inventory selling prices from the latest price list';
+    protected $description = 'Update RX medicine inventory selling prices and quantities from the latest price list';
 
     public function handle(): int
     {
         $isDryRun = $this->option('dry-run');
 
-        $this->info('Starting RX Medicine Price Update...');
+        $this->info('Starting RX Medicine Price & Quantity Update...');
         $this->newLine();
 
         // Keyed by EXACT item_name as it exists in the inventories table
-        $priceUpdates = [
-            'Acide Folique 5mg' => 0.04,
-            'Albendazole 400mg' => 1.50,
-            'Albumin' => 70.00,
-            'Alphachymoral (1box=30tb)' => 0.08,
-            'Amoxicilline500mg' => 0.24,
-            'Aspririn 81mg' => 0.04,
-            'Atrophyl(Vagina Gel)' => 18.00,
-            'Azitro 500mg(1box=3c)' => 1.60,
-            'Baby-Genius Prenatal with DHA' => 10.00,
-            'Becozym inj' => 3.00,
-            'Bepantan inj' => 2.00,
-            'Besilan inj' => 2.00,
-            'Bromocriptine 25mg (Thai)' => 1.00,
-            'Cefixim 400mg (1box=5tb)' => 2.00,
-            'Ceftriaxone 1g(1box=10)' => 5.00,
-            'Cetrotide ( syring-injection )' => 86.00,
-            'Chlorpheniramine meleate 4mg(1box=100tb)' => 0.10,
-            'Cistomar' => 20.00,
-            'Cistomar(Syrup)' => 20.00,
-            'Clindamycine 300mg(1box=100tb)' => 1.00,
-            'Colpotropine 10mg (1 box=20tb)' => 1.00,
-            'Coriosurge XP 5000IU' => 35.00,
-            'Cytotec 200mg' => 2.20,
-            'D5%S 500ml (1box=20fl)' => 10.00,
-            'Dexamethasone injection' => 1.00,
-            'DHA Complex (Omega 3)' => 26.00,
-            'Dienogest 2mg' => 30.00,
-            'Diphereline (1box=7amp) (Thai)' => 70.00,
-            'Doxycycline 100mg (1box=100tb)' => 0.20,
-            'Duphastan(1box=20tb)' => 1.00,
-            'Engerix B' => 15.00,
-            'Erythromycin 500' => 0.32,
-            'Etocox (1box=20tb)90mg' => 1.50,
-            'Exotique(Box)' => 30.00,
-            'Femi ACT' => 20.00,
-            'Fentanyl 2ml Injection' => 10.00,
-            'Fenza(box)' => 20.00,
-            'Ferrobine (bottle)' => 20.00,
-            'Ferrobine (Complet tb)' => 15.00,
-            'Flagyl pessery (1box=10p)' => 1.00,
-            'Fluconazole 200mg' => 0.50,
-            'Fluex-3D' => 7.00,
-            'Folisurge 300IU' => 130.00,
-            'Folisurge 75IU' => 35.00,
-            'Folisurge 900IU' => 300.00,
-            'Gadasil' => 220.00,
-            'Glocuse(1box=10amp) 50%' => 2.00,
-            'Gonal F (syring)300IU' => 220.00,
-            'Gonal F (syring)450IU' => 260.00,
-            'HuCoG 5000IU (BOX)' => 35.00,
-            'Ibuprofen 400mg' => 0.20,
-            'IUD(កងដាក់ស្បុន)' => 50.00,
-            'Jadelle(កងដែ)' => 70.00,
-            'Ky Gel' => 5.00,
-            'Larose (vit C inj 1box/6amp)' => 3.60,
-            'Long time Gel Tube' => 15.00,
-            'LR 500(ml)' => 10.00,
-            'M2Tone' => 15.00,
-            'Magnispey (box)' => 20.00,
-            'Mavelon 21' => 10.00,
-            'Medabon box' => 20.00,
-            'Menntas HP 75IU' => 35.00,
-            'Metformin 500mg' => 0.20,
-            'Metronidazol 100ml injection' => 5.00,
-            'Metronidazol 500mg(1box=100tb)' => 0.10,
-            'Motilium (Domperidone 10mg)' => 0.40,
-            'Neo-Vigrimazone ( insert )box' => 7.00,
-            'NSS 1000ml(1big box=10fl)' => 15.00,
-            'NSS 100ml' => 2.00,
-            'NVEL FORT  Vaginal Insert' => 10.00,
-            'Oestro GeL' => 15.00,
-            'Osteohelp (box)' => 15.00,
-            'Ovitrell' => 70.00,
-            'Oxytocin (1box=10am)' => 1.00,
-            'Paracetamol (Bottara IV 100mg)' => 10.00,
-            'Physilac Mom' => 23.00,
-            'Ponstan 500mg (1box=250tb)' => 0.50,
-            'Prednisolone' => 0.12,
-            'Pregnacare' => 20.00,
-            'Pregnacare Max(box)' => 38.00,
-            'Pregnacare Plus' => 30.00,
-            'Pregnamar Pluse (box)' => 30.00,
-            'Presen 1box=30tb(pregmit)' => 0.50,
-            'Profertil50mg/10tb' => 10.00,
-            'Progyluton Box' => 15.00,
-            'Progynova 2mg (tablet)' => 0.36,
-            'Proluton Depot inj (Thai)' => 18.00,
-            'Propofol 50ML' => 30.00,
-            'Propofol Ampoul' => 20.00,
-            'Removpain (1box=5amp)' => 3.00,
-            'Rimona (Capsul)' => 13.00,
-            'Rimona (Sachets)' => 10.00,
-            'Salbutamol 20mg' => 0.20,
-            'Spasfon (1box=30tb)' => 2.50,
-            'SPasfon inj' => 0.40,
-            'Strallium bt' => 18.00,
-            'Tetanus (amp)' => 5.00,
-            'Tramadol inj' => 2.50,
-            'Tranex 500mg Injection(1box=10amp)' => 2.00,
-            'Tranex tablet' => 0.25,
-            'TTo Massage form tube' => 15.00,
-            'TTo Massage Gel tube' => 15.00,
-            'Tylenol 500mg ( 1can=325tb)' => 0.24,
-            'Ultra Co-Q10' => 25.00,
-            'Ultra Magnesium' => 15.00,
-            'Utrogestan 100mg' => 0.80,
-            'Utrogestan 200mg' => 1.60,
-            'V-Gel (tube)' => 7.00,
-            'Vitamin C (1box=100tb)' => 0.08,
-            'Yasmin box ( 1 box=21tb)' => 15.00,
+        // ['price' => selling_price, 'qty' => balance/stock from price list]
+        $items = [
+            'Acide Folique 5mg' => ['price' => 0.04,   'qty' => 3500],
+            'Albendazole 400mg' => ['price' => 1.50,   'qty' => 15],
+            'Albumin' => ['price' => 70.00,  'qty' => 5],
+            'Alphachymoral (1box=30tb)' => ['price' => 0.08,   'qty' => 45],
+            'Amoxicilline500mg' => ['price' => 0.24,   'qty' => 60],
+            'Aspririn 81mg' => ['price' => 0.04,   'qty' => 800],
+            'Atrophyl(Vagina Gel)' => ['price' => 18.00,  'qty' => 0],
+            'Azitro 500mg(1box=3c)' => ['price' => 1.60,   'qty' => 70],
+            'Baby-Genius Prenatal with DHA' => ['price' => 10.00,  'qty' => 35],
+            'Becozym inj' => ['price' => 3.00,   'qty' => 20],
+            'Bepantan inj' => ['price' => 2.00,   'qty' => 6],
+            'Besilan inj' => ['price' => 2.00,   'qty' => 6],
+            'Bromocriptine 25mg (Thai)' => ['price' => 1.00,   'qty' => 90],
+            'Cefixim 400mg (1box=5tb)' => ['price' => 2.00,   'qty' => 30],
+            'Ceftriaxone 1g(1box=10)' => ['price' => 5.00,   'qty' => 30],
+            'Cetrotide ( syring-injection )' => ['price' => 86.00,  'qty' => 20],
+            'Chlorpheniramine meleate 4mg(1box=100tb)' => ['price' => 0.10,   'qty' => 0],
+            'Cistomar' => ['price' => 20.00,  'qty' => 0],
+            'Cistomar(Syrup)' => ['price' => 20.00,  'qty' => 4],
+            'Clindamycine 300mg(1box=100tb)' => ['price' => 1.00,   'qty' => 140],
+            'Colpotropine 10mg (1 box=20tb)' => ['price' => 1.00,   'qty' => 0],
+            'Coriosurge XP 5000IU' => ['price' => 35.00,  'qty' => 30],
+            'Cytotec 200mg' => ['price' => 2.20,   'qty' => 28],
+            'D5%S 500ml (1box=20fl)' => ['price' => 10.00,  'qty' => 20],
+            'Dexamethasone injection' => ['price' => 1.00,   'qty' => 6],
+            'DHA Complex (Omega 3)' => ['price' => 26.00,  'qty' => 11],
+            'Dienogest 2mg' => ['price' => 30.00,  'qty' => 3],
+            'Diphereline (1box=7amp) (Thai)' => ['price' => 70.00,  'qty' => 93],
+            'Doxycycline 100mg (1box=100tb)' => ['price' => 0.20,   'qty' => 110],
+            'Duphastan(1box=20tb)' => ['price' => 1.00,   'qty' => 1500],
+            'Engerix B' => ['price' => 15.00,  'qty' => 0],
+            'Erythromycin 500' => ['price' => 0.32,   'qty' => 0],
+            'Etocox (1box=20tb)90mg' => ['price' => 1.50,   'qty' => 20],
+            'Exotique(Box)' => ['price' => 30.00,  'qty' => 45],
+            'Femi ACT' => ['price' => 20.00,  'qty' => 0],
+            'Fentanyl 2ml Injection' => ['price' => 10.00,  'qty' => 20],
+            'Fenza(box)' => ['price' => 20.00,  'qty' => 50],
+            'Ferrobine (bottle)' => ['price' => 20.00,  'qty' => 11],
+            'Ferrobine (Complet tb)' => ['price' => 15.00,  'qty' => 25],
+            'Flagyl pessery (1box=10p)' => ['price' => 1.00,   'qty' => 0],
+            'Fluconazole 200mg' => ['price' => 0.50,   'qty' => 32],
+            'Fluex-3D' => ['price' => 7.00,   'qty' => 40],
+            'Folisurge 300IU' => ['price' => 130.00, 'qty' => 4],
+            'Folisurge 75IU' => ['price' => 35.00,  'qty' => 0],
+            'Folisurge 900IU' => ['price' => 300.00, 'qty' => 16],
+            'Gadasil' => ['price' => 220.00, 'qty' => 5],
+            'Glocuse(1box=10amp) 50%' => ['price' => 2.00,   'qty' => 9],
+            'Gonal F (syring)300IU' => ['price' => 220.00, 'qty' => 0],
+            'Gonal F (syring)450IU' => ['price' => 260.00, 'qty' => 0],
+            'HuCoG 5000IU (BOX)' => ['price' => 35.00,  'qty' => 0],
+            'Ibuprofen 400mg' => ['price' => 0.20,   'qty' => 60],
+            'IUD(កងដាក់ស្បុន)' => ['price' => 50.00,  'qty' => 4],
+            'Jadelle(កងដែ)' => ['price' => 70.00,  'qty' => 4],
+            'Ky Gel' => ['price' => 5.00,   'qty' => 7],
+            'Larose (vit C inj 1box/6amp)' => ['price' => 3.60,   'qty' => 0],
+            'Long time Gel Tube' => ['price' => 15.00,  'qty' => 0],
+            'LR 500(ml)' => ['price' => 10.00,  'qty' => 15],
+            'M2Tone' => ['price' => 15.00,  'qty' => 4],
+            'Magnispey (box)' => ['price' => 20.00,  'qty' => 10],
+            'Mavelon 21' => ['price' => 10.00,  'qty' => 0],
+            'Medabon box' => ['price' => 20.00,  'qty' => 2],
+            'Menntas HP 75IU' => ['price' => 35.00,  'qty' => 117],
+            'Metformin 500mg' => ['price' => 0.20,   'qty' => 110],
+            'Metronidazol 100ml injection' => ['price' => 5.00,   'qty' => 0],
+            'Metronidazol 500mg(1box=100tb)' => ['price' => 0.10,   'qty' => 140],
+            'Motilium (Domperidone 10mg)' => ['price' => 0.40,   'qty' => 100],
+            'Neo-Vigrimazone ( insert )box' => ['price' => 7.00,   'qty' => 50],
+            'NSS 1000ml(1big box=10fl)' => ['price' => 15.00,  'qty' => 10],
+            'NSS 100ml' => ['price' => 2.00,   'qty' => 10],
+            'NVEL FORT  Vaginal Insert' => ['price' => 10.00,  'qty' => 14],
+            'Oestro GeL' => ['price' => 15.00,  'qty' => 3],
+            'Osteohelp (box)' => ['price' => 15.00,  'qty' => 3],
+            'Ovitrell' => ['price' => 70.00,  'qty' => 93],
+            'Oxytocin (1box=10am)' => ['price' => 1.00,   'qty' => 6],
+            'Paracetamol (Bottara IV 100mg)' => ['price' => 10.00,  'qty' => 15],
+            'Physilac Mom' => ['price' => 23.00,  'qty' => 0],
+            'Ponstan 500mg (1box=250tb)' => ['price' => 0.50,   'qty' => 200],
+            'Prednisolone' => ['price' => 0.12,   'qty' => 80],
+            'Pregnacare' => ['price' => 20.00,  'qty' => 0],
+            'Pregnacare Max(box)' => ['price' => 38.00,  'qty' => 22],
+            'Pregnacare Plus' => ['price' => 30.00,  'qty' => 0],
+            'Pregnamar Pluse (box)' => ['price' => 30.00,  'qty' => 15],
+            'Presen 1box=30tb(pregmit)' => ['price' => 0.50,   'qty' => 60],
+            'Profertil50mg/10tb' => ['price' => 10.00,  'qty' => 500],
+            'Progyluton Box' => ['price' => 15.00,  'qty' => 24],
+            'Progynova 2mg (tablet)' => ['price' => 0.36,   'qty' => 2000],
+            'Proluton Depot inj (Thai)' => ['price' => 18.00,  'qty' => 21],
+            'Propofol 50ML' => ['price' => 30.00,  'qty' => 10],
+            'Propofol Ampoul' => ['price' => 20.00,  'qty' => 0],
+            'Removpain (1box=5amp)' => ['price' => 3.00,   'qty' => 10],
+            'Rimona (Capsul)' => ['price' => 13.00,  'qty' => 40],
+            'Rimona (Sachets)' => ['price' => 10.00,  'qty' => 1],
+            'Salbutamol 20mg' => ['price' => 0.20,   'qty' => 0],
+            'Spasfon (1box=30tb)' => ['price' => 2.50,   'qty' => 0],
+            'SPasfon inj' => ['price' => 0.40,   'qty' => 5],
+            'Strallium bt' => ['price' => 18.00,  'qty' => 0],
+            'Tetanus (amp)' => ['price' => 5.00,   'qty' => 8],
+            'Tramadol inj' => ['price' => 2.50,   'qty' => 8],
+            'Tranex 500mg Injection(1box=10amp)' => ['price' => 2.00,   'qty' => 20],
+            'Tranex tablet' => ['price' => 0.25,   'qty' => 0],
+            'TTo Massage form tube' => ['price' => 15.00,  'qty' => 0],
+            'TTo Massage Gel tube' => ['price' => 15.00,  'qty' => 0],
+            'Tylenol 500mg ( 1can=325tb)' => ['price' => 0.24,   'qty' => 450],
+            'Ultra Co-Q10' => ['price' => 25.00,  'qty' => 21],
+            'Ultra Magnesium' => ['price' => 15.00,  'qty' => 0],
+            'Utrogestan 100mg' => ['price' => 0.80,   'qty' => 1686],
+            'Utrogestan 200mg' => ['price' => 1.60,   'qty' => 1500],
+            'V-Gel (tube)' => ['price' => 7.00,   'qty' => 6],
+            'Vitamin C (1box=100tb)' => ['price' => 0.08,   'qty' => 700],
+            'Yasmin box ( 1 box=21tb)' => ['price' => 15.00,  'qty' => 5],
         ];
 
         // New items not yet in the inventory — will be created
         $newItems = [
-            ['item_name' => 'NSS 0.9%/500ml',    'selling_price' => 10.00, 'unit_price' => 10.00],
-            ['item_name' => 'Doliprance 500mg',   'selling_price' => 0.30,  'unit_price' => 0.30],
-            ['item_name' => 'Atrophyl FOAM',      'selling_price' => 15.00, 'unit_price' => 15.00],
-            ['item_name' => 'Calcium Corbiere',   'selling_price' => 24.00, 'unit_price' => 24.00],
-            ['item_name' => 'Calcium Corbiere KID', 'selling_price' => 10.00, 'unit_price' => 10.00],
-            ['item_name' => 'Cerebral',           'selling_price' => 35.00, 'unit_price' => 35.00],
-            ['item_name' => 'Femax',              'selling_price' => 10.00, 'unit_price' => 10.00],
-            ['item_name' => 'Fercarrie inj',      'selling_price' => 27.00, 'unit_price' => 27.00],
-            ['item_name' => 'Fertigel',           'selling_price' => 25.00, 'unit_price' => 25.00],
-            ['item_name' => 'Gas-X',              'selling_price' => 0.16,  'unit_price' => 0.16],
-            ['item_name' => 'LIAN',               'selling_price' => 8.50,  'unit_price' => 8.50],
-            ['item_name' => 'Neurozap Plus',      'selling_price' => 15.00, 'unit_price' => 15.00],
-            ['item_name' => 'Ok inj',             'selling_price' => 4.00,  'unit_price' => 4.00],
-            ['item_name' => 'Tifla Fort',         'selling_price' => 12.00, 'unit_price' => 12.00],
-            ['item_name' => 'Vaxigrip Tetra',     'selling_price' => 25.00, 'unit_price' => 25.00],
-            ['item_name' => 'Max-D',              'selling_price' => 10.00, 'unit_price' => 10.00],
+            ['item_name' => 'NSS 0.9%/500ml',      'price' => 10.00, 'qty' => 0],
+            ['item_name' => 'Doliprance 500mg',     'price' => 0.30,  'qty' => 0],
+            ['item_name' => 'Atrophyl FOAM',        'price' => 15.00, 'qty' => 2],
+            ['item_name' => 'Calcium Corbiere',     'price' => 24.00, 'qty' => 6],
+            ['item_name' => 'Calcium Corbiere KID', 'price' => 10.00, 'qty' => 2],
+            ['item_name' => 'Cerebral',             'price' => 35.00, 'qty' => 0],
+            ['item_name' => 'Femax',                'price' => 10.00, 'qty' => 50],
+            ['item_name' => 'Fercarrie inj',        'price' => 27.00, 'qty' => 1],
+            ['item_name' => 'Fertigel',             'price' => 25.00, 'qty' => 15],
+            ['item_name' => 'Gas-X',                'price' => 0.16,  'qty' => 50],
+            ['item_name' => 'LIAN',                 'price' => 8.50,  'qty' => 50],
+            ['item_name' => 'Neurozap Plus',        'price' => 15.00, 'qty' => 25],
+            ['item_name' => 'Ok inj',               'price' => 4.00,  'qty' => 4],
+            ['item_name' => 'Tifla Fort',           'price' => 12.00, 'qty' => 30],
+            ['item_name' => 'Vaxigrip Tetra',       'price' => 25.00, 'qty' => 0],
+            ['item_name' => 'Max-D',                'price' => 10.00, 'qty' => 50],
         ];
 
         $updated = 0;
@@ -162,25 +163,33 @@ class UpdateRxMedicinePrices extends Command
 
         try {
             // Update existing items
-            foreach ($priceUpdates as $itemName => $newPrice) {
+            foreach ($items as $itemName => $data) {
                 $item = Inventory::where('type_of_supply', SupplyTypeEnum::RX_MEDICINE)
                     ->where('item_name', $itemName)
                     ->first();
 
                 if ($item) {
                     $oldPrice = (float) $item->selling_price;
+                    $oldQty = (int) $item->quantity;
+                    $newPrice = $data['price'];
+                    $newQty = $data['qty'];
 
-                    if ($oldPrice != $newPrice) {
+                    if ($oldPrice != $newPrice || $oldQty !== $newQty) {
                         $changes[] = [
                             'id' => $item->id,
                             'name' => $itemName,
                             'old_price' => $oldPrice,
                             'new_price' => $newPrice,
+                            'old_qty' => $oldQty,
+                            'new_qty' => $newQty,
                             'action' => 'UPDATE',
                         ];
 
                         if (! $isDryRun) {
-                            $item->update(['selling_price' => $newPrice]);
+                            $item->update([
+                                'selling_price' => $newPrice,
+                                'quantity' => $newQty,
+                            ]);
                             $updated++;
                         }
                     }
@@ -198,7 +207,9 @@ class UpdateRxMedicinePrices extends Command
                         'id' => '(new)',
                         'name' => $data['item_name'],
                         'old_price' => null,
-                        'new_price' => $data['selling_price'],
+                        'new_price' => $data['price'],
+                        'old_qty' => null,
+                        'new_qty' => $data['qty'],
                         'action' => 'CREATE',
                     ];
 
@@ -206,9 +217,9 @@ class UpdateRxMedicinePrices extends Command
                         Inventory::create([
                             'item_name' => $data['item_name'],
                             'type_of_supply' => SupplyTypeEnum::RX_MEDICINE,
-                            'unit_price' => $data['unit_price'],
-                            'selling_price' => $data['selling_price'],
-                            'quantity' => 0,
+                            'unit_price' => $data['price'],
+                            'selling_price' => $data['price'],
+                            'quantity' => $data['qty'],
                             'unit' => 'box',
                             'minimum_stock' => 5,
                         ]);
@@ -226,17 +237,19 @@ class UpdateRxMedicinePrices extends Command
 
             if (! empty($changes)) {
                 $this->table(
-                    ['ID', 'Item Name', 'Old Price', 'New Price', 'Action'],
+                    ['ID', 'Item Name', 'Old Price', 'New Price', 'Old Qty', 'New Qty', 'Action'],
                     array_map(fn ($c) => [
                         $c['id'],
                         $c['name'],
                         $c['old_price'] !== null ? '$'.number_format($c['old_price'], 2) : '—',
                         '$'.number_format($c['new_price'], 2),
+                        $c['old_qty'] ?? '—',
+                        $c['new_qty'],
                         $c['action'],
                     ], $changes)
                 );
             } else {
-                $this->info('All prices are already up to date — nothing to change.');
+                $this->info('All prices and quantities are already up to date — nothing to change.');
             }
 
             $this->newLine();
@@ -244,7 +257,7 @@ class UpdateRxMedicinePrices extends Command
             if ($isDryRun) {
                 $this->info('To apply changes, run: php artisan inventory:update-rx-medicine-prices');
             } else {
-                $this->info("✓ Updated {$updated} prices, created {$created} new items.");
+                $this->info("✓ Updated {$updated} items, created {$created} new items.");
             }
 
             return Command::SUCCESS;
