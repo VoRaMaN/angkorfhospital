@@ -73,6 +73,7 @@ class UpdateLabInventoryPrices extends Command
             'Harmony $800' => 800.00,
             'HbA1C' => 15.00,
             'HBs Ag' => 15.00,
+            'Hbs Ag' => 5.00,
             'Helicobacter Pylori' => 10.00,
             'Hemoglobin typing' => 29.00,
             'Hep B virus load' => 60.00,
@@ -87,7 +88,9 @@ class UpdateLabInventoryPrices extends Command
             'Magnesium' => 5.00,
             'Malaria Smear' => 2.00,
             'Mynids' => 800.00,
-            'Progesterone' => 30.00,
+            'NIPT all Types 400$' => 400.00,
+            'NIPT 5 Types 300$' => 300.00,
+            'Progesterone' => 15.00,
             'PROLACTIN' => 15.00,
             'Pus Culture' => 25.00,
             'RPR' => 15.00,
@@ -114,6 +117,8 @@ class UpdateLabInventoryPrices extends Command
             'VDRL (FTA-ABs-IgM)' => 15.00,
             'VDRL (RPR)' => 5.00,
             'Viral load Hep B' => 50.00,
+            'Vit B12' => 25.00,
+            'Vitamin D Total' => 40.00,
             // Skipping: X Fragile - $0.00
 
             // Sperm Lab
@@ -129,7 +134,7 @@ class UpdateLabInventoryPrices extends Command
             'Sperm Wash + Storage + DF' => 3000.00,
             'Storage' => 1000.00,
             'Vial per year' => 30.00,
-            'Washing Sperm Precaution (HIV)' => 1500.00,
+            'Washing Sperm Precaution (HIV)' => 3000.00,
             'Washing Sperm Precaution (VDRL & Hep B)' => 700.00,
 
             // Embryo Lab
@@ -159,6 +164,9 @@ class UpdateLabInventoryPrices extends Command
             'Pay extra for CGH (Promotion PGD Package)' => 1000.00,
             'PGD (Up to 10 Embryo)' => 4500.00,
             'PGD Extra per Embryo' => 300.00,
+            'PTG-A (Up to 10 Embryo)' => 5000.00,
+            'PTG-A Extra per Embryo' => 450.00,
+            'PTG-A (1-5 Embryos)' => 4000.00,
             'Thawing Media' => 460.00,
         ];
 
