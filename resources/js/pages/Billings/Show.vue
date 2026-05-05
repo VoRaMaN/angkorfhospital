@@ -27,7 +27,7 @@ import {
     RotateCcw,
     User,
 } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 interface Props {
@@ -39,6 +39,7 @@ interface Props {
         visit_id?: number;
         medical_order_id?: number;
         amount: number;
+        discount_amount: number;
         status: string;
         billing_date: string;
         notes: string;
@@ -110,6 +111,51 @@ const getStatusVariant = (status: string) => {
         default:
             return 'secondary';
     }
+};
+
+const subtotal = computed(() => props.billing.amount);
+const discountAmount = computed(() => props.billing.discount_amount ?? 0);
+const finalAmount = computed(() => subtotal.value - discountAmount.value);
+const discountPercent = computed(() =>
+    subtotal.value > 0 ? (discountAmount.value / subtotal.value) * 100 : 0,
+);
+
+const discountForm = ref({
+    discount_amount: (props.billing.discount_amount ?? 0).toString(),
+});
+const discountPercInput = ref(
+    subtotal.value > 0
+        ? (((props.billing.discount_amount ?? 0) / subtotal.value) * 100).toFixed(2)
+        : '0',
+);
+const savingDiscount = ref(false);
+
+const onDiscountUsdInput = (e: Event) => {
+    const val = parseFloat((e.target as HTMLInputElement).value) || 0;
+    discountForm.value.discount_amount = val.toString();
+    discountPercInput.value =
+        subtotal.value > 0 ? ((val / subtotal.value) * 100).toFixed(2) : '0';
+};
+
+const onDiscountPercInput = (e: Event) => {
+    const pct = parseFloat((e.target as HTMLInputElement).value) || 0;
+    const usd = (subtotal.value * pct) / 100;
+    discountForm.value.discount_amount = usd.toFixed(2);
+    discountPercInput.value = pct.toString();
+};
+
+const saveDiscount = () => {
+    savingDiscount.value = true;
+    router.patch(
+        `/billings/${props.billing.id}/discount`,
+        { discount_amount: parseFloat(discountForm.value.discount_amount) || 0 },
+        {
+            preserveState: false,
+            onFinish: () => {
+                savingDiscount.value = false;
+            },
+        },
+    );
 };
 
 const showSendBackDialog = ref(false);
@@ -235,11 +281,10 @@ const sendBackToNurse = () => {
                                     Amount
                                 </p>
                                 <p class="text-2xl font-bold">
-                                    {{
-                                        formatCurrency(
-                                            props.billing.amount,
-                                        )
-                                    }}
+                                    {{ formatCurrency(finalAmount) }}
+                                </p>
+                                <p v-if="discountAmount > 0" class="text-sm text-green-600 dark:text-green-400">
+                                    Discount: -{{ formatCurrency(discountAmount) }} ({{ discountPercent.toFixed(1) }}%)
                                 </p>
                             </div>
                         </div>
@@ -385,6 +430,46 @@ const sendBackToNurse = () => {
                     </div>
                 </div>
 
+                <!-- Discount Section -->
+                <div v-if="hasPermission('edit_billings') && props.billing.status !== 'paid'" class="rounded-lg border bg-card p-6">
+                    <h3 class="text-lg font-semibold mb-4">Discount</h3>
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium">Discount (USD)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                :max="props.billing.amount"
+                                step="0.01"
+                                :value="discountForm.discount_amount"
+                                @input="onDiscountUsdInput"
+                                class="flex h-9 w-36 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                placeholder="0.00"
+                            />
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium">Discount (%)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                :value="discountPercInput"
+                                @input="onDiscountPercInput"
+                                class="flex h-9 w-28 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                placeholder="0.00"
+                            />
+                        </div>
+                        <Button @click="saveDiscount" :disabled="savingDiscount" size="sm">
+                            {{ savingDiscount ? 'Saving...' : 'Save Discount' }}
+                        </Button>
+                    </div>
+                    <div v-if="discountAmount > 0" class="mt-4 rounded-md bg-green-50 dark:bg-green-950/20 p-3 text-sm">
+                        <span class="text-green-700 dark:text-green-400 font-medium">Applied: -{{ formatCurrency(discountAmount) }} ({{ discountPercent.toFixed(2) }}%)</span>
+                        <span class="text-muted-foreground ml-2">→ Net total: {{ formatCurrency(finalAmount) }}</span>
+                    </div>
+                </div>
+
                 <!-- Cost Breakdown -->
                 <div v-if="props.costBreakdown" class="rounded-lg border bg-card p-6">
                     <h3 class="text-lg font-semibold mb-4">Cost Breakdown</h3>
@@ -438,12 +523,18 @@ const sendBackToNurse = () => {
                         </div>
 
                         <!-- Total -->
-                        <div class="border-t pt-4 mt-6">
+                        <div class="border-t pt-4 mt-6 space-y-2">
                             <div class="flex items-center justify-between">
+                                <div class="text-sm text-muted-foreground">Subtotal</div>
+                                <div class="text-sm">{{ formatCurrency(props.costBreakdown.total) }}</div>
+                            </div>
+                            <div v-if="discountAmount > 0" class="flex items-center justify-between text-green-600 dark:text-green-400">
+                                <div class="text-sm">Discount ({{ discountPercent.toFixed(2) }}%)</div>
+                                <div class="text-sm">-{{ formatCurrency(discountAmount) }}</div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t">
                                 <div class="text-lg font-semibold">Total Amount</div>
-                                <div class="text-2xl font-bold">
-                                    {{ formatCurrency(props.costBreakdown.total) }}
-                                </div>
+                                <div class="text-2xl font-bold">{{ formatCurrency(finalAmount) }}</div>
                             </div>
                         </div>
                     </div>

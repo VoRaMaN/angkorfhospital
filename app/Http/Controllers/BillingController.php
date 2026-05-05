@@ -220,6 +220,7 @@ class BillingController extends Controller
             'visit_id' => $billing->visit_id,
             'medical_order_id' => $billing->medical_order_id,
             'amount' => $billing->amount,
+            'discount_amount' => $billing->discount_amount ?? 0,
             'status' => $billing->status,
             'billing_date' => $billing->billing_date ? \Carbon\Carbon::parse($billing->billing_date)->toDateString() : null,
             'notes' => $billing->notes,
@@ -500,6 +501,19 @@ class BillingController extends Controller
     /**
      * Generate a simple billing letter as PDF.
      */
+    public function applyDiscount(Request $request, Billing $billing): \Illuminate\Http\RedirectResponse
+    {
+        $this->authorize('update', $billing);
+
+        $request->validate([
+            'discount_amount' => 'required|numeric|min:0|max:'.(float) $billing->amount,
+        ]);
+
+        $billing->update(['discount_amount' => $request->discount_amount]);
+
+        return redirect()->back()->with('success', 'Discount applied successfully.');
+    }
+
     public function generateLetter(Billing $billing): \Illuminate\Http\Response
     {
         $this->authorize('view', $billing);

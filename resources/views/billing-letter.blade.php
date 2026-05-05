@@ -228,17 +228,31 @@
                 </tr>
             @endif
             <tr class="total-row">
-                <td class="description">Total</td>
+                <td class="description">Subtotal</td>
                 <td class="amount">{{ number_format($billing->amount, 2) }}</td>
                 <td class="discount"></td>
                 <td class="net">{{ number_format($billing->amount, 2) }}</td>
+            </tr>
+            @if($billing->discount_amount > 0)
+            <tr>
+                <td class="description" style="color:#006600;">Discount ({{ number_format(($billing->discount_amount / $billing->amount) * 100, 2) }}%)</td>
+                <td class="amount"></td>
+                <td class="discount" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
+                <td class="net" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
+            </tr>
+            @endif
+            <tr class="total-row">
+                <td class="description">Total</td>
+                <td class="amount">{{ number_format($billing->amount, 2) }}</td>
+                <td class="discount">{{ $billing->discount_amount > 0 ? '-'.number_format($billing->discount_amount, 2) : '' }}</td>
+                <td class="net">{{ number_format($billing->amount - $billing->discount_amount, 2) }}</td>
             </tr>
         </tbody>
     </table>
 
     <!-- Total in Words -->
     <div class="total-words">
-        Total amount in letters: <strong>{{ ucwords(convertNumberToWords($billing->amount)) }} USD</strong>
+        Total amount in letters: <strong>{{ ucwords(convertNumberToWords($billing->amount - $billing->discount_amount)) }} USD</strong>
     </div>
 
     <!-- Footer Note -->

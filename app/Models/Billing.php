@@ -19,6 +19,7 @@ class Billing extends Model
         'medical_order_id',
         'doctor_id',
         'amount',
+        'discount_amount',
         'status',
         'billing_date',
         'notes',
@@ -28,6 +29,7 @@ class Billing extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'billing_date' => 'date',
             'status' => \App\Enums\BillingStatusEnum::class,
         ];
