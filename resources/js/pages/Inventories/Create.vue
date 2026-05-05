@@ -143,6 +143,9 @@ const form = useForm({
                                     <SelectItem value="liters"
                                         >Liters</SelectItem
                                     >
+                                    <SelectItem value="ompul"
+                                        >Ompul</SelectItem
+                                    >
                                 </SelectContent>
                             </Select>
                         </div>

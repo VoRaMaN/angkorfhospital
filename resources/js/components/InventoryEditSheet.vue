@@ -201,6 +201,7 @@ const formatExpiryStatus = (item: InventoryItem) => {
                                     <SelectItem value="capsules">Capsules</SelectItem>
                                     <SelectItem value="vials">Vials</SelectItem>
                                     <SelectItem value="tubes">Tubes</SelectItem>
+                                    <SelectItem value="ompul">Ompul</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
