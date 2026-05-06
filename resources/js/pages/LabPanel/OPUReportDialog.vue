@@ -571,37 +571,6 @@ const save = () => {
                             </div>
                         </div>
 
-                        <!-- ── Embryo Development Grading Legend ─────────── -->
-                        <div class="rounded-xl border p-4">
-                            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development Grading</h3>
-                            <div class="mb-4 grid grid-cols-5 gap-3">
-                                <div v-for="day in [1,2,3,4,5]" :key="day" class="text-center">
-                                    <p class="mb-2 text-xs font-medium text-muted-foreground">Day {{ day }}</p>
-                                    <img
-                                        :src="`/images/embryo-grading/day${day}.png`"
-                                        :alt="`Day ${day} embryo`"
-                                        class="mx-auto h-16 w-16 rounded-lg object-contain border bg-white dark:bg-white/10"
-                                        @error="(e) => (e.target as HTMLImageElement).src = '/images/embryo-grading/placeholder.png'"
-                                    />
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                                <div>
-                                    <p><strong class="text-foreground">Cleavage (Day 1–3):</strong></p>
-                                    <p>g4 = grade 4 (Very good embryo)</p>
-                                    <p>g3 = grade 3 (Good embryo)</p>
-                                    <p>g2 = grade 2 (Fair embryo)</p>
-                                    <p>g1 = grade 1 (Not good embryo)</p>
-                                </div>
-                                <div>
-                                    <p><strong class="text-foreground">Blastocyst (Day 4–5):</strong></p>
-                                    <p>A = Very good</p>
-                                    <p>B = Good</p>
-                                    <p>C = Fair</p>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- ── Embryo for ET ──────────────────────────────── -->
                         <div class="rounded-xl border p-4">
                             <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo for ET (Embryo Transfer)</h3>
@@ -649,6 +618,37 @@ const save = () => {
                                 <div class="flex items-center gap-2 pt-2">
                                     <Checkbox id="assisted_hatching" v-model:checked="form.assisted_hatching" />
                                     <Label for="assisted_hatching" class="cursor-pointer text-sm">Assisted Hatching</Label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Embryo Development Grading Legend ─────────── -->
+                        <div class="rounded-xl border p-4">
+                            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development Grading</h3>
+                            <div class="mb-4 grid grid-cols-5 gap-3">
+                                <div v-for="day in [1,2,3,4,5]" :key="day" class="text-center">
+                                    <p class="mb-2 text-xs font-medium text-muted-foreground">Day {{ day }}</p>
+                                    <img
+                                        :src="`/images/embryo-grading/day${day}.png`"
+                                        :alt="`Day ${day} embryo`"
+                                        class="mx-auto h-16 w-16 rounded-lg object-contain border bg-white dark:bg-white/10"
+                                        @error="(e) => (e.target as HTMLImageElement).src = '/images/embryo-grading/placeholder.png'"
+                                    />
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                                <div>
+                                    <p><strong class="text-foreground">Cleavage (Day 1–3):</strong></p>
+                                    <p>g4 = grade 4 (Very good embryo)</p>
+                                    <p>g3 = grade 3 (Good embryo)</p>
+                                    <p>g2 = grade 2 (Fair embryo)</p>
+                                    <p>g1 = grade 1 (Not good embryo)</p>
+                                </div>
+                                <div>
+                                    <p><strong class="text-foreground">Blastocyst (Day 4–5):</strong></p>
+                                    <p>A = Very good</p>
+                                    <p>B = Good</p>
+                                    <p>C = Fair</p>
                                 </div>
                             </div>
                         </div>
