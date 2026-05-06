@@ -16,6 +16,14 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <AppShell variant="sidebar">
+        <!-- Animated blob background — shown via CSS only in .modern theme -->
+        <div class="modern-blobs" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
         <AppSidebar />
         <AppContent variant="sidebar" class="overflow-x-hidden">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
