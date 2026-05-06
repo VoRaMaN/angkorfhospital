@@ -415,6 +415,7 @@ const selectedRxCount = computed(() => selectedRxItems.value.length);
 const showMedicineGroupDialog = ref(false);
 const selectedMedicineGroupIds = ref<number[]>([]);
 const medicineGroupIncludePackage = ref(false);
+const medicineGroupSearchQuery = ref('');
 
 const toggleMedicineGroup = (groupId: number, checked: boolean) => {
     if (checked) {
@@ -501,6 +502,21 @@ const addSelectedSpecialItems = () => {
 };
 
 const selectedSpecialItemCount = computed(() => selectedSpecialItemIds.value.length);
+
+// Filtered medicine groups and special items
+const filteredMedicineGroups = computed(() =>
+    props.medicineGroups.filter((group) =>
+        group.name.toLowerCase().includes(medicineGroupSearchQuery.value.toLowerCase()) ||
+        (group.description && group.description.toLowerCase().includes(medicineGroupSearchQuery.value.toLowerCase())),
+    ),
+);
+
+const filteredSpecialItems = computed(() =>
+    props.specialItems.filter((item) =>
+        item.name.toLowerCase().includes(medicineGroupSearchQuery.value.toLowerCase()) ||
+        (item.description && item.description.toLowerCase().includes(medicineGroupSearchQuery.value.toLowerCase())),
+    ),
+);
 
 // Filtered RX medicines
 const filteredRxMedicines = computed(() => {
@@ -1179,7 +1195,7 @@ const submitForm = () => {
                                 <Pill class="size-4" />
                                 Add RX Medicines
                             </Button>
-                            <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = true">
+                            <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = true; medicineGroupSearchQuery = ''">
                                 <Package class="size-4" />
                                 Add Special Items
                             </Button>
@@ -1553,7 +1569,7 @@ const submitForm = () => {
                                         <CardDescription>Choose a pre-configured special items group</CardDescription>
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedSpecialItemIds = []">
+                                        <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedSpecialItemIds = []; medicineGroupSearchQuery = ''">
                                             Cancel
                                         </Button>
                                         <Button type="button" size="sm" @click="selectedMedicineGroupIds.length > 0 ? addSelectedMedicineGroups() : addSelectedSpecialItems()" :disabled="selectedMedicineGroupCount === 0 && selectedSpecialItemCount === 0">
@@ -1564,6 +1580,14 @@ const submitForm = () => {
                             </CardHeader>
                             <CardContent>
                                 <div class="space-y-4">
+                                    <!-- Search -->
+                                    <div class="mb-2">
+                                        <div class="relative">
+                                            <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-muted-foreground" />
+                                            <Input v-model="medicineGroupSearchQuery" placeholder="Search special items..." class="pl-10" />
+                                        </div>
+                                    </div>
+
                                     <!-- Include Package Toggle -->
                                     <div class="flex items-center space-x-2 p-3 rounded-md bg-muted/50">
                                         <input
@@ -1577,10 +1601,10 @@ const submitForm = () => {
                                         </label>
                                     </div>
 
-                                    <div v-if="medicineGroups.length > 0">
+                                    <div v-if="filteredMedicineGroups.length > 0">
                                         <div class="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wide">Medicine Groups</div>
                                     </div>
-                                    <div v-for="group in medicineGroups" :key="group.id"
+                                    <div v-for="group in filteredMedicineGroups" :key="group.id"
                                         class="rounded-md border p-4 hover:bg-accent cursor-pointer"
                                         :class="{ 'border-primary bg-primary/5': selectedMedicineGroupIds.includes(group.id) }"
                                         @click="toggleMedicineGroup(group.id, !selectedMedicineGroupIds.includes(group.id)); selectedSpecialItemIds = selectedSpecialItemIds.filter(() => true)">
@@ -1629,18 +1653,18 @@ const submitForm = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div v-if="medicineGroups.length === 0 && specialItems.length === 0" class="py-8 text-center text-muted-foreground">
+                                    <div v-if="filteredMedicineGroups.length === 0 && filteredSpecialItems.length === 0" class="py-8 text-center text-muted-foreground">
                                         No special items available
                                     </div>
 
                                     <!-- Special Items (single items with custom pricing) -->
-                                    <div v-if="specialItems.length > 0">
+                                    <div v-if="filteredSpecialItems.length > 0">
                                         <div class="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wide">Individual Special Items</div>
                                         <div class="space-y-3">
-                                            <div v-for="item in specialItems" :key="`si-${item.id}`"
+                                            <div v-for="item in filteredSpecialItems" :key="`si-${item.id}`"
                                                 class="rounded-md border p-4 hover:bg-accent cursor-pointer"
                                                 :class="{ 'border-primary bg-primary/5': selectedSpecialItemIds.includes(item.id) }"
-                                                @click="toggleSpecialItem(item.id, !selectedSpecialItemIds.includes(item.id)); selectedMedicineGroupId = null">
+                                                @click="toggleSpecialItem(item.id, !selectedSpecialItemIds.includes(item.id))">
                                                 <div class="flex items-start justify-between">
                                                     <div class="flex-1">
                                                         <div class="flex items-center gap-2">
@@ -1648,7 +1672,7 @@ const submitForm = () => {
                                                                 type="checkbox"
                                                                 :id="`special-item-${item.id}`"
                                                                 :checked="selectedSpecialItemIds.includes(item.id)"
-                                                                @change="toggleSpecialItem(item.id, ($event.target as HTMLInputElement).checked); selectedMedicineGroupId = null"
+                                                                @change="toggleSpecialItem(item.id, ($event.target as HTMLInputElement).checked)"
                                                                 class="h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                                                             />
                                                             <label :for="`special-item-${item.id}`" class="font-medium cursor-pointer">
