@@ -170,16 +170,12 @@ const deleteVisit = () => {
 
 const getStatusColor = (status: string) => {
     switch (status) {
-        case 'pending':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'in_progress':
-            return 'bg-blue-100 text-blue-800';
-        case 'completed':
-            return 'bg-green-100 text-green-800';
-        case 'cancelled':
-            return 'bg-red-100 text-red-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
+        case 'pending':             return 'bg-amber-100 text-amber-700 border border-amber-200';
+        case 'in_progress':         return 'bg-sky-100 text-sky-700 border border-sky-200';
+        case 'awaiting_accountant': return 'bg-teal-100 text-teal-700 border border-teal-200';
+        case 'completed':           return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+        case 'cancelled':           return 'bg-rose-100 text-rose-700 border border-rose-200';
+        default:                    return 'bg-slate-100 text-slate-500 border border-slate-200';
     }
 };
 </script>

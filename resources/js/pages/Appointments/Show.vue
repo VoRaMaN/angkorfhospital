@@ -94,23 +94,16 @@ const cancelStatusUpdate = () => {
 // Helper functions for colors
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-        scheduled:
-            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-        confirmed:
-            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-        arrived:
-            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-        in_progress:
-            'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-        completed:
-            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-        cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-        no_show:
-            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-        rescheduled:
-            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+        scheduled:   'bg-blue-100 text-blue-700 border border-blue-200',
+        confirmed:   'bg-emerald-100 text-emerald-700 border border-emerald-200',
+        arrived:     'bg-amber-100 text-amber-700 border border-amber-200',
+        in_progress: 'bg-sky-100 text-sky-700 border border-sky-200',
+        completed:   'bg-emerald-100 text-emerald-700 border border-emerald-200',
+        cancelled:   'bg-rose-100 text-rose-700 border border-rose-200',
+        no_show:     'bg-purple-100 text-purple-700 border border-purple-200',
+        rescheduled: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || 'bg-slate-100 text-slate-500 border border-slate-200';
 };
 
 const getTypeColor = (type: string) => {

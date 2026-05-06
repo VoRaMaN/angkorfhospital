@@ -845,14 +845,11 @@ const getStatusIcon = (status: string) => {
 
 const getStatusColor = (status: string) => {
     switch (status) {
-        case 'completed':
-            return 'text-green-600';
-        case 'processing':
-            return 'text-blue-600';
-        case 'pending':
-            return 'text-yellow-600';
-        default:
-            return 'text-gray-600';
+        case 'completed':  return 'text-emerald-600';
+        case 'processing': return 'text-sky-600';
+        case 'pending':    return 'text-amber-600';
+        case 'rejected':   return 'text-rose-600';
+        default:           return 'text-slate-500';
     }
 };
 

@@ -137,22 +137,24 @@ const paginationLinks = computed(() => {
     return props.labPanels.links.filter((link) => link.url);
 });
 
-const statusBadgeVariant = (status: string) => {
+const statusBadgeClass = (status: string) => {
     switch (status) {
-        case 'pending': return 'secondary' as const;
-        case 'processing': return 'default' as const;
-        case 'completed': return 'outline' as const;
-        default: return 'secondary' as const;
+        case 'pending':    return 'bg-amber-100 text-amber-700 border border-amber-200';
+        case 'processing': return 'bg-sky-100 text-sky-700 border border-sky-200';
+        case 'completed':  return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+        default:           return 'bg-slate-100 text-slate-500 border border-slate-200';
     }
 };
 
-const priorityBadgeVariant = (priority: string) => {
+const priorityBadgeClass = (priority: string) => {
     switch (priority) {
-        case 'urgent': return 'destructive' as const;
-        case 'high': return 'destructive' as const;
-        case 'normal': return 'default' as const;
-        case 'low': return 'secondary' as const;
-        default: return 'secondary' as const;
+        case 'urgent': return 'bg-orange-100 text-orange-700 border border-orange-200';
+        case 'high':   return 'bg-orange-100 text-orange-700 border border-orange-200';
+        case 'stat':   return 'bg-rose-100 text-rose-700 border border-rose-200';
+        case 'normal': return 'bg-blue-100 text-blue-600 border border-blue-200';
+        case 'routine':return 'bg-blue-100 text-blue-600 border border-blue-200';
+        case 'low':    return 'bg-slate-100 text-slate-500 border border-slate-200';
+        default:       return 'bg-slate-100 text-slate-500 border border-slate-200';
     }
 };
 
@@ -274,11 +276,11 @@ const saveResult = (orderId: number, itemId: number) => {
                                     </p>
                                 </div>
                                 <div class="flex gap-1.5">
-                                    <Badge :variant="priorityBadgeVariant(order.priority)">
+                                    <Badge :class="priorityBadgeClass(order.priority)">
                                         <AlertCircle v-if="order.priority === 'urgent' || order.priority === 'stat'" class="mr-1 size-3" />
                                         {{ order.priority_label }}
                                     </Badge>
-                                    <Badge :variant="statusBadgeVariant(order.status)">
+                                    <Badge :class="statusBadgeClass(order.status)">
                                         {{ order.status_label }}
                                     </Badge>
                                 </div>
@@ -312,7 +314,7 @@ const saveResult = (orderId: number, itemId: number) => {
                                             <p v-if="item.result_notes && item.status === 'completed'" class="text-xs text-muted-foreground italic">{{ item.result_notes }}</p>
                                         </div>
                                         <div class="flex shrink-0 items-center gap-1.5">
-                                            <Badge :variant="statusBadgeVariant(item.status)" class="text-xs">
+                                            <Badge :class="[statusBadgeClass(item.status), 'text-xs']">
                                                 {{ item.status_label }}
                                             </Badge>
                                             <Button

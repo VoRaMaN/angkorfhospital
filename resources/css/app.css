@@ -592,43 +592,8 @@
 }
 
 /* ── Modern Theme: Animated blob background ─────────────────── */
-@keyframes modern-blob-1 {
-    0%   { transform: translate(0%, 0%)    scale(1.00); }
-    20%  { transform: translate(12%, -8%)  scale(1.18); }
-    40%  { transform: translate(22%, 14%)  scale(0.88); }
-    60%  { transform: translate(-8%, 20%)  scale(1.12); }
-    80%  { transform: translate(-18%, 4%)  scale(0.95); }
-    100% { transform: translate(0%, 0%)    scale(1.00); }
-}
-
-@keyframes modern-blob-2 {
-    0%   { transform: translate(0%, 0%)    scale(1.00); }
-    25%  { transform: translate(-14%, 10%) scale(1.22); }
-    50%  { transform: translate(10%, 22%)  scale(0.90); }
-    75%  { transform: translate(18%, -12%) scale(1.10); }
-    100% { transform: translate(0%, 0%)    scale(1.00); }
-}
-
-@keyframes modern-blob-3 {
-    0%   { transform: translate(0%, 0%)    scale(1.00); }
-    30%  { transform: translate(16%, 14%)  scale(0.85); }
-    60%  { transform: translate(-20%, 6%)  scale(1.20); }
-    100% { transform: translate(0%, 0%)    scale(1.00); }
-}
-
-@keyframes modern-blob-4 {
-    0%   { transform: translate(0%, 0%)    scale(1.00); }
-    33%  { transform: translate(-10%, -16%) scale(1.15); }
-    66%  { transform: translate(14%, 10%)   scale(0.92); }
-    100% { transform: translate(0%, 0%)    scale(1.00); }
-}
-
-@keyframes modern-blob-5 {
-    0%   { transform: translate(0%, 0%)   scale(1.00); }
-    40%  { transform: translate(20%, -10%) scale(1.18); }
-    80%  { transform: translate(-6%, 18%) scale(0.88); }
-    100% { transform: translate(0%, 0%)   scale(1.00); }
-}
+/* Movement is driven by JavaScript (AppSidebarLayout.vue).      */
+/* CSS defines initial positions, colours, blur, and opacity.    */
 
 /* blob layer wrapper — hidden in all themes, shown only in .modern */
 .modern-blobs {
@@ -647,45 +612,43 @@
 .modern-blobs span {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(80px);
-    opacity: 0.55;
-    will-change: transform;
+    filter: blur(72px);
+    opacity: 0.60;
+    will-change: transform, border-radius;
+    /* transition is set dynamically per move by JS */
 }
 
+/* Initial positions & colours */
 .modern-blobs span:nth-child(1) {
-    width: 520px; height: 520px;
-    top: -10%;  left: -8%;
-    background: radial-gradient(circle, hsl(200 90% 72%) 0%, hsl(220 85% 78%) 100%);
-    animation: modern-blob-1 22s ease-in-out infinite;
+    width: 560px; height: 560px;
+    top: -6%;  left: -6%;
+    background: radial-gradient(circle, hsl(200 92% 68%) 0%, hsl(218 88% 76%) 100%);
 }
 
 .modern-blobs span:nth-child(2) {
-    width: 480px; height: 480px;
-    top: 10%;  right: -10%;
-    background: radial-gradient(circle, hsl(230 80% 78%) 0%, hsl(260 70% 82%) 100%);
-    animation: modern-blob-2 28s ease-in-out infinite;
+    width: 500px; height: 500px;
+    top: 8%;  right: -8%;
+    background: radial-gradient(circle, hsl(232 80% 74%) 0%, hsl(262 70% 80%) 100%);
 }
 
 .modern-blobs span:nth-child(3) {
-    width: 400px; height: 400px;
-    bottom: 5%;  left: 20%;
-    background: radial-gradient(circle, hsl(185 75% 70%) 0%, hsl(210 80% 76%) 100%);
-    animation: modern-blob-3 32s ease-in-out infinite;
+    width: 440px; height: 440px;
+    bottom: 2%;  left: 18%;
+    background: radial-gradient(circle, hsl(184 78% 66%) 0%, hsl(208 82% 74%) 100%);
 }
 
 .modern-blobs span:nth-child(4) {
-    width: 360px; height: 360px;
-    top: 45%;  left: 55%;
-    background: radial-gradient(circle, hsl(215 85% 80%) 0%, hsl(240 75% 84%) 100%);
-    animation: modern-blob-4 25s ease-in-out infinite;
+    width: 380px; height: 380px;
+    top: 42%;  left: 52%;
+    background: radial-gradient(circle, hsl(216 86% 78%) 0%, hsl(242 76% 82%) 100%);
 }
 
 .modern-blobs span:nth-child(5) {
-    width: 300px; height: 300px;
-    top: 20%;  left: 38%;
-    background: radial-gradient(circle, hsl(195 85% 74%) 0%, hsl(225 78% 80%) 100%);
-    animation: modern-blob-5 19s ease-in-out infinite;
+    width: 320px; height: 320px;
+    top: 18%;  left: 35%;
+    background: radial-gradient(circle, hsl(196 86% 72%) 0%, hsl(226 80% 78%) 100%);
 }
+
 
 /* ── Modern Theme: Frosted glass cards ──────────────────────── */
 /* Cards get a glass effect so blobs show through softly */

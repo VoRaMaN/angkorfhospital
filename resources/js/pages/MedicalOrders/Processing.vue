@@ -146,23 +146,23 @@ const hasAdditionalInfo = (item: OrderItem) => {
 
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-        pending: 'bg-yellow-100 text-yellow-800',
-        processing: 'bg-blue-100 text-blue-800',
-        processed: 'bg-orange-100 text-orange-800',
-        completed: 'bg-green-100 text-green-800',
-        cancel: 'bg-gray-100 text-gray-800',
-        rejected: 'bg-red-100 text-red-800',
+        pending:    'bg-amber-100 text-amber-700 border border-amber-200',
+        processing: 'bg-sky-100 text-sky-700 border border-sky-200',
+        processed:  'bg-indigo-100 text-indigo-700 border border-indigo-200',
+        completed:  'bg-emerald-100 text-emerald-700 border border-emerald-200',
+        cancel:     'bg-slate-100 text-slate-500 border border-slate-200',
+        rejected:   'bg-rose-100 text-rose-700 border border-rose-200',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || 'bg-slate-100 text-slate-500 border border-slate-200';
 };
 
 const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-        routine: 'bg-gray-100 text-gray-800',
-        urgent: 'bg-orange-100 text-orange-800',
-        stat: 'bg-red-100 text-red-800',
+        routine: 'bg-blue-100 text-blue-600 border border-blue-200',
+        urgent:  'bg-orange-100 text-orange-700 border border-orange-200',
+        stat:    'bg-rose-100 text-rose-700 border border-rose-200',
     };
-    return colors[priority] || 'bg-gray-100 text-gray-800';
+    return colors[priority] || 'bg-slate-100 text-slate-500 border border-slate-200';
 };
 
 const getItemTypeIcon = (type: string) => {

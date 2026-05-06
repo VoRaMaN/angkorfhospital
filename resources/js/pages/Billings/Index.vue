@@ -87,20 +87,15 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-const getStatusVariant = (status: string) => {
+const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-        case 'paid':
-            return 'default';
-        case 'pending':
-            return 'secondary';
-        case 'overdue':
-            return 'destructive';
-        case 'written_off':
-            return 'outline';
-        case 'cancelled':
-            return 'secondary';
-        default:
-            return 'secondary';
+        case 'paid':        return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+        case 'pending':     return 'bg-amber-100 text-amber-700 border border-amber-200';
+        case 'overdue':     return 'bg-rose-100 text-rose-700 border border-rose-200';
+        case 'partial':     return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
+        case 'written_off': return 'bg-slate-100 text-slate-500 border border-slate-200';
+        case 'cancelled':   return 'bg-slate-100 text-slate-500 border border-slate-200';
+        default:            return 'bg-slate-100 text-slate-500 border border-slate-200';
     }
 };
 
@@ -294,7 +289,7 @@ const exportBillings = () => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Badge :variant="getStatusVariant(billing.status)">
+                                <Badge :class="getStatusColor(billing.status)">
                                     {{ billing.status }}
                                 </Badge>
                             </TableCell>
@@ -358,7 +353,7 @@ const exportBillings = () => {
                 <DialogTitle>Update Billing Status</DialogTitle>
             </DialogHeader>
             <div v-if="selectedBilling" class="py-4">
-                <p>Current Status: <Badge :variant="getStatusVariant(selectedBilling.status)">{{ selectedBilling.status
+                <p>Current Status: <Badge :class="getStatusColor(selectedBilling.status)">{{ selectedBilling.status
                         }}</Badge>
                 </p>
                 <div class="mt-4">
