@@ -308,8 +308,11 @@ const save = () => {
                                     <Label class="text-sm font-medium">Name (Female)</Label>
                                     <div class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
                                         <User class="h-4 w-4 shrink-0 text-pink-500" />
-                                        <span class="text-sm font-medium">{{ femalePatientName }}</span>
-                                        <Badge class="ml-auto bg-pink-100 text-pink-700 border-pink-200 text-xs">Auto</Badge>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="truncate text-sm font-medium">{{ femalePatientName }}</p>
+                                            <p v-if="formattedDob" class="text-xs text-muted-foreground">DOB: {{ formattedDob }}</p>
+                                        </div>
+                                        <Badge class="ml-auto shrink-0 bg-pink-100 text-pink-700 border-pink-200 text-xs">Auto</Badge>
                                     </div>
                                     <div class="text-xs text-muted-foreground">H.N.: {{ femalePatientId ?? '—' }}</div>
                                 </div>
