@@ -65,7 +65,7 @@
             }
 
             html.modern {
-                background-color: hsl(225 40% 96%);
+                background-color: hsl(228 50% 95%);
             }
         </style>
 

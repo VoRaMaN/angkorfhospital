@@ -331,60 +331,173 @@
 }
 
 .modern {
-    --background: hsl(225 40% 96%);
-    --foreground: hsl(224 25% 12%);
+    --background: hsl(228 50% 95%);
+    --foreground: hsl(224 30% 11%);
     --card: hsl(0 0% 100%);
-    --card-foreground: hsl(224 25% 12%);
+    --card-foreground: hsl(224 30% 11%);
     --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(224 25% 12%);
-    --primary: hsl(221 83% 58%);
+    --popover-foreground: hsl(224 30% 11%);
+    --primary: hsl(222 88% 58%);
     --primary-foreground: hsl(0 0% 100%);
-    --secondary: hsl(225 30% 92%);
-    --secondary-foreground: hsl(224 25% 12%);
-    --muted: hsl(225 25% 92%);
-    --muted-foreground: hsl(224 12% 50%);
-    --accent: hsl(225 30% 90%);
-    --accent-foreground: hsl(224 25% 12%);
+    --secondary: hsl(228 40% 92%);
+    --secondary-foreground: hsl(224 30% 11%);
+    --muted: hsl(228 35% 91%);
+    --muted-foreground: hsl(224 15% 48%);
+    --accent: hsl(228 40% 90%);
+    --accent-foreground: hsl(224 30% 11%);
     --destructive: hsl(0 84.2% 60.2%);
     --destructive-foreground: hsl(0 0% 100%);
-    --border: hsl(225 25% 90%);
+    --border: hsl(228 30% 89%);
     --input: hsl(0 0% 100%);
-    --ring: hsl(221 83% 58%);
-    --chart-1: hsl(221 83% 58%);
+    --ring: hsl(222 88% 58%);
+    --chart-1: hsl(222 88% 58%);
     --chart-2: hsl(199 89% 48%);
     --chart-3: hsl(142 71% 45%);
     --chart-4: hsl(38 92% 50%);
     --chart-5: hsl(0 84% 60%);
     --radius: 0.75rem;
     --sidebar-background: hsl(0 0% 100%);
-    --sidebar-foreground: hsl(224 20% 30%);
-    --sidebar-primary: hsl(221 83% 58%);
+    --sidebar-foreground: hsl(224 20% 32%);
+    --sidebar-primary: hsl(222 88% 58%);
     --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(221 83% 95%);
-    --sidebar-accent-foreground: hsl(221 83% 48%);
-    --sidebar-border: hsl(225 20% 93%);
-    --sidebar-ring: hsl(221 83% 58%);
+    --sidebar-accent: hsl(228 60% 95%);
+    --sidebar-accent-foreground: hsl(222 88% 46%);
+    --sidebar-border: hsl(228 25% 92%);
+    --sidebar-ring: hsl(222 88% 58%);
     --sidebar: hsl(0 0% 100%);
 }
 
-/* Modern Theme Card & UI Styles */
+/* ── Modern Theme: Card shadows ─────────────────────────────── */
 .modern .rounded-xl,
-.modern .rounded-lg,
-.modern [class*="card"] {
-    box-shadow: 0 1px 3px rgba(99, 115, 180, 0.06), 0 4px 16px rgba(99, 115, 180, 0.08);
+.modern .rounded-lg {
+    box-shadow: 0 1px 2px rgba(80, 100, 200, 0.04), 0 4px 20px rgba(80, 100, 200, 0.09);
 }
 
+/* ── Modern Theme: Inputs ───────────────────────────────────── */
 .modern input:not([type="checkbox"]):not([type="radio"]),
 .modern textarea,
 .modern [cmdk-input] {
     background-color: hsl(0 0% 100%) !important;
-    border-color: hsl(225 25% 88%) !important;
+    border-color: hsl(228 30% 87%) !important;
 }
 
 .modern input:not([type="checkbox"]):not([type="radio"]):focus,
 .modern textarea:focus {
-    border-color: hsl(221 83% 58%) !important;
-    box-shadow: 0 0 0 3px hsl(221 83% 58% / 0.12) !important;
+    border-color: hsl(222 88% 58%) !important;
+    box-shadow: 0 0 0 3px hsl(222 88% 58% / 0.14) !important;
+}
+
+/* ── Modern Theme: Sidebar active item gradient ─────────────── */
+.modern [data-sidebar="menu-button"][data-active="true"] {
+    background: linear-gradient(135deg, hsl(226 88% 63%) 0%, hsl(220 85% 54%) 100%) !important;
+    color: hsl(0 0% 100%) !important;
+    box-shadow: 0 4px 14px rgba(59, 91, 230, 0.38) !important;
+}
+
+.modern [data-sidebar="menu-button"][data-active="true"] svg {
+    color: hsl(0 0% 100%) !important;
+}
+
+/* ── Modern Theme: iOS Glass PRIMARY button ─────────────────── */
+.modern [data-slot="button"].bg-primary {
+    background: linear-gradient(
+        170deg,
+        hsl(228 92% 68%) 0%,
+        hsl(222 88% 58%) 45%,
+        hsl(218 85% 50%) 100%
+    ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.40),
+        inset 0 -1px 0 rgba(0, 10, 80, 0.14),
+        0 6px 22px rgba(59, 91, 230, 0.46),
+        0 2px 6px rgba(59, 91, 230, 0.28) !important;
+    border: 1px solid rgba(130, 160, 255, 0.30) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    text-shadow: 0 1px 2px rgba(0, 10, 90, 0.18) !important;
+    transition: all 0.18s ease !important;
+}
+
+.modern [data-slot="button"].bg-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(255, 255, 255, 0.06) 48%,
+        rgba(255, 255, 255, 0.00) 49%
+    );
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.modern [data-slot="button"].bg-primary > * {
+    position: relative;
+    z-index: 2;
+}
+
+.modern [data-slot="button"].bg-primary:hover:not(:disabled) {
+    background: linear-gradient(
+        170deg,
+        hsl(228 92% 72%) 0%,
+        hsl(222 88% 62%) 45%,
+        hsl(218 85% 54%) 100%
+    ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.44),
+        inset 0 -1px 0 rgba(0, 10, 80, 0.14),
+        0 8px 28px rgba(59, 91, 230, 0.54),
+        0 3px 10px rgba(59, 91, 230, 0.34) !important;
+    transform: translateY(-1px) !important;
+}
+
+.modern [data-slot="button"].bg-primary:active:not(:disabled) {
+    transform: translateY(0px) !important;
+    box-shadow:
+        inset 0 2px 4px rgba(0, 10, 80, 0.18),
+        0 2px 8px rgba(59, 91, 230, 0.28) !important;
+}
+
+/* ── Modern Theme: Glass OUTLINE button ─────────────────────── */
+.modern [data-slot="button"].border {
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(180, 195, 235, 0.55) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -1px 0 rgba(120, 140, 200, 0.08),
+        0 2px 8px rgba(99, 120, 200, 0.10) !important;
+    color: hsl(224 30% 28%) !important;
+    transition: all 0.18s ease !important;
+}
+
+.modern [data-slot="button"].border:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.90) !important;
+    border-color: rgba(130, 160, 235, 0.70) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.90),
+        0 4px 14px rgba(99, 120, 200, 0.16) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── Modern Theme: Glass SECONDARY button ───────────────────── */
+.modern [data-slot="button"].bg-secondary {
+    background: rgba(218, 226, 250, 0.75) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(180, 195, 235, 0.45) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.75),
+        0 2px 6px rgba(99, 120, 200, 0.08) !important;
+    transition: all 0.18s ease !important;
+}
+
+.modern [data-slot="button"].bg-secondary:hover:not(:disabled) {
+    background: rgba(218, 226, 250, 0.92) !important;
+    transform: translateY(-1px) !important;
 }
 
 @layer base {
