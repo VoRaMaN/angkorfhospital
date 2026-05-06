@@ -7,7 +7,9 @@ use App\Models\Inventory;
 use App\Models\LabPanel;
 use App\Models\LabPanelItem;
 use App\Models\MedicalOrder;
+use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -55,7 +57,7 @@ class LabPanelController extends Controller
         $labStartDate = $request->input('lab_start_date', today()->toDateString());
         $labEndDate = $request->input('lab_end_date', today()->toDateString());
 
-        $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems'])
+        $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems', 'opuReport'])
             ->whereNotIn('status', [MedicalOrderStatusEnum::CANCEL, MedicalOrderStatusEnum::REJECTED])
             ->whereHas('orderItems', function ($q) {
                 $q->where('item_type', 'lab');
@@ -81,11 +83,13 @@ class LabPanelController extends Controller
                     'patient_dob' => $dob,
                     'patient_phone' => $patient?->mobile_phone ?? $patient?->home_phone ?? null,
                     'staff_name' => $order->staff?->user?->name ?? 'Unknown Staff',
+                    'staff_id' => $order->staff_id,
                     'status' => $order->status->value,
                     'status_label' => $order->status->label(),
                     'priority' => $order->priority->value,
                     'priority_label' => $order->priority->label(),
                     'ordered_at' => $order->ordered_at?->format('M d, Y H:i'),
+                    'opu_report_id' => $order->opuReport?->id,
                     'lab_items' => $order->orderItems->where('item_type', 'lab')->map(function ($item) {
                         return [
                             'id' => $item->id,
@@ -101,10 +105,16 @@ class LabPanelController extends Controller
                 ];
             });
 
+        // Current staff (for auto-populating doctor in OPU form)
+        $currentStaff = Staff::with('user')
+            ->whereHas('user', fn ($q) => $q->where('id', Auth::id()))
+            ->first();
+
         return Inertia::render('LabPanel/Index', [
             'labPanels' => $labPanels,
             'activeLabOrders' => $activeLabOrders,
             'categories' => $categories,
+            'currentStaff' => $currentStaff ? ['id' => $currentStaff->id, 'name' => $currentStaff->user?->name] : null,
             'filters' => array_merge($request->only(['search', 'category', 'status']), [
                 'lab_start_date' => $labStartDate,
                 'lab_end_date' => $labEndDate,

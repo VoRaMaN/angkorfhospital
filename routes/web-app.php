@@ -14,6 +14,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicalServiceController;
 use App\Http\Controllers\MedicineGroupController;
 use App\Http\Controllers\MedicineReportController;
+use App\Http\Controllers\OpuReportController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientFileController;
 use App\Http\Controllers\SpecialItemController;
@@ -60,6 +61,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Lab Panels
     Route::resource('lab-panels', LabPanelController::class);
+
+    // OPU Reports
+    Route::get('opu-reports/search-patients', [OpuReportController::class, 'searchPatients'])->name('opu-reports.search-patients');
+    Route::post('opu-reports', [OpuReportController::class, 'store'])->name('opu-reports.store');
+    Route::put('opu-reports/{opuReport}', [OpuReportController::class, 'update'])->name('opu-reports.update');
+    Route::get('opu-reports/order/{medicalOrderId}', [OpuReportController::class, 'show'])->name('opu-reports.show');
 
     // Special Items (Medicine Groups)
     Route::resource('medicine-groups', MedicineGroupController::class);

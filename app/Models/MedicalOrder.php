@@ -76,4 +76,9 @@ class MedicalOrder extends Model
     {
         return $this->hasMany(MedicalRecord::class);
     }
+
+    public function opuReport()
+    {
+        return $this->hasOne(OpuReport::class);
+    }
 }
