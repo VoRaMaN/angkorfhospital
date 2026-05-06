@@ -13,8 +13,8 @@
 
         body {
             font-family: 'Times New Roman', serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 14px;
+            line-height: 1.5;
             color: #000;
             padding: 40px 60px;
         }
@@ -32,13 +32,13 @@
         }
 
         .header-left h1 {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             margin-bottom: 3px;
         }
 
         .header-left p {
-            font-size: 11px;
+            font-size: 13px;
             margin: 2px 0;
         }
 
@@ -55,7 +55,7 @@
         }
 
         .bill-box p {
-            font-size: 11px;
+            font-size: 13px;
             margin: 3px 0;
         }
 
@@ -63,7 +63,7 @@
             border: 2px solid #000;
             padding: 5px 15px;
             display: inline-block;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
         }
 
@@ -79,7 +79,7 @@
         }
 
         .patient-left p {
-            font-size: 11px;
+            font-size: 13px;
             margin: 3px 0;
         }
 
@@ -96,7 +96,7 @@
         }
 
         .patient-right p {
-            font-size: 11px;
+            font-size: 13px;
             margin: 3px 0;
         }
 
@@ -104,21 +104,22 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            border: 1px solid #000;
         }
 
         table th {
             background-color: #fff;
-            border: 1px solid #000;
-            padding: 8px;
+            border-bottom: 1px solid #000;
+            padding: 9px 10px;
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
         }
 
         table td {
-            border: 1px solid #000;
-            padding: 8px;
-            font-size: 11px;
+            border: none;
+            padding: 9px 10px;
+            font-size: 13px;
         }
 
         table td.description {
@@ -137,14 +138,14 @@
         }
 
         .total-words {
-            font-size: 11px;
+            font-size: 13px;
             margin-bottom: 30px;
         }
 
         .footer-note {
             text-align: left;
-            font-size: 10px;
-            color: #0000FF;
+            font-size: 12px;
+            color: #000;
             margin-bottom: 80px;
             line-height: 1.6;
         }
@@ -160,11 +161,11 @@
             margin-left: auto;
             padding-top: 5px;
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
         }
 
         .payment-method {
-            font-size: 11px;
+            font-size: 13px;
             margin-top: 30px;
         }
     </style>
