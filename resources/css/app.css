@@ -398,7 +398,46 @@
     color: hsl(0 0% 100%) !important;
 }
 
-/* ── Modern Theme: iOS Glass PRIMARY button ─────────────────── */
+/* ── Modern Theme: iOS Glass shared mixin ───────────────────── */
+/* All glass buttons share: relative positioning, overflow hidden, */
+/* gloss ::before overlay, z-index on children, smooth transition */
+.modern [data-slot="button"].bg-primary,
+.modern [data-slot="button"].bg-destructive,
+.modern [data-slot="button"].bg-secondary,
+.modern [data-slot="button"].border {
+    position: relative !important;
+    overflow: hidden !important;
+    transition: all 0.18s ease !important;
+}
+
+/* gloss highlight top-half overlay (shared) */
+.modern [data-slot="button"].bg-primary::before,
+.modern [data-slot="button"].bg-destructive::before,
+.modern [data-slot="button"].bg-secondary::before,
+.modern [data-slot="button"].border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.30) 0%,
+        rgba(255, 255, 255, 0.06) 48%,
+        rgba(255, 255, 255, 0.00) 49%
+    );
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.modern [data-slot="button"].bg-primary > *,
+.modern [data-slot="button"].bg-destructive > *,
+.modern [data-slot="button"].bg-secondary > *,
+.modern [data-slot="button"].border > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Modern Theme: iOS Glass PRIMARY (blue) ─────────────────── */
 .modern [data-slot="button"].bg-primary {
     background: linear-gradient(
         170deg,
@@ -408,34 +447,11 @@
     ) !important;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.40),
-        inset 0 -1px 0 rgba(0, 10, 80, 0.14),
+        inset 0 -1px 0 rgba(0, 10, 80, 0.18),
         0 6px 22px rgba(59, 91, 230, 0.46),
         0 2px 6px rgba(59, 91, 230, 0.28) !important;
     border: 1px solid rgba(130, 160, 255, 0.30) !important;
-    position: relative !important;
-    overflow: hidden !important;
     text-shadow: 0 1px 2px rgba(0, 10, 90, 0.18) !important;
-    transition: all 0.18s ease !important;
-}
-
-.modern [data-slot="button"].bg-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.28) 0%,
-        rgba(255, 255, 255, 0.06) 48%,
-        rgba(255, 255, 255, 0.00) 49%
-    );
-    pointer-events: none;
-    border-radius: inherit;
-    z-index: 1;
-}
-
-.modern [data-slot="button"].bg-primary > * {
-    position: relative;
-    z-index: 2;
 }
 
 .modern [data-slot="button"].bg-primary:hover:not(:disabled) {
@@ -456,47 +472,122 @@
 .modern [data-slot="button"].bg-primary:active:not(:disabled) {
     transform: translateY(0px) !important;
     box-shadow:
-        inset 0 2px 4px rgba(0, 10, 80, 0.18),
+        inset 0 2px 4px rgba(0, 10, 80, 0.22),
         0 2px 8px rgba(59, 91, 230, 0.28) !important;
 }
 
-/* ── Modern Theme: Glass OUTLINE button ─────────────────────── */
+/* ── Modern Theme: iOS Glass DESTRUCTIVE (red) ──────────────── */
+.modern [data-slot="button"].bg-destructive {
+    background: linear-gradient(
+        170deg,
+        hsl(0 88% 68%) 0%,
+        hsl(0 84% 58%) 45%,
+        hsl(0 80% 50%) 100%
+    ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.38),
+        inset 0 -1px 0 rgba(80, 0, 0, 0.18),
+        0 6px 22px rgba(220, 50, 50, 0.42),
+        0 2px 6px rgba(220, 50, 50, 0.26) !important;
+    border: 1px solid rgba(255, 140, 140, 0.28) !important;
+    text-shadow: 0 1px 2px rgba(80, 0, 0, 0.18) !important;
+    color: hsl(0 0% 100%) !important;
+}
+
+.modern [data-slot="button"].bg-destructive:hover:not(:disabled) {
+    background: linear-gradient(
+        170deg,
+        hsl(0 88% 72%) 0%,
+        hsl(0 84% 62%) 45%,
+        hsl(0 80% 54%) 100%
+    ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 rgba(80, 0, 0, 0.14),
+        0 8px 28px rgba(220, 50, 50, 0.52),
+        0 3px 10px rgba(220, 50, 50, 0.32) !important;
+    transform: translateY(-1px) !important;
+}
+
+.modern [data-slot="button"].bg-destructive:active:not(:disabled) {
+    transform: translateY(0px) !important;
+    box-shadow:
+        inset 0 2px 4px rgba(80, 0, 0, 0.22),
+        0 2px 8px rgba(220, 50, 50, 0.26) !important;
+}
+
+/* ── Modern Theme: Glass OUTLINE (View / Edit / Cancel) ─────── */
 .modern [data-slot="button"].border {
     background: rgba(255, 255, 255, 0.72) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(180, 195, 235, 0.55) !important;
+    border: 1px solid rgba(180, 195, 235, 0.60) !important;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 1px 0 rgba(255, 255, 255, 0.90),
         inset 0 -1px 0 rgba(120, 140, 200, 0.08),
         0 2px 8px rgba(99, 120, 200, 0.10) !important;
     color: hsl(224 30% 28%) !important;
-    transition: all 0.18s ease !important;
 }
 
 .modern [data-slot="button"].border:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.90) !important;
-    border-color: rgba(130, 160, 235, 0.70) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-color: rgba(130, 160, 235, 0.75) !important;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.90),
-        0 4px 14px rgba(99, 120, 200, 0.16) !important;
+        inset 0 1px 0 rgba(255, 255, 255, 1.0),
+        0 4px 14px rgba(99, 120, 200, 0.18) !important;
     transform: translateY(-1px) !important;
 }
 
-/* ── Modern Theme: Glass SECONDARY button ───────────────────── */
-.modern [data-slot="button"].bg-secondary {
-    background: rgba(218, 226, 250, 0.75) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(180, 195, 235, 0.45) !important;
+.modern [data-slot="button"].border:active:not(:disabled) {
+    transform: translateY(0px) !important;
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.75),
-        0 2px 6px rgba(99, 120, 200, 0.08) !important;
-    transition: all 0.18s ease !important;
+        inset 0 1px 3px rgba(100, 120, 200, 0.14),
+        0 1px 4px rgba(99, 120, 200, 0.10) !important;
+}
+
+/* ── Modern Theme: Glass SECONDARY (slate/periwinkle) ───────── */
+.modern [data-slot="button"].bg-secondary {
+    background: linear-gradient(
+        170deg,
+        rgba(225, 230, 252, 0.95) 0%,
+        rgba(210, 218, 248, 0.90) 100%
+    ) !important;
+    border: 1px solid rgba(180, 195, 240, 0.50) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.80),
+        inset 0 -1px 0 rgba(100, 120, 200, 0.10),
+        0 2px 8px rgba(99, 120, 200, 0.12) !important;
+    color: hsl(222 60% 38%) !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.60) !important;
 }
 
 .modern [data-slot="button"].bg-secondary:hover:not(:disabled) {
-    background: rgba(218, 226, 250, 0.92) !important;
+    background: linear-gradient(
+        170deg,
+        rgba(230, 235, 255, 1.0) 0%,
+        rgba(216, 225, 252, 1.0) 100%
+    ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.90),
+        0 4px 14px rgba(99, 120, 200, 0.20) !important;
+    transform: translateY(-1px) !important;
+}
+
+.modern [data-slot="button"].bg-secondary:active:not(:disabled) {
+    transform: translateY(0px) !important;
+    box-shadow:
+        inset 0 2px 4px rgba(100, 120, 200, 0.16),
+        0 1px 4px rgba(99, 120, 200, 0.10) !important;
+}
+
+/* ── Modern Theme: Ghost button (subtle hover glow) ─────────── */
+.modern [data-slot="button"]:not(.bg-primary):not(.bg-destructive):not(.bg-secondary):not(.border) {
+    transition: all 0.18s ease !important;
+}
+
+.modern [data-slot="button"]:not(.bg-primary):not(.bg-destructive):not(.bg-secondary):not(.border):hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.60) !important;
+    box-shadow: 0 2px 8px rgba(99, 120, 200, 0.10) !important;
     transform: translateY(-1px) !important;
 }
 
