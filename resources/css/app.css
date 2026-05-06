@@ -732,6 +732,11 @@
     z-index: 1;
 }
 
+/* Make the main content area transparent so blobs show through */
+.modern [data-slot="sidebar-inset"] {
+    background: transparent !important;
+}
+
 
 @layer base {
     * {
