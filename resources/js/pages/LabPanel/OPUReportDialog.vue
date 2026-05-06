@@ -101,8 +101,9 @@ const props = defineProps<{
     orderId: number;
     femalePatientId: string | null;
     femalePatientName: string;
-    currentStaffId: number | null;
-    currentStaffName: string | null;
+    femalePatientDob: string | null;
+    doctorStaffId: number | null;
+    doctorStaffName: string | null;
     existingReport: OPUReportData | null;
 }>();
 
@@ -116,6 +117,23 @@ const isOpen = computed({
     set: (v) => emit('update:modelValue', v),
 });
 
+// Format DOB as D.M.YY (Xyr)
+const formattedDob = computed(() => {
+    const dob = props.femalePatientDob;
+    if (!dob) return null;
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return null;
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = String(d.getFullYear()).slice(-2);
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    if (today.getMonth() < d.getMonth() || (today.getMonth() === d.getMonth() && today.getDate() < d.getDate())) {
+        age--;
+    }
+    return `${day}.${month}.${year} (${age}yr)`;
+});
+
 // ─── Form state ───────────────────────────────────────────────────────────────
 const now = () => {
     const d = new Date();
@@ -127,7 +145,7 @@ const buildEmptyForm = (): OPUReportData => ({
     female_patient_id: props.femalePatientId,
     male_patient_id: null,
     procedure: 'OPU-ICSI',
-    doctor_id: props.currentStaffId,
+    doctor_id: props.doctorStaffId,
     opu_datetime: now(),
     no_of_opu_right: null, no_of_opu_left: null,
     maturation_datetime: null, m_ii: null, m_i: null, gv: null,
@@ -347,7 +365,7 @@ const save = () => {
                                 <div class="space-y-1.5">
                                     <Label class="text-xs">Doctor</Label>
                                     <div class="flex h-9 items-center rounded-lg border bg-muted px-3 text-sm text-muted-foreground">
-                                        {{ currentStaffName ?? '—' }}
+                                        {{ doctorStaffName ?? '—' }}
                                         <Badge class="ml-auto bg-muted text-xs">Auto</Badge>
                                     </div>
                                 </div>

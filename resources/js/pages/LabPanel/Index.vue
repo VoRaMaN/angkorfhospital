@@ -597,8 +597,9 @@ const viewOPUReport = (orderId: number) => {
         :order-id="opuOrderContext?.id ?? 0"
         :female-patient-id="opuOrderContext?.patient_id ?? null"
         :female-patient-name="opuOrderContext?.patient_name ?? ''"
-        :current-staff-id="props.currentStaff?.id ?? null"
-        :current-staff-name="props.currentStaff?.name ?? null"
+        :female-patient-dob="opuOrderContext?.patient_dob ?? null"
+        :doctor-staff-id="opuOrderContext?.staff_id ?? null"
+        :doctor-staff-name="opuOrderContext?.staff_name ?? null"
         :existing-report="opuExistingReport"
         @saved="onOPUSaved"
     />
