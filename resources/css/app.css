@@ -330,6 +330,43 @@
     --sidebar: hsl(330 35% 96%);
 }
 
+.modern {
+    --background: hsl(220 25% 95%);
+    --foreground: hsl(220 20% 12%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(220 20% 12%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(220 20% 12%);
+    --primary: hsl(217 91% 60%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(220 20% 92%);
+    --secondary-foreground: hsl(220 20% 12%);
+    --muted: hsl(220 20% 92%);
+    --muted-foreground: hsl(220 10% 46%);
+    --accent: hsl(220 20% 90%);
+    --accent-foreground: hsl(220 20% 12%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --border: hsl(220 20% 88%);
+    --input: hsl(220 20% 88%);
+    --ring: hsl(217 91% 60%);
+    --chart-1: hsl(217 91% 60%);
+    --chart-2: hsl(199 89% 48%);
+    --chart-3: hsl(142 71% 45%);
+    --chart-4: hsl(38 92% 50%);
+    --chart-5: hsl(0 84% 60%);
+    --radius: 0.75rem;
+    --sidebar-background: hsl(0 0% 100%);
+    --sidebar-foreground: hsl(220 20% 25%);
+    --sidebar-primary: hsl(217 91% 60%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(220 25% 94%);
+    --sidebar-accent-foreground: hsl(217 91% 45%);
+    --sidebar-border: hsl(220 20% 91%);
+    --sidebar-ring: hsl(217 91% 60%);
+    --sidebar: hsl(0 0% 100%);
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;

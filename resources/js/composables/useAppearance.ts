@@ -1,6 +1,6 @@
 import { onMounted, ref } from 'vue';
 
-type Appearance = 'light' | 'dark' | 'blue' | 'green' | 'enterprise' | 'cit' | 'system';
+type Appearance = 'light' | 'dark' | 'blue' | 'green' | 'enterprise' | 'cit' | 'modern' | 'system';
 
 export function updateTheme(value: Appearance) {
     if (typeof window === 'undefined') {
@@ -14,6 +14,7 @@ export function updateTheme(value: Appearance) {
         'green',
         'enterprise',
         'cit',
+        'modern',
     );
 
     if (value === 'system') {
@@ -35,6 +36,8 @@ export function updateTheme(value: Appearance) {
         document.documentElement.classList.add('enterprise');
     } else if (value === 'cit') {
         document.documentElement.classList.add('cit');
+    } else if (value === 'modern') {
+        document.documentElement.classList.add('modern');
     }
     // For 'light', we don't add any class (it's the default)
 }

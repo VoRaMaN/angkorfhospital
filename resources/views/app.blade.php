@@ -4,7 +4,8 @@
     'blue' => ($appearance ?? 'system') == 'blue',
     'green' => ($appearance ?? 'system') == 'green',
     'enterprise' => ($appearance ?? 'system') == 'enterprise',
-    'cit' => ($appearance ?? 'system') == 'cit'
+    'cit' => ($appearance ?? 'system') == 'cit',
+    'modern' => ($appearance ?? 'system') == 'modern'
 ])>
     <head>
         <meta charset="utf-8">
@@ -31,6 +32,8 @@
                     document.documentElement.classList.add('enterprise');
                 } else if (appearance === 'cit') {
                     document.documentElement.classList.add('cit');
+                } else if (appearance === 'modern') {
+                    document.documentElement.classList.add('modern');
                 }
             })();
         </script>
@@ -55,6 +58,14 @@
 
             html.enterprise {
                 background-color: hsl(0 0% 92%);
+            }
+
+            html.cit {
+                background-color: hsl(330 35% 96%);
+            }
+
+            html.modern {
+                background-color: hsl(220 25% 95%);
             }
         </style>
 

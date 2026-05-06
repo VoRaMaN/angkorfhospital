@@ -11,6 +11,7 @@ const tabs = [
     { value: 'green', Icon: Palette, label: 'Green' },
     { value: 'enterprise', Icon: Building2, label: 'Enterprise' },
     { value: 'cit', Icon: Palette, label: 'CIT' },
+    { value: 'modern', Icon: Palette, label: 'Modern' },
     { value: 'system', Icon: Monitor, label: 'System' },
 ] as const;
 </script>
