@@ -450,7 +450,7 @@ const onSpermFreezingSaved = () => {
                                 </div>
                             </div>
                             <p class="text-xs text-muted-foreground">
-                                Ordered by Dr. {{ order.staff_name }}
+                                Ordered by {{ order.staff_name }}
                             </p>
                             <!-- Report buttons -->
                             <div class="mt-2 flex flex-wrap gap-2">
