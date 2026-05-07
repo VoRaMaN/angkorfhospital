@@ -19,6 +19,7 @@ use App\Http\Controllers\MedicineReportController;
 use App\Http\Controllers\OpuReportController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientFileController;
+use App\Http\Controllers\SaReportController;
 use App\Http\Controllers\SemenAnalysisReportController;
 use App\Http\Controllers\SpecialItemController;
 use App\Http\Controllers\StaffController;
@@ -77,6 +78,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('semen-analysis-reports', [SemenAnalysisReportController::class, 'store'])->name('semen-analysis-reports.store');
     Route::put('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'update'])->name('semen-analysis-reports.update');
     Route::get('semen-analysis-reports/order/{medicalOrderId}', [SemenAnalysisReportController::class, 'getByOrder'])->name('semen-analysis-reports.get-by-order');
+
+    // SA Reports (SA only, no freezing)
+    Route::get('sa-reports/{saReport}', [SaReportController::class, 'show'])->name('sa-reports.show');
+    Route::post('sa-reports', [SaReportController::class, 'store'])->name('sa-reports.store');
+    Route::put('sa-reports/{saReport}', [SaReportController::class, 'update'])->name('sa-reports.update');
+    Route::get('sa-reports/order/{medicalOrderId}', [SaReportController::class, 'getByOrder'])->name('sa-reports.get-by-order');
 
     // IUI Reports
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');

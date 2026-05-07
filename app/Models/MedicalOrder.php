@@ -96,4 +96,9 @@ class MedicalOrder extends Model
     {
         return $this->hasOne(FetReport::class);
     }
+
+    public function saReport()
+    {
+        return $this->hasOne(SaReport::class);
+    }
 }

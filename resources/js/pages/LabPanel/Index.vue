@@ -35,6 +35,7 @@ import { computed, ref, watch, reactive } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import OPUReportDialog from './OPUReportDialog.vue';
 import SemenAnalysisDialog from './SemenAnalysisDialog.vue';
+import SaReportDialog from './SaReportDialog.vue';
 import IuiReportDialog from './IuiReportDialog.vue';
 import FetReportDialog from './FetReportDialog.vue';
 
@@ -65,6 +66,7 @@ interface ActiveLabOrder {
     ordered_at: string;
     opu_report_id: number | null;
     semen_analysis_report_id: number | null;
+    sa_report_id: number | null;
     iui_report_id: number | null;
     fet_report_id: number | null;
     lab_items: LabItem[];
@@ -244,6 +246,33 @@ const viewSAReport = (reportId: number) => {
     router.visit(`/semen-analysis-reports/${reportId}`);
 };
 
+// ─── SA Report Dialog (SA only, no freezing) ──────────────────────────────────
+const saDialogOpen = ref(false);
+const saOrderContext = ref<ActiveLabOrder | null>(null);
+const saExistingReport = ref<any>(null);
+
+const openSaDialog = async (order: ActiveLabOrder) => {
+    saOrderContext.value = order;
+    saExistingReport.value = null;
+    if (order.sa_report_id) {
+        try {
+            const resp = await fetch(`/sa-reports/order/${order.id}`);
+            if (resp.ok) {
+                saExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    saDialogOpen.value = true;
+};
+
+const onSaSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
+
+const viewSaReport = (reportId: number) => {
+    router.visit(`/sa-reports/${reportId}`);
+};
+
 // ─── IUI Report Dialog ────────────────────────────────────────────────────────
 const iuiDialogOpen = ref(false);
 const iuiOrderContext = ref<ActiveLabOrder | null>(null);
@@ -415,6 +444,25 @@ const onFetSaved = () => {
                                     variant="ghost"
                                     class="h-7 gap-1 px-2 text-xs text-muted-foreground"
                                     @click.stop="viewOPUReport(order.id)"
+                                >
+                                    <Eye class="size-3" />
+                                    View
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-blue-200 bg-blue-50 px-2 text-xs text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                                    @click.stop="openSaDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.sa_report_id ? 'Edit SA Report' : 'Input SA Report' }}
+                                </Button>
+                                <Button
+                                    v-if="order.sa_report_id"
+                                    size="sm"
+                                    variant="ghost"
+                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
+                                    @click.stop="viewSaReport(order.sa_report_id)"
                                 >
                                     <Eye class="size-3" />
                                     View
@@ -756,5 +804,18 @@ const onFetSaved = () => {
         :staff-name="fetOrderContext?.staff_name ?? null"
         :existing-report="fetExistingReport"
         @saved="onFetSaved"
+    />
+
+    <!-- SA Report Dialog (SA only) -->
+    <SaReportDialog
+        v-model="saDialogOpen"
+        :order-id="saOrderContext?.id ?? 0"
+        :patient-id="saOrderContext?.patient_id ?? null"
+        :patient-name="saOrderContext?.patient_name ?? ''"
+        :patient-dob="saOrderContext?.patient_dob ?? null"
+        :patient-hn="saOrderContext?.patient_id ?? null"
+        :doctor-name="saOrderContext?.staff_name ?? null"
+        :existing-report="saExistingReport"
+        @saved="onSaSaved"
     />
 </template>
