@@ -258,6 +258,9 @@ watch(
     },
 );
 
+// ─── Print ────────────────────────────────────────────────────────────────────
+const openPrintTab = (id: number) => window.open(`/fet-reports/${id}`, '_blank');
+
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);
 
@@ -589,7 +592,7 @@ const gradingDays = [1, 2, 3, 4, 5];
                             Cancel
                         </Button>
                         <div class="flex gap-2">
-                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/fet-reports/${existingReport!.id}`, '_blank')">
+                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => openPrintTab(existingReport!.id)">
                                 <Printer class="h-4 w-4" />
                                 Print
                             </Button>

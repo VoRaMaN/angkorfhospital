@@ -119,6 +119,9 @@ const femaleSlotIsMale = computed(() =>
     props.report.female_patient_name ? /^mr\.?\s/i.test(props.report.female_patient_name.trim()) : false,
 );
 
+// ─── Print ────────────────────────────────────────────────────────────────────
+const printPage = () => window.print();
+
 // ─── Edit dialog ──────────────────────────────────────────────────────────────
 const editOpen = ref(false);
 
@@ -160,7 +163,7 @@ const onSaved = () => {
                 <div class="flex gap-2">
                     <button
                         class="inline-flex h-9 items-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
-                        @click="window.print()"
+                        @click="printPage"
                     >
                         <Printer class="h-4 w-4" />
                         Print

@@ -218,6 +218,9 @@ watch(
     },
 );
 
+// ─── Print ────────────────────────────────────────────────────────────────────
+const openPrintTab = (id: number) => window.open(`/iui-reports/${id}`, '_blank');
+
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);
 
@@ -560,7 +563,7 @@ const save = () => {
                             Cancel
                         </Button>
                         <div class="flex gap-2">
-                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/iui-reports/${existingReport!.id}`, '_blank')">
+                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => openPrintTab(existingReport!.id)">
                                 <Printer class="h-4 w-4" />
                                 Print
                             </Button>

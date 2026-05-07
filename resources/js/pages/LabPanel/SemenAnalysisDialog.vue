@@ -207,6 +207,9 @@ watch(
     },
 );
 
+// ─── Print ────────────────────────────────────────────────────────────────────
+const openPrintTab = (id: number) => window.open(`/semen-analysis-reports/${id}`, '_blank');
+
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);
 
@@ -597,7 +600,7 @@ const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2
                         <div class="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t bg-background px-6 py-4">
                             <Button variant="outline" @click="isOpen = false">Cancel</Button>
                             <div class="flex gap-2">
-                                <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/semen-analysis-reports/${existingReport!.id}`, '_blank')">
+                                <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => openPrintTab(existingReport!.id)">
                                     <Printer class="h-4 w-4" />
                                     Print
                                 </Button>

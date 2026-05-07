@@ -270,6 +270,9 @@ const embryoSlots = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
 // Slots 1-5, 6-10, 11-15, 16-20
 const embryoCols = [[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19]];
 
+// ─── Print ────────────────────────────────────────────────────────────────────
+const openPrintTab = (orderId: number) => window.open(`/opu-reports/order/${orderId}`, '_blank');
+
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);
 
@@ -708,7 +711,7 @@ const save = () => {
                     <div class="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t bg-background px-6 py-4">
                         <Button variant="outline" @click="isOpen = false">Cancel</Button>
                         <div class="flex gap-2">
-                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/opu-reports/order/${props.orderId}`, '_blank')">
+                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => openPrintTab(props.orderId)">
                                 <Printer class="h-4 w-4" />
                                 Print
                             </Button>
