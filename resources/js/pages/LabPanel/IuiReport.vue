@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ArrowLeft, Edit2, FlaskConical, Printer } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import IuiReportDialog from './IuiReportDialog.vue';
 
 interface ReportData {
@@ -151,6 +151,8 @@ const onSaved = () => {
 const printReport = () => {
     window.print();
 };
+
+onMounted(() => window.print());
 </script>
 
 <template>

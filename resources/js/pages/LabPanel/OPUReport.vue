@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ArrowLeft, ClipboardList, Edit2, Printer, User } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import OPUReportDialog from './OPUReportDialog.vue';
 
 interface ReportData {
@@ -121,6 +121,8 @@ const femaleSlotIsMale = computed(() =>
 
 // ─── Print ────────────────────────────────────────────────────────────────────
 const printPage = () => window.print();
+
+onMounted(() => window.print());
 
 // ─── Edit dialog ──────────────────────────────────────────────────────────────
 const editOpen = ref(false);
