@@ -1,13 +1,23 @@
 <script setup lang="ts">
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { router } from '@inertiajs/vue3';
-import { CheckCircle2, ClipboardList, Loader2, X } from 'lucide-vue-next';
+import { CheckCircle2, ClipboardList, Loader2, Search, User, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface PatientOption {
+    id: string;
+    name: string;
+    dob: string | null;
+    phone: string | null;
+    id_card: string | null;
+    gender: string | null;
+}
+
 interface IuiReportData {
     id?: number;
     medical_order_id: number;
@@ -78,6 +88,51 @@ const isOpen = computed({
 });
 
 // ─── Patient age display ──────────────────────────────────────────────────────
+// Female titles: Mrs, Ms, Miss — everything else treated as male
+const patientIsMale = computed(() => {
+    const name = props.patientName?.trim() ?? '';
+    return !/^(mrs\.?\s|ms\.?\s|miss\s)/i.test(name);
+});
+
+const partnerLabel = computed(() => patientIsMale.value ? "Wife's Name" : "Husband's Name");
+const partnerHnLabel = computed(() => patientIsMale.value ? "Wife's HN" : "Husband's HN");
+const patientSexLabel = computed(() => patientIsMale.value ? 'MALE' : 'FEMALE');
+
+// ─── Partner patient search ───────────────────────────────────────────────────
+const selectedPartner = ref<PatientOption | null>(null);
+const partnerQuery = ref('');
+const partnerResults = ref<PatientOption[]>([]);
+const partnerLoading = ref(false);
+let partnerTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(partnerQuery, (q) => {
+    if (partnerTimer) clearTimeout(partnerTimer);
+    if (q.length < 2) { partnerResults.value = []; return; }
+    partnerTimer = setTimeout(async () => {
+        partnerLoading.value = true;
+        try {
+            const resp = await fetch(`/opu-reports/search-patients?q=${encodeURIComponent(q)}`);
+            partnerResults.value = await resp.json();
+        } finally {
+            partnerLoading.value = false;
+        }
+    }, 300);
+});
+
+const selectPartner = (p: PatientOption) => {
+    selectedPartner.value = p;
+    form.wife_name = p.name;
+    form.wife_hn = p.id;
+    partnerQuery.value = '';
+    partnerResults.value = [];
+};
+
+const clearPartner = () => {
+    selectedPartner.value = null;
+    form.wife_name = null;
+    form.wife_hn = null;
+};
+
 const patientAge = computed(() => {
     const dob = props.patientDob;
     if (!dob) return null;
@@ -150,9 +205,15 @@ watch(
             const r = props.existingReport;
             if (r) {
                 Object.assign(form, r);
+                selectedPartner.value = r.wife_name
+                    ? { id: r.wife_hn ?? '', name: r.wife_name, dob: null, phone: null, id_card: null, gender: null }
+                    : null;
             } else {
                 Object.assign(form, buildEmptyForm());
+                selectedPartner.value = null;
             }
+            partnerQuery.value = '';
+            partnerResults.value = [];
         }
     },
 );
@@ -222,7 +283,7 @@ const save = () => {
                                 </div>
                                 <div>
                                     <span class="text-xs text-muted-foreground">SEX</span>
-                                    <p class="font-medium uppercase">MALE</p>
+                                    <p class="font-medium uppercase">{{ patientSexLabel }}</p>
                                 </div>
                                 <div>
                                     <span class="text-xs text-muted-foreground">HN</span>
@@ -246,15 +307,53 @@ const save = () => {
                         <!-- ── Form Title ─────────────────────────────────── -->
                         <h3 class="text-center text-base font-bold tracking-wide">Sperm preparation for IUI</h3>
 
-                        <!-- ── Wife Info ──────────────────────────────────── -->
+                        <!-- ── Partner Info ──────────────────────────────────── -->
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div class="space-y-1">
-                                <Label class="text-xs">Wife's Name</Label>
-                                <Input v-model="form.wife_name" placeholder="Wife's name" class="h-8 text-sm" />
+                                <Label class="text-xs">{{ partnerLabel }}</Label>
+                                <!-- Selected partner -->
+                                <div v-if="selectedPartner" class="flex items-center gap-2 rounded-lg border bg-background px-3 py-1.5">
+                                    <User class="h-4 w-4 shrink-0 text-muted-foreground" />
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-sm font-medium">{{ selectedPartner.name }}</p>
+                                        <p v-if="selectedPartner.dob" class="text-xs text-muted-foreground">DOB: {{ selectedPartner.dob }}</p>
+                                    </div>
+                                    <button class="shrink-0 text-muted-foreground hover:text-destructive" @click="clearPartner">
+                                        <X class="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                                <!-- Search input -->
+                                <div v-else class="relative">
+                                    <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <input
+                                        v-model="partnerQuery"
+                                        type="text"
+                                        :placeholder="'Search ' + partnerLabel + ' by name, ID, phone…'"
+                                        class="flex h-8 w-full rounded-lg border border-input bg-background py-1.5 pl-9 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    />
+                                    <Loader2 v-if="partnerLoading" class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                                    <div v-if="partnerResults.length > 0" class="absolute z-20 mt-1 w-full rounded-xl border bg-background shadow-lg">
+                                        <button
+                                            v-for="p in partnerResults"
+                                            :key="p.id"
+                                            class="flex w-full items-start gap-3 px-3 py-2 text-left hover:bg-muted"
+                                            @click="selectPartner(p)"
+                                        >
+                                            <User class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                                            <div>
+                                                <p class="text-sm font-medium">{{ p.name }}</p>
+                                                <p class="text-xs text-muted-foreground">{{ p.id }}{{ p.dob ? ' · DOB: ' + p.dob : '' }}{{ p.phone ? ' · ' + p.phone : '' }}</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="space-y-1">
-                                <Label class="text-xs">Wife's HN</Label>
-                                <Input v-model="form.wife_hn" placeholder="HN" class="h-8 text-sm" />
+                                <Label class="text-xs">{{ partnerHnLabel }}</Label>
+                                <div v-if="selectedPartner" class="flex h-8 items-center rounded-lg border bg-muted px-3 text-sm text-muted-foreground">
+                                    {{ selectedPartner.id || '—' }}
+                                </div>
+                                <Input v-else v-model="form.wife_hn" placeholder="HN" class="h-8 text-sm" />
                             </div>
                         </div>
 
