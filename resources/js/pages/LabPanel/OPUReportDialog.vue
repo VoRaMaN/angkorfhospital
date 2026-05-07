@@ -140,10 +140,12 @@ const now = () => {
     return d.toISOString().slice(0, 16);
 };
 
+const isMaleProp = () => props.femalePatientName ? /^mr\.?\s/i.test(props.femalePatientName.trim()) : false;
+
 const buildEmptyForm = (): OPUReportData => ({
     medical_order_id: props.orderId,
-    female_patient_id: props.femalePatientId,
-    male_patient_id: null,
+    female_patient_id: isMaleProp() ? null : props.femalePatientId,
+    male_patient_id: isMaleProp() ? props.femalePatientId : null,
     procedure: 'OPU-ICSI',
     doctor_id: props.doctorStaffId,
     opu_datetime: now(),
@@ -183,21 +185,33 @@ watch(
             } else {
                 Object.assign(form, buildEmptyForm());
             }
-            // Set female patient display
-            selectedFemale.value = props.femalePatientId
-                ? { id: props.femalePatientId, name: props.femalePatientName, dob: null, phone: null, id_card: null, gender: null }
-                : null;
-            if (r?.male_patient_id) {
-                selectedMale.value = {
-                    id: r.male_patient_id,
-                    name: r.male_patient_name ?? r.male_patient_id,
-                    dob: r.male_dob ?? null,
-                    phone: null,
-                    id_card: null,
-                    gender: null,
-                };
+            // Determine if the auto-patient is male by checking the name title
+            const isMaleTitle = props.femalePatientName
+                ? /^mr\.?\s/i.test(props.femalePatientName.trim())
+                : false;
+
+            if (r) {
+                // Existing report: restore saved patient slots
+                selectedFemale.value = r.female_patient_id
+                    ? { id: r.female_patient_id, name: r.female_patient_name ?? r.female_patient_id, dob: r.female_dob ?? null, phone: null, id_card: null, gender: null }
+                    : null;
+                selectedMale.value = r.male_patient_id
+                    ? { id: r.male_patient_id, name: r.male_patient_name ?? r.male_patient_id, dob: r.male_dob ?? null, phone: null, id_card: null, gender: null }
+                    : null;
             } else {
-                selectedMale.value = null;
+                // New report: route auto-patient to correct gender slot
+                const autoPatient = props.femalePatientId
+                    ? { id: props.femalePatientId, name: props.femalePatientName, dob: null, phone: null, id_card: null, gender: null }
+                    : null;
+                if (isMaleTitle) {
+                    selectedFemale.value = null;
+                    selectedMale.value = autoPatient;
+                    form.female_patient_id = null;
+                    form.male_patient_id = autoPatient?.id ?? null;
+                } else {
+                    selectedFemale.value = autoPatient;
+                    selectedMale.value = null;
+                }
             }
         }
     },
