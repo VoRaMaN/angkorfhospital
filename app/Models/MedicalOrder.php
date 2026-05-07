@@ -101,4 +101,9 @@ class MedicalOrder extends Model
     {
         return $this->hasOne(SaReport::class);
     }
+
+    public function spermFreezingReport()
+    {
+        return $this->hasOne(SpermFreezingReport::class);
+    }
 }

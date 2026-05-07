@@ -38,6 +38,7 @@ import SemenAnalysisDialog from './SemenAnalysisDialog.vue';
 import SaReportDialog from './SaReportDialog.vue';
 import IuiReportDialog from './IuiReportDialog.vue';
 import FetReportDialog from './FetReportDialog.vue';
+import SpermFreezingDialog from './SpermFreezingDialog.vue';
 
 interface LabItem {
     id: number;
@@ -69,6 +70,7 @@ interface ActiveLabOrder {
     sa_report_id: number | null;
     iui_report_id: number | null;
     fet_report_id: number | null;
+    sperm_freezing_report_id: number | null;
     lab_items: LabItem[];
 }
 
@@ -318,6 +320,29 @@ const openFetDialog = async (order: ActiveLabOrder) => {
 const onFetSaved = () => {
     router.reload({ only: ['activeLabOrders'], preserveScroll: true });
 };
+
+// ─── Sperm Freezing Report Dialog ────────────────────────────────────────────
+const spermFreezingDialogOpen = ref(false);
+const spermFreezingOrderContext = ref<ActiveLabOrder | null>(null);
+const spermFreezingExistingReport = ref<any>(null);
+
+const openSpermFreezingDialog = async (order: ActiveLabOrder) => {
+    spermFreezingOrderContext.value = order;
+    spermFreezingExistingReport.value = null;
+    if (order.sperm_freezing_report_id) {
+        try {
+            const resp = await fetch(`/sperm-freezing-reports/order/${order.id}`);
+            if (resp.ok) {
+                spermFreezingExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    spermFreezingDialogOpen.value = true;
+};
+
+const onSpermFreezingSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
 </script>
 
 <template>
@@ -477,6 +502,16 @@ const onFetSaved = () => {
                                 >
                                     <FileText class="size-3" />
                                     {{ order.fet_report_id ? 'Edit FET Report' : 'Input FET Report' }}
+                                </Button>
+
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-cyan-200 bg-cyan-50 px-2 text-xs text-cyan-700 hover:bg-cyan-100 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-300"
+                                    @click.stop="openSpermFreezingDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.sperm_freezing_report_id ? 'Edit Sperm Freezing' : 'Input Sperm Freezing' }}
                                 </Button>
 
                             </div>
@@ -792,5 +827,18 @@ const onFetSaved = () => {
         :doctor-name="saOrderContext?.staff_name ?? null"
         :existing-report="saExistingReport"
         @saved="onSaSaved"
+    />
+
+    <!-- Sperm Freezing Dialog -->
+    <SpermFreezingDialog
+        v-model="spermFreezingDialogOpen"
+        :order-id="spermFreezingOrderContext?.id ?? 0"
+        :patient-id="spermFreezingOrderContext?.patient_id ?? null"
+        :patient-name="spermFreezingOrderContext?.patient_name ?? ''"
+        :patient-dob="spermFreezingOrderContext?.patient_dob ?? null"
+        :patient-hn="spermFreezingOrderContext?.patient_id ?? null"
+        :doctor-name="spermFreezingOrderContext?.staff_name ?? null"
+        :existing-report="spermFreezingExistingReport"
+        @saved="onSpermFreezingSaved"
     />
 </template>

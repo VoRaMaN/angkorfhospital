@@ -22,6 +22,7 @@ use App\Http\Controllers\PatientFileController;
 use App\Http\Controllers\SaReportController;
 use App\Http\Controllers\SemenAnalysisReportController;
 use App\Http\Controllers\SpecialItemController;
+use App\Http\Controllers\SpermFreezingReportController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffFileController;
 use App\Http\Controllers\VisitController;
@@ -87,6 +88,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('sa-reports', [SaReportController::class, 'store'])->name('sa-reports.store');
     Route::put('sa-reports/{saReport}', [SaReportController::class, 'update'])->name('sa-reports.update');
     Route::get('sa-reports/order/{medicalOrderId}', [SaReportController::class, 'getByOrder'])->name('sa-reports.get-by-order');
+
+    // Sperm Freezing Reports
+    Route::get('sperm-freezing-reports/{spermFreezingReport}/pdf', [SpermFreezingReportController::class, 'generatePdf'])->name('sperm-freezing-reports.pdf');
+    Route::post('sperm-freezing-reports', [SpermFreezingReportController::class, 'store'])->name('sperm-freezing-reports.store');
+    Route::put('sperm-freezing-reports/{spermFreezingReport}', [SpermFreezingReportController::class, 'update'])->name('sperm-freezing-reports.update');
+    Route::get('sperm-freezing-reports/order/{medicalOrderId}', [SpermFreezingReportController::class, 'getByOrder'])->name('sperm-freezing-reports.get-by-order');
 
     // IUI Reports
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');
