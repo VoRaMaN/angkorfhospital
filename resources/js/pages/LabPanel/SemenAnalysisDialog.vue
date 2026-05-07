@@ -23,6 +23,7 @@ interface SemenAnalysisData {
     medical_order_id: number;
     patient_id?: string | null;
     wife_name?: string | null;
+    wife_hn?: string | null;
     abstinence_days?: number | null;
     appearance?: string | null;
     liquefaction?: string | null;
@@ -114,6 +115,7 @@ watch(partnerQuery, (q) => {
 const selectPartner = (p: PatientOption) => {
     selectedPartner.value = p;
     form.wife_name = p.name;
+    form.wife_hn = p.id || null;
     partnerQuery.value = '';
     partnerResults.value = [];
 };
@@ -121,6 +123,7 @@ const selectPartner = (p: PatientOption) => {
 const clearPartner = () => {
     selectedPartner.value = null;
     form.wife_name = null;
+    form.wife_hn = null;
 };
 
 // ─── Patient age display ──────────────────────────────────────────────────────
@@ -145,6 +148,7 @@ const buildEmptyForm = (): SemenAnalysisData => ({
     medical_order_id: props.orderId,
     patient_id: props.patientId,
     wife_name: null,
+    wife_hn: null,
     abstinence_days: null,
     appearance: null,
     liquefaction: null,
@@ -191,7 +195,7 @@ watch(
             if (r) {
                 Object.assign(form, r);
                 selectedPartner.value = r.wife_name
-                    ? { id: '', name: r.wife_name, dob: null, phone: null, id_card: null, gender: null }
+                    ? { id: r.wife_hn ?? '', name: r.wife_name, dob: null, phone: null, id_card: null, gender: null }
                     : null;
             } else {
                 Object.assign(form, buildEmptyForm());

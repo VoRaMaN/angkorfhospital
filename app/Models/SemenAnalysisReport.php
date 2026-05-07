@@ -9,7 +9,7 @@ class SemenAnalysisReport extends Model
 {
     protected $fillable = [
         'medical_order_id', 'patient_id',
-        'wife_name', 'abstinence_days', 'appearance', 'liquefaction', 'viscosity', 'ph',
+        'wife_name', 'wife_hn', 'abstinence_days', 'appearance', 'liquefaction', 'viscosity', 'ph',
         'viability', 'volume', 'count_per_ml', 'total_count', 'motile', 'total_motile', 'motility',
         'motility_4_rapid', 'motility_3_medium', 'motility_2_slow', 'motility_1_static',
         'wbc', 'morphology_normal', 'morphology_abnormal', 'head_defect', 'neck_defect', 'tail_defect',

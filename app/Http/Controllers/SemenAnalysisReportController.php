@@ -50,6 +50,7 @@ class SemenAnalysisReportController extends Controller
             'medical_order_id' => 'required|exists:medical_orders,id',
             'patient_id' => 'nullable|exists:patients,id',
             'wife_name' => 'nullable|string|max:255',
+            'wife_hn' => 'nullable|string|max:255',
             'abstinence_days' => 'nullable|integer',
             'appearance' => 'nullable|string|max:255',
             'liquefaction' => 'nullable|string|max:255',
@@ -99,6 +100,7 @@ class SemenAnalysisReportController extends Controller
         $data = $request->validate([
             'patient_id' => 'nullable|exists:patients,id',
             'wife_name' => 'nullable|string|max:255',
+            'wife_hn' => 'nullable|string|max:255',
             'abstinence_days' => 'nullable|integer',
             'appearance' => 'nullable|string|max:255',
             'liquefaction' => 'nullable|string|max:255',
