@@ -57,7 +57,7 @@ class LabPanelController extends Controller
         $labStartDate = $request->input('lab_start_date', today()->toDateString());
         $labEndDate = $request->input('lab_end_date', today()->toDateString());
 
-        $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems', 'opuReport'])
+        $activeLabOrders = MedicalOrder::with(['patient', 'staff.user', 'orderItems', 'opuReport', 'semenAnalysisReport'])
             ->whereNotIn('status', [MedicalOrderStatusEnum::CANCEL, MedicalOrderStatusEnum::REJECTED])
             ->whereHas('orderItems', function ($q) {
                 $q->where('item_type', 'lab');
@@ -90,6 +90,7 @@ class LabPanelController extends Controller
                     'priority_label' => $order->priority->label(),
                     'ordered_at' => $order->ordered_at?->format('M d, Y H:i'),
                     'opu_report_id' => $order->opuReport?->id,
+                    'semen_analysis_report_id' => $order->semenAnalysisReport?->id,
                     'lab_items' => $order->orderItems->where('item_type', 'lab')->map(function ($item) {
                         return [
                             'id' => $item->id,

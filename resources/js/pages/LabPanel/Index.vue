@@ -34,6 +34,7 @@ import { FlaskConical, Plus, Search, Clock, AlertCircle, CheckCircle2, Clipboard
 import { computed, ref, watch, reactive } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import OPUReportDialog from './OPUReportDialog.vue';
+import SemenAnalysisDialog from './SemenAnalysisDialog.vue';
 
 interface LabItem {
     id: number;
@@ -61,6 +62,7 @@ interface ActiveLabOrder {
     priority_label: string;
     ordered_at: string;
     opu_report_id: number | null;
+    semen_analysis_report_id: number | null;
     lab_items: LabItem[];
 }
 
@@ -211,6 +213,29 @@ const onOPUSaved = () => {
 const viewOPUReport = (orderId: number) => {
     router.visit(`/opu-reports/order/${orderId}`);
 };
+
+// ─── Semen Analysis Dialog ────────────────────────────────────────────────────
+const semenDialogOpen = ref(false);
+const semenOrderContext = ref<ActiveLabOrder | null>(null);
+const semenExistingReport = ref<any>(null);
+
+const openSemenDialog = async (order: ActiveLabOrder) => {
+    semenOrderContext.value = order;
+    semenExistingReport.value = null;
+    if (order.semen_analysis_report_id) {
+        try {
+            const resp = await fetch(`/semen-analysis-reports/order/${order.id}`);
+            if (resp.ok) {
+                semenExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    semenDialogOpen.value = true;
+};
+
+const onSemenSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
 </script>
 
 <template>
@@ -320,8 +345,8 @@ const viewOPUReport = (orderId: number) => {
                             <p class="text-xs text-muted-foreground">
                                 Ordered by Dr. {{ order.staff_name }}
                             </p>
-                            <!-- OPU Report button -->
-                            <div class="mt-2 flex gap-2">
+                            <!-- Report buttons -->
+                            <div class="mt-2 flex flex-wrap gap-2">
                                 <Button
                                     size="sm"
                                     variant="outline"
@@ -340,6 +365,15 @@ const viewOPUReport = (orderId: number) => {
                                 >
                                     <Eye class="size-3" />
                                     View
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-teal-200 bg-teal-50 px-2 text-xs text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300"
+                                    @click.stop="openSemenDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.semen_analysis_report_id ? 'Edit SA+Freezing' : 'Input SA+Freezing' }}
                                 </Button>
                             </div>
                         </CardHeader>
@@ -602,5 +636,18 @@ const viewOPUReport = (orderId: number) => {
         :doctor-staff-name="opuOrderContext?.staff_name ?? null"
         :existing-report="opuExistingReport"
         @saved="onOPUSaved"
+    />
+
+    <!-- Semen Analysis Dialog -->
+    <SemenAnalysisDialog
+        v-model="semenDialogOpen"
+        :order-id="semenOrderContext?.id ?? 0"
+        :patient-id="semenOrderContext?.patient_id ?? null"
+        :patient-name="semenOrderContext?.patient_name ?? ''"
+        :patient-dob="semenOrderContext?.patient_dob ?? null"
+        :patient-hn="semenOrderContext?.patient_id ?? null"
+        :doctor-name="semenOrderContext?.staff_name ?? null"
+        :existing-report="semenExistingReport"
+        @saved="onSemenSaved"
     />
 </template>

@@ -17,6 +17,7 @@ use App\Http\Controllers\MedicineReportController;
 use App\Http\Controllers\OpuReportController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientFileController;
+use App\Http\Controllers\SemenAnalysisReportController;
 use App\Http\Controllers\SpecialItemController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StaffFileController;
@@ -67,6 +68,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('opu-reports', [OpuReportController::class, 'store'])->name('opu-reports.store');
     Route::put('opu-reports/{opuReport}', [OpuReportController::class, 'update'])->name('opu-reports.update');
     Route::get('opu-reports/order/{medicalOrderId}', [OpuReportController::class, 'show'])->name('opu-reports.show');
+
+    // Semen Analysis Reports
+    Route::post('semen-analysis-reports', [SemenAnalysisReportController::class, 'store'])->name('semen-analysis-reports.store');
+    Route::put('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'update'])->name('semen-analysis-reports.update');
+    Route::get('semen-analysis-reports/order/{medicalOrderId}', [SemenAnalysisReportController::class, 'getByOrder'])->name('semen-analysis-reports.get-by-order');
 
     // Special Items (Medicine Groups)
     Route::resource('medicine-groups', MedicineGroupController::class);
