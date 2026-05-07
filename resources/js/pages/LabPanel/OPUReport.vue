@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { ArrowLeft, ClipboardList, Edit2, User } from 'lucide-vue-next';
+import { ArrowLeft, ClipboardList, Edit2, Printer, User } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import OPUReportDialog from './OPUReportDialog.vue';
 
@@ -153,14 +153,23 @@ const onSaved = () => {
                         <ClipboardList class="h-5 w-5 text-primary" />
                         <div>
                             <h1 class="text-xl font-bold">OPU Report</h1>
-                            <p class="text-xs text-muted-foreground">Summary of OPU Report — Angkor-F Clinic</p>
+                            <p class="text-xs text-muted-foreground">Angkor-F Hospital — IVF Lab</p>
                         </div>
                     </div>
                 </div>
-                <Button @click="editOpen = true" class="gap-2">
-                    <Edit2 class="h-4 w-4" />
-                    Edit Report
-                </Button>
+                <div class="flex gap-2">
+                    <button
+                        class="inline-flex h-9 items-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+                        @click="window.print()"
+                    >
+                        <Printer class="h-4 w-4" />
+                        Print
+                    </button>
+                    <Button @click="editOpen = true" class="gap-2">
+                        <Edit2 class="h-4 w-4" />
+                        Edit Report
+                    </Button>
+                </div>
             </div>
 
             <!-- Patient Information -->

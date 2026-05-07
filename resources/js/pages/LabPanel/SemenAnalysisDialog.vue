@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { router } from '@inertiajs/vue3';
-import { CheckCircle2, ClipboardList, Loader2, Search, User, X } from 'lucide-vue-next';
+import { CheckCircle2, ClipboardList, Loader2, Printer, Search, User, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 
 // ─── Props & Emits ────────────────────────────────────────────────────────────
@@ -596,11 +596,17 @@ const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2
                         <!-- ── Footer ─────────────────────────────────────── -->
                         <div class="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t bg-background px-6 py-4">
                             <Button variant="outline" @click="isOpen = false">Cancel</Button>
-                            <Button :disabled="saving" class="gap-2" @click="save">
-                                <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-                                <CheckCircle2 v-else class="h-4 w-4" />
-                                {{ existingReport ? 'Update Report' : 'Save Report' }}
-                            </Button>
+                            <div class="flex gap-2">
+                                <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/semen-analysis-reports/${existingReport!.id}`, '_blank')">
+                                    <Printer class="h-4 w-4" />
+                                    Print
+                                </Button>
+                                <Button :disabled="saving" class="gap-2" @click="save">
+                                    <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
+                                    <CheckCircle2 v-else class="h-4 w-4" />
+                                    {{ existingReport ? 'Update Report' : 'Save Report' }}
+                                </Button>
+                            </div>
                         </div>
 
                     </div>

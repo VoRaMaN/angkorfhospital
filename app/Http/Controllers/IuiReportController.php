@@ -6,9 +6,43 @@ use App\Models\IuiReport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class IuiReportController extends Controller
 {
+    public function show(IuiReport $iuiReport): Response
+    {
+        $iuiReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
+
+        $patient = $iuiReport->patient ?? $iuiReport->medicalOrder?->patient;
+        $staff = $iuiReport->medicalOrder?->staff;
+
+        $dob = null;
+        $age = null;
+        if ($patient) {
+            $d = $patient->date_of_birth_day;
+            $m = $patient->date_of_birth_month;
+            $y = $patient->date_of_birth_year;
+            if ($d && $m && $y) {
+                $dob = str_pad($d, 2, '0', STR_PAD_LEFT).'/'.str_pad($m, 2, '0', STR_PAD_LEFT).'/'.$y;
+                $birth = new \DateTime("{$y}-{$m}-{$d}");
+                $age = (new \DateTime)->diff($birth)->y;
+            }
+        }
+
+        $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
+
+        return Inertia::render('LabPanel/IuiReport', [
+            'report' => array_merge($iuiReport->toArray(), [
+                'patient_name' => $patientName,
+                'patient_hn'   => $patient?->id,
+                'patient_dob'  => $dob,
+                'patient_age'  => $age,
+                'doctor_name'  => $staff?->user?->name,
+            ]),
+        ]);
+    }
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);

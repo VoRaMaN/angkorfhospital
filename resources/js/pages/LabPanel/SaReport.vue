@@ -162,7 +162,7 @@ const printReport = () => {
                     <FileText class="h-5 w-5 text-blue-600" />
                     <div>
                         <h1 class="text-lg font-bold">SA Report</h1>
-                        <p class="text-xs text-muted-foreground">Angkor-F Clinic — IVF Lab</p>
+                        <p class="text-xs text-muted-foreground">Angkor-F Hospital — IVF Lab</p>
                     </div>
                 </div>
             </div>
@@ -191,11 +191,14 @@ const printReport = () => {
                 <!-- ── Header ── -->
                 <div class="flex items-start justify-between border-b-2 border-black pb-3 mb-3">
                     <div class="flex items-center gap-3">
-                        <img src="/images/logo.png" alt="Angkor-F Clinic" class="h-16 w-auto object-contain" />
+                        <img src="/images/logo.png" alt="Angkor-F Hospital" class="h-20 w-auto object-contain" />
                         <div>
-                            <p class="font-bold text-base leading-tight">ANGKOR-F CLINIC</p>
-                            <p class="text-xs leading-tight">IVF CENTER</p>
-                            <p class="text-xs leading-tight text-gray-600">Phnom Penh, Cambodia</p>
+                            <p class="font-bold text-sm leading-tight">មជ្ឈិមពេទ្យអង្គរ ភេហ្ស</p>
+                            <p class="font-bold text-base leading-tight">ANGKOR-F HOSPITAL</p>
+                            <p class="text-xs leading-tight text-gray-600">#National Road 6A, Salakonseng Village,</p>
+                            <p class="text-xs leading-tight text-gray-600">Sangkat Svay Dangkum, Siem Reap, Cambodia</p>
+                            <p class="text-xs leading-tight text-gray-600">Tel: (855) 31 3 5555 88 | (855) 12 881 307</p>
+                            <p class="text-xs leading-tight text-gray-600">E-mail: angkorfhospital@gmail.com</p>
                         </div>
                     </div>
                     <div class="text-sm space-y-0.5 text-right">

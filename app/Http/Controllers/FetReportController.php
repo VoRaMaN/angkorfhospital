@@ -6,9 +6,22 @@ use App\Models\FetReport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class FetReportController extends Controller
 {
+    public function show(FetReport $fetReport): Response
+    {
+        $fetReport->load('medicalOrder.staff.user');
+        $staff = $fetReport->medicalOrder?->staff;
+
+        return Inertia::render('LabPanel/FetReport', [
+            'report' => array_merge($fetReport->toArray(), [
+                'doctor_name' => $staff?->user?->name ?? $fetReport->doctor,
+            ]),
+        ]);
+    }
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);

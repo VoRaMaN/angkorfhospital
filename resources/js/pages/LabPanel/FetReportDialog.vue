@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { router } from '@inertiajs/vue3';
-import { CheckCircle2, FlaskConical, Loader2, Search, User, X } from 'lucide-vue-next';
+import { CheckCircle2, FlaskConical, Loader2, Printer, Search, User, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -588,11 +588,17 @@ const gradingDays = [1, 2, 3, 4, 5];
                             <X class="mr-2 h-4 w-4" />
                             Cancel
                         </Button>
-                        <Button :disabled="saving" @click="save">
-                            <Loader2 v-if="saving" class="mr-2 h-4 w-4 animate-spin" />
-                            <CheckCircle2 v-else class="mr-2 h-4 w-4" />
-                            {{ saving ? 'Saving…' : 'Save FET Report' }}
-                        </Button>
+                        <div class="flex gap-2">
+                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/fet-reports/${existingReport!.id}`, '_blank')">
+                                <Printer class="h-4 w-4" />
+                                Print
+                            </Button>
+                            <Button :disabled="saving" @click="save">
+                                <Loader2 v-if="saving" class="mr-2 h-4 w-4 animate-spin" />
+                                <CheckCircle2 v-else class="mr-2 h-4 w-4" />
+                                {{ saving ? 'Saving…' : 'Save FET Report' }}
+                            </Button>
+                        </div>
                     </div>
 
                 </div>

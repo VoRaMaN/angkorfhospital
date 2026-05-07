@@ -88,11 +88,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // IUI Reports
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');
     Route::put('iui-reports/{iuiReport}', [IuiReportController::class, 'update'])->name('iui-reports.update');
+    Route::get('iui-reports/{iuiReport}', [IuiReportController::class, 'show'])->name('iui-reports.show');
     Route::get('iui-reports/order/{medicalOrderId}', [IuiReportController::class, 'getByOrder'])->name('iui-reports.get-by-order');
 
     // FET Reports
     Route::post('fet-reports', [FetReportController::class, 'store'])->name('fet-reports.store');
     Route::put('fet-reports/{fetReport}', [FetReportController::class, 'update'])->name('fet-reports.update');
+    Route::get('fet-reports/{fetReport}', [FetReportController::class, 'show'])->name('fet-reports.show');
     Route::get('fet-reports/order/{medicalOrderId}', [FetReportController::class, 'getByOrder'])->name('fet-reports.get-by-order');
 
     // Special Items (Medicine Groups)

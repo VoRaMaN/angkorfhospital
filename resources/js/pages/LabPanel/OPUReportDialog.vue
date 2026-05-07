@@ -12,6 +12,7 @@ import {
     ClipboardList,
     Eye,
     Loader2,
+    Printer,
     Search,
     User,
     X,
@@ -706,11 +707,17 @@ const save = () => {
                     <!-- Footer -->
                     <div class="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t bg-background px-6 py-4">
                         <Button variant="outline" @click="isOpen = false">Cancel</Button>
-                        <Button :disabled="saving" class="gap-2" @click="save">
+                        <div class="flex gap-2">
+                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => window.open(`/opu-reports/order/${props.orderId}`, '_blank')">
+                                <Printer class="h-4 w-4" />
+                                Print
+                            </Button>
+                            <Button :disabled="saving" class="gap-2" @click="save">
                             <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
                             <CheckCircle2 v-else class="h-4 w-4" />
                             {{ existingReport ? 'Update Report' : 'Save Report' }}
                         </Button>
+                        </div>
                     </div>
                 </div>
             </div>
