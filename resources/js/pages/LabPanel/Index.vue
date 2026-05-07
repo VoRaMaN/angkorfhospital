@@ -39,6 +39,7 @@ import SaReportDialog from './SaReportDialog.vue';
 import IuiReportDialog from './IuiReportDialog.vue';
 import FetReportDialog from './FetReportDialog.vue';
 import SpermFreezingDialog from './SpermFreezingDialog.vue';
+import HormoneReportDialog from './HormoneReportDialog.vue';
 
 interface LabItem {
     id: number;
@@ -71,6 +72,7 @@ interface ActiveLabOrder {
     iui_report_id: number | null;
     fet_report_id: number | null;
     sperm_freezing_report_id: number | null;
+    hormone_report_id: number | null;
     lab_items: LabItem[];
 }
 
@@ -343,6 +345,29 @@ const openSpermFreezingDialog = async (order: ActiveLabOrder) => {
 const onSpermFreezingSaved = () => {
     router.reload({ only: ['activeLabOrders'], preserveScroll: true });
 };
+
+// ─── Hormone Report Dialog ────────────────────────────────────────────────────
+const hormoneDialogOpen = ref(false);
+const hormoneOrderContext = ref<ActiveLabOrder | null>(null);
+const hormoneExistingReport = ref<any>(null);
+
+const openHormoneDialog = async (order: ActiveLabOrder) => {
+    hormoneOrderContext.value = order;
+    hormoneExistingReport.value = null;
+    if (order.hormone_report_id) {
+        try {
+            const resp = await fetch(`/hormone-reports/order/${order.id}`);
+            if (resp.ok) {
+                hormoneExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    hormoneDialogOpen.value = true;
+};
+
+const onHormoneSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
 </script>
 
 <template>
@@ -512,6 +537,16 @@ const onSpermFreezingSaved = () => {
                                 >
                                     <FileText class="size-3" />
                                     {{ order.sperm_freezing_report_id ? 'Edit Sperm Freezing' : 'Input Sperm Freezing' }}
+                                </Button>
+
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-blue-200 bg-blue-50 px-2 text-xs text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                                    @click.stop="openHormoneDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.hormone_report_id ? 'Edit Hormone Report' : 'Input Hormone Report' }}
                                 </Button>
 
                             </div>
@@ -840,5 +875,18 @@ const onSpermFreezingSaved = () => {
         :doctor-name="spermFreezingOrderContext?.staff_name ?? null"
         :existing-report="spermFreezingExistingReport"
         @saved="onSpermFreezingSaved"
+    />
+
+    <!-- Hormone Report Dialog -->
+    <HormoneReportDialog
+        v-model="hormoneDialogOpen"
+        :order-id="hormoneOrderContext?.id ?? 0"
+        :patient-id="hormoneOrderContext?.patient_id ?? null"
+        :patient-name="hormoneOrderContext?.patient_name ?? ''"
+        :patient-dob="hormoneOrderContext?.patient_dob ?? null"
+        :patient-hn="hormoneOrderContext?.patient_id ?? null"
+        :doctor-name="hormoneOrderContext?.staff_name ?? null"
+        :existing-report="hormoneExistingReport"
+        @saved="onHormoneSaved"
     />
 </template>

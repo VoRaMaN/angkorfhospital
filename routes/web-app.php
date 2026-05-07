@@ -8,6 +8,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FetReportController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\HormoneReportController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IuiReportController;
 use App\Http\Controllers\LabPanelController;
@@ -94,6 +95,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('sperm-freezing-reports', [SpermFreezingReportController::class, 'store'])->name('sperm-freezing-reports.store');
     Route::put('sperm-freezing-reports/{spermFreezingReport}', [SpermFreezingReportController::class, 'update'])->name('sperm-freezing-reports.update');
     Route::get('sperm-freezing-reports/order/{medicalOrderId}', [SpermFreezingReportController::class, 'getByOrder'])->name('sperm-freezing-reports.get-by-order');
+
+    // Hormone Reports
+    Route::get('hormone-reports/{hormoneReport}/pdf', [HormoneReportController::class, 'generatePdf'])->name('hormone-reports.pdf');
+    Route::post('hormone-reports', [HormoneReportController::class, 'store'])->name('hormone-reports.store');
+    Route::put('hormone-reports/{hormoneReport}', [HormoneReportController::class, 'update'])->name('hormone-reports.update');
+    Route::get('hormone-reports/order/{medicalOrderId}', [HormoneReportController::class, 'getByOrder'])->name('hormone-reports.get-by-order');
 
     // IUI Reports
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');
