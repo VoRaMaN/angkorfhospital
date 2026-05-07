@@ -1,13 +1,23 @@
 <script setup lang="ts">
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { router } from '@inertiajs/vue3';
-import { CheckCircle2, FlaskConical, Loader2, X } from 'lucide-vue-next';
-import { reactive, ref, watch, computed } from 'vue';
+import { CheckCircle2, FlaskConical, Loader2, Search, User, X } from 'lucide-vue-next';
+import { computed, reactive, ref, watch } from 'vue';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface PatientOption {
+    id: string;
+    name: string;
+    dob: string | null;
+    phone: string | null;
+    id_card: string | null;
+    gender: string | null;
+}
+
 interface FetReportData {
     id?: number;
     medical_order_id: number;
@@ -81,16 +91,91 @@ const isOpen = computed({
     set: (v) => emit('update:modelValue', v),
 });
 
-// ─── Form state ───────────────────────────────────────────────────────────────
+// ─── Auto-detect gender from name title ───────────────────────────────────────
+const autoIsMale = computed(() =>
+    props.patientName ? /^mr\.?\s/i.test(props.patientName.trim()) : false,
+);
+
+const formattedDob = computed(() => {
+    const dob = props.patientDob;
+    if (!dob) return null;
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return null;
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = String(d.getFullYear()).slice(-2);
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    if (today.getMonth() < d.getMonth() || (today.getMonth() === d.getMonth() && today.getDate() < d.getDate())) {
+        age--;
+    }
+    return `${day}.${month}.${year} (${age}yr)`;
+});
+const selectedFemale = ref<PatientOption | null>(null);
+const selectedMale = ref<PatientOption | null>(null);
+
+// ─── Partner patient search ───────────────────────────────────────────────────
+const partnerQuery = ref('');
+const partnerResults = ref<PatientOption[]>([]);
+const partnerLoading = ref(false);
+let partnerTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(partnerQuery, (q) => {
+    if (partnerTimer) clearTimeout(partnerTimer);
+    if (q.length < 2) { partnerResults.value = []; return; }
+    partnerTimer = setTimeout(async () => {
+        partnerLoading.value = true;
+        try {
+            const resp = await fetch(`/opu-reports/search-patients?q=${encodeURIComponent(q)}`);
+            partnerResults.value = await resp.json();
+        } finally {
+            partnerLoading.value = false;
+        }
+    }, 300);
+});
+
+const selectPartner = (p: PatientOption) => {
+    if (autoIsMale.value) {
+        selectedFemale.value = p;
+        form.female_patient_id = p.id;
+        form.female_patient_name = p.name;
+        form.female_hn = p.id;
+        form.female_dob = p.dob;
+    } else {
+        selectedMale.value = p;
+        form.male_patient_id = p.id;
+        form.male_patient_name = p.name;
+        form.male_hn = p.id;
+        form.male_dob = p.dob;
+    }
+    partnerQuery.value = '';
+    partnerResults.value = [];
+};
+
+const clearPartner = () => {
+    if (autoIsMale.value) {
+        selectedFemale.value = null;
+        form.female_patient_id = null;
+        form.female_patient_name = null;
+        form.female_hn = null;
+        form.female_dob = null;
+    } else {
+        selectedMale.value = null;
+        form.male_patient_id = null;
+        form.male_patient_name = null;
+        form.male_hn = null;
+        form.male_dob = null;
+    }
+};
 const buildEmptyForm = (): FetReportData => ({
     medical_order_id: props.orderId,
-    female_patient_id: null,
-    female_patient_name: null,
-    female_hn: null,
+    female_patient_id: autoIsMale.value ? null : (props.patientId ?? null),
+    female_patient_name: autoIsMale.value ? null : props.patientName,
+    female_hn: autoIsMale.value ? null : (props.patientId ?? null),
     female_dob: null,
-    male_patient_id: null,
-    male_patient_name: null,
-    male_hn: null,
+    male_patient_id: autoIsMale.value ? (props.patientId ?? null) : null,
+    male_patient_name: autoIsMale.value ? props.patientName : null,
+    male_hn: autoIsMale.value ? (props.patientId ?? null) : null,
     male_dob: null,
     procedure: 'FET',
     fet_date: null,
@@ -143,9 +228,32 @@ watch(
             const r = props.existingReport;
             if (r) {
                 Object.assign(form, r);
+                selectedFemale.value = r.female_patient_id
+                    ? { id: r.female_patient_id, name: r.female_patient_name ?? r.female_patient_id, dob: r.female_dob ?? null, phone: null, id_card: null, gender: null }
+                    : null;
+                selectedMale.value = r.male_patient_id
+                    ? { id: r.male_patient_id, name: r.male_patient_name ?? r.male_patient_id, dob: r.male_dob ?? null, phone: null, id_card: null, gender: null }
+                    : null;
             } else {
                 Object.assign(form, buildEmptyForm());
+                const autoPatient: PatientOption = {
+                    id: props.patientId ?? '',
+                    name: props.patientName,
+                    dob: props.patientDob ?? null,
+                    phone: null,
+                    id_card: null,
+                    gender: null,
+                };
+                if (autoIsMale.value) {
+                    selectedFemale.value = null;
+                    selectedMale.value = autoPatient;
+                } else {
+                    selectedFemale.value = autoPatient;
+                    selectedMale.value = null;
+                }
             }
+            partnerQuery.value = '';
+            partnerResults.value = [];
         }
     },
 );
@@ -209,59 +317,81 @@ const gradingDays = [1, 2, 3, 4, 5];
 
                     <div class="space-y-6 px-6 py-5">
 
-                        <!-- ── Patient Header ─────────────────────────────── -->
+                        <!-- ── Patient Information ────────────────────────── -->
                         <div class="rounded-xl border bg-muted/30 p-4">
-                            <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
-                                <!-- Female -->
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Patient Information</h3>
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <!-- Auto patient (gender-aware) -->
                                 <div class="space-y-2">
-                                    <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Female (Wife)</p>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div class="space-y-1">
-                                            <Label class="text-xs">Name</Label>
-                                            <Input v-model="form.female_patient_name" placeholder="Female name" class="h-8 text-sm" />
+                                    <Label class="text-sm font-medium">{{ autoIsMale ? 'Name (Male)' : 'Name (Female)' }}</Label>
+                                    <div class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
+                                        <User :class="autoIsMale ? 'h-4 w-4 shrink-0 text-blue-500' : 'h-4 w-4 shrink-0 text-pink-500'" />
+                                        <div class="min-w-0 flex-1">
+                                            <p class="truncate text-sm font-medium">{{ patientName }}</p>
+                                            <p v-if="formattedDob" class="text-xs text-muted-foreground">DOB: {{ formattedDob }}</p>
                                         </div>
-                                        <div class="space-y-1">
-                                            <Label class="text-xs">H.N.</Label>
-                                            <Input v-model="form.female_hn" placeholder="HN" class="h-8 text-sm" />
-                                        </div>
-                                        <div class="col-span-2 space-y-1">
-                                            <Label class="text-xs">DOB</Label>
-                                            <Input v-model="form.female_dob" placeholder="DD/MM/YYYY" class="h-8 text-sm" />
-                                        </div>
+                                        <Badge :class="autoIsMale ? 'ml-auto shrink-0 bg-blue-100 text-blue-700 border-blue-200 text-xs' : 'ml-auto shrink-0 bg-pink-100 text-pink-700 border-pink-200 text-xs'">Auto</Badge>
                                     </div>
+                                    <p class="text-xs text-muted-foreground">H.N.: {{ patientId ?? '—' }}</p>
                                 </div>
-                                <!-- Male -->
+
+                                <!-- Partner patient (search) -->
                                 <div class="space-y-2">
-                                    <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Male (Husband)</p>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div class="space-y-1">
-                                            <Label class="text-xs">Name</Label>
-                                            <Input v-model="form.male_patient_name" placeholder="Male name" class="h-8 text-sm" />
+                                    <Label class="text-sm font-medium">{{ autoIsMale ? 'Name (Female / Partner)' : 'Name (Male / Partner)' }}</Label>
+                                    <div v-if="autoIsMale ? selectedFemale : selectedMale" class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
+                                        <User :class="autoIsMale ? 'h-4 w-4 shrink-0 text-pink-500' : 'h-4 w-4 shrink-0 text-blue-500'" />
+                                        <div class="min-w-0 flex-1">
+                                            <p class="truncate text-sm font-medium">{{ (autoIsMale ? selectedFemale : selectedMale)?.name }}</p>
+                                            <p v-if="(autoIsMale ? selectedFemale : selectedMale)?.dob" class="text-xs text-muted-foreground">DOB: {{ (autoIsMale ? selectedFemale : selectedMale)?.dob }}</p>
                                         </div>
-                                        <div class="space-y-1">
-                                            <Label class="text-xs">H.N.</Label>
-                                            <Input v-model="form.male_hn" placeholder="HN" class="h-8 text-sm" />
-                                        </div>
-                                        <div class="col-span-2 space-y-1">
-                                            <Label class="text-xs">DOB</Label>
-                                            <Input v-model="form.male_dob" placeholder="DD/MM/YYYY" class="h-8 text-sm" />
+                                        <button class="shrink-0 text-muted-foreground hover:text-destructive" @click="clearPartner">
+                                            <X class="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                    <div v-else class="relative">
+                                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                        <input
+                                            v-model="partnerQuery"
+                                            type="text"
+                                            placeholder="Search by name, ID or phone..."
+                                            class="flex h-10 w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        />
+                                        <Loader2 v-if="partnerLoading" class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                                        <div v-if="partnerResults.length > 0" class="absolute z-20 mt-1 w-full rounded-xl border bg-background shadow-lg">
+                                            <button
+                                                v-for="p in partnerResults"
+                                                :key="p.id"
+                                                class="flex w-full items-start gap-3 px-3 py-2 text-left hover:bg-muted"
+                                                @click="selectPartner(p)"
+                                            >
+                                                <User class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                                                <div>
+                                                    <p class="text-sm font-medium">{{ p.name }}</p>
+                                                    <p class="text-xs text-muted-foreground">{{ p.id }}{{ p.dob ? ' · DOB: ' + p.dob : '' }}{{ p.phone ? ' · ' + p.phone : '' }}</p>
+                                                </div>
+                                            </button>
                                         </div>
                                     </div>
+                                    <p v-if="autoIsMale ? selectedFemale : selectedMale" class="text-xs text-muted-foreground">H.N.: {{ (autoIsMale ? selectedFemale : selectedMale)?.id }}</p>
                                 </div>
                             </div>
-                            <!-- Procedure row -->
-                            <div class="mt-3 grid grid-cols-3 gap-2">
-                                <div class="space-y-1">
+
+                            <!-- Procedure / Date of FET / Doctor -->
+                            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div class="space-y-1.5">
                                     <Label class="text-xs">Procedure</Label>
-                                    <Input v-model="form.procedure" class="h-8 text-sm" />
+                                    <Input v-model="form.procedure" placeholder="e.g. FET" class="h-9 text-sm" />
                                 </div>
-                                <div class="space-y-1">
+                                <div class="space-y-1.5">
                                     <Label class="text-xs">Date of FET</Label>
-                                    <Input v-model="form.fet_date" placeholder="DD/MM/YYYY" class="h-8 text-sm" />
+                                    <Input v-model="form.fet_date" type="date" class="h-9 text-sm" />
                                 </div>
-                                <div class="space-y-1">
+                                <div class="space-y-1.5">
                                     <Label class="text-xs">Doctor</Label>
-                                    <Input v-model="form.doctor" placeholder="Doctor name" class="h-8 text-sm" />
+                                    <div class="flex h-9 items-center rounded-lg border bg-muted px-3 text-sm text-muted-foreground">
+                                        {{ staffName ?? '—' }}
+                                        <Badge class="ml-auto bg-muted text-xs">Auto</Badge>
+                                    </div>
                                 </div>
                             </div>
                         </div>
