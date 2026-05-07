@@ -36,6 +36,7 @@ import { useAuth } from '@/composables/useAuth';
 import OPUReportDialog from './OPUReportDialog.vue';
 import SemenAnalysisDialog from './SemenAnalysisDialog.vue';
 import IuiReportDialog from './IuiReportDialog.vue';
+import FetReportDialog from './FetReportDialog.vue';
 
 interface LabItem {
     id: number;
@@ -65,6 +66,7 @@ interface ActiveLabOrder {
     opu_report_id: number | null;
     semen_analysis_report_id: number | null;
     iui_report_id: number | null;
+    fet_report_id: number | null;
     lab_items: LabItem[];
 }
 
@@ -260,6 +262,29 @@ const openIuiDialog = async (order: ActiveLabOrder) => {
 const onIuiSaved = () => {
     router.reload({ only: ['activeLabOrders'], preserveScroll: true });
 };
+
+// ─── FET Report Dialog ────────────────────────────────────────────────────────
+const fetDialogOpen = ref(false);
+const fetOrderContext = ref<ActiveLabOrder | null>(null);
+const fetExistingReport = ref<any>(null);
+
+const openFetDialog = async (order: ActiveLabOrder) => {
+    fetOrderContext.value = order;
+    fetExistingReport.value = null;
+    if (order.fet_report_id) {
+        try {
+            const resp = await fetch(`/fet-reports/order/${order.id}`);
+            if (resp.ok) {
+                fetExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    fetDialogOpen.value = true;
+};
+
+const onFetSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
 </script>
 
 <template>
@@ -407,6 +432,15 @@ const onIuiSaved = () => {
                                 >
                                     <FileText class="size-3" />
                                     {{ order.iui_report_id ? 'Edit IUI Report' : 'Input IUI Report' }}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-orange-200 bg-orange-50 px-2 text-xs text-orange-700 hover:bg-orange-100 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-300"
+                                    @click.stop="openFetDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.fet_report_id ? 'Edit FET Report' : 'Input FET Report' }}
                                 </Button>
                             </div>
                         </CardHeader>
@@ -695,5 +729,18 @@ const onIuiSaved = () => {
         :doctor-name="iuiOrderContext?.staff_name ?? null"
         :existing-report="iuiExistingReport"
         @saved="onIuiSaved"
+    />
+
+    <!-- FET Report Dialog -->
+    <FetReportDialog
+        v-model="fetDialogOpen"
+        :order-id="fetOrderContext?.id ?? 0"
+        :patient-id="fetOrderContext?.patient_id ?? null"
+        :patient-name="fetOrderContext?.patient_name ?? ''"
+        :patient-dob="fetOrderContext?.patient_dob ?? null"
+        :patient-hn="fetOrderContext?.patient_id ?? null"
+        :staff-name="fetOrderContext?.staff_name ?? null"
+        :existing-report="fetExistingReport"
+        @saved="onFetSaved"
     />
 </template>

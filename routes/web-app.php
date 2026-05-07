@@ -6,6 +6,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillingReportController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\FetReportController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IuiReportController;
@@ -80,6 +81,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');
     Route::put('iui-reports/{iuiReport}', [IuiReportController::class, 'update'])->name('iui-reports.update');
     Route::get('iui-reports/order/{medicalOrderId}', [IuiReportController::class, 'getByOrder'])->name('iui-reports.get-by-order');
+
+    // FET Reports
+    Route::post('fet-reports', [FetReportController::class, 'store'])->name('fet-reports.store');
+    Route::put('fet-reports/{fetReport}', [FetReportController::class, 'update'])->name('fet-reports.update');
+    Route::get('fet-reports/order/{medicalOrderId}', [FetReportController::class, 'getByOrder'])->name('fet-reports.get-by-order');
 
     // Special Items (Medicine Groups)
     Route::resource('medicine-groups', MedicineGroupController::class);

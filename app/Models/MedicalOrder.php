@@ -91,4 +91,9 @@ class MedicalOrder extends Model
     {
         return $this->hasOne(IuiReport::class);
     }
+
+    public function fetReport()
+    {
+        return $this->hasOne(FetReport::class);
+    }
 }
