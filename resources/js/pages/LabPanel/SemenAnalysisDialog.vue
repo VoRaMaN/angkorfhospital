@@ -81,9 +81,11 @@ const isOpen = computed({
 });
 
 // ─── Gender detection ────────────────────────────────────────────────────────
-const patientIsMale = computed(() =>
-    props.patientName ? !/^mrs?\.?\s/i.test(props.patientName.trim()) || /^mr\.?\s/i.test(props.patientName.trim()) : true,
-);
+// Female titles: Mrs, Ms, Miss — everything else treated as male
+const patientIsMale = computed(() => {
+    const name = props.patientName?.trim() ?? '';
+    return !/^(mrs\.?\s|ms\.?\s|miss\s)/i.test(name);
+});
 
 const partnerLabel = computed(() => patientIsMale.value ? "Wife's Name" : "Husband's Name");
 const patientSexLabel = computed(() => patientIsMale.value ? 'MALE' : 'FEMALE');
