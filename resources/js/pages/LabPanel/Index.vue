@@ -240,6 +240,10 @@ const onSemenSaved = () => {
     router.reload({ only: ['activeLabOrders'], preserveScroll: true });
 };
 
+const viewSAReport = (reportId: number) => {
+    router.visit(`/semen-analysis-reports/${reportId}`);
+};
+
 // ─── IUI Report Dialog ────────────────────────────────────────────────────────
 const iuiDialogOpen = ref(false);
 const iuiOrderContext = ref<ActiveLabOrder | null>(null);
@@ -423,6 +427,16 @@ const onFetSaved = () => {
                                 >
                                     <FileText class="size-3" />
                                     {{ order.semen_analysis_report_id ? 'Edit SA+Freezing' : 'Input SA+Freezing' }}
+                                </Button>
+                                <Button
+                                    v-if="order.semen_analysis_report_id"
+                                    size="sm"
+                                    variant="ghost"
+                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
+                                    @click.stop="viewSAReport(order.semen_analysis_report_id)"
+                                >
+                                    <Eye class="size-3" />
+                                    View
                                 </Button>
                                 <Button
                                     size="sm"

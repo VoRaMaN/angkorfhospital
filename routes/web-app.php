@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('opu-reports/order/{medicalOrderId}', [OpuReportController::class, 'show'])->name('opu-reports.show');
 
     // Semen Analysis Reports
+    Route::get('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'show'])->name('semen-analysis-reports.show');
     Route::post('semen-analysis-reports', [SemenAnalysisReportController::class, 'store'])->name('semen-analysis-reports.store');
     Route::put('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'update'])->name('semen-analysis-reports.update');
     Route::get('semen-analysis-reports/order/{medicalOrderId}', [SemenAnalysisReportController::class, 'getByOrder'])->name('semen-analysis-reports.get-by-order');
