@@ -114,6 +114,11 @@ const val = (v: string | number | null | undefined, unit = ''): string =>
 
 const embryoCols = [[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19]];
 
+// Auto-detect gender from name title
+const femaleSlotIsMale = computed(() =>
+    props.report.female_patient_name ? /^mr\.?\s/i.test(props.report.female_patient_name.trim()) : false,
+);
+
 // ─── Edit dialog ──────────────────────────────────────────────────────────────
 const editOpen = ref(false);
 
@@ -129,14 +134,14 @@ const femaleDobForDialog = computed(() => {
 });
 
 const onSaved = () => {
-    router.reload({ preserveScroll: true });
+    router.reload();
 };
 </script>
 
 <template>
     <Head title="OPU Report" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto max-w-6xl space-y-6 p-4">
+        <div class="space-y-6 px-6 py-4">
 
             <!-- Header -->
             <div class="flex items-center justify-between">
@@ -162,11 +167,11 @@ const onSaved = () => {
             <div class="rounded-xl border p-4 space-y-4">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Patient Information</h2>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <!-- Female -->
+                    <!-- Left slot (gender-aware) -->
                     <div class="space-y-1">
-                        <p class="text-xs text-muted-foreground">Name (Female)</p>
+                        <p class="text-xs text-muted-foreground">{{ femaleSlotIsMale ? 'Name (Male)' : 'Name (Female)' }}</p>
                         <div v-if="report.female_patient_name" class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
-                            <User class="h-4 w-4 shrink-0 text-pink-500" />
+                            <User :class="femaleSlotIsMale ? 'h-4 w-4 shrink-0 text-blue-500' : 'h-4 w-4 shrink-0 text-pink-500'" />
                             <div class="flex-1 min-w-0">
                                 <p class="truncate text-sm font-medium">{{ report.female_patient_name }}</p>
                                 <p v-if="fmtDob(report.female_dob)" class="text-xs text-muted-foreground">DOB: {{ fmtDob(report.female_dob) }}</p>
@@ -175,9 +180,9 @@ const onSaved = () => {
                         <p v-else class="text-sm text-muted-foreground">—</p>
                         <p class="text-xs text-muted-foreground">H.N.: {{ report.female_hn ?? '—' }}</p>
                     </div>
-                    <!-- Male -->
+                    <!-- Right slot (partner, gender-aware) -->
                     <div class="space-y-1">
-                        <p class="text-xs text-muted-foreground">Name (Male / Partner)</p>
+                        <p class="text-xs text-muted-foreground">{{ femaleSlotIsMale ? 'Name (Female / Partner)' : 'Name (Male / Partner)' }}</p>
                         <div v-if="report.male_patient_name" class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
                             <User class="h-4 w-4 shrink-0 text-blue-500" />
                             <div class="flex-1 min-w-0">
@@ -205,10 +210,13 @@ const onSaved = () => {
                 </div>
             </div>
 
+            <!-- Two-column grid for middle sections -->
+            <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+
             <!-- OPU Egg Count -->
             <div class="rounded-xl border p-4 space-y-3">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">OPU Egg Count</h2>
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-xs text-muted-foreground">Right Ovary</p>
                         <p class="text-sm font-medium">{{ val(report.no_of_opu_right) }}</p>
@@ -252,7 +260,7 @@ const onSaved = () => {
             <div class="rounded-xl border p-4 space-y-3">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Sperm Preparation</h2>
                 <p class="text-xs text-muted-foreground">{{ fmtDatetime(report.sperm_prep_datetime) ?? '—' }}</p>
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <div><p class="text-xs text-muted-foreground">Type</p><p class="text-sm font-medium capitalize">{{ val(report.sperm_type) }}</p></div>
                     <div><p class="text-xs text-muted-foreground">Volume (ml)</p><p class="text-sm font-medium">{{ val(report.sperm_volume_ml) }}</p></div>
                     <div><p class="text-xs text-muted-foreground">Count/ml (M)</p><p class="text-sm font-medium">{{ val(report.sperm_count_per_ml) }}</p></div>
@@ -267,7 +275,7 @@ const onSaved = () => {
             <div class="rounded-xl border p-4 space-y-3">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Freezing</h2>
                 <p class="text-xs text-muted-foreground">{{ fmtDatetime(report.embryo_freeze_datetime) ?? '—' }}</p>
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <div><p class="text-xs text-muted-foreground">Day</p><p class="text-sm font-medium">{{ val(report.freeze_day) }}</p></div>
                     <div><p class="text-xs text-muted-foreground">Stage</p><p class="text-sm font-medium">{{ val(report.freeze_stage) }}</p></div>
                     <div><p class="text-xs text-muted-foreground">No. of Embryo</p><p class="text-sm font-medium">{{ val(report.no_of_embryo) }}</p></div>
@@ -311,6 +319,8 @@ const onSaved = () => {
                     </div>
                 </div>
             </div>
+
+            </div><!-- end 2-col grid -->
 
             <!-- Embryo for ET -->
             <div class="rounded-xl border p-4 space-y-3">
@@ -397,7 +407,7 @@ const onSaved = () => {
             :female-patient-dob="femaleDobForDialog"
             :doctor-staff-id="report.doctor_id"
             :doctor-staff-name="report.doctor_name"
-            :existing-report="report"
+            :existing-report="(report as any)"
             @saved="onSaved"
         />
     </AppLayout>
