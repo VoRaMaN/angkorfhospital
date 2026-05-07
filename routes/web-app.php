@@ -8,6 +8,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\IuiReportController;
 use App\Http\Controllers\LabPanelController;
 use App\Http\Controllers\MedicalOrderController;
 use App\Http\Controllers\MedicalRecordController;
