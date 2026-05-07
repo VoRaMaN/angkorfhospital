@@ -36,13 +36,59 @@ class IuiReportController extends Controller
         return Inertia::render('LabPanel/IuiReport', [
             'report' => array_merge($iuiReport->toArray(), [
                 'patient_name' => $patientName,
-                'patient_hn'   => $patient?->id,
-                'patient_dob'  => $dob,
-                'patient_age'  => $age,
-                'doctor_name'  => $staff?->user?->name,
+                'patient_hn' => $patient?->id,
+                'patient_dob' => $dob,
+                'patient_age' => $age,
+                'doctor_name' => $staff?->user?->name,
             ]),
         ]);
     }
+
+    public function generatePdf(IuiReport $iuiReport): \Illuminate\Http\Response
+    {
+        $iuiReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
+
+        $patient = $iuiReport->patient ?? $iuiReport->medicalOrder?->patient;
+        $staff = $iuiReport->medicalOrder?->staff;
+
+        $dob = null;
+        $age = null;
+        if ($patient) {
+            $d = $patient->date_of_birth_day;
+            $m = $patient->date_of_birth_month;
+            $y = $patient->date_of_birth_year;
+            if ($d && $m && $y) {
+                $dob = str_pad($d, 2, '0', STR_PAD_LEFT).'/'.str_pad($m, 2, '0', STR_PAD_LEFT).'/'.$y;
+                $birth = new \DateTime("{$y}-{$m}-{$d}");
+                $age = (new \DateTime)->diff($birth)->y;
+            }
+        }
+
+        $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
+
+        $report = (object) array_merge($iuiReport->toArray(), [
+            'patient_name' => $patientName,
+            'patient_hn' => $patient?->id,
+            'patient_dob' => $dob,
+            'patient_age' => $age,
+            'doctor_name' => $staff?->user?->name,
+        ]);
+
+        $reportDate = now()->format('d/m/Y');
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('lab-reports.iui-report', compact('report', 'reportDate'))
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+                'dpi' => 96,
+                'isPhpEnabled' => true,
+            ]);
+
+        return $pdf->stream('iui-report-'.$iuiReport->id.'-'.now()->format('Y-m-d').'.pdf');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);

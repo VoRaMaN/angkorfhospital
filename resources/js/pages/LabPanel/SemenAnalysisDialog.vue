@@ -208,7 +208,7 @@ watch(
 );
 
 // ─── Print ────────────────────────────────────────────────────────────────────
-const openPrintTab = (id: number) => window.open(`/semen-analysis-reports/${id}`, '_blank');
+const openPrintTab = (id: number) => window.open(`/semen-analysis-reports/${id}/pdf`, '_blank');
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);

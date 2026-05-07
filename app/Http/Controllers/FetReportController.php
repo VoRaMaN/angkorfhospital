@@ -22,6 +22,31 @@ class FetReportController extends Controller
             ]),
         ]);
     }
+
+    public function generatePdf(FetReport $fetReport): \Illuminate\Http\Response
+    {
+        $fetReport->load('medicalOrder.staff.user');
+        $staff = $fetReport->medicalOrder?->staff;
+
+        $report = $fetReport;
+        $doctorName = $staff?->user?->name ?? $fetReport->doctor;
+        $reportDate = $fetReport->created_at
+            ? $fetReport->created_at->format('d/m/Y')
+            : now()->format('d/m/Y');
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('lab-reports.fet-report', compact('report', 'doctorName', 'reportDate'))
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+                'dpi' => 96,
+                'isPhpEnabled' => true,
+            ]);
+
+        return $pdf->stream('fet-report-'.$fetReport->id.'-'.now()->format('Y-m-d').'.pdf');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);

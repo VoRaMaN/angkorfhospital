@@ -26,6 +26,30 @@ class OpuReportController extends Controller
         ]);
     }
 
+    public function generatePdf(int $medicalOrderId): \Illuminate\Http\Response
+    {
+        $opuReport = OpuReport::with(['femalePatient', 'malePatient', 'doctor.user', 'medicalOrder.patient'])
+            ->where('medical_order_id', $medicalOrderId)
+            ->firstOrFail();
+
+        $report = $this->formatReport($opuReport);
+        $reportDate = $opuReport->created_at
+            ? $opuReport->created_at->format('d/m/Y')
+            : now()->format('d/m/Y');
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('lab-reports.opu-report', compact('report', 'reportDate'))
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+                'dpi' => 96,
+                'isPhpEnabled' => true,
+            ]);
+
+        return $pdf->stream('opu-report-'.$medicalOrderId.'-'.now()->format('Y-m-d').'.pdf');
+    }
+
     /**
      * Return OPU report data as JSON for the edit dialog.
      */

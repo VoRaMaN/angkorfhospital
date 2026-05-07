@@ -259,7 +259,7 @@ watch(
 );
 
 // ─── Print ────────────────────────────────────────────────────────────────────
-const openPrintTab = (id: number) => window.open(`/fet-reports/${id}`, '_blank');
+const openPrintTab = (id: number) => window.open(`/fet-reports/${id}/pdf`, '_blank');
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);

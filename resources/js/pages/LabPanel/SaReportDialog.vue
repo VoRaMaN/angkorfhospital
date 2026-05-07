@@ -203,7 +203,7 @@ watch(
 );
 
 // ─── Print ────────────────────────────────────────────────────────────────────
-const openPrintTab = (id: number) => window.open(`/sa-reports/${id}`, '_blank');
+const openPrintTab = (id: number) => window.open(`/sa-reports/${id}/pdf`, '_blank');
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);

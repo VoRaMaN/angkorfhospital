@@ -71,15 +71,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('opu-reports', [OpuReportController::class, 'store'])->name('opu-reports.store');
     Route::put('opu-reports/{opuReport}', [OpuReportController::class, 'update'])->name('opu-reports.update');
     Route::get('opu-reports/order/{medicalOrderId}/json', [OpuReportController::class, 'getByOrder'])->name('opu-reports.get-by-order');
+    Route::get('opu-reports/order/{medicalOrderId}/pdf', [OpuReportController::class, 'generatePdf'])->name('opu-reports.pdf');
     Route::get('opu-reports/order/{medicalOrderId}', [OpuReportController::class, 'show'])->name('opu-reports.show');
 
     // Semen Analysis Reports
+    Route::get('semen-analysis-reports/{semenAnalysisReport}/pdf', [SemenAnalysisReportController::class, 'generatePdf'])->name('semen-analysis-reports.pdf');
     Route::get('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'show'])->name('semen-analysis-reports.show');
     Route::post('semen-analysis-reports', [SemenAnalysisReportController::class, 'store'])->name('semen-analysis-reports.store');
     Route::put('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'update'])->name('semen-analysis-reports.update');
     Route::get('semen-analysis-reports/order/{medicalOrderId}', [SemenAnalysisReportController::class, 'getByOrder'])->name('semen-analysis-reports.get-by-order');
 
     // SA Reports (SA only, no freezing)
+    Route::get('sa-reports/{saReport}/pdf', [SaReportController::class, 'generatePdf'])->name('sa-reports.pdf');
     Route::get('sa-reports/{saReport}', [SaReportController::class, 'show'])->name('sa-reports.show');
     Route::post('sa-reports', [SaReportController::class, 'store'])->name('sa-reports.store');
     Route::put('sa-reports/{saReport}', [SaReportController::class, 'update'])->name('sa-reports.update');
@@ -88,12 +91,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // IUI Reports
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');
     Route::put('iui-reports/{iuiReport}', [IuiReportController::class, 'update'])->name('iui-reports.update');
+    Route::get('iui-reports/{iuiReport}/pdf', [IuiReportController::class, 'generatePdf'])->name('iui-reports.pdf');
     Route::get('iui-reports/{iuiReport}', [IuiReportController::class, 'show'])->name('iui-reports.show');
     Route::get('iui-reports/order/{medicalOrderId}', [IuiReportController::class, 'getByOrder'])->name('iui-reports.get-by-order');
 
     // FET Reports
     Route::post('fet-reports', [FetReportController::class, 'store'])->name('fet-reports.store');
     Route::put('fet-reports/{fetReport}', [FetReportController::class, 'update'])->name('fet-reports.update');
+    Route::get('fet-reports/{fetReport}/pdf', [FetReportController::class, 'generatePdf'])->name('fet-reports.pdf');
     Route::get('fet-reports/{fetReport}', [FetReportController::class, 'show'])->name('fet-reports.show');
     Route::get('fet-reports/order/{medicalOrderId}', [FetReportController::class, 'getByOrder'])->name('fet-reports.get-by-order');
 
