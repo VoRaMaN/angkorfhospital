@@ -17,7 +17,7 @@ class OpuReportController extends Controller
      */
     public function show(int $medicalOrderId): Response
     {
-        $report = OpuReport::with(['femalePatient', 'malePatient', 'doctor.user'])
+        $report = OpuReport::with(['femalePatient', 'malePatient', 'doctor.user', 'medicalOrder.patient'])
             ->where('medical_order_id', $medicalOrderId)
             ->firstOrFail();
 
@@ -211,13 +211,14 @@ class OpuReportController extends Controller
 
     private function formatReport(OpuReport $report): array
     {
-        $fp = $report->femalePatient;
+        // Fall back to the medical order's patient when no explicit female_patient_id is set
+        $fp = $report->femalePatient ?? $report->medicalOrder?->patient;
         $mp = $report->malePatient;
 
         return [
             'id' => $report->id,
             'medical_order_id' => $report->medical_order_id,
-            'female_patient_id' => $report->female_patient_id,
+            'female_patient_id' => $fp?->id ?? $report->female_patient_id,
             'female_patient_name' => $fp ? trim(($fp->title ? $fp->title.' ' : '').($fp->name ?? '').($fp->surname ? ' '.$fp->surname : '')) : null,
             'female_hn' => $fp?->id,
             'female_dob' => $fp && $fp->date_of_birth_day ? str_pad($fp->date_of_birth_day, 2, '0', STR_PAD_LEFT).'/'.str_pad($fp->date_of_birth_month, 2, '0', STR_PAD_LEFT).'/'.$fp->date_of_birth_year : null,
