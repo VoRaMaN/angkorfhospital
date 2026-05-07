@@ -141,6 +141,7 @@ const now = () => {
 };
 
 const isMaleProp = () => props.femalePatientName ? /^mr\.?\s/i.test(props.femalePatientName.trim()) : false;
+const autoIsMale = computed(() => isMaleProp());
 
 const buildEmptyForm = (): OPUReportData => ({
     medical_order_id: props.orderId,
@@ -240,15 +241,25 @@ watch(maleSearchQuery, (q) => {
     }, 300);
 });
 
-const selectMalePatient = (p: PatientOption) => {
-    selectedMale.value = p;
-    form.male_patient_id = p.id;
+const selectPartnerPatient = (p: PatientOption) => {
+    if (autoIsMale.value) {
+        selectedFemale.value = p;
+        form.female_patient_id = p.id;
+    } else {
+        selectedMale.value = p;
+        form.male_patient_id = p.id;
+    }
     maleSearchQuery.value = '';
     maleSearchResults.value = [];
 };
-const clearMalePatient = () => {
-    selectedMale.value = null;
-    form.male_patient_id = null;
+const clearPartnerPatient = () => {
+    if (autoIsMale.value) {
+        selectedFemale.value = null;
+        form.female_patient_id = null;
+    } else {
+        selectedMale.value = null;
+        form.male_patient_id = null;
+    }
 };
 
 // ─── Embryo helpers ───────────────────────────────────────────────────────────
@@ -317,30 +328,30 @@ const save = () => {
                         <div class="rounded-xl border bg-muted/30 p-4">
                             <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Patient Information</h3>
                             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <!-- Female Patient -->
+                                <!-- Auto Patient (left slot — gender-aware) -->
                                 <div class="space-y-2">
-                                    <Label class="text-sm font-medium">Name (Female)</Label>
+                                    <Label class="text-sm font-medium">{{ autoIsMale ? 'Name (Male)' : 'Name (Female)' }}</Label>
                                     <div class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
-                                        <User class="h-4 w-4 shrink-0 text-pink-500" />
+                                        <User :class="autoIsMale ? 'h-4 w-4 shrink-0 text-blue-500' : 'h-4 w-4 shrink-0 text-pink-500'" />
                                         <div class="flex-1 min-w-0">
                                             <p class="truncate text-sm font-medium">{{ femalePatientName }}</p>
                                             <p v-if="formattedDob" class="text-xs text-muted-foreground">DOB: {{ formattedDob }}</p>
                                         </div>
-                                        <Badge class="ml-auto shrink-0 bg-pink-100 text-pink-700 border-pink-200 text-xs">Auto</Badge>
+                                        <Badge :class="autoIsMale ? 'ml-auto shrink-0 bg-blue-100 text-blue-700 border-blue-200 text-xs' : 'ml-auto shrink-0 bg-pink-100 text-pink-700 border-pink-200 text-xs'">Auto</Badge>
                                     </div>
                                     <div class="text-xs text-muted-foreground">H.N.: {{ femalePatientId ?? '—' }}</div>
                                 </div>
 
-                                <!-- Male Patient (search) -->
+                                <!-- Partner Patient (right slot — search) -->
                                 <div class="space-y-2">
-                                    <Label class="text-sm font-medium">Name (Male / Partner)</Label>
-                                    <div v-if="selectedMale" class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
-                                        <User class="h-4 w-4 shrink-0 text-blue-500" />
+                                    <Label class="text-sm font-medium">{{ autoIsMale ? 'Name (Female / Partner)' : 'Name (Male / Partner)' }}</Label>
+                                    <div v-if="autoIsMale ? selectedFemale : selectedMale" class="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
+                                        <User :class="autoIsMale ? 'h-4 w-4 shrink-0 text-pink-500' : 'h-4 w-4 shrink-0 text-blue-500'" />
                                         <div class="flex-1 min-w-0">
-                                            <p class="truncate text-sm font-medium">{{ selectedMale.name }}</p>
-                                            <p v-if="selectedMale.dob" class="text-xs text-muted-foreground">DOB: {{ selectedMale.dob }}</p>
+                                            <p class="truncate text-sm font-medium">{{ (autoIsMale ? selectedFemale : selectedMale)?.name }}</p>
+                                            <p v-if="(autoIsMale ? selectedFemale : selectedMale)?.dob" class="text-xs text-muted-foreground">DOB: {{ (autoIsMale ? selectedFemale : selectedMale)?.dob }}</p>
                                         </div>
-                                        <button class="shrink-0 text-muted-foreground hover:text-destructive" @click="clearMalePatient">
+                                        <button class="shrink-0 text-muted-foreground hover:text-destructive" @click="clearPartnerPatient">
                                             <X class="h-3.5 w-3.5" />
                                         </button>
                                     </div>
@@ -359,7 +370,7 @@ const save = () => {
                                                 v-for="p in maleSearchResults"
                                                 :key="p.id"
                                                 class="flex w-full items-start gap-3 px-3 py-2 text-left hover:bg-muted"
-                                                @click="selectMalePatient(p)"
+                                                @click="selectPartnerPatient(p)"
                                             >
                                                 <User class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                                                 <div>
@@ -369,7 +380,7 @@ const save = () => {
                                             </button>
                                         </div>
                                     </div>
-                                    <div v-if="selectedMale" class="text-xs text-muted-foreground">H.N.: {{ selectedMale.id }}</div>
+                                    <div v-if="autoIsMale ? selectedFemale : selectedMale" class="text-xs text-muted-foreground">H.N.: {{ (autoIsMale ? selectedFemale : selectedMale)?.id }}</div>
                                 </div>
                             </div>
 
