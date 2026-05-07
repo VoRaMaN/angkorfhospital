@@ -141,7 +141,7 @@ const onSaved = () => {
 <template>
     <Head title="OPU Report" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-6 px-6 py-4">
+        <div class="mx-auto max-w-5xl space-y-6 px-6 py-4">
 
             <!-- Header -->
             <div class="flex items-center justify-between">
@@ -286,6 +286,8 @@ const onSaved = () => {
                 </div>
             </div>
 
+            </div><!-- end 2-col grid -->
+
             <!-- Embryo Development Day 3 -->
             <div class="rounded-xl border p-4 space-y-3">
                 <div class="flex items-center justify-between">
@@ -319,8 +321,6 @@ const onSaved = () => {
                     </div>
                 </div>
             </div>
-
-            </div><!-- end 2-col grid -->
 
             <!-- Embryo for ET -->
             <div class="rounded-xl border p-4 space-y-3">
