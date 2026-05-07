@@ -193,10 +193,8 @@ onMounted(() => window.print());
                 <!-- ── Header ── -->
                 <div class="flex items-start justify-between border-b-2 border-black pb-3 mb-3">
                     <div class="flex items-center gap-3">
-                        <img src="/images/logo.png" alt="Angkor-F Hospital" class="h-20 w-auto object-contain" />
-                        <div>
-                            <p class="font-bold text-sm leading-tight">មជ្ឈិមពេទ្យអង្គរ ភេហ្ស</p>
-                            <p class="font-bold text-base leading-tight">ANGKOR-F HOSPITAL</p>
+                        <img src="/images/logo1.png" alt="Angkor-F Hospital" class="h-24 w-auto object-contain" />
+                        <div class="ml-1">
                             <p class="text-xs leading-tight text-gray-600">#National Road 6A, Salakonseng Village,</p>
                             <p class="text-xs leading-tight text-gray-600">Sangkat Svay Dangkum, Siem Reap, Cambodia</p>
                             <p class="text-xs leading-tight text-gray-600">Tel: (855) 31 3 5555 88 | (855) 12 881 307</p>
