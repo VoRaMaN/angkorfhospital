@@ -27,6 +27,22 @@ class OpuReportController extends Controller
     }
 
     /**
+     * Return OPU report data as JSON for the edit dialog.
+     */
+    public function getByOrder(int $medicalOrderId): JsonResponse
+    {
+        $report = OpuReport::with(['femalePatient', 'malePatient', 'doctor.user', 'medicalOrder.patient'])
+            ->where('medical_order_id', $medicalOrderId)
+            ->first();
+
+        if (! $report) {
+            return response()->json(null);
+        }
+
+        return response()->json($this->formatReport($report));
+    }
+
+    /**
      * Store a new OPU report.
      */
     public function store(Request $request): RedirectResponse

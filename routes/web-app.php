@@ -67,12 +67,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('opu-reports/search-patients', [OpuReportController::class, 'searchPatients'])->name('opu-reports.search-patients');
     Route::post('opu-reports', [OpuReportController::class, 'store'])->name('opu-reports.store');
     Route::put('opu-reports/{opuReport}', [OpuReportController::class, 'update'])->name('opu-reports.update');
+    Route::get('opu-reports/order/{medicalOrderId}/json', [OpuReportController::class, 'getByOrder'])->name('opu-reports.get-by-order');
     Route::get('opu-reports/order/{medicalOrderId}', [OpuReportController::class, 'show'])->name('opu-reports.show');
 
     // Semen Analysis Reports
     Route::post('semen-analysis-reports', [SemenAnalysisReportController::class, 'store'])->name('semen-analysis-reports.store');
     Route::put('semen-analysis-reports/{semenAnalysisReport}', [SemenAnalysisReportController::class, 'update'])->name('semen-analysis-reports.update');
     Route::get('semen-analysis-reports/order/{medicalOrderId}', [SemenAnalysisReportController::class, 'getByOrder'])->name('semen-analysis-reports.get-by-order');
+
+    // IUI Reports
+    Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');
+    Route::put('iui-reports/{iuiReport}', [IuiReportController::class, 'update'])->name('iui-reports.update');
+    Route::get('iui-reports/order/{medicalOrderId}', [IuiReportController::class, 'getByOrder'])->name('iui-reports.get-by-order');
 
     // Special Items (Medicine Groups)
     Route::resource('medicine-groups', MedicineGroupController::class);

@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +35,7 @@ import { computed, ref, watch, reactive } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import OPUReportDialog from './OPUReportDialog.vue';
 import SemenAnalysisDialog from './SemenAnalysisDialog.vue';
+import IuiReportDialog from './IuiReportDialog.vue';
 
 interface LabItem {
     id: number;
@@ -63,6 +64,7 @@ interface ActiveLabOrder {
     ordered_at: string;
     opu_report_id: number | null;
     semen_analysis_report_id: number | null;
+    iui_report_id: number | null;
     lab_items: LabItem[];
 }
 
@@ -195,12 +197,11 @@ const openOPUDialog = async (order: ActiveLabOrder) => {
     opuOrderContext.value = order;
     opuExistingReport.value = null;
     if (order.opu_report_id) {
-        // Load existing report
         try {
-            const resp = await fetch(`/opu-reports/order/${order.id}`);
-            // Inertia returns HTML — we use a simple JSON fetch via the search-patients pattern
-            // Instead, we pass the data inline via the opu_report_id existence signal
-            // Full data will be loaded from the server via Inertia visit for view
+            const resp = await fetch(`/opu-reports/order/${order.id}/json`);
+            if (resp.ok) {
+                opuExistingReport.value = await resp.json();
+            }
         } catch {/* ignore */}
     }
     opuDialogOpen.value = true;
@@ -234,6 +235,29 @@ const openSemenDialog = async (order: ActiveLabOrder) => {
 };
 
 const onSemenSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
+
+// ─── IUI Report Dialog ────────────────────────────────────────────────────────
+const iuiDialogOpen = ref(false);
+const iuiOrderContext = ref<ActiveLabOrder | null>(null);
+const iuiExistingReport = ref<any>(null);
+
+const openIuiDialog = async (order: ActiveLabOrder) => {
+    iuiOrderContext.value = order;
+    iuiExistingReport.value = null;
+    if (order.iui_report_id) {
+        try {
+            const resp = await fetch(`/iui-reports/order/${order.id}`);
+            if (resp.ok) {
+                iuiExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    iuiDialogOpen.value = true;
+};
+
+const onIuiSaved = () => {
     router.reload({ only: ['activeLabOrders'], preserveScroll: true });
 };
 </script>
@@ -374,6 +398,15 @@ const onSemenSaved = () => {
                                 >
                                     <FileText class="size-3" />
                                     {{ order.semen_analysis_report_id ? 'Edit SA+Freezing' : 'Input SA+Freezing' }}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-purple-200 bg-purple-50 px-2 text-xs text-purple-700 hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950/40 dark:text-purple-300"
+                                    @click.stop="openIuiDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.iui_report_id ? 'Edit IUI Report' : 'Input IUI Report' }}
                                 </Button>
                             </div>
                         </CardHeader>
@@ -649,5 +682,18 @@ const onSemenSaved = () => {
         :doctor-name="semenOrderContext?.staff_name ?? null"
         :existing-report="semenExistingReport"
         @saved="onSemenSaved"
+    />
+
+    <!-- IUI Report Dialog -->
+    <IuiReportDialog
+        v-model="iuiDialogOpen"
+        :order-id="iuiOrderContext?.id ?? 0"
+        :patient-id="iuiOrderContext?.patient_id ?? null"
+        :patient-name="iuiOrderContext?.patient_name ?? ''"
+        :patient-dob="iuiOrderContext?.patient_dob ?? null"
+        :patient-hn="iuiOrderContext?.patient_id ?? null"
+        :doctor-name="iuiOrderContext?.staff_name ?? null"
+        :existing-report="iuiExistingReport"
+        @saved="onIuiSaved"
     />
 </template>

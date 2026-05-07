@@ -86,4 +86,9 @@ class MedicalOrder extends Model
     {
         return $this->hasOne(SemenAnalysisReport::class);
     }
+
+    public function iuiReport()
+    {
+        return $this->hasOne(IuiReport::class);
+    }
 }
