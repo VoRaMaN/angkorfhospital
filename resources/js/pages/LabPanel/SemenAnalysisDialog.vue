@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { router } from '@inertiajs/vue3';
-import { ClipboardList, Loader2, X } from 'lucide-vue-next';
+import { CheckCircle2, ClipboardList, Loader2, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 
 // ─── Props & Emits ────────────────────────────────────────────────────────────
@@ -495,11 +495,12 @@ const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2
                         </div>
 
                         <!-- ── Footer ─────────────────────────────────────── -->
-                        <div class="flex justify-end gap-3 border-t pt-4">
+                        <div class="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t bg-background px-6 py-4">
                             <Button variant="outline" @click="isOpen = false">Cancel</Button>
-                            <Button class="gap-2 bg-teal-600 hover:bg-teal-700" :disabled="saving" @click="save">
+                            <Button :disabled="saving" class="gap-2" @click="save">
                                 <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-                                {{ saving ? 'Saving…' : (existingReport ? 'Update Report' : 'Save Report') }}
+                                <CheckCircle2 v-else class="h-4 w-4" />
+                                {{ existingReport ? 'Update Report' : 'Save Report' }}
                             </Button>
                         </div>
 
