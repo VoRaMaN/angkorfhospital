@@ -134,12 +134,12 @@ class OpuReportController extends Controller
             'embryologist_approve' => 'nullable|string',
         ]);
 
-        OpuReport::updateOrCreate(
+        $report = OpuReport::updateOrCreate(
             ['medical_order_id' => $data['medical_order_id']],
             $data
         );
 
-        return back()->with('success', 'OPU Report saved successfully.');
+        return back()->with('success', 'OPU Report saved successfully.')->with('report_id', $report->id);
     }
 
     /**

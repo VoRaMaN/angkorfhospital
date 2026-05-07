@@ -177,6 +177,7 @@ watch(
     () => props.modelValue,
     (open) => {
         if (open) {
+            savedReportId.value = null;
             const r = props.existingReport;
             if (r) {
                 Object.assign(form, {
@@ -272,6 +273,7 @@ const embryoCols = [[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19]];
 
 // ─── Print ────────────────────────────────────────────────────────────────────
 const openPrintTab = (orderId: number) => window.open(`/opu-reports/order/${orderId}/pdf`, '_blank');
+const savedReportId = ref<number | null>(null);
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);
@@ -290,8 +292,9 @@ const save = () => {
         preserveScroll: true,
         onSuccess: () => {
             saving.value = false;
+            const flash = (usePage().props as any).flash;
+            if (flash?.report_id) { savedReportId.value = flash.report_id; }
             emit('saved');
-            isOpen.value = false;
         },
         onError: () => { saving.value = false; },
     });
@@ -711,7 +714,7 @@ const save = () => {
                     <div class="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t bg-background px-6 py-4">
                         <Button variant="outline" @click="isOpen = false">Cancel</Button>
                         <div class="flex gap-2">
-                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => openPrintTab(props.orderId)">
+                            <Button v-if="existingReport || savedReportId" variant="outline" class="gap-2" @click="() => openPrintTab(props.orderId)">
                                 <Printer class="h-4 w-4" />
                                 Print
                             </Button>

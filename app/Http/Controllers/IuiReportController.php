@@ -93,12 +93,12 @@ class IuiReportController extends Controller
     {
         $data = $this->validated($request);
 
-        IuiReport::updateOrCreate(
+        $report = IuiReport::updateOrCreate(
             ['medical_order_id' => $data['medical_order_id']],
             $data
         );
 
-        return back()->with('success', 'IUI report saved.');
+        return back()->with('success', 'IUI report saved.')->with('report_id', $report->id);
     }
 
     public function update(Request $request, IuiReport $iuiReport): RedirectResponse

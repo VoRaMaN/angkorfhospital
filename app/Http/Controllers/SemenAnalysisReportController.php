@@ -132,12 +132,12 @@ class SemenAnalysisReportController extends Controller
             'approved_time' => 'nullable|string|max:50',
         ]);
 
-        SemenAnalysisReport::updateOrCreate(
+        $report = SemenAnalysisReport::updateOrCreate(
             ['medical_order_id' => $data['medical_order_id']],
             $data
         );
 
-        return back()->with('success', 'Semen analysis report saved.');
+        return back()->with('success', 'Semen analysis report saved.')->with('report_id', $report->id);
     }
 
     public function update(Request $request, SemenAnalysisReport $semenAnalysisReport): RedirectResponse

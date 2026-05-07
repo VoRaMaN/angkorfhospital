@@ -51,12 +51,12 @@ class FetReportController extends Controller
     {
         $data = $this->validated($request);
 
-        FetReport::updateOrCreate(
+        $report = FetReport::updateOrCreate(
             ['medical_order_id' => $data['medical_order_id']],
             $data
         );
 
-        return back()->with('success', 'FET report saved.');
+        return back()->with('success', 'FET report saved.')->with('report_id', $report->id);
     }
 
     public function update(Request $request, FetReport $fetReport): RedirectResponse

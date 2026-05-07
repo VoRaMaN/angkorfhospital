@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { CheckCircle2, FlaskConical, Loader2, Printer, Search, User, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 
@@ -225,6 +225,7 @@ watch(
     () => props.modelValue,
     (open) => {
         if (open) {
+            savedReportId.value = null;
             const r = props.existingReport;
             if (r) {
                 Object.assign(form, r);
@@ -260,6 +261,7 @@ watch(
 
 // ─── Print ────────────────────────────────────────────────────────────────────
 const openPrintTab = (id: number) => window.open(`/fet-reports/${id}/pdf`, '_blank');
+const savedReportId = ref<number | null>(null);
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 const saving = ref(false);
@@ -276,8 +278,9 @@ const save = () => {
         preserveScroll: true,
         onSuccess: () => {
             saving.value = false;
+            const flash = (usePage().props as any).flash;
+            if (flash?.report_id) { savedReportId.value = flash.report_id; }
             emit('saved');
-            isOpen.value = false;
         },
         onError: () => {
             saving.value = false;
@@ -592,7 +595,7 @@ const gradingDays = [1, 2, 3, 4, 5];
                             Cancel
                         </Button>
                         <div class="flex gap-2">
-                            <Button v-if="existingReport" variant="outline" class="gap-2" @click="() => openPrintTab(existingReport!.id)">
+                            <Button v-if="existingReport || savedReportId" variant="outline" class="gap-2" @click="() => openPrintTab((existingReport?.id ?? savedReportId)!)">
                                 <Printer class="h-4 w-4" />
                                 Print
                             </Button>

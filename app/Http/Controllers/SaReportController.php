@@ -131,12 +131,12 @@ class SaReportController extends Controller
             'approved_time' => 'nullable|string|max:50',
         ]);
 
-        SaReport::updateOrCreate(
+        $report = SaReport::updateOrCreate(
             ['medical_order_id' => $data['medical_order_id']],
             $data
         );
 
-        return back()->with('success', 'SA report saved.');
+        return back()->with('success', 'SA report saved.')->with('report_id', $report->id);
     }
 
     public function update(Request $request, SaReport $saReport): RedirectResponse
