@@ -29,7 +29,7 @@ import {
 } from '@/routes/lab-panels';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { FlaskConical, Plus, Search, Clock, AlertCircle, CheckCircle2, ClipboardEdit, FileText, Eye, Printer } from 'lucide-vue-next';
+import { FlaskConical, Plus, Search, Clock, AlertCircle, CheckCircle2, ClipboardEdit, FileText } from 'lucide-vue-next';
 
 import { computed, ref, watch, reactive } from 'vue';
 import { useAuth } from '@/composables/useAuth';
@@ -438,26 +438,7 @@ const onFetSaved = () => {
                                     <FileText class="size-3" />
                                     {{ order.opu_report_id ? 'Edit OPU Report' : 'Input OPU Report' }}
                                 </Button>
-                                <Button
-                                    v-if="order.opu_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="viewOPUReport(order.id)"
-                                >
-                                    <Eye class="size-3" />
-                                    View
-                                </Button>
-                                <Button
-                                    v-if="order.opu_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="() => window.open(`/opu-reports/order/${order.id}/pdf`, '_blank')"
-                                >
-                                    <Printer class="size-3" />
-                                    Print
-                                </Button>
+
                                 <Button
                                     size="sm"
                                     variant="outline"
@@ -467,26 +448,7 @@ const onFetSaved = () => {
                                     <FileText class="size-3" />
                                     {{ order.sa_report_id ? 'Edit SA Report' : 'Input SA Report' }}
                                 </Button>
-                                <Button
-                                    v-if="order.sa_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="viewSaReport(order.sa_report_id)"
-                                >
-                                    <Eye class="size-3" />
-                                    View
-                                </Button>
-                                <Button
-                                    v-if="order.sa_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="() => window.open(`/sa-reports/${order.sa_report_id}/pdf`, '_blank')"
-                                >
-                                    <Printer class="size-3" />
-                                    Print
-                                </Button>
+
                                 <Button
                                     size="sm"
                                     variant="outline"
@@ -496,26 +458,7 @@ const onFetSaved = () => {
                                     <FileText class="size-3" />
                                     {{ order.semen_analysis_report_id ? 'Edit SA+Freezing' : 'Input SA+Freezing' }}
                                 </Button>
-                                <Button
-                                    v-if="order.semen_analysis_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="viewSAReport(order.semen_analysis_report_id)"
-                                >
-                                    <Eye class="size-3" />
-                                    View
-                                </Button>
-                                <Button
-                                    v-if="order.semen_analysis_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="() => window.open(`/semen-analysis-reports/${order.semen_analysis_report_id}/pdf`, '_blank')"
-                                >
-                                    <Printer class="size-3" />
-                                    Print
-                                </Button>
+
                                 <Button
                                     size="sm"
                                     variant="outline"
@@ -525,16 +468,7 @@ const onFetSaved = () => {
                                     <FileText class="size-3" />
                                     {{ order.iui_report_id ? 'Edit IUI Report' : 'Input IUI Report' }}
                                 </Button>
-                                <Button
-                                    v-if="order.iui_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="() => window.open(`/iui-reports/${order.iui_report_id}/pdf`, '_blank')"
-                                >
-                                    <Printer class="size-3" />
-                                    Print
-                                </Button>
+
                                 <Button
                                     size="sm"
                                     variant="outline"
@@ -544,16 +478,7 @@ const onFetSaved = () => {
                                     <FileText class="size-3" />
                                     {{ order.fet_report_id ? 'Edit FET Report' : 'Input FET Report' }}
                                 </Button>
-                                <Button
-                                    v-if="order.fet_report_id"
-                                    size="sm"
-                                    variant="ghost"
-                                    class="h-7 gap-1 px-2 text-xs text-muted-foreground"
-                                    @click.stop="() => window.open(`/fet-reports/${order.fet_report_id}/pdf`, '_blank')"
-                                >
-                                    <Printer class="size-3" />
-                                    Print
-                                </Button>
+
                             </div>
                         </CardHeader>
                         <CardContent>
