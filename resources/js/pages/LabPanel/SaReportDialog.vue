@@ -220,6 +220,7 @@ const save = () => {
         method,
         data: { ...form },
         preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
             saving.value = false;
             const flash = (usePage().props as any).flash;

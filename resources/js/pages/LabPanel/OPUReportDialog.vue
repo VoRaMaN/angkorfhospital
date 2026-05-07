@@ -290,6 +290,7 @@ const save = () => {
         method,
         data: payload,
         preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
             saving.value = false;
             const flash = (usePage().props as any).flash;
