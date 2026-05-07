@@ -306,6 +306,7 @@ const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2
                                         <div class="min-w-0 flex-1">
                                             <p class="truncate text-sm font-medium">{{ selectedPartner.name }}</p>
                                             <p v-if="selectedPartner.dob" class="text-xs text-muted-foreground">DOB: {{ selectedPartner.dob }}</p>
+                                            <p v-if="selectedPartner.id" class="text-xs text-muted-foreground">H.N.: {{ selectedPartner.id }}</p>
                                         </div>
                                         <button class="shrink-0 text-muted-foreground hover:text-destructive" @click="clearPartner">
                                             <X class="h-3.5 w-3.5" />
