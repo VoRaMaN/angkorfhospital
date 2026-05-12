@@ -137,6 +137,12 @@ class SpatiePermissionSeeder extends Seeder
 
             // Activity log
             'view_activity_logs',
+
+            // Medicine reports
+            'view_medicine_reports',
+            'create_medicine_reports',
+            'edit_medicine_reports',
+            'delete_medicine_reports',
         ];
 
         foreach ($permissions as $permission) {
@@ -332,6 +338,10 @@ class SpatiePermissionSeeder extends Seeder
             'view_patients',
             'view_billing',
             'view_billings',
+            'view_medicine_reports',
+            'create_medicine_reports',
+            'edit_medicine_reports',
+            'delete_medicine_reports',
         ]);
 
         $labRole = Role::firstOrCreate(['name' => 'lab']);
@@ -362,6 +372,9 @@ class SpatiePermissionSeeder extends Seeder
             'create_inventories',
             'edit_inventories',
             'view_medications',
+            'view_medicine_reports',
+            'create_medicine_reports',
+            'edit_medicine_reports',
         ]);
 
         $staffRole2 = Role::firstOrCreate(['name' => 'staff']);
