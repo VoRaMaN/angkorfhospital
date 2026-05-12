@@ -11,7 +11,7 @@ class StoreBillingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array($this->user()->staff?->role?->name, ['admin', 'billing']);
+        return $this->user()->hasAnyRole(['admin', 'billing', 'accountant']);
     }
 
     /**

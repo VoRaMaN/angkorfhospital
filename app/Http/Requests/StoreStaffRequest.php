@@ -11,7 +11,7 @@ class StoreStaffRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->staff?->role?->name === 'admin';
+        return $this->user()->hasRole('admin');
     }
 
     /**

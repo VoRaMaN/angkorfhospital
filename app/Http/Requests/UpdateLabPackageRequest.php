@@ -11,7 +11,7 @@ class UpdateLabPackageRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array($this->user()->staff?->role?->name, ['admin', 'lab']);
+        return $this->user()->hasAnyRole(['admin', 'lab']);
     }
 
     /**

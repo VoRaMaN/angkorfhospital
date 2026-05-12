@@ -11,7 +11,7 @@ class StoreMedicationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return in_array($this->user()->staff?->role?->name, ['admin', 'pharmacist']);
+        return $this->user()->hasAnyRole(['admin', 'pharmacist']);
     }
 
     /**
