@@ -63,7 +63,10 @@ class BillingController extends Controller
             $query->whereDate('billing_date', '<=', request('end_date'));
         }
         if (! request('start_date') && ! request('end_date')) {
-            $query->whereDate('billing_date', today());
+            // Only apply today filter on the default All tab (no specific status)
+            if (! request('status')) {
+                $query->whereDate('billing_date', today());
+            }
         }
 
         $billings = $query->paginate(15)->appends(request()->only(['search', 'status', 'start_date', 'end_date']));

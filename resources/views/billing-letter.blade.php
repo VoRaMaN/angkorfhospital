@@ -116,6 +116,11 @@
             font-weight: bold;
         }
 
+        table th:not(:first-child),
+        table td:not(:first-child) {
+            border-left: 1px solid #000;
+        }
+
         table td {
             border: none;
             padding: 9px 10px;
