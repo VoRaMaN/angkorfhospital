@@ -118,12 +118,27 @@
 
         table td {
             border: none;
+            border-bottom: 1px solid #ccc;
             padding: 9px 10px;
             font-size: 13px;
         }
 
         table td.description {
             font-weight: bold;
+        }
+
+        table tr.sub-item td {
+            font-weight: normal;
+            padding: 5px 10px 5px 22px;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            color: #333;
+        }
+
+        table tr.group-header td {
+            font-weight: bold;
+            border-bottom: none;
+            padding-bottom: 3px;
         }
 
         table td.amount,
@@ -213,12 +228,26 @@
         <tbody>
             @if($costBreakdown && isset($costBreakdown['groups']))
                 @foreach($costBreakdown['groups'] as $group)
-                    <tr>
-                        <td class="description">{{ $group['name'] }}</td>
-                        <td class="amount">{{ number_format($group['subtotal'], 2) }}</td>
-                        <td class="discount"></td>
-                        <td class="net">{{ number_format($group['subtotal'], 2) }}</td>
-                    </tr>
+                    @if($group['type'] === 'special_item' && count($group['items']) > 0)
+                        <tr class="group-header">
+                            <td class="description" colspan="4">{{ $group['name'] }}</td>
+                        </tr>
+                        @foreach($group['items'] as $item)
+                            <tr class="sub-item">
+                                <td class="description">{{ $item['item_name'] }}</td>
+                                <td class="amount">{{ number_format($item['total'], 2) }}</td>
+                                <td class="discount"></td>
+                                <td class="net">{{ number_format($item['total'], 2) }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td class="description">{{ $group['name'] }}</td>
+                            <td class="amount">{{ number_format($group['subtotal'], 2) }}</td>
+                            <td class="discount"></td>
+                            <td class="net">{{ number_format($group['subtotal'], 2) }}</td>
+                        </tr>
+                    @endif
                 @endforeach
             @else
                 <tr>
