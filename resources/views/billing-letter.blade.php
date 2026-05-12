@@ -118,27 +118,12 @@
 
         table td {
             border: none;
-            border-bottom: 1px solid #ccc;
             padding: 9px 10px;
             font-size: 13px;
         }
 
         table td.description {
             font-weight: bold;
-        }
-
-        table tr.sub-item td {
-            font-weight: normal;
-            padding: 5px 10px 5px 22px;
-            border-bottom: 1px solid #eee;
-            font-size: 12px;
-            color: #333;
-        }
-
-        table tr.group-header td {
-            font-weight: bold;
-            border-bottom: none;
-            padding-bottom: 3px;
         }
 
         table td.amount,
@@ -150,6 +135,11 @@
         .total-row td {
             font-weight: bold;
             background-color: #f5f5f5;
+        }
+
+        .total-divider td {
+            border-top: 2px solid #000 !important;
+            padding-top: 8px;
         }
 
         .total-words {
@@ -228,12 +218,10 @@
         <tbody>
             @if($costBreakdown && isset($costBreakdown['groups']))
                 @foreach($costBreakdown['groups'] as $group)
-                    @if($group['type'] === 'special_item' && count($group['items']) > 0)
-                        <tr class="group-header">
-                            <td class="description" colspan="4">{{ $group['name'] }}</td>
-                        </tr>
+                    @if($group['type'] === 'special_item')
+                        {{-- Special items: show each item individually by name --}}
                         @foreach($group['items'] as $item)
-                            <tr class="sub-item">
+                            <tr>
                                 <td class="description">{{ $item['item_name'] }}</td>
                                 <td class="amount">{{ number_format($item['total'], 2) }}</td>
                                 <td class="discount"></td>
@@ -241,6 +229,7 @@
                             </tr>
                         @endforeach
                     @else
+                        {{-- Lab and Medicine: keep grouped --}}
                         <tr>
                             <td class="description">{{ $group['name'] }}</td>
                             <td class="amount">{{ number_format($group['subtotal'], 2) }}</td>
@@ -257,21 +246,15 @@
                     <td class="net">{{ number_format($billing->amount, 2) }}</td>
                 </tr>
             @endif
-            <tr class="total-row">
-                <td class="description">Subtotal</td>
-                <td class="amount">{{ number_format($billing->amount, 2) }}</td>
-                <td class="discount"></td>
-                <td class="net">{{ number_format($billing->amount, 2) }}</td>
-            </tr>
             @if($billing->discount_amount > 0)
             <tr>
-                <td class="description" style="color:#006600;">Discount ({{ number_format(($billing->discount_amount / $billing->amount) * 100, 2) }}%)</td>
+                <td class="description" style="color:#006600;">Discount</td>
                 <td class="amount"></td>
                 <td class="discount" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
                 <td class="net" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
             </tr>
             @endif
-            <tr class="total-row">
+            <tr class="total-row total-divider">
                 <td class="description">Total</td>
                 <td class="amount">{{ number_format($billing->amount, 2) }}</td>
                 <td class="discount">{{ $billing->discount_amount > 0 ? '-'.number_format($billing->discount_amount, 2) : '' }}</td>
