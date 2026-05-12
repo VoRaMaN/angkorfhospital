@@ -116,8 +116,7 @@
             font-weight: bold;
         }
 
-        table th:not(:first-child),
-        table td:not(:first-child) {
+        .col-sep {
             border-left: 1px solid #000;
         }
 
@@ -215,9 +214,9 @@
         <thead>
             <tr>
                 <th style="width: 50%;">Description</th>
-                <th style="width: 16%;">Amount</th>
-                <th style="width: 17%;">Discount</th>
-                <th style="width: 17%;">Net Amount</th>
+                <th class="col-sep" style="width: 16%;">Amount</th>
+                <th class="col-sep" style="width: 17%;">Discount</th>
+                <th class="col-sep" style="width: 17%;">Net Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -228,42 +227,42 @@
                         @foreach($group['items'] as $item)
                             <tr>
                                 <td class="description">{{ $item['item_name'] }}</td>
-                                <td class="amount">{{ number_format($item['total'], 2) }}</td>
-                                <td class="discount"></td>
-                                <td class="net">{{ number_format($item['total'], 2) }}</td>
+                                <td class="amount col-sep">{{ number_format($item['total'], 2) }}</td>
+                                <td class="discount col-sep"></td>
+                                <td class="net col-sep">{{ number_format($item['total'], 2) }}</td>
                             </tr>
                         @endforeach
                     @else
                         {{-- Lab and Medicine: keep grouped --}}
                         <tr>
                             <td class="description">{{ $group['name'] }}</td>
-                            <td class="amount">{{ number_format($group['subtotal'], 2) }}</td>
-                            <td class="discount"></td>
-                            <td class="net">{{ number_format($group['subtotal'], 2) }}</td>
+                            <td class="amount col-sep">{{ number_format($group['subtotal'], 2) }}</td>
+                            <td class="discount col-sep"></td>
+                            <td class="net col-sep">{{ number_format($group['subtotal'], 2) }}</td>
                         </tr>
                     @endif
                 @endforeach
             @else
                 <tr>
                     <td class="description">Medical Services</td>
-                    <td class="amount">{{ number_format($billing->amount, 2) }}</td>
-                    <td class="discount"></td>
-                    <td class="net">{{ number_format($billing->amount, 2) }}</td>
+                    <td class="amount col-sep">{{ number_format($billing->amount, 2) }}</td>
+                    <td class="discount col-sep"></td>
+                    <td class="net col-sep">{{ number_format($billing->amount, 2) }}</td>
                 </tr>
             @endif
             @if($billing->discount_amount > 0)
             <tr>
                 <td class="description" style="color:#006600;">Discount</td>
-                <td class="amount"></td>
-                <td class="discount" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
-                <td class="net" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
+                <td class="amount col-sep"></td>
+                <td class="discount col-sep" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
+                <td class="net col-sep" style="color:#006600;">-{{ number_format($billing->discount_amount, 2) }}</td>
             </tr>
             @endif
             <tr class="total-row total-divider">
                 <td class="description">Total</td>
-                <td class="amount">{{ number_format($billing->amount, 2) }}</td>
-                <td class="discount">{{ $billing->discount_amount > 0 ? '-'.number_format($billing->discount_amount, 2) : '' }}</td>
-                <td class="net">{{ number_format($billing->amount - $billing->discount_amount, 2) }}</td>
+                <td class="amount col-sep">{{ number_format($billing->amount, 2) }}</td>
+                <td class="discount col-sep">{{ $billing->discount_amount > 0 ? '-'.number_format($billing->discount_amount, 2) : '' }}</td>
+                <td class="net col-sep">{{ number_format($billing->amount - $billing->discount_amount, 2) }}</td>
             </tr>
         </tbody>
     </table>
