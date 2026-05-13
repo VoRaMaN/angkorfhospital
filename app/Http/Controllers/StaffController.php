@@ -202,13 +202,7 @@ class StaffController extends Controller
 
         $staff->update($staffData);
 
-        // Update user role if role_id changed
-        if ($staff->user && isset($validated['role_id'])) {
-            $role = \Spatie\Permission\Models\Role::find($validated['role_id']);
-            if ($role) {
-                $staff->user->syncRoles([$role]);
-            }
-        }
+        // Note: StaffObserver handles syncing the Spatie role when role_id changes.
 
         // Update user name if first_name or last_name changed
         if ($staff->user && (isset($validated['first_name']) || isset($validated['last_name']))) {

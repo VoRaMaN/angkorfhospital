@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Staff;
+use App\Models\StaffRole;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class StaffObserver
@@ -31,8 +32,8 @@ class StaffObserver
             return; // No user associated yet
         }
 
-        // Domain Role model name -> use as Spatie role name
-        $role = $staff->role;
+        // Use StaffRole (custom roles table) to get the correct role name
+        $role = StaffRole::find($staff->role_id);
 
         if (! $role || ! $role->name) {
             // If there's no domain role, remove all roles from the user
