@@ -312,6 +312,8 @@ class SpatiePermissionSeeder extends Seeder
             'create_billings',
             'edit_billings',
             'view_patients',
+            'create_patients',
+            'edit_patients',
             'view_visits',
             'view_medical_orders',
             'process_and_bill_medical_orders',
