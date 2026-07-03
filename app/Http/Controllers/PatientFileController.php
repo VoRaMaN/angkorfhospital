@@ -75,6 +75,7 @@ class PatientFileController extends Controller
             'file' => 'required|file|max:10240',
             'patient_id' => 'required|exists:patients,id',
             'type' => 'required|string|in:'.implode(',', array_map(fn ($case) => $case->value, PatientFileTypeEnum::cases())),
+            'medical_order_id' => 'nullable|exists:medical_orders,id',
         ]);
 
         $file = $request->file('file');
@@ -94,6 +95,7 @@ class PatientFileController extends Controller
             'patient_id' => $request->patient_id,
             'file_id' => $fileModel->id,
             'type' => $request->type,
+            'medical_order_id' => $request->input('medical_order_id') ?: null,
         ]);
 
         return redirect()->back();
@@ -186,6 +188,12 @@ class PatientFileController extends Controller
         if ($request->has('type')) {
             $patientFile->update([
                 'type' => $request->type,
+            ]);
+        }
+
+        if ($request->has('medical_order_id')) {
+            $patientFile->update([
+                'medical_order_id' => $request->input('medical_order_id') ?: null,
             ]);
         }
 

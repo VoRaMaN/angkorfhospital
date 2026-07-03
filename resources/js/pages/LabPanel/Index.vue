@@ -153,6 +153,18 @@ const paginationLinks = computed(() => {
     return props.labPanels.links.filter((link) => link.url);
 });
 
+const bloodLabPanels = computed(() => {
+    return props.labPanels.data.filter((panel) =>
+        panel.name.toLowerCase().includes('blood'),
+    );
+});
+
+const otherLabPanels = computed(() => {
+    return props.labPanels.data.filter((panel) =>
+        !panel.name.toLowerCase().includes('blood'),
+    );
+});
+
 const statusBadgeClass = (status: string) => {
     switch (status) {
         case 'pending':    return 'bg-amber-100 text-amber-700 border border-amber-200';
@@ -688,76 +700,139 @@ const onHormoneSaved = () => {
                 </div>
             </div>
 
-            <div class="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Price</TableHead>
-                            <TableHead>Items</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow
-                            v-for="labPanel in props.labPanels.data"
-                            :key="labPanel.id"
-                            class="cursor-pointer hover:bg-muted/50"
-                            @click="router.visit(labPanelShow(labPanel.id).url)"
-                        >
-                            <TableCell>{{ labPanel.name }}</TableCell>
-                            <TableCell>{{ labPanel.description }}</TableCell>
-                            <TableCell>${{ labPanel.price }}</TableCell>
-                            <TableCell
-                                >{{
-                                    labPanel.inventory_items_count
-                                }}
-                                items</TableCell
-                            >
-                            <TableCell>
-                                <Badge
-                                    :variant="
-                                        labPanel.is_active
-                                            ? 'default'
-                                            : 'secondary'
-                                    "
+            <div class="grid gap-4 lg:grid-cols-2">
+                <div class="rounded-md border bg-card">
+                    <div class="border-b px-4 py-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-sm font-semibold">Blood Lab</p>
+                                <p class="text-xs text-muted-foreground">
+                                    Blood lab panels are shown here.
+                                </p>
+                            </div>
+                            <Badge variant="secondary">{{ bloodLabPanels.length }}</Badge>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Price</TableHead>
+                                    <TableHead>Items</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow
+                                    v-for="labPanel in bloodLabPanels"
+                                    :key="labPanel.id"
+                                    class="cursor-pointer hover:bg-muted/50"
+                                    @click="router.visit(labPanelShow(labPanel.id).url)"
                                 >
-                                    {{
-                                        labPanel.is_active
-                                            ? 'Active'
-                                            : 'Inactive'
-                                    }}
-                                </Badge>
-                            </TableCell>
-                            <TableCell @click.stop>
-                                <div class="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <Link
-                                            :href="
-                                                labPanelShow(labPanel.id).url
-                                            "
-                                            >View</Link
-                                        >
-                                    </Button>
-                                    <Button
-                                        v-if="hasPermission('edit_lab_panels')"
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <Link
-                                            :href="
-                                                labPanelEdit(labPanel.id).url
-                                            "
-                                            >Edit</Link
-                                        >
-                                    </Button>
+                                    <TableCell>{{ labPanel.name }}</TableCell>
+                                    <TableCell>{{ labPanel.description }}</TableCell>
+                                    <TableCell>${{ labPanel.price }}</TableCell>
+                                    <TableCell>{{ labPanel.inventory_items_count }} items</TableCell>
+                                    <TableCell>
+                                        <Badge :variant="labPanel.is_active ? 'default' : 'secondary'">
+                                            {{ labPanel.is_active ? 'Active' : 'Inactive' }}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell @click.stop>
+                                        <div class="flex gap-2">
+                                            <Button variant="outline" size="sm" as-child>
+                                                <Link :href="labPanelShow(labPanel.id).url">View</Link>
+                                            </Button>
+                                            <Button
+                                                v-if="hasPermission('edit_lab_panels')"
+                                                variant="outline"
+                                                size="sm"
+                                                as-child
+                                            >
+                                                <Link :href="labPanelEdit(labPanel.id).url">Edit</Link>
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow v-if="bloodLabPanels.length === 0">
+                                    <TableCell colspan="6" class="text-center text-muted-foreground">
+                                        No blood lab panels found.
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+
+                <div class="rounded-md border bg-card">
+                    <div class="border-b px-4 py-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-sm font-semibold">Other Lab Tests</p>
+                                <p class="text-xs text-muted-foreground">
+                                    All remaining lab panels are shown here.
+                                </p>
+                            </div>
+                            <Badge variant="secondary">{{ otherLabPanels.length }}</Badge>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Price</TableHead>
+                                    <TableHead>Items</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow
+                                    v-for="labPanel in otherLabPanels"
+                                    :key="labPanel.id"
+                                    class="cursor-pointer hover:bg-muted/50"
+                                    @click="router.visit(labPanelShow(labPanel.id).url)"
+                                >
+                                    <TableCell>{{ labPanel.name }}</TableCell>
+                                    <TableCell>{{ labPanel.description }}</TableCell>
+                                    <TableCell>${{ labPanel.price }}</TableCell>
+                                    <TableCell>{{ labPanel.inventory_items_count }} items</TableCell>
+                                    <TableCell>
+                                        <Badge :variant="labPanel.is_active ? 'default' : 'secondary'">
+                                            {{ labPanel.is_active ? 'Active' : 'Inactive' }}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell @click.stop>
+                                        <div class="flex gap-2">
+                                            <Button variant="outline" size="sm" as-child>
+                                                <Link :href="labPanelShow(labPanel.id).url">View</Link>
+                                            </Button>
+                                            <Button
+                                                v-if="hasPermission('edit_lab_panels')"
+                                                variant="outline"
+                                                size="sm"
+                                                as-child
+                                            >
+                                                <Link :href="labPanelEdit(labPanel.id).url">Edit</Link>
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow v-if="otherLabPanels.length === 0">
+                                    <TableCell colspan="6" class="text-center text-muted-foreground">
+                                        No other lab tests found.
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+            </div>
                                 </div>
                             </TableCell>
                         </TableRow>

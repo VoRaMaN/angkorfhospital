@@ -134,7 +134,9 @@ class PatientController extends Controller
             'visits.medicalRecord',
             'visits.medicalOrders.orderItems',
             'visits.billings',
-            'patientFiles.file',
+            'patientFiles' => function ($query) {
+                $query->with('file')->orderByDesc('created_at');
+            },
             'medicalOrders.staff',
             'medicalOrders.orderItems',
             'staff',

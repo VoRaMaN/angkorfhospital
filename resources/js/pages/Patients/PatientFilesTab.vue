@@ -27,6 +27,8 @@ import { show, store } from '@/routes/patient-files';
 import { useForm } from '@inertiajs/vue3';
 import { Download, Eye, Plus, Trash2 } from 'lucide-vue-next';
 import { useAuth } from '@/composables/useAuth';
+import { computed } from 'vue';
+import { formatDateTime } from '@/lib/utils';
 
 interface Props {
     patient: {
@@ -34,12 +36,19 @@ interface Props {
         patient_files?: Array<{
             id: number;
             type: string;
+            medical_order_id?: number | null;
+            created_at: string;
             file: {
                 id: number;
                 name: string;
                 size: number;
                 mime_type: string;
             };
+        }>;
+        medical_orders?: Array<{
+            id: number;
+            ordered_at?: string;
+            orderItems?: Array<{ item_type: string }>;
         }>;
     };
 }
@@ -52,6 +61,13 @@ const form = useForm({
     file: null as File | null,
     patient_id: props.patient.id.toString(),
     type: 'medical_record',
+    medical_order_id: '',
+});
+
+const labOrders = computed(() => {
+    return (props.patient.medical_orders || [])
+        .filter((order) => (order.orderItems || []).some((item) => item.item_type === 'lab'))
+        .sort((a, b) => (b.ordered_at || '').localeCompare(a.ordered_at || ''));
 });
 
 const submitForm = () => {
@@ -130,6 +146,35 @@ function deleteFile(id: number) {
                     </FormItem>
                 </FormField>
 
+                <FormField v-slot="{}" name="medical_order_id">
+                    <FormItem>
+                        <FormLabel>Lab Order</FormLabel>
+                        <Select v-model="form.medical_order_id">
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue
+                                        placeholder="Link to lab order (optional)"
+                                    />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="">None</SelectItem>
+                                <SelectItem
+                                    v-for="order in labOrders"
+                                    :key="order.id"
+                                    :value="order.id.toString()"
+                                >
+                                    Order #{{ order.id }}
+                                    <span class="text-muted-foreground">
+                                        {{ order.ordered_at?.slice(0, 10) }}
+                                    </span>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                </FormField>
+
                 <Button type="submit" :disabled="form.processing">
                     <Plus class="mr-2 size-4" />
                     Upload File
@@ -155,6 +200,8 @@ function deleteFile(id: number) {
                         <TableRow>
                             <TableHead>File Name</TableHead>
                             <TableHead>Type</TableHead>
+                            <TableHead>Uploaded</TableHead>
+                            <TableHead>Lab Order</TableHead>
                             <TableHead>Size</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -166,6 +213,20 @@ function deleteFile(id: number) {
                         >
                             <TableCell>{{ item.file.name }}</TableCell>
                             <TableCell>{{ item.type }}</TableCell>
+                            <TableCell>{{ formatDateTime(item.created_at) }}</TableCell>
+                            <TableCell>
+                                <template v-if="item.medical_order_id">
+                                    <a
+                                        :href="`/medical-orders/${item.medical_order_id}`"
+                                        class="text-blue-600 hover:underline"
+                                    >
+                                        Order #{{ item.medical_order_id }}
+                                    </a>
+                                </template>
+                                <template v-else>
+                                    —
+                                </template>
+                            </TableCell>
                             <TableCell>{{ item.file.size }}</TableCell>
                             <TableCell>
                                 <div class="flex gap-2">

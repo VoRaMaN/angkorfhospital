@@ -12,6 +12,7 @@ class PatientFile extends Model
         'patient_id',
         'file_id',
         'type',
+        'medical_order_id',
     ];
 
     protected $casts = [
@@ -26,5 +27,10 @@ class PatientFile extends Model
     public function file(): BelongsTo
     {
         return $this->belongsTo(File::class);
+    }
+
+    public function medicalOrder(): BelongsTo
+    {
+        return $this->belongsTo(MedicalOrder::class);
     }
 }

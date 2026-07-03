@@ -45,6 +45,20 @@ const filteredVisitHistory = computed(() => {
     return (props.patient.visit_history || []).filter(v => v.visit_date_time && v.visit_date_time.startsWith(visitHistoryDate.value));
 });
 
+const labResults = computed(() => {
+    return [...(props.patient.medical_orders_data || [])]
+        .filter((order: any) => order.labs?.length)
+        .sort((a: any, b: any) => {
+            if (!a.ordered_at) {
+                return 1;
+            }
+            if (!b.ordered_at) {
+                return -1;
+            }
+            return b.ordered_at.localeCompare(a.ordered_at);
+        });
+});
+
 const toggleVisit = (visitId: number) => {
     if (expandedVisits.value.has(visitId)) {
         expandedVisits.value.delete(visitId);
@@ -777,19 +791,27 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <p class="text-sm text-muted-foreground">No lab results recorded yet.</p>
                         </div>
                         <div v-else class="space-y-4">
-                            <template v-for="order in (props.patient.medical_orders_data || [])" :key="order.id">
-                                <div v-if="order.labs?.length" class="rounded-lg border bg-card">
-                                    <div class="flex items-center justify-between border-b px-4 py-3">
-                                        <div>
-                                            <p class="font-semibold text-sm">Order #{{ order.id }}</p>
-                                            <p class="text-xs text-muted-foreground">{{ order.ordered_at ? order.ordered_at.slice(0, 10) : '' }} &middot; Dr. {{ order.staff_name }}</p>
+                            <template v-for="order in labResults" :key="order.id">
+                                <details class="group rounded-lg border bg-card">
+                                    <summary class="flex cursor-pointer items-center justify-between gap-4 px-4 py-4 transition-colors hover:bg-muted/50">
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-sm text-blue-700 dark:text-blue-300">
+                                                <a :href="`/medical-orders/${order.id}`" class="hover:underline">Lab Result #{{ order.id }}</a>
+                                            </p>
+                                            <p class="text-xs text-muted-foreground">
+                                                {{ order.ordered_at ? order.ordered_at.slice(0, 10) : 'No date' }} &middot; Dr. {{ order.staff_name || 'Unknown' }}
+                                            </p>
                                         </div>
-                                        <Badge :class="order.status?.value === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'" variant="outline">
-                                            {{ order.status?.label || order.status }}
-                                        </Badge>
-                                    </div>
-                                    <div class="divide-y">
-                                        <div v-for="(lab, i) in order.labs" :key="i" class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <Badge :class="order.status?.value === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'" variant="outline">
+                                                {{ order.status?.label || order.status }}
+                                            </Badge>
+                                            <span class="text-xs text-muted-foreground">Click to expand</span>
+                                        </div>
+                                    </summary>
+
+                                    <div class="divide-y border-t px-4 pb-4">
+                                        <div v-for="(lab, i) in order.labs" :key="i" class="px-0 py-4">
                                             <div class="flex items-start justify-between gap-4">
                                                 <div class="flex-1">
                                                     <p class="font-medium text-sm">{{ lab.name }}</p>
@@ -806,7 +828,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </details>
                             </template>
                         </div>
                     </TabsContent>
