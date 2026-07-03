@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
 export const show = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
 show.url = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -255,7 +255,7 @@ show.url = (args: { patient_file: string | number } | [patient_file: string | nu
 
 /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
 show.get = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -264,7 +264,7 @@ show.get = (args: { patient_file: string | number } | [patient_file: string | nu
 })
 /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
 show.head = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -274,7 +274,7 @@ show.head = (args: { patient_file: string | number } | [patient_file: string | n
 
     /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
     const showForm = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -284,7 +284,7 @@ show.head = (args: { patient_file: string | number } | [patient_file: string | n
 
             /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
         showForm.get = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -293,7 +293,7 @@ show.head = (args: { patient_file: string | number } | [patient_file: string | n
         })
             /**
 * @see \App\Http\Controllers\PatientFileController::show
- * @see app/Http/Controllers/PatientFileController.php:125
+ * @see app/Http/Controllers/PatientFileController.php:127
  * @route '/patient-files/{patient_file}'
  */
         showForm.head = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -309,7 +309,7 @@ show.head = (args: { patient_file: string | number } | [patient_file: string | n
     show.form = showForm
 /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
 export const edit = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -324,7 +324,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
 edit.url = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -352,7 +352,7 @@ edit.url = (args: { patient_file: string | number } | [patient_file: string | nu
 
 /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
 edit.get = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -361,7 +361,7 @@ edit.get = (args: { patient_file: string | number } | [patient_file: string | nu
 })
 /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
 edit.head = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -371,7 +371,7 @@ edit.head = (args: { patient_file: string | number } | [patient_file: string | n
 
     /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
     const editForm = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -381,7 +381,7 @@ edit.head = (args: { patient_file: string | number } | [patient_file: string | n
 
             /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
         editForm.get = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -390,7 +390,7 @@ edit.head = (args: { patient_file: string | number } | [patient_file: string | n
         })
             /**
 * @see \App\Http\Controllers\PatientFileController::edit
- * @see app/Http/Controllers/PatientFileController.php:141
+ * @see app/Http/Controllers/PatientFileController.php:143
  * @route '/patient-files/{patient_file}/edit'
  */
         editForm.head = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -406,7 +406,7 @@ edit.head = (args: { patient_file: string | number } | [patient_file: string | n
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
 export const update = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -421,7 +421,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
 update.url = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -449,7 +449,7 @@ update.url = (args: { patient_file: string | number } | [patient_file: string | 
 
 /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
 update.put = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -458,7 +458,7 @@ update.put = (args: { patient_file: string | number } | [patient_file: string | 
 })
 /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
 update.patch = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -468,7 +468,7 @@ update.patch = (args: { patient_file: string | number } | [patient_file: string 
 
     /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
     const updateForm = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -483,7 +483,7 @@ update.patch = (args: { patient_file: string | number } | [patient_file: string 
 
             /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
         updateForm.put = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -497,7 +497,7 @@ update.patch = (args: { patient_file: string | number } | [patient_file: string 
         })
             /**
 * @see \App\Http\Controllers\PatientFileController::update
- * @see app/Http/Controllers/PatientFileController.php:156
+ * @see app/Http/Controllers/PatientFileController.php:158
  * @route '/patient-files/{patient_file}'
  */
         updateForm.patch = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -513,7 +513,7 @@ update.patch = (args: { patient_file: string | number } | [patient_file: string 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\PatientFileController::destroy
- * @see app/Http/Controllers/PatientFileController.php:198
+ * @see app/Http/Controllers/PatientFileController.php:206
  * @route '/patient-files/{patient_file}'
  */
 export const destroy = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -528,7 +528,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientFileController::destroy
- * @see app/Http/Controllers/PatientFileController.php:198
+ * @see app/Http/Controllers/PatientFileController.php:206
  * @route '/patient-files/{patient_file}'
  */
 destroy.url = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -556,7 +556,7 @@ destroy.url = (args: { patient_file: string | number } | [patient_file: string |
 
 /**
 * @see \App\Http\Controllers\PatientFileController::destroy
- * @see app/Http/Controllers/PatientFileController.php:198
+ * @see app/Http/Controllers/PatientFileController.php:206
  * @route '/patient-files/{patient_file}'
  */
 destroy.delete = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -566,7 +566,7 @@ destroy.delete = (args: { patient_file: string | number } | [patient_file: strin
 
     /**
 * @see \App\Http\Controllers\PatientFileController::destroy
- * @see app/Http/Controllers/PatientFileController.php:198
+ * @see app/Http/Controllers/PatientFileController.php:206
  * @route '/patient-files/{patient_file}'
  */
     const destroyForm = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -581,7 +581,7 @@ destroy.delete = (args: { patient_file: string | number } | [patient_file: strin
 
             /**
 * @see \App\Http\Controllers\PatientFileController::destroy
- * @see app/Http/Controllers/PatientFileController.php:198
+ * @see app/Http/Controllers/PatientFileController.php:206
  * @route '/patient-files/{patient_file}'
  */
         destroyForm.delete = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -597,7 +597,7 @@ destroy.delete = (args: { patient_file: string | number } | [patient_file: strin
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
 export const download = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -612,7 +612,7 @@ download.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
 download.url = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -640,7 +640,7 @@ download.url = (args: { patient_file: string | number } | [patient_file: string 
 
 /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
 download.get = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -649,7 +649,7 @@ download.get = (args: { patient_file: string | number } | [patient_file: string 
 })
 /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
 download.head = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -659,7 +659,7 @@ download.head = (args: { patient_file: string | number } | [patient_file: string
 
     /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
     const downloadForm = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -669,7 +669,7 @@ download.head = (args: { patient_file: string | number } | [patient_file: string
 
             /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
         downloadForm.get = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -678,7 +678,7 @@ download.head = (args: { patient_file: string | number } | [patient_file: string
         })
             /**
 * @see \App\Http\Controllers\PatientFileController::download
- * @see app/Http/Controllers/PatientFileController.php:105
+ * @see app/Http/Controllers/PatientFileController.php:107
  * @route '/patient-files/{patient_file}/download'
  */
         downloadForm.head = (args: { patient_file: string | number } | [patient_file: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

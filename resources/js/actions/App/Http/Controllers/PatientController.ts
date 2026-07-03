@@ -290,7 +290,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     show.form = showForm
 /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
 export const edit = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -305,7 +305,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
 edit.url = (options?: RouteQueryOptions) => {
@@ -314,7 +314,7 @@ edit.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
 edit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -323,7 +323,7 @@ edit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
 edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -333,7 +333,7 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
     const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -343,7 +343,7 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
         editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -352,7 +352,7 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PatientController::edit
- * @see app/Http/Controllers/PatientController.php:250
+ * @see app/Http/Controllers/PatientController.php:252
  * @route '/patients/edit'
  */
         editForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -368,7 +368,7 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\PatientController::update
- * @see app/Http/Controllers/PatientController.php:266
+ * @see app/Http/Controllers/PatientController.php:268
  * @route '/patients/update'
  */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -383,7 +383,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::update
- * @see app/Http/Controllers/PatientController.php:266
+ * @see app/Http/Controllers/PatientController.php:268
  * @route '/patients/update'
  */
 update.url = (options?: RouteQueryOptions) => {
@@ -392,7 +392,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::update
- * @see app/Http/Controllers/PatientController.php:266
+ * @see app/Http/Controllers/PatientController.php:268
  * @route '/patients/update'
  */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -402,7 +402,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
     /**
 * @see \App\Http\Controllers\PatientController::update
- * @see app/Http/Controllers/PatientController.php:266
+ * @see app/Http/Controllers/PatientController.php:268
  * @route '/patients/update'
  */
     const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -417,7 +417,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
             /**
 * @see \App\Http\Controllers\PatientController::update
- * @see app/Http/Controllers/PatientController.php:266
+ * @see app/Http/Controllers/PatientController.php:268
  * @route '/patients/update'
  */
         updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -433,7 +433,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:305
+ * @see app/Http/Controllers/PatientController.php:307
  * @route '/patients/destroy'
  */
 export const destroy = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -448,7 +448,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:305
+ * @see app/Http/Controllers/PatientController.php:307
  * @route '/patients/destroy'
  */
 destroy.url = (options?: RouteQueryOptions) => {
@@ -457,7 +457,7 @@ destroy.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:305
+ * @see app/Http/Controllers/PatientController.php:307
  * @route '/patients/destroy'
  */
 destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -467,7 +467,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
     /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:305
+ * @see app/Http/Controllers/PatientController.php:307
  * @route '/patients/destroy'
  */
     const destroyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -482,7 +482,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
             /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:305
+ * @see app/Http/Controllers/PatientController.php:307
  * @route '/patients/destroy'
  */
         destroyForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -498,7 +498,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
 export const generateReport = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -513,7 +513,7 @@ generateReport.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
 generateReport.url = (options?: RouteQueryOptions) => {
@@ -522,7 +522,7 @@ generateReport.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
 generateReport.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -531,7 +531,7 @@ generateReport.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
 generateReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -541,7 +541,7 @@ generateReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
     /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
     const generateReportForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -551,7 +551,7 @@ generateReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
             /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
         generateReportForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -560,7 +560,7 @@ generateReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
         })
             /**
 * @see \App\Http\Controllers\PatientController::generateReport
- * @see app/Http/Controllers/PatientController.php:319
+ * @see app/Http/Controllers/PatientController.php:321
  * @route '/patients/report'
  */
         generateReportForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -576,7 +576,7 @@ generateReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
     generateReport.form = generateReportForm
 /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
 export const downloadReport = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -591,7 +591,7 @@ downloadReport.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
 downloadReport.url = (options?: RouteQueryOptions) => {
@@ -600,7 +600,7 @@ downloadReport.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
 downloadReport.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -609,7 +609,7 @@ downloadReport.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
 downloadReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -619,7 +619,7 @@ downloadReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
     /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
     const downloadReportForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -629,7 +629,7 @@ downloadReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
             /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
         downloadReportForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -638,7 +638,7 @@ downloadReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
         })
             /**
 * @see \App\Http\Controllers\PatientController::downloadReport
- * @see app/Http/Controllers/PatientController.php:334
+ * @see app/Http/Controllers/PatientController.php:336
  * @route '/patients/report/download'
  */
         downloadReportForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -654,7 +654,7 @@ downloadReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
     downloadReport.form = downloadReportForm
 /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
 export const generateSticker = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -669,7 +669,7 @@ generateSticker.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
 generateSticker.url = (options?: RouteQueryOptions) => {
@@ -678,7 +678,7 @@ generateSticker.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
 generateSticker.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -687,7 +687,7 @@ generateSticker.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => (
 })
 /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
 generateSticker.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -697,7 +697,7 @@ generateSticker.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 
     /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
     const generateStickerForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -707,7 +707,7 @@ generateSticker.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 
             /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
         generateStickerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -716,7 +716,7 @@ generateSticker.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
         })
             /**
 * @see \App\Http\Controllers\PatientController::generateSticker
- * @see app/Http/Controllers/PatientController.php:471
+ * @see app/Http/Controllers/PatientController.php:473
  * @route '/patients/sticker'
  */
         generateStickerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -732,7 +732,7 @@ generateSticker.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     generateSticker.form = generateStickerForm
 /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
 export const generateLabel = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -747,7 +747,7 @@ generateLabel.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
 generateLabel.url = (options?: RouteQueryOptions) => {
@@ -756,7 +756,7 @@ generateLabel.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
 generateLabel.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -765,7 +765,7 @@ generateLabel.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
 generateLabel.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -775,7 +775,7 @@ generateLabel.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
     /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
     const generateLabelForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -785,7 +785,7 @@ generateLabel.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
             /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
         generateLabelForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -794,7 +794,7 @@ generateLabel.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
         })
             /**
 * @see \App\Http\Controllers\PatientController::generateLabel
- * @see app/Http/Controllers/PatientController.php:610
+ * @see app/Http/Controllers/PatientController.php:612
  * @route '/patients/label'
  */
         generateLabelForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -7,6 +7,13 @@ import DepartmentController from './DepartmentController'
 import DoctorController from './DoctorController'
 import InventoryController from './InventoryController'
 import LabPanelController from './LabPanelController'
+import OpuReportController from './OpuReportController'
+import SemenAnalysisReportController from './SemenAnalysisReportController'
+import SaReportController from './SaReportController'
+import SpermFreezingReportController from './SpermFreezingReportController'
+import HormoneReportController from './HormoneReportController'
+import IuiReportController from './IuiReportController'
+import FetReportController from './FetReportController'
 import MedicineGroupController from './MedicineGroupController'
 import SpecialItemController from './SpecialItemController'
 import MedicalOrderController from './MedicalOrderController'
@@ -31,6 +38,13 @@ DepartmentController: Object.assign(DepartmentController, DepartmentController),
 DoctorController: Object.assign(DoctorController, DoctorController),
 InventoryController: Object.assign(InventoryController, InventoryController),
 LabPanelController: Object.assign(LabPanelController, LabPanelController),
+OpuReportController: Object.assign(OpuReportController, OpuReportController),
+SemenAnalysisReportController: Object.assign(SemenAnalysisReportController, SemenAnalysisReportController),
+SaReportController: Object.assign(SaReportController, SaReportController),
+SpermFreezingReportController: Object.assign(SpermFreezingReportController, SpermFreezingReportController),
+HormoneReportController: Object.assign(HormoneReportController, HormoneReportController),
+IuiReportController: Object.assign(IuiReportController, IuiReportController),
+FetReportController: Object.assign(FetReportController, FetReportController),
 MedicineGroupController: Object.assign(MedicineGroupController, MedicineGroupController),
 SpecialItemController: Object.assign(SpecialItemController, SpecialItemController),
 MedicalOrderController: Object.assign(MedicalOrderController, MedicalOrderController),

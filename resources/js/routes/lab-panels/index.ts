@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\LabPanelController::index
- * @see app/Http/Controllers/LabPanelController.php:19
+ * @see app/Http/Controllers/LabPanelController.php:21
  * @route '/lab-panels'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\LabPanelController::create
- * @see app/Http/Controllers/LabPanelController.php:118
+ * @see app/Http/Controllers/LabPanelController.php:129
  * @route '/lab-panels/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\LabPanelController::store
- * @see app/Http/Controllers/LabPanelController.php:130
+ * @see app/Http/Controllers/LabPanelController.php:141
  * @route '/lab-panels'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::store
- * @see app/Http/Controllers/LabPanelController.php:130
+ * @see app/Http/Controllers/LabPanelController.php:141
  * @route '/lab-panels'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::store
- * @see app/Http/Controllers/LabPanelController.php:130
+ * @see app/Http/Controllers/LabPanelController.php:141
  * @route '/lab-panels'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\LabPanelController::store
- * @see app/Http/Controllers/LabPanelController.php:130
+ * @see app/Http/Controllers/LabPanelController.php:141
  * @route '/lab-panels'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\LabPanelController::store
- * @see app/Http/Controllers/LabPanelController.php:130
+ * @see app/Http/Controllers/LabPanelController.php:141
  * @route '/lab-panels'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
 export const show = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
 show.url = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -255,7 +255,7 @@ show.url = (args: { lab_panel: string | number } | [lab_panel: string | number ]
 
 /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
 show.get = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -264,7 +264,7 @@ show.get = (args: { lab_panel: string | number } | [lab_panel: string | number ]
 })
 /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
 show.head = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -274,7 +274,7 @@ show.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
 
     /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
     const showForm = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -284,7 +284,7 @@ show.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
 
             /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
         showForm.get = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -293,7 +293,7 @@ show.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
         })
             /**
 * @see \App\Http\Controllers\LabPanelController::show
- * @see app/Http/Controllers/LabPanelController.php:167
+ * @see app/Http/Controllers/LabPanelController.php:178
  * @route '/lab-panels/{lab_panel}'
  */
         showForm.head = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -309,7 +309,7 @@ show.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
     show.form = showForm
 /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
 export const edit = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -324,7 +324,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
 edit.url = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -352,7 +352,7 @@ edit.url = (args: { lab_panel: string | number } | [lab_panel: string | number ]
 
 /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
 edit.get = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -361,7 +361,7 @@ edit.get = (args: { lab_panel: string | number } | [lab_panel: string | number ]
 })
 /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
 edit.head = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -371,7 +371,7 @@ edit.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
 
     /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
     const editForm = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -381,7 +381,7 @@ edit.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
 
             /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
         editForm.get = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -390,7 +390,7 @@ edit.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
         })
             /**
 * @see \App\Http\Controllers\LabPanelController::edit
- * @see app/Http/Controllers/LabPanelController.php:200
+ * @see app/Http/Controllers/LabPanelController.php:211
  * @route '/lab-panels/{lab_panel}/edit'
  */
         editForm.head = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -406,7 +406,7 @@ edit.head = (args: { lab_panel: string | number } | [lab_panel: string | number 
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
 export const update = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -421,7 +421,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
 update.url = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -449,7 +449,7 @@ update.url = (args: { lab_panel: string | number } | [lab_panel: string | number
 
 /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
 update.put = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -458,7 +458,7 @@ update.put = (args: { lab_panel: string | number } | [lab_panel: string | number
 })
 /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
 update.patch = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -468,7 +468,7 @@ update.patch = (args: { lab_panel: string | number } | [lab_panel: string | numb
 
     /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
     const updateForm = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -483,7 +483,7 @@ update.patch = (args: { lab_panel: string | number } | [lab_panel: string | numb
 
             /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
         updateForm.put = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -497,7 +497,7 @@ update.patch = (args: { lab_panel: string | number } | [lab_panel: string | numb
         })
             /**
 * @see \App\Http\Controllers\LabPanelController::update
- * @see app/Http/Controllers/LabPanelController.php:234
+ * @see app/Http/Controllers/LabPanelController.php:245
  * @route '/lab-panels/{lab_panel}'
  */
         updateForm.patch = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -513,7 +513,7 @@ update.patch = (args: { lab_panel: string | number } | [lab_panel: string | numb
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\LabPanelController::destroy
- * @see app/Http/Controllers/LabPanelController.php:275
+ * @see app/Http/Controllers/LabPanelController.php:286
  * @route '/lab-panels/{lab_panel}'
  */
 export const destroy = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -528,7 +528,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\LabPanelController::destroy
- * @see app/Http/Controllers/LabPanelController.php:275
+ * @see app/Http/Controllers/LabPanelController.php:286
  * @route '/lab-panels/{lab_panel}'
  */
 destroy.url = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -556,7 +556,7 @@ destroy.url = (args: { lab_panel: string | number } | [lab_panel: string | numbe
 
 /**
 * @see \App\Http\Controllers\LabPanelController::destroy
- * @see app/Http/Controllers/LabPanelController.php:275
+ * @see app/Http/Controllers/LabPanelController.php:286
  * @route '/lab-panels/{lab_panel}'
  */
 destroy.delete = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -566,7 +566,7 @@ destroy.delete = (args: { lab_panel: string | number } | [lab_panel: string | nu
 
     /**
 * @see \App\Http\Controllers\LabPanelController::destroy
- * @see app/Http/Controllers/LabPanelController.php:275
+ * @see app/Http/Controllers/LabPanelController.php:286
  * @route '/lab-panels/{lab_panel}'
  */
     const destroyForm = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -581,7 +581,7 @@ destroy.delete = (args: { lab_panel: string | number } | [lab_panel: string | nu
 
             /**
 * @see \App\Http\Controllers\LabPanelController::destroy
- * @see app/Http/Controllers/LabPanelController.php:275
+ * @see app/Http/Controllers/LabPanelController.php:286
  * @route '/lab-panels/{lab_panel}'
  */
         destroyForm.delete = (args: { lab_panel: string | number } | [lab_panel: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

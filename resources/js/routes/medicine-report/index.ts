@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MedicineReportController::index
- * @see app/Http/Controllers/MedicineReportController.php:14
+ * @see app/Http/Controllers/MedicineReportController.php:17
  * @route '/medicine-report'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MedicineReportController::exportMethod
- * @see app/Http/Controllers/MedicineReportController.php:144
+ * @see app/Http/Controllers/MedicineReportController.php:147
  * @route '/medicine-report/export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     exportMethod.form = exportMethodForm
 /**
 * @see \App\Http\Controllers\MedicineReportController::finish
- * @see app/Http/Controllers/MedicineReportController.php:102
+ * @see app/Http/Controllers/MedicineReportController.php:105
  * @route '/medicine-report/finish/{medical_order}'
  */
 export const finish = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -172,7 +172,7 @@ finish.definition = {
 
 /**
 * @see \App\Http\Controllers\MedicineReportController::finish
- * @see app/Http/Controllers/MedicineReportController.php:102
+ * @see app/Http/Controllers/MedicineReportController.php:105
  * @route '/medicine-report/finish/{medical_order}'
  */
 finish.url = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -200,7 +200,7 @@ finish.url = (args: { medical_order: string | number } | [medical_order: string 
 
 /**
 * @see \App\Http\Controllers\MedicineReportController::finish
- * @see app/Http/Controllers/MedicineReportController.php:102
+ * @see app/Http/Controllers/MedicineReportController.php:105
  * @route '/medicine-report/finish/{medical_order}'
  */
 finish.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -210,7 +210,7 @@ finish.patch = (args: { medical_order: string | number } | [medical_order: strin
 
     /**
 * @see \App\Http\Controllers\MedicineReportController::finish
- * @see app/Http/Controllers/MedicineReportController.php:102
+ * @see app/Http/Controllers/MedicineReportController.php:105
  * @route '/medicine-report/finish/{medical_order}'
  */
     const finishForm = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -225,7 +225,7 @@ finish.patch = (args: { medical_order: string | number } | [medical_order: strin
 
             /**
 * @see \App\Http\Controllers\MedicineReportController::finish
- * @see app/Http/Controllers/MedicineReportController.php:102
+ * @see app/Http/Controllers/MedicineReportController.php:105
  * @route '/medicine-report/finish/{medical_order}'
  */
         finishForm.patch = (args: { medical_order: string | number } | [medical_order: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

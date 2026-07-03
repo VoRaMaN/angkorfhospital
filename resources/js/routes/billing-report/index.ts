@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\BillingReportController::index
- * @see app/Http/Controllers/BillingReportController.php:12
+ * @see app/Http/Controllers/BillingReportController.php:15
  * @route '/billing-report'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\BillingReportController::exportMethod
- * @see app/Http/Controllers/BillingReportController.php:75
+ * @see app/Http/Controllers/BillingReportController.php:78
  * @route '/billing-report/export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
