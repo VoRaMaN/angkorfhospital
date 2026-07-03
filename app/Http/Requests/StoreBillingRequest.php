@@ -26,7 +26,7 @@ class StoreBillingRequest extends FormRequest
             'visit_id' => 'nullable|exists:visits,id',
             'medical_order_id' => 'nullable|exists:medical_orders,id',
             'amount' => 'required|numeric|min:0|max:999999.99',
-            'status' => 'required|in:pending,paid,overdue,written_off',
+            'status' => 'required|in:pending,paid,overdue,partial,written_off,cancelled,revision,revised,sent_to_account',
             'billing_date' => 'required|date|before_or_equal:today',
             'notes' => 'nullable|string|max:1000',
         ];
@@ -42,7 +42,7 @@ class StoreBillingRequest extends FormRequest
             'visit_id.exists' => 'The selected visit is invalid.',
             'medical_order_id.exists' => 'The selected medical order is invalid.',
             'billing_date.before_or_equal' => 'Billing date cannot be in the future.',
-            'status.in' => 'Status must be one of: pending, paid, overdue, written_off.',
+            'status.in' => 'Status must be one of: pending, paid, overdue, partial, written_off, cancelled, revision, revised, sent_to_account.',
         ];
     }
 }

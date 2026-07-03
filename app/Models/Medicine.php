@@ -16,6 +16,13 @@ class Medicine extends Model
         'unit_price',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'unit_price' => 'decimal:2',
+        ];
+    }
+
     public function patches(): BelongsToMany
     {
         return $this->belongsToMany(Patch::class, 'patch_medicine');

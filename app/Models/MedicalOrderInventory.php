@@ -33,6 +33,9 @@ class MedicalOrderInventory extends Model
     protected function casts(): array
     {
         return [
+            'unit_price' => 'decimal:2',
+            'selling_price' => 'decimal:2',
+            'quantity_required' => 'integer',
             'completed_at' => 'datetime',
             'status' => MedicalOrderStatusEnum::class,
         ];

@@ -23,6 +23,17 @@ class RxMedicine extends Model
         'expiry_date',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'unit_price' => 'decimal:2',
+            'stock_quantity' => 'integer',
+            'total_per_box' => 'integer',
+            'reorder_quantity' => 'integer',
+            'expiry_date' => 'date',
+        ];
+    }
+
     public function patches(): BelongsToMany
     {
         return $this->belongsToMany(Patch::class, 'patch_rx_medicine');

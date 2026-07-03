@@ -34,11 +34,6 @@ class LabPanelController extends Controller
             $query->where('category', $request->category);
         }
 
-        // Category filter
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
-
         $labPanels = $query->paginate(15)->through(function ($labPanel) {
             return [
                 'id' => $labPanel->id,

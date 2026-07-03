@@ -36,7 +36,7 @@ class StoreInventoryRequest extends FormRequest
             'selling_price' => 'nullable|numeric|min:0',
             'supplier' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
-            'expiry_date' => 'nullable|date|after:today',
+            'expiry_date' => 'nullable|date|after_or_equal:today',
             'alert_days' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
         ];
@@ -48,7 +48,7 @@ class StoreInventoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'expiry_date.after' => 'Expiry date must be in the future.',
+            'expiry_date.after_or_equal' => 'Expiry date must be today or in the future.',
         ];
     }
 }
