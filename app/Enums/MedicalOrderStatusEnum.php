@@ -37,4 +37,17 @@ enum MedicalOrderStatusEnum: string
             self::REJECTED => 'bg-red-100 text-red-800',
         };
     }
+
+    public static function options(): array
+    {
+        return [
+            self::PENDING->value => self::PENDING->label(),
+            self::PROCESSING->value => self::PROCESSING->label(),
+            self::PROCESSED->value => self::PROCESSED->label(),
+            self::COMPLETED->value => self::COMPLETED->label(),
+            self::PAID->value => self::PAID->label(),
+            self::CANCEL->value => self::CANCEL->label(),
+            self::REJECTED->value => self::REJECTED->label(),
+        ];
+    }
 }

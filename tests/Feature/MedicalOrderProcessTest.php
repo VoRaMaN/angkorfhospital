@@ -6,10 +6,12 @@ use App\Models\MedicalOrder;
 use App\Models\MedicalOrderInventory;
 use App\Models\Patient;
 use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Models\User;
 use App\Models\Visit;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
     $permissions = [
@@ -36,12 +38,14 @@ beforeEach(function () {
 
 function createDoctorWithStaff(): User
 {
-    $role = Role::firstOrCreate(['name' => 'doctor', 'guard_name' => 'web']);
+    $domainRole = StaffRole::firstOrCreate(['name' => 'doctor'], ['description' => 'Medical Practitioner']);
+    $spatieRole = Role::firstOrCreate(['name' => 'doctor', 'guard_name' => 'web']);
     $user = User::factory()->create();
-    $user->assignRole($role);
-    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $role->id]);
+    $user->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-    return $user;
+    return $user->fresh();
 }
 
 function createPendingOrder(User $doctor): array
@@ -107,9 +111,9 @@ it('doctor can process medical order with items via processWithUpdate', function
     $response->assertRedirect();
     $response->assertSessionHas('success');
 
-    // Order should be completed
+    // Order should be in processing (pending department items like rx_medicine)
     $data['medicalOrder']->refresh();
-    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::COMPLETED);
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::PROCESSING);
 
     // Billing should be created
     $billing = \App\Models\Billing::where('medical_order_id', $data['medicalOrder']->id)->first();
@@ -118,10 +122,13 @@ it('doctor can process medical order with items via processWithUpdate', function
 });
 
 it('admin can process medical order via processWithUpdate', function () {
-    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $domainRole = StaffRole::firstOrCreate(['name' => 'admin'], ['description' => 'System Administrator']);
+    $spatieRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $admin = User::factory()->create();
-    $admin->assignRole($role);
-    Staff::factory()->create(['user_id' => $admin->id, 'role_id' => $role->id]);
+    $admin->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $admin->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+    $admin = $admin->fresh();
 
     $data = createPendingOrder($admin);
 

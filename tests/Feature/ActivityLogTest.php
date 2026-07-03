@@ -184,10 +184,10 @@ test('activity log export returns csv', function () {
 
     ActivityLog::log('created', 'Test export entry');
 
+    // Export renders an HTML print-preview page (with embedded CSV download button)
     $this->get(route('activity-log.export'))
         ->assertSuccessful()
-        ->assertHeader('Content-Type', 'text/csv; charset=UTF-8')
-        ->assertHeader('Content-Disposition');
+        ->assertHeader('Content-Type', 'text/html; charset=UTF-8');
 });
 
 test('activity log export requires permission', function () {

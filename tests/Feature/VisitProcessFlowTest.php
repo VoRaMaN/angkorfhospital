@@ -6,10 +6,12 @@ use App\Models\Billing;
 use App\Models\MedicalOrder;
 use App\Models\Patient;
 use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Models\User;
 use App\Models\Visit;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
     $permissions = [
@@ -40,12 +42,14 @@ beforeEach(function () {
 
 function createFlowAdmin(): User
 {
-    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $domainRole = StaffRole::firstOrCreate(['name' => 'admin'], ['description' => 'System Administrator']);
+    $spatieRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $user = User::factory()->create();
-    $user->assignRole($role);
-    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $role->id]);
+    $user->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-    return $user;
+    return $user->fresh();
 }
 
 // ─── Visit Creation ───────────────────────────────────────────────────────────

@@ -40,4 +40,18 @@ enum VisitStatusEnum: string
             self::CANCELLED => 'bg-red-100 text-red-800',
         };
     }
+
+    public static function options(): array
+    {
+        return [
+            self::PENDING->value => self::PENDING->label(),
+            self::AWAITING_ASSIGNMENT->value => self::AWAITING_ASSIGNMENT->label(),
+            self::ASSIGNED->value => self::ASSIGNED->label(),
+            self::IN_PROGRESS->value => self::IN_PROGRESS->label(),
+            self::SENT_BACK->value => self::SENT_BACK->label(),
+            self::AWAITING_ACCOUNTANT->value => self::AWAITING_ACCOUNTANT->label(),
+            self::COMPLETED->value => self::COMPLETED->label(),
+            self::CANCELLED->value => self::CANCELLED->label(),
+        ];
+    }
 }

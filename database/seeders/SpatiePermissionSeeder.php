@@ -138,6 +138,9 @@ class SpatiePermissionSeeder extends Seeder
             // Activity log
             'view_activity_logs',
 
+            // Billing actions
+            'send_back_billing',
+
             // Medicine reports
             'view_medicine_reports',
             'create_medicine_reports',
@@ -267,6 +270,7 @@ class SpatiePermissionSeeder extends Seeder
             'edit_billing',
             'delete_billing',
             'update_billing_status',
+            'send_back_billing',
             'view_billings',
             'create_billings',
             'edit_billings',
@@ -318,6 +322,7 @@ class SpatiePermissionSeeder extends Seeder
             'view_medical_orders',
             'process_and_bill_medical_orders',
             'confirm_processed_medical_orders',
+            'send_back_billing',
             'view_inventory',
             'view_inventories',
         ]);

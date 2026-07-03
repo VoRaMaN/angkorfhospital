@@ -9,10 +9,12 @@ use App\Models\MedicalOrder;
 use App\Models\MedicalOrderInventory;
 use App\Models\Patient;
 use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Models\User;
 use App\Models\Visit;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
     $permissions = [
@@ -38,12 +40,14 @@ beforeEach(function () {
 
 function createAdminWithStaff(): User
 {
-    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $domainRole = StaffRole::firstOrCreate(['name' => 'admin'], ['description' => 'System Administrator']);
+    $spatieRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $user = User::factory()->create();
-    $user->assignRole($role);
-    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $role->id]);
+    $user->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-    return $user;
+    return $user->fresh();
 }
 
 function createBillingWithMedicalOrder(array $billingOverrides = [], array $orderOverrides = []): array
@@ -120,9 +124,9 @@ test('admin can send paid billing back to nurse for revision', function () {
     expect($data['billing']->status)->toBe(BillingStatusEnum::REVISION);
     expect($data['billing']->notes)->toContain('Patient needs additional medicine');
 
-    // Medical order should be back to processing
+    // Medical order should be back to pending so nurse can reprocess
     $data['medicalOrder']->refresh();
-    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::PROCESSING);
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::PENDING);
     expect($data['medicalOrder']->completed_at)->toBeNull();
 
     // Order items should be reset to pending
@@ -229,9 +233,9 @@ test('process and bill handles revision flow with existing billing', function ()
         ->patch(route('medical-orders.process-and-bill', $data['medicalOrder']))
         ->assertRedirect(route('billings.show', $data['billing']));
 
-    // Billing should be back to pending (ready for accountant)
+    // Billing should be sent to accountant after revision reprocessing
     $data['billing']->refresh();
-    expect($data['billing']->status)->toBe(BillingStatusEnum::PENDING);
+    expect($data['billing']->status)->toBe(BillingStatusEnum::SENT_TO_ACCOUNT);
     expect($data['billing']->notes)->toContain('Recalculated after revision');
 
     // Medical order should be completed

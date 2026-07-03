@@ -2,9 +2,11 @@
 
 use App\Models\Inventory;
 use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
     $permissions = [
@@ -24,12 +26,14 @@ beforeEach(function () {
 
 function createAdminUser(): User
 {
-    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $domainRole = StaffRole::firstOrCreate(['name' => 'admin'], ['description' => 'System Administrator']);
+    $spatieRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $user = User::factory()->create();
-    $user->assignRole('admin');
-    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $role->id]);
+    $user->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-    return $user;
+    return $user->fresh();
 }
 
 test('guests cannot access inventory index', function () {

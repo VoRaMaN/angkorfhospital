@@ -25,4 +25,13 @@ enum MedicalOrderPriorityEnum: string
             self::STAT => 'bg-red-100 text-red-800',
         };
     }
+
+    public static function options(): array
+    {
+        return [
+            self::ROUTINE->value => self::ROUTINE->label(),
+            self::URGENT->value => self::URGENT->label(),
+            self::STAT->value => self::STAT->label(),
+        ];
+    }
 }

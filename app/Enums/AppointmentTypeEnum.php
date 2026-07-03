@@ -56,4 +56,18 @@ enum AppointmentTypeEnum: string
             default => false,
         };
     }
+
+    public static function options(): array
+    {
+        return [
+            self::CONSULTATION->value => self::CONSULTATION->label(),
+            self::EMERGENCY->value => self::EMERGENCY->label(),
+            self::FOLLOW_UP->value => self::FOLLOW_UP->label(),
+            self::PROCEDURE->value => self::PROCEDURE->label(),
+            self::CHECKUP->value => self::CHECKUP->label(),
+            self::TELEMEDICINE->value => self::TELEMEDICINE->label(),
+            self::SCREENING->value => self::SCREENING->label(),
+            self::THERAPY->value => self::THERAPY->label(),
+        ];
+    }
 }

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Enums\MedicalOrderPriorityEnum;
 use App\Enums\MedicalOrderStatusEnum;
-use App\Enums\MedicalOrderTypeEnum;
 use App\Models\Appointment;
 use App\Models\MedicalOrder;
 use App\Models\MedicalRecord;
@@ -62,8 +61,7 @@ class VisitFlowService
         MedicalOrder::create([
             'visit_id' => $visit->id,
             'patient_id' => $visit->patient_id,
-            'staff_id' => $visit->staff_id, // Use the assigned staff
-            'order_type' => MedicalOrderTypeEnum::LAB,
+            'staff_id' => $visit->staff_id,
             'order_details' => 'Initial assessment and basic labs',
             'status' => MedicalOrderStatusEnum::PENDING,
             'priority' => MedicalOrderPriorityEnum::ROUTINE,

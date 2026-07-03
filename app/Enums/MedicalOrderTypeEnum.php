@@ -34,4 +34,16 @@ enum MedicalOrderTypeEnum: string
             self::CONSULTATION => 'bg-indigo-100 text-indigo-800',
         };
     }
+
+    public static function options(): array
+    {
+        return [
+            self::LAB->value => self::LAB->label(),
+            self::PROCEDURE->value => self::PROCEDURE->label(),
+            self::REFERRAL->value => self::REFERRAL->label(),
+            self::THERAPY->value => self::THERAPY->label(),
+            self::IMAGING->value => self::IMAGING->label(),
+            self::CONSULTATION->value => self::CONSULTATION->label(),
+        ];
+    }
 }
