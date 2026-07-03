@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\AppointmentStatusEnum;
-use App\Enums\AppointmentTypeEnum;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +33,6 @@ class Appointment extends Model
         return [
             'appointment_date_time' => 'datetime',
             'duration_minutes' => 'integer',
-            'appointment_type' => AppointmentTypeEnum::class,
             'status' => AppointmentStatusEnum::class,
             'is_hormone_test' => 'boolean',
             'is_tvs' => 'boolean',

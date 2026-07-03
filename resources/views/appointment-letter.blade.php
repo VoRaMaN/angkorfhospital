@@ -187,7 +187,7 @@
             </div>
             <div class="detail-row">
                 <div class="detail-label">Appointment Type:</div>
-                <div class="detail-value">{{ $appointment->appointment_type?->label() ?? $appointment->appointment_type ?? 'General Consultation' }}</div>
+                <div class="detail-value">{{ $appointment->appointment_type ?? 'General Consultation' }}</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Healthcare Provider:</div>

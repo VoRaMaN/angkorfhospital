@@ -110,7 +110,7 @@ const form = useForm({
     staff_id: props.appointment.staff_id.toString(),
     appointment_date_time: '',
     duration_minutes: props.appointment.duration_minutes?.toString() || '30',
-    appointment_type: props.appointment.appointment_type || 'consultation',
+    appointment_type: props.appointment.appointment_type || '',
     status: props.appointment.status,
     reason_for_visit: props.appointment.reason_for_visit || '',
     notes: props.appointment.notes || '',
@@ -247,6 +247,22 @@ const form = useForm({
 
                     <div class="space-y-4 rounded-lg border p-4">
                         <h3 class="font-medium">Procedure Details</h3>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium" for="appointment_type">Appointment Type</label>
+                            <Input
+                                id="appointment_type"
+                                v-model="form.appointment_type"
+                                placeholder="e.g. TVS, IUI, OPU, ET/FET, Hormone Test, Beta HCG..."
+                            />
+                            <div
+                                v-if="form.errors.appointment_type"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.appointment_type }}
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div class="flex items-center space-x-2">
                                 <input type="checkbox" id="is_hormone_test" v-model="form.is_hormone_test" />
