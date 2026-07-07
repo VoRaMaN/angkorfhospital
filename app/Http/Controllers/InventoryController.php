@@ -93,7 +93,7 @@ class InventoryController extends Controller
     {
         $inventory = Inventory::create($request->validated());
 
-        return redirect()->route('inventories.index')->with('success', 'Inventory record created successfully.');
+        return redirect()->route('inventory.index')->with('success', 'Inventory record created successfully.');
     }
 
     public function show(Inventory $inventory): Response

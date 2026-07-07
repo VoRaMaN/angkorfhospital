@@ -191,17 +191,17 @@ const formatExpiryStatus = (item: InventoryItem) => {
                                     <SelectValue placeholder="Select unit" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="pieces">Pieces</SelectItem>
-                                    <SelectItem value="boxes">Boxes</SelectItem>
-                                    <SelectItem value="bottles">Bottles</SelectItem>
-                                    <SelectItem value="packs">Packs</SelectItem>
-                                    <SelectItem value="kg">Kilograms</SelectItem>
-                                    <SelectItem value="liters">Liters</SelectItem>
-                                    <SelectItem value="tablets">Tablets</SelectItem>
-                                    <SelectItem value="capsules">Capsules</SelectItem>
-                                    <SelectItem value="vials">Vials</SelectItem>
-                                    <SelectItem value="tubes">Tubes</SelectItem>
-                                    <SelectItem value="ompul">Ompul</SelectItem>
+                                    <SelectItem value="pieces">Pieces (ដុំ)</SelectItem>
+                                    <SelectItem value="boxes">Boxes (ប្រអប់)</SelectItem>
+                                    <SelectItem value="bottles">Bottles (ដប)</SelectItem>
+                                    <SelectItem value="packs">Packs (កញ្ចប់)</SelectItem>
+                                    <SelectItem value="kg">Kilograms (គីឡូក្រាម)</SelectItem>
+                                    <SelectItem value="liters">Liters (លីត្រ)</SelectItem>
+                                    <SelectItem value="tablets">Tablets (គ្រាប់)</SelectItem>
+                                    <SelectItem value="capsules">Capsules (កាប់ស៊ុល)</SelectItem>
+                                    <SelectItem value="vials">Vials (ដបតូច)</SelectItem>
+                                    <SelectItem value="tubes">Tubes (បំពង់)</SelectItem>
+                                    <SelectItem value="ompul">Ompul (អំពូល)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

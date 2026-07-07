@@ -130,21 +130,21 @@ const form = useForm({
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="pieces"
-                                        >Pieces</SelectItem
+                                        >Pieces (ដុំ)</SelectItem
                                     >
-                                    <SelectItem value="boxes">Boxes</SelectItem>
+                                    <SelectItem value="boxes">Boxes (ប្រអប់)</SelectItem>
                                     <SelectItem value="bottles"
-                                        >Bottles</SelectItem
+                                        >Bottles (ដប)</SelectItem
                                     >
-                                    <SelectItem value="packs">Packs</SelectItem>
+                                    <SelectItem value="packs">Packs (កញ្ចប់)</SelectItem>
                                     <SelectItem value="kg"
-                                        >Kilograms</SelectItem
+                                        >Kilograms (គីឡូក្រាម)</SelectItem
                                     >
                                     <SelectItem value="liters"
-                                        >Liters</SelectItem
+                                        >Liters (លីត្រ)</SelectItem
                                     >
                                     <SelectItem value="ompul"
-                                        >Ompul</SelectItem
+                                        >Ompul (អំពូល)</SelectItem
                                     >
                                 </SelectContent>
                             </Select>

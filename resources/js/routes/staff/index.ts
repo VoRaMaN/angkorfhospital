@@ -528,7 +528,7 @@ update.patch = (args: { staff: number | { id: number } } | [staff: number | { id
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:218
+ * @see app/Http/Controllers/StaffController.php:223
  * @route '/staff/{staff}'
  */
 export const destroy = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -543,7 +543,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:218
+ * @see app/Http/Controllers/StaffController.php:223
  * @route '/staff/{staff}'
  */
 destroy.url = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -576,7 +576,7 @@ destroy.url = (args: { staff: number | { id: number } } | [staff: number | { id:
 
 /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:218
+ * @see app/Http/Controllers/StaffController.php:223
  * @route '/staff/{staff}'
  */
 destroy.delete = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -586,7 +586,7 @@ destroy.delete = (args: { staff: number | { id: number } } | [staff: number | { 
 
     /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:218
+ * @see app/Http/Controllers/StaffController.php:223
  * @route '/staff/{staff}'
  */
     const destroyForm = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -601,7 +601,7 @@ destroy.delete = (args: { staff: number | { id: number } } | [staff: number | { 
 
             /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:218
+ * @see app/Http/Controllers/StaffController.php:223
  * @route '/staff/{staff}'
  */
         destroyForm.delete = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
