@@ -184,6 +184,11 @@ class StaffController extends Controller
             if (isset($validated['email'])) {
                 $userData['email'] = $validated['email'];
             }
+            // An explicitly typed display name wins over the first/last rebuild below
+            $submittedName = trim($validated['name'] ?? '');
+            if ($submittedName !== '' && $submittedName !== $staff->user->name) {
+                $userData['name'] = $submittedName;
+            }
             if (! empty($userData)) {
                 $staff->user->update($userData);
             }
@@ -202,8 +207,8 @@ class StaffController extends Controller
 
         // Note: StaffObserver handles syncing the Spatie role when role_id changes.
 
-        // Update user name if first_name or last_name changed
-        if ($staff->user && (isset($validated['first_name']) || isset($validated['last_name']))) {
+        // Rebuild display name from first/last only when no explicit name was submitted
+        if ($staff->user && empty($userData['name']) && (isset($validated['first_name']) || isset($validated['last_name']))) {
             $newName = ($validated['first_name'] ?? $staff->first_name).' '.($validated['last_name'] ?? $staff->last_name);
             $staff->user->update(['name' => $newName]);
         }
