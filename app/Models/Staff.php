@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Models\Role;
 
 class Staff extends Model
 {
@@ -38,7 +37,10 @@ class Staff extends Model
 
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id');
+        // role_id references the custom roles table (StaffRole), not the Spatie
+        // roles table — their ids collide, so resolving via Spatie here would
+        // return the wrong role. StaffObserver syncs the Spatie role by name.
+        return $this->belongsTo(StaffRole::class, 'role_id');
     }
 
     public function department()

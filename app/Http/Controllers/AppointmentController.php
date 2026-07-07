@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
+use App\Models\Visit;
+use App\Services\VisitFlowService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -211,10 +213,13 @@ class AppointmentController extends Controller
     {
         $this->authorize('view', $appointment);
 
-        $appointment->load(['patient.user', 'staff.user', 'staff.role', 'medicalRecord', 'billings']);
+        $appointment->load(['patient.user', 'staff.user', 'staff.role', 'medicalRecord', 'billings', 'visits']);
 
         return Inertia::render('Appointments/Show', [
-            'appointment' => $appointment,
+            'appointment' => array_merge($appointment->toArray(), [
+                'has_visit' => $appointment->visits->isNotEmpty(),
+                'visit_id' => $appointment->visits->first()?->id,
+            ]),
         ]);
     }
 
@@ -313,6 +318,28 @@ class AppointmentController extends Controller
 
         return redirect()->back()
             ->with('success', 'Appointment status updated successfully.');
+    }
+
+    /**
+     * Convert this appointment into a visit, wiring its IVF-monitoring flags
+     * (TVS, Hormone Test, Beta hCG) through to the visit's medical order once
+     * staff are assigned, so they show up automatically in the Lab Panel.
+     */
+    public function convertToVisit(Appointment $appointment, VisitFlowService $visitFlowService): RedirectResponse
+    {
+        $this->authorize('create', Visit::class);
+
+        $existingVisit = $appointment->visits()->first();
+
+        if ($existingVisit) {
+            return redirect()->route('visits.show', $existingVisit)
+                ->with('success', 'This appointment already has a visit.');
+        }
+
+        $visit = $visitFlowService->createVisits($appointment->id);
+
+        return redirect()->route('visits.show', $visit)
+            ->with('success', 'Visit created from appointment successfully.');
     }
 
     /**
@@ -443,6 +470,7 @@ class AppointmentController extends Controller
             'total_billed_amount' => $appointment->billings->sum('amount'),
         ];
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('appointment-report', compact('report', 'appointment'));
 
@@ -452,7 +480,7 @@ class AppointmentController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'appointment-report-'.$appointment->id.'-'.now()->format('Y-m-d').'.pdf';
 
@@ -472,6 +500,7 @@ class AppointmentController extends Controller
             'staff.role',
         ]);
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('appointment-letter', compact('appointment'));
 
@@ -481,7 +510,7 @@ class AppointmentController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'appointment-letter-'.$appointment->id.'-'.now()->format('Y-m-d').'.pdf';
 

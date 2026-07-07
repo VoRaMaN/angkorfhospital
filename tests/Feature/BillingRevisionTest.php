@@ -156,15 +156,17 @@ test('sending billing back restores inventory stock', function () {
     expect($data['inventory']->quantity)->toBe($originalQty + 2);
 });
 
-test('send back requires a reason', function () {
+test('send back works without a reason', function () {
     $user = createAdminWithStaff();
     $data = createBillingWithMedicalOrder();
 
     $this->actingAs($user)
-        ->patch(route('billings.send-back-to-nurse', $data['billing']), [
-            'reason' => '',
-        ])
-        ->assertSessionHasErrors('reason');
+        ->patch(route('billings.send-back-to-nurse', $data['billing']), [])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    $data['billing']->refresh();
+    expect($data['billing']->status->value)->toBe('revision');
 });
 
 test('cannot send back billing without medical order', function () {

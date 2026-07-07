@@ -434,7 +434,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:307
+ * @see app/Http/Controllers/PatientController.php:306
  * @route '/patients/destroy'
  */
 export const destroy = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -449,7 +449,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:307
+ * @see app/Http/Controllers/PatientController.php:306
  * @route '/patients/destroy'
  */
 destroy.url = (options?: RouteQueryOptions) => {
@@ -458,7 +458,7 @@ destroy.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:307
+ * @see app/Http/Controllers/PatientController.php:306
  * @route '/patients/destroy'
  */
 destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -468,7 +468,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
     /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:307
+ * @see app/Http/Controllers/PatientController.php:306
  * @route '/patients/destroy'
  */
     const destroyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -483,7 +483,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
             /**
 * @see \App\Http\Controllers\PatientController::destroy
- * @see app/Http/Controllers/PatientController.php:307
+ * @see app/Http/Controllers/PatientController.php:306
  * @route '/patients/destroy'
  */
         destroyForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -499,7 +499,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
 export const report = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -514,7 +514,7 @@ report.definition = {
 
 /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
 report.url = (options?: RouteQueryOptions) => {
@@ -523,7 +523,7 @@ report.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
 report.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -532,7 +532,7 @@ report.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
 report.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -542,7 +542,7 @@ report.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
     const reportForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -552,7 +552,7 @@ report.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
         reportForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -561,7 +561,7 @@ report.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PatientController::report
- * @see app/Http/Controllers/PatientController.php:321
+ * @see app/Http/Controllers/PatientController.php:320
  * @route '/patients/report'
  */
         reportForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

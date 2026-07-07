@@ -20,6 +20,7 @@ class OpuReport extends Model
         'no_of_straw', 'freeze_position', 'freeze_method', 'freeze_media',
         'day3_datetime', 'day3_checked_by', 'day3_embryos',
         'day5_datetime', 'day5_checked_by', 'day5_embryos',
+        'embryo_developments',
         'et_no', 'et_day', 'et_datetime', 'assisted_hatching', 'et_volume',
         'et_catheter', 'et_doctor', 'et_embryologist',
         'number_of_transfer', 'number_of_freeze', 'number_of_discard',
@@ -39,6 +40,7 @@ class OpuReport extends Model
             'et_datetime' => 'datetime',
             'day3_embryos' => 'array',
             'day5_embryos' => 'array',
+            'embryo_developments' => 'array',
             'assisted_hatching' => 'boolean',
         ];
     }

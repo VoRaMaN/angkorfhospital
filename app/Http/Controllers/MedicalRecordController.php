@@ -372,6 +372,7 @@ class MedicalRecordController extends Controller
             }) ?? collect(),
         ];
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('medical-record-report', compact('report', 'medicalRecord'));
 
@@ -381,7 +382,7 @@ class MedicalRecordController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'medical-record-report-'.$medicalRecord->id.'-'.now()->format('Y-m-d').'.pdf';
 

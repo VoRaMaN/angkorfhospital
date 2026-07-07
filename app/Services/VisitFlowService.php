@@ -7,6 +7,7 @@ use App\Enums\MedicalOrderStatusEnum;
 use App\Models\Appointment;
 use App\Models\MedicalOrder;
 use App\Models\MedicalRecord;
+use App\Models\SpecialItem;
 use App\Models\Visit;
 
 class VisitFlowService
@@ -29,14 +30,26 @@ class VisitFlowService
     }
 
     /**
-     * Create visits for the given appointment.
+     * Create a visit for the given appointment. If this appointment was
+     * already converted, returns its existing visit instead of creating a
+     * duplicate. Deliberately does NOT dedupe against unrelated same-day
+     * visits for the same patient (e.g. an already-completed walk-in visit
+     * that has nothing to do with this appointment) — a patient can
+     * legitimately have more than one visit in a day driven by different
+     * appointments, and silently reusing an unrelated visit here would leave
+     * this appointment's flags with nowhere to go.
      */
-    public function createVisits(int $appointmentId): void
+    public function createVisits(int $appointmentId): Visit
     {
         $appointment = Appointment::with('patient')->findOrFail($appointmentId);
 
-        // Create a visit record for this appointment
-        Visit::create([
+        $existingVisit = Visit::where('appointment_id', $appointment->id)->first();
+
+        if ($existingVisit) {
+            return $existingVisit;
+        }
+
+        return Visit::create([
             'appointment_id' => $appointment->id,
             'patient_id' => $appointment->patient_id,
             'visit_date_time' => $appointment->appointment_date_time,
@@ -46,11 +59,24 @@ class VisitFlowService
     }
 
     /**
+     * Maps appointment IVF-monitoring flags to the lab item they should
+     * auto-generate on the visit's medical order, plus a catalog price to
+     * look up when one exists. Only "TVS 25" has a clean matching SpecialItem
+     * price; Hormone Test and Beta hCG only appear bundled inside package
+     * names, so they default to 0 for staff to adjust during processing.
+     */
+    private const APPOINTMENT_LAB_FLAGS = [
+        'is_tvs' => ['item_name' => 'TVS (Transvaginal Ultrasound Scan)', 'special_item_name' => 'TVS 25'],
+        'is_hormone_test' => ['item_name' => 'Hormone Test', 'special_item_name' => null],
+        'is_beta_hcg' => ['item_name' => 'Beta hCG', 'special_item_name' => null],
+    ];
+
+    /**
      * Generate medical orders for the given visit.
      */
     public function generateMedicalOrders(int $visitId): void
     {
-        $visit = Visit::with('patient')->findOrFail($visitId);
+        $visit = Visit::with('patient', 'appointment')->findOrFail($visitId);
 
         // Generate medical orders based on the visit
         // This is a placeholder - in a real implementation, you might
@@ -58,7 +84,7 @@ class VisitFlowService
         // patient history, appointment reason, etc.
 
         // For now, we'll create a basic medical order
-        MedicalOrder::create([
+        $medicalOrder = MedicalOrder::create([
             'visit_id' => $visit->id,
             'patient_id' => $visit->patient_id,
             'staff_id' => $visit->staff_id,
@@ -68,6 +94,38 @@ class VisitFlowService
             'notes' => 'Generated from visit creation',
             'ordered_at' => now(),
         ]);
+
+        if ($visit->appointment) {
+            $this->addAppointmentLabItems($medicalOrder, $visit->appointment);
+        }
+    }
+
+    /**
+     * Auto-add lab order items for whichever IVF-monitoring flags are set on
+     * the appointment, so they flow into the Lab Panel workflow without staff
+     * having to manually re-select them during order processing.
+     */
+    private function addAppointmentLabItems(MedicalOrder $medicalOrder, Appointment $appointment): void
+    {
+        foreach (self::APPOINTMENT_LAB_FLAGS as $flag => $config) {
+            if (! $appointment->{$flag}) {
+                continue;
+            }
+
+            $price = $config['special_item_name']
+                ? (float) (SpecialItem::where('name', $config['special_item_name'])->value('unit_price') ?? 0)
+                : 0;
+
+            $medicalOrder->orderItems()->create([
+                'item_type' => 'lab',
+                'item_name' => $config['item_name'],
+                'quantity_required' => 1,
+                'unit_price' => $price,
+                'selling_price' => $price,
+                'status' => MedicalOrderStatusEnum::PENDING,
+                'notes' => 'Auto-added from appointment IVF monitoring flags',
+            ]);
+        }
     }
 
     /**

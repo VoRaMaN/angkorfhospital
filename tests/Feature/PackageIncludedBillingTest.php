@@ -1,0 +1,240 @@
+<?php
+
+use App\Enums\MedicalOrderStatusEnum;
+use App\Models\Billing;
+use App\Models\Inventory;
+use App\Models\MedicalOrder;
+use App\Models\MedicalOrderInventory;
+use App\Models\Patient;
+use App\Models\Staff;
+use App\Models\StaffRole;
+use App\Models\User;
+use App\Models\Visit;
+use App\Services\MedicalOrderBillingService;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+
+beforeEach(function () {
+    $permissions = [
+        'view_medical_orders',
+        'create_medical_orders',
+        'edit_medical_orders',
+        'process_medical_orders',
+        'complete_medical_orders',
+        'process_and_bill_medical_orders',
+        'confirm_processed_medical_orders',
+        'view_billings',
+        'edit_billings',
+    ];
+
+    foreach ($permissions as $perm) {
+        Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+    }
+
+    $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $adminRole->syncPermissions($permissions);
+});
+
+function createPackageBillingAdmin(): User
+{
+    $domainRole = StaffRole::firstOrCreate(['name' => 'admin'], ['description' => 'System Administrator']);
+    $spatieRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $user = User::factory()->create();
+    $user->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    return $user->fresh();
+}
+
+function createOrderWithPackageItem(User $user): array
+{
+    $patient = Patient::factory()->create();
+    $staff = Staff::where('user_id', $user->id)->first();
+    $visit = Visit::factory()->create([
+        'patient_id' => $patient->id,
+        'staff_id' => $staff->id,
+        'status' => 'assigned',
+    ]);
+
+    $medicalOrder = MedicalOrder::create([
+        'visit_id' => $visit->id,
+        'patient_id' => $patient->id,
+        'staff_id' => $staff->id,
+        'order_details' => 'Order with package-included item',
+        'status' => MedicalOrderStatusEnum::PENDING,
+        'priority' => 'routine',
+        'ordered_at' => now(),
+    ]);
+
+    $labInventory = Inventory::factory()->create([
+        'quantity' => 100,
+        'unit_price' => 10.00,
+        'selling_price' => 15.00,
+    ]);
+
+    $rxInventory = Inventory::factory()->rxMedicine()->create([
+        'quantity' => 100,
+        'selling_price' => 25.00,
+    ]);
+
+    return compact('medicalOrder', 'visit', 'patient', 'staff', 'labInventory', 'rxInventory');
+}
+
+it('does not bill package-included items even when they have an inventory price', function () {
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    // Package-included lab item: selling_price 0 but inventory_id points at a $15 item
+    $packageItem = MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => $data['labInventory']->id,
+        'item_type' => 'lab',
+        'item_name' => $data['labInventory']->item_name,
+        'quantity_required' => 1,
+        'unit_price' => 0,
+        'selling_price' => 0,
+        'is_package_included' => true,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'notes' => 'Include Package - Not counted in billing',
+    ]);
+
+    // Normal rx item that should be billed
+    MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => $data['rxInventory']->id,
+        'item_type' => 'rx_medicine',
+        'item_name' => $data['rxInventory']->item_name,
+        'quantity_required' => 2,
+        'unit_price' => 20.00,
+        'selling_price' => 25.00,
+        'is_package_included' => false,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+    ]);
+
+    $service = app(MedicalOrderBillingService::class);
+    $data['medicalOrder']->load('orderItems.inventory');
+
+    expect($service->calculateItemTotal($packageItem))->toBe(0.0);
+    expect($service->calculateOrderTotal($data['medicalOrder']))->toBe(50.0); // only 25 * 2
+});
+
+it('processWithUpdate persists is_package_included and excludes it from billing', function () {
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    $response = $this->actingAs($admin)->patch(
+        route('medical-orders.process-with-update', $data['medicalOrder']),
+        [
+            'order_details' => 'Processed with package item',
+            'notes' => '',
+            'order_items' => [
+                [
+                    'item_type' => 'lab',
+                    'item_name' => $data['labInventory']->item_name,
+                    'quantity_required' => 1,
+                    'status' => 'pending',
+                    'inventory_id' => $data['labInventory']->id,
+                    'unit_price' => 0,
+                    'selling_price' => 0,
+                    'is_package_included' => true,
+                    'notes' => 'Include Package - Not counted in billing',
+                ],
+                [
+                    'item_type' => 'rx_medicine',
+                    'item_name' => $data['rxInventory']->item_name,
+                    'quantity_required' => 2,
+                    'status' => 'pending',
+                    'inventory_id' => $data['rxInventory']->id,
+                    'unit_price' => 20.00,
+                    'selling_price' => 25.00,
+                    'is_package_included' => false,
+                ],
+            ],
+        ],
+    );
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $stored = MedicalOrderInventory::where('medical_order_id', $data['medicalOrder']->id)
+        ->where('item_type', 'lab')
+        ->first();
+    expect($stored->is_package_included)->toBeTrue();
+
+    $billing = Billing::where('medical_order_id', $data['medicalOrder']->id)->first();
+    expect($billing)->not->toBeNull();
+    expect((float) $billing->amount)->toBe(50.00); // package lab item not counted
+});
+
+it('processAndBill reuses an existing sent_to_account billing instead of creating a duplicate', function () {
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => $data['rxInventory']->id,
+        'item_type' => 'rx_medicine',
+        'item_name' => $data['rxInventory']->item_name,
+        'quantity_required' => 1,
+        'unit_price' => 20.00,
+        'selling_price' => 25.00,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+    ]);
+
+    // First send to account
+    $this->actingAs($admin)
+        ->patch(route('medical-orders.process-and-bill', $data['medicalOrder']))
+        ->assertRedirect();
+
+    expect(Billing::where('medical_order_id', $data['medicalOrder']->id)->count())->toBe(1);
+    $billing = Billing::where('medical_order_id', $data['medicalOrder']->id)->first();
+    expect($billing->status->value)->toBe('sent_to_account');
+
+    // Second send (e.g. after billing was sent back and reprocessed) must not duplicate
+    $data['medicalOrder']->update(['status' => MedicalOrderStatusEnum::PENDING]);
+    $this->actingAs($admin)
+        ->patch(route('medical-orders.process-and-bill', $data['medicalOrder']))
+        ->assertRedirect();
+
+    expect(Billing::where('medical_order_id', $data['medicalOrder']->id)->count())->toBe(1);
+});
+
+it('sends billing back to nurse without a reason', function () {
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => $data['rxInventory']->id,
+        'item_type' => 'rx_medicine',
+        'item_name' => $data['rxInventory']->item_name,
+        'quantity_required' => 1,
+        'selling_price' => 25.00,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+    ]);
+
+    $billing = Billing::create([
+        'patient_id' => $data['patient']->id,
+        'medical_order_id' => $data['medicalOrder']->id,
+        'visit_id' => $data['visit']->id,
+        'amount' => 25.00,
+        'status' => 'sent_to_account',
+        'billing_date' => now(),
+    ]);
+
+    $response = $this->actingAs($admin)->patch(
+        route('billings.send-back-to-nurse', $billing),
+        [] // no reason
+    );
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $billing->refresh();
+    expect($billing->status->value)->toBe('revision');
+
+    $data['medicalOrder']->refresh();
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::PENDING);
+});

@@ -34,6 +34,12 @@ class MedicalOrderBillingService
      */
     public function calculateItemTotal(MedicalOrderInventory $orderItem): float
     {
+        // Package-included items are deliberately free: their price is covered
+        // by the package, so never fall back to catalog/inventory prices.
+        if ($orderItem->is_package_included) {
+            return 0;
+        }
+
         $quantity = $orderItem->quantity_required ?? 1;
 
         // Use stored selling_price if available

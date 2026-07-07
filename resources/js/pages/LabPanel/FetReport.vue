@@ -44,6 +44,9 @@ interface ReportData {
     day5_embryo_3: string | null;
     day5_embryo_4: string | null;
     day5_embryo_5: string | null;
+    picture_day: number | null;
+    picture_datetime: string | null;
+    embryo_pictures: { no: string | null; path: string | null }[] | null;
     no_of_et: number | null;
     et_volume: string | null;
     number_of_transfer: number | null;
@@ -70,6 +73,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const val = (v: string | number | null | undefined, suffix = ''): string =>
     v !== null && v !== undefined && v !== '' ? `${v}${suffix}` : '—';
+
+const savedPictures = computed(() =>
+    (props.report.embryo_pictures ?? []).filter((p) => p?.path),
+);
+
+const pictureUrl = (path: string) =>
+    `/fet-reports/embryo-image/${encodeURIComponent(path.replace(/^fet_embryos\//, ''))}`;
 
 const reportDate = computed(() => {
     if (props.report.created_at) {
@@ -225,6 +235,21 @@ onMounted(() => window.print());
                         <div v-for="n in 5" :key="n" class="border border-gray-300 rounded p-1 text-center">
                             <p class="text-xs text-gray-500 font-semibold">E{{ n }}</p>
                             <p>{{ val((report as any)[`day5_embryo_${n}`]) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Picture of Embryo Development ── -->
+                <div v-if="savedPictures.length" class="mb-3">
+                    <p class="font-bold text-xs uppercase tracking-wide text-gray-700 border-b border-gray-400 pb-0.5 mb-2">Picture of Embryo Development</p>
+                    <div class="text-sm mb-1">
+                        <span class="font-semibold">Day:</span> <span>{{ val(report.picture_day) }}</span>
+                        <span class="ml-4 font-semibold">Date &amp; Time:</span> <span>{{ val(report.picture_datetime) }}</span>
+                    </div>
+                    <div class="grid grid-cols-5 gap-2">
+                        <div v-for="(pic, pi) in savedPictures" :key="pi" class="border border-gray-300 rounded p-1 text-center">
+                            <p class="text-left text-xs font-semibold text-gray-600">{{ pic.no || '' }}</p>
+                            <img :src="pictureUrl(pic.path!)" class="mx-auto max-h-24 object-contain" alt="Embryo" />
                         </div>
                     </div>
                 </div>

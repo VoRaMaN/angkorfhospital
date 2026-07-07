@@ -80,6 +80,11 @@ class BillingController extends Controller
                 $patientName = $patient->full_name ?: 'Patient #'.$patient->id;
             }
 
+            // The system does not track partial payments separately, so a
+            // billing is either fully paid (status PAID) or not paid at all.
+            $netAmount = $billing->amount - ($billing->discount_amount ?? 0);
+            $paidAmount = $billing->status === \App\Enums\BillingStatusEnum::PAID ? $netAmount : 0;
+
             return [
                 'id' => $billing->id,
                 'bill_no' => $billing->bill_no,
@@ -89,8 +94,8 @@ class BillingController extends Controller
                 'visit_id' => $billing->visit_id,
                 'medical_order_id' => $billing->medical_order_id,
                 'total_amount' => $billing->amount,
-                'paid_amount' => 0, // TODO: Add payment tracking
-                'outstanding_amount' => $billing->amount, // TODO: Calculate based on payments
+                'paid_amount' => $paidAmount,
+                'outstanding_amount' => $netAmount - $paidAmount,
                 'status' => $billing->status,
                 'billing_date' => $billing->billing_date,
                 'due_date' => $billing->billing_date?->copy()->addDays(30), // TODO: Add due_date field to model
@@ -485,6 +490,7 @@ class BillingController extends Controller
             $report['cost_breakdown'] = $costBreakdown;
         }
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('billing-report', compact('report', 'billing'));
 
@@ -494,7 +500,7 @@ class BillingController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'billing-report-'.$billing->id.'-'.now()->format('Y-m-d').'.pdf';
 
@@ -535,6 +541,7 @@ class BillingController extends Controller
             $costBreakdown = app(MedicalOrderBillingService::class)->getOrderCostBreakdown($billing->medicalOrder);
         }
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('billing-letter', compact('billing', 'costBreakdown'));
 
@@ -544,7 +551,7 @@ class BillingController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'receipt-'.$billing->bill_no.'-'.now()->format('Y-m-d').'.pdf';
 
@@ -559,7 +566,7 @@ class BillingController extends Controller
         $this->authorize('sendBack', $billing);
 
         $request->validate([
-            'reason' => 'required|string|max:1000',
+            'reason' => 'nullable|string|max:1000',
         ]);
 
         // Must have a linked medical order to send back
@@ -575,8 +582,9 @@ class BillingController extends Controller
         $billingService->restoreInventoryStock($medicalOrder);
 
         // Track revision in billing notes
+        $reason = trim((string) $request->reason);
         $currentNotes = $billing->notes ? $billing->notes."\n\n" : '';
-        $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason;
+        $revisionNote = 'Sent back for revision on '.now()->format('Y-m-d H:i').($reason !== '' ? ":\n".$reason : '.');
 
         // Update billing status to revision
         $billing->update([
@@ -589,7 +597,7 @@ class BillingController extends Controller
         $medicalOrder->update([
             'status' => \App\Enums\MedicalOrderStatusEnum::PENDING,
             'completed_at' => null,
-            'notes' => $orderNotes.'Billing sent back for revision on '.now()->format('Y-m-d H:i').":\n".$request->reason,
+            'notes' => $orderNotes.'Billing sent back for revision on '.now()->format('Y-m-d H:i').($reason !== '' ? ":\n".$reason : '.'),
         ]);
 
         // Reset order items back to pending so nurse can edit

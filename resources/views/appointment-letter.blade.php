@@ -187,7 +187,18 @@
             </div>
             <div class="detail-row">
                 <div class="detail-label">Appointment Type:</div>
-                <div class="detail-value">{{ $appointment->appointment_type ?? 'General Consultation' }}</div>
+                @php
+                    $typeParts = [];
+                    if ($appointment->is_tvs) $typeParts[] = 'TVS';
+                    if ($appointment->is_hormone_test) $typeParts[] = 'Hormone Test';
+                    if ($appointment->is_beta_hcg) $typeParts[] = 'Beta HCG';
+                    if ($appointment->opu_time) $typeParts[] = 'OPU';
+                    if ($appointment->et_fet_time) $typeParts[] = 'ET/FET';
+                    if (empty($typeParts) && $appointment->appointment_type) {
+                        $typeParts[] = ucfirst(str_replace('_', ' ', $appointment->appointment_type));
+                    }
+                @endphp
+                <div class="detail-value">{{ implode(', ', $typeParts) ?: 'General Consultation' }}</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Healthcare Provider:</div>

@@ -108,7 +108,7 @@ class StaffObserver
             return; // Nothing to do
         }
 
-        $role = $staff->role;
+        $role = StaffRole::find($staff->role_id);
         if (! $role || ! $role->name) {
             return;
         }

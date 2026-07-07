@@ -49,12 +49,28 @@ class HormoneReportController extends Controller
         ];
     }
 
+    /**
+     * Store/refresh the hormone report PDF in the patient's files.
+     */
+    private function syncPatientFile(HormoneReport $report): void
+    {
+        $patientData = $this->buildPatientData($report);
+
+        app(\App\Services\LabResultFileService::class)->syncReportPdf(
+            $report->medicalOrder,
+            'lab-reports.hormone-report',
+            ['report' => (object) array_merge($report->toArray(), $patientData)],
+            'Hormone Report - Order '.$report->medical_order_id.'.pdf'
+        );
+    }
+
     public function generatePdf(HormoneReport $hormoneReport): \Illuminate\Http\Response
     {
         $patientData = $this->buildPatientData($hormoneReport);
 
         $report = (object) array_merge($hormoneReport->toArray(), $patientData);
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('lab-reports.hormone-report', compact('report'))
             ->setOptions([
@@ -63,7 +79,7 @@ class HormoneReportController extends Controller
                 'defaultFont' => 'DejaVu Sans',
                 'dpi' => 96,
                 'isPhpEnabled' => true,
-            ]);
+            ], true);
 
         return $pdf->stream('hormone-report-'.$hormoneReport->id.'-'.now()->format('Y-m-d').'.pdf');
     }
@@ -101,6 +117,8 @@ class HormoneReportController extends Controller
             $data,
         );
 
+        $this->syncPatientFile($report);
+
         return back()
             ->with('success', 'Hormone report saved.')
             ->with('report_id', $report->id);
@@ -133,6 +151,8 @@ class HormoneReportController extends Controller
         ]);
 
         $hormoneReport->update($data);
+
+        $this->syncPatientFile($hormoneReport);
 
         return back()
             ->with('success', 'Hormone report updated.')

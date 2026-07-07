@@ -84,12 +84,31 @@ class SpermFreezingReportController extends Controller
         return $rules;
     }
 
+    /**
+     * Store/refresh the sperm freezing report PDF in the patient's files.
+     */
+    private function syncPatientFile(SpermFreezingReport $report): void
+    {
+        $patientData = $this->buildPatientData($report);
+
+        app(\App\Services\LabResultFileService::class)->syncReportPdf(
+            $report->medicalOrder,
+            'lab-reports.sperm-freezing-report',
+            [
+                'report' => (object) array_merge($report->toArray(), $patientData),
+                'reportDate' => now()->format('d/m/Y'),
+            ],
+            'Sperm Freezing Report - Order '.$report->medical_order_id.'.pdf'
+        );
+    }
+
     public function generatePdf(SpermFreezingReport $spermFreezingReport): \Illuminate\Http\Response
     {
         $extra = $this->buildPatientData($spermFreezingReport);
         $report = (object) array_merge($spermFreezingReport->toArray(), $extra);
         $reportDate = now()->format('d/m/Y');
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('lab-reports.sperm-freezing-report', compact('report', 'reportDate'))
             ->setOptions([
@@ -98,7 +117,7 @@ class SpermFreezingReportController extends Controller
                 'defaultFont' => 'DejaVu Sans',
                 'dpi' => 96,
                 'isPhpEnabled' => true,
-            ]);
+            ], true);
 
         return $pdf->stream('sperm-freezing-report-'.$spermFreezingReport->id.'-'.now()->format('Y-m-d').'.pdf');
     }
@@ -112,6 +131,8 @@ class SpermFreezingReportController extends Controller
             $data
         );
 
+        $this->syncPatientFile($report);
+
         return back()->with('success', 'Sperm freezing report saved.')->with('report_id', $report->id);
     }
 
@@ -119,6 +140,8 @@ class SpermFreezingReportController extends Controller
     {
         $data = $request->validate($this->validationRules(false));
         $spermFreezingReport->update($data);
+
+        $this->syncPatientFile($spermFreezingReport);
 
         return back()->with('success', 'Sperm freezing report updated.');
     }

@@ -564,6 +564,7 @@ class MedicalOrderController extends Controller
                     'quantity_required' => $item['quantity_required'] ?? 1,
                     'unit_price' => $item['unit_price'] ?? 0,
                     'selling_price' => $item['selling_price'] ?? 0,
+                    'is_package_included' => (bool) ($item['is_package_included'] ?? false),
                     'status' => $item['status'] ?? 'pending',
                     'notes' => $item['notes'] ?? null,
                 ]);
@@ -625,6 +626,7 @@ class MedicalOrderController extends Controller
                     'quantity_required' => $item['quantity_required'] ?? 1,
                     'unit_price' => $item['unit_price'] ?? 0,
                     'selling_price' => $item['selling_price'] ?? 0,
+                    'is_package_included' => (bool) ($item['is_package_included'] ?? false),
                     'status' => $item['status'] ?? 'pending',
                     'notes' => $item['notes'] ?? null,
                 ]);
@@ -1054,9 +1056,10 @@ class MedicalOrderController extends Controller
         }
 
         try {
-            // Check if a billing already exists for this order (revision flow)
+            // Check if a billing already exists for this order (revision flow or
+            // re-send: never create a second billing for the same order)
             $existingBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
-                ->whereIn('status', ['pending', 'revision'])
+                ->whereIn('status', ['pending', 'revision', 'sent_to_account'])
                 ->first();
 
             if ($existingBilling) {
@@ -1244,6 +1247,14 @@ class MedicalOrderController extends Controller
             ]);
         }
 
+        // Refresh the lab results PDF in the patient's files. A PDF failure
+        // must not prevent the result itself from being saved.
+        try {
+            app(\App\Services\LabResultFileService::class)->syncOrderResults($medicalOrder);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         return redirect()->back()->with('success', 'Lab result saved successfully.');
     }
 
@@ -1354,6 +1365,7 @@ class MedicalOrderController extends Controller
             'total_billed' => $medicalOrder->billings->sum('amount'),
         ];
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('medical-order-report', compact('report', 'medicalOrder'));
 
@@ -1363,7 +1375,7 @@ class MedicalOrderController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'medical-order-report-'.$medicalOrder->id.'-'.now()->format('Y-m-d').'.pdf';
 
@@ -1615,6 +1627,7 @@ class MedicalOrderController extends Controller
             'medical_services' => [], // Could be populated if needed
         ];
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('medical-record-report', compact('report', 'medicalRecord'));
 
@@ -1624,7 +1637,7 @@ class MedicalOrderController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'medical-record-'.$medicalRecord->id.'-'.now()->format('Y-m-d').'.pdf';
 

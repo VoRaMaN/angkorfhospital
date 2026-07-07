@@ -22,6 +22,7 @@ class MedicalOrderInventory extends Model
         'quantity_required',
         'unit_price',
         'selling_price',
+        'is_package_included',
         'status',
         'notes',
         'completed_at',
@@ -35,6 +36,7 @@ class MedicalOrderInventory extends Model
         return [
             'unit_price' => 'decimal:2',
             'selling_price' => 'decimal:2',
+            'is_package_included' => 'boolean',
             'quantity_required' => 'integer',
             'completed_at' => 'datetime',
             'status' => MedicalOrderStatusEnum::class,

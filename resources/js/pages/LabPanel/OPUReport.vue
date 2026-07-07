@@ -55,12 +55,12 @@ interface ReportData {
     freeze_position: string | null;
     freeze_method: string | null;
     freeze_media: string | null;
-    day3_datetime: string | null;
-    day3_checked_by: string | null;
-    day3_embryos: (string | null)[];
-    day5_datetime: string | null;
-    day5_checked_by: string | null;
-    day5_embryos: (string | null)[];
+    embryo_developments: {
+        day: number;
+        datetime: string | null;
+        checked_by: string | null;
+        embryos: (string | null)[];
+    }[];
     et_no: number | null;
     et_day: string | null;
     et_datetime: string | null;
@@ -302,35 +302,22 @@ const onSaved = () => {
 
             </div><!-- end 2-col grid -->
 
-            <!-- Embryo Development Day 3 -->
-            <div class="rounded-xl border p-4 space-y-3">
+            <!-- Embryo Development (dynamic days) -->
+            <div
+                v-for="(section, si) in report.embryo_developments"
+                :key="si"
+                class="rounded-xl border p-4 space-y-3"
+            >
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development (Day 3)</h2>
-                    <span v-if="report.day3_datetime" class="text-xs text-muted-foreground">{{ fmtDatetime(report.day3_datetime) }}</span>
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development (Day {{ section.day }})</h2>
+                    <span v-if="section.datetime" class="text-xs text-muted-foreground">{{ fmtDatetime(section.datetime) }}</span>
                 </div>
-                <p v-if="report.day3_checked_by" class="text-xs text-muted-foreground">Checked by: {{ report.day3_checked_by }}</p>
+                <p v-if="section.checked_by" class="text-xs text-muted-foreground">Checked by: {{ section.checked_by }}</p>
                 <div class="grid grid-cols-4 gap-2">
                     <div v-for="col in embryoCols" :key="col[0]" class="space-y-1">
                         <div v-for="idx in col" :key="idx" class="flex items-center gap-1.5">
                             <span class="w-5 shrink-0 text-xs text-muted-foreground">{{ idx + 1 }}</span>
-                            <span class="text-xs font-medium">{{ report.day3_embryos?.[idx] || '—' }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Embryo Development Day 5 -->
-            <div class="rounded-xl border p-4 space-y-3">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development (Day 5)</h2>
-                    <span v-if="report.day5_datetime" class="text-xs text-muted-foreground">{{ fmtDatetime(report.day5_datetime) }}</span>
-                </div>
-                <p v-if="report.day5_checked_by" class="text-xs text-muted-foreground">Checked by: {{ report.day5_checked_by }}</p>
-                <div class="grid grid-cols-4 gap-2">
-                    <div v-for="col in embryoCols" :key="col[0]" class="space-y-1">
-                        <div v-for="idx in col" :key="idx" class="flex items-center gap-1.5">
-                            <span class="w-5 shrink-0 text-xs text-muted-foreground">{{ idx + 1 }}</span>
-                            <span class="text-xs font-medium">{{ report.day5_embryos?.[idx] || '—' }}</span>
+                            <span class="text-xs font-medium">{{ section.embryos?.[idx] || '—' }}</span>
                         </div>
                     </div>
                 </div>

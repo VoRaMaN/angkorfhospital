@@ -2,16 +2,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatDateTime } from '@/lib/utils';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { letter as letterRoute, receive as receiveRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
@@ -158,8 +148,6 @@ const saveDiscount = () => {
     );
 };
 
-const showSendBackDialog = ref(false);
-const sendBackReason = ref('');
 const sendingBack = ref(false);
 
 const completePayment = () => {
@@ -179,20 +167,12 @@ const receiveRevised = () => {
 };
 
 const sendBackToNurse = () => {
-    if (!sendBackReason.value.trim()) {
-        return;
-    }
-
     sendingBack.value = true;
-    router.patch(`/billings/${props.billing.id}/send-back-to-nurse`, {
-        reason: sendBackReason.value.trim(),
-    }, {
+    router.patch(`/billings/${props.billing.id}/send-back-to-nurse`, {}, {
         preserveState: false,
         preserveScroll: false,
         onFinish: () => {
             sendingBack.value = false;
-            showSendBackDialog.value = false;
-            sendBackReason.value = '';
         },
     });
 };
@@ -255,10 +235,11 @@ const sendBackToNurse = () => {
                         v-if="hasPermission('edit_billings') && props.billing.medical_order_id && ['sent_to_account', 'pending'].includes(props.billing.status)"
                         variant="outline"
                         class="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/20"
-                        @click="showSendBackDialog = true"
+                        :disabled="sendingBack"
+                        @click="sendBackToNurse"
                     >
                         <RotateCcw class="size-4" />
-                        Send Back
+                        {{ sendingBack ? 'Sending...' : 'Send Back' }}
                     </Button>
                     <!-- View bill (receipt PDF) -->
                     <Button variant="outline" as-child>
@@ -551,49 +532,5 @@ const sendBackToNurse = () => {
             </div>
         </div>
 
-        <!-- Send Back to Nurse Dialog -->
-        <Dialog v-model:open="showSendBackDialog">
-            <DialogContent class="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Send Back to Nurse</DialogTitle>
-                    <DialogDescription>
-                        This will send the billing back to the nurse so they can add, remove, or edit order items on the linked medical order. The billing will be put on hold until the nurse resubmits.
-                    </DialogDescription>
-                </DialogHeader>
-                <div class="grid gap-4 py-4">
-                    <div class="grid gap-2">
-                        <Label for="send-back-reason">
-                            Reason *
-                        </Label>
-                        <Textarea
-                            id="send-back-reason"
-                            v-model="sendBackReason"
-                            placeholder="e.g. Patient returned and needs additional medicine..."
-                            rows="4"
-                        />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        @click="showSendBackDialog = false"
-                        :disabled="sendingBack"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="default"
-                        class="border-amber-300 bg-amber-600 text-white hover:bg-amber-700"
-                        @click="sendBackToNurse"
-                        :disabled="!sendBackReason.trim() || sendingBack"
-                    >
-                        <RotateCcw class="size-4" />
-                        {{ sendingBack ? 'Sending...' : 'Send Back' }}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
     </AppLayout>
 </template>

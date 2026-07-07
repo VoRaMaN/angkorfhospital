@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('appointments', AppointmentController::class);
     Route::get('appointments-calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
+    Route::post('appointments/{appointment}/convert-to-visit', [AppointmentController::class, 'convertToVisit'])->name('appointments.convert-to-visit');
     Route::get('appointments/{appointment}/report', [AppointmentController::class, 'generateReport'])->name('appointments.report');
     Route::get('appointments/{appointment}/letter', [AppointmentController::class, 'generateLetter'])->name('appointments.letter');
     Route::get('appointments-export', [AppointmentController::class, 'export'])->name('appointments.export');
@@ -111,6 +112,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // FET Reports
     Route::post('fet-reports', [FetReportController::class, 'store'])->name('fet-reports.store');
+    Route::post('fet-reports/embryo-image', [FetReportController::class, 'uploadEmbryoImage'])->name('fet-reports.upload-embryo-image');
+    Route::get('fet-reports/embryo-image/{filename}', [FetReportController::class, 'embryoImage'])->name('fet-reports.embryo-image');
     Route::put('fet-reports/{fetReport}', [FetReportController::class, 'update'])->name('fet-reports.update');
     Route::get('fet-reports/{fetReport}/pdf', [FetReportController::class, 'generatePdf'])->name('fet-reports.pdf');
     Route::get('fet-reports/{fetReport}', [FetReportController::class, 'show'])->name('fet-reports.show');

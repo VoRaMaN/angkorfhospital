@@ -144,6 +144,7 @@ interface OrderItem {
     inventory_id?: number;
     unit_price?: number;
     selling_price?: number;
+    is_package_included?: boolean;
 }
 
 interface Props {
@@ -307,6 +308,7 @@ const addSelectedLabItems = () => {
                 inventory_id: panelItem.id,
                 unit_price: includePackage ? 0 : (inventoryItem?.unit_price || 0),
                 selling_price: includePackage ? 0 : (inventoryItem?.selling_price || 0),
+                is_package_included: includePackage,
             });
         }
     });
@@ -399,6 +401,7 @@ const addSelectedRxItems = () => {
                 inventory_id: medicine.id,
                 unit_price: includePackage ? 0 : medicine.unit_price,
                 selling_price: includePackage ? 0 : medicine.selling_price,
+                is_package_included: includePackage,
             });
         }
     });
@@ -442,6 +445,7 @@ const addSelectedMedicineGroups = () => {
                 notes: `Special Items: ${group.name}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
                 unit_price: includePackage ? 0 : (group.custom_price || group.total_price || 0),
                 selling_price: includePackage ? 0 : (group.custom_price || group.total_price || 0),
+                is_package_included: includePackage,
             });
         } else {
             group.items.forEach((item) => {
@@ -458,6 +462,7 @@ const addSelectedMedicineGroups = () => {
                     inventory_id: item.id,
                     unit_price: includePackage ? 0 : item.unit_price,
                     selling_price: includePackage ? 0 : item.selling_price,
+                    is_package_included: includePackage,
                 });
             });
         }

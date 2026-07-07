@@ -2,176 +2,265 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Semen Analysis Report</title>
+    <title>Semen Analysis and Freezing Report</title>
     <style>
+        @page { margin: 8mm 12mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 12px; color: #000; padding: 30px 40px; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9.5px; line-height: 1.45; color: #000; }
 
-        .header { display: table; width: 100%; margin-bottom: 12px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .header-left { display: table-cell; vertical-align: top; width: 55%; }
-        .header-left img { width: 120px; display: block; margin-bottom: 4px; }
-        .header-left p { font-size: 10px; margin: 1px 0; color: #333; }
-        .header-right { display: table-cell; vertical-align: top; text-align: right; width: 45%; font-size: 11px; }
-        .header-right p { margin: 2px 0; }
-        .header-right .label { font-weight: bold; }
+        .box { border: 1.2px solid #222; border-radius: 4px; padding: 9px 14px; margin-bottom: 10px; }
 
-        .lab-title { text-align: center; margin: 8px 0; }
-        .lab-title p { font-weight: bold; font-size: 13px; }
-        .lab-title .sub { font-size: 12px; font-weight: normal; }
+        /* Header box */
+        .header { display: table; width: 100%; }
+        .header-left { display: table-cell; vertical-align: top; width: 48%; }
+        .header-left img { width: 58px; float: left; margin-right: 8px; }
+        .hosp-name { font-weight: bold; font-size: 14px; padding-top: 3px; }
+        .hosp-info { font-size: 7px; color: #333; }
+        .lab-line { font-weight: bold; font-size: 11px; margin-top: 14px; clear: both; }
+        .header-right { display: table-cell; vertical-align: top; width: 52%; }
+        .hr-row { display: table; width: 100%; margin-bottom: 3px; font-size: 9.5px; }
+        .hr-row .c { display: table-cell; }
+        .hr-row .lbl { font-weight: bold; }
 
-        .section-title { font-weight: bold; font-size: 12px; text-decoration: underline; margin-bottom: 6px; }
+        /* Main box */
+        .main-title { text-align: center; font-weight: bold; font-size: 12px; text-decoration: underline; margin: 2px 0 10px; }
 
-        .wife-row { display: table; width: 100%; margin-bottom: 6px; }
-        .wife-cell { display: table-cell; width: 50%; font-size: 11px; padding: 2px 0; }
-        .underline-val { border-bottom: 1px solid #000; display: inline-block; min-width: 140px; }
+        .uval { display: inline-block; border-bottom: 1px solid #000; min-width: 120px; text-align: center; font-weight: bold; padding: 0 4px; }
 
-        .data-table { display: table; width: 100%; margin-top: 8px; }
-        .data-left { display: table-cell; width: 55%; vertical-align: top; padding-right: 10px; }
-        .data-right { display: table-cell; width: 45%; vertical-align: top; text-align: center; }
+        .cols { display: table; width: 100%; table-layout: fixed; }
+        .col-params { display: table-cell; vertical-align: top; width: 76%; }
+        .col-imgs { display: table-cell; vertical-align: top; width: 24%; text-align: center; padding-top: 130px; }
+        .col-imgs p { font-size: 9px; font-weight: bold; margin-bottom: 3px; }
+        .col-imgs img { max-width: 105px; border: 1px solid #ccc; background: #fff; margin-bottom: 14px; }
 
-        table.params { width: 100%; border-collapse: collapse; font-size: 11px; }
-        table.params th { text-align: left; font-weight: normal; color: #666; font-size: 10px; padding: 2px 4px; }
-        table.params td { padding: 3px 4px; border-bottom: 1px solid #e0e0e0; }
-        table.params td.indent { padding-left: 16px; }
-        table.params td.indent2 { padding-left: 28px; }
-        table.params td.bold { font-weight: bold; }
-        table.params td.norm { color: #555; font-size: 10px; }
+        table.params { width: 100%; border-collapse: collapse; font-size: 9.5px; }
+        table.params td { padding: 2px 2px; vertical-align: bottom; }
+        table.params .lbl { width: 22%; }
+        table.params .sub { width: 13%; }
+        table.params .val { width: 26%; text-align: center; }
+        table.params .val span { display: inline-block; border-bottom: 1px solid #000; min-width: 100px; text-align: center; font-weight: bold; }
+        table.params .unit { width: 14%; color: #333; font-size: 8.5px; }
+        table.params .norm { width: 25%; font-size: 9px; color: #222; }
+        table.params .norm-head { font-weight: bold; font-size: 8.5px; color: #000; white-space: nowrap; }
+        table.params .grp { font-weight: bold; padding-top: 5px; }
 
-        .img-label { font-size: 10px; font-weight: bold; color: #555; margin-bottom: 3px; }
-        .sperm-img { max-width: 110px; border: 1px solid #ccc; margin-bottom: 12px; }
+        .vial-row { text-align: center; margin-top: 8px; font-size: 9.5px; font-weight: bold; }
+        .vial-row .uval { min-width: 70px; }
 
-        .times-row { display: table; width: 100%; margin-top: 10px; padding-top: 8px; border-top: 1px solid #ccc; font-size: 11px; }
-        .times-cell { display: table-cell; width: 50%; padding: 2px 0; }
+        /* Times */
+        .times { display: table; width: 100%; margin-top: 8px; font-size: 9.5px; }
+        .times .tc { display: table-cell; width: 25%; padding: 2px 0; }
 
-        .remark { margin-top: 8px; font-size: 11px; }
+        .remark-ln { margin-top: 8px; font-size: 9.5px; }
+        .remark-ln .uval { min-width: 420px; text-align: left; }
 
-        .sig-row { display: table; width: 100%; margin-top: 12px; padding-top: 8px; border-top: 1px solid #ccc; font-size: 11px; }
-        .sig-cell { display: table-cell; width: 50%; }
-        .sig-cell .sig-label { font-weight: bold; font-size: 10px; color: #555; text-transform: uppercase; margin-bottom: 2px; }
-        .sig-cell .sig-date { font-size: 10px; color: #555; margin-top: 2px; }
+        .sig-table { width: 100%; margin-top: 8px; font-size: 9.5px; border-collapse: collapse; }
+        .sig-table td { padding: 2px 0; }
+        .sig-table .sl { width: 18%; font-weight: bold; }
+        .sig-table .sv { width: 34%; }
+        .sig-table .sd { width: 24%; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <div class="header-left">
-            <img src="{{ public_path('images/logo1.png') }}" alt="Angkor-F Hospital" />
-            <p>#National Road 6A, Salakonseng Village,</p>
-            <p>Sangkat Svay Dangkum, Siem Reap, Cambodia</p>
-            <p>Tel: (855) 31 3 5555 88 | (855) 12 881 307</p>
-            <p>E-mail: angkorfhospital@gmail.com</p>
-        </div>
-        <div class="header-right">
-            <p><span class="label">Name:</span> {{ $report->patient_name ?? '—' }}</p>
-            <p><span class="label">HN:</span> {{ $report->patient_hn ?? '—' }} &nbsp;&nbsp; <span class="label">SEX:</span> MALE</p>
-            <p><span class="label">DOB:</span> {{ $report->patient_dob ?? '—' }} &nbsp;&nbsp; <span class="label">Age:</span> {{ $report->patient_age ? $report->patient_age.' Yrs.' : '—' }}</p>
-            <p><span class="label">Date:</span> {{ $reportDate }}</p>
-            <p><span class="label">Doctor:</span> {{ $report->doctor_name ?? '—' }}</p>
-        </div>
-    </div>
-
-    <!-- Lab Title -->
-    <div class="lab-title">
-        <p>IVF LAB</p>
-        <p class="sub">( Semen Analysis Report )</p>
-    </div>
-
-    <!-- Section title -->
-    <p class="section-title">Semen Analysis and Freezing</p>
-
-    <!-- Wife row -->
-    <div class="wife-row">
-        <div class="wife-cell">
-            <strong>Wife's name:</strong>
-            <span class="underline-val">{{ $report->wife_name ?? '' }}</span>
-        </div>
-        <div class="wife-cell">
-            <strong>H.N:</strong> —
+    <!-- Header box -->
+    <div class="box">
+        <div class="header">
+            <div class="header-left">
+                <img src="{{ public_path('images/logo1.png') }}" alt="Angkor F Hospital" />
+                <p class="hosp-name">Angkor-F Hospital</p>
+                <p class="hosp-info">#National Road 6A, Salakonseng Village, Sangkat Svay Dangkum, Siem Reap, Cambodia</p>
+                <p class="hosp-info">Tel: (855) 31 3 5555 88 | (855) 12 881 307 &nbsp; E-mail: angkorfhospital@gmail.com</p>
+                <p class="lab-line">IVF LAB ( Semen Analysis Report )</p>
+            </div>
+            <div class="header-right">
+                <div class="hr-row"><span class="c"><span class="lbl">Name</span> &nbsp; {{ $report->patient_name ?? '' }}</span></div>
+                <div class="hr-row">
+                    <span class="c" style="width:55%;"><span class="lbl">HN</span> &nbsp; {{ $report->patient_hn ?? '' }}</span>
+                    <span class="c"><span class="lbl">SEX</span> &nbsp; MALE</span>
+                </div>
+                <div class="hr-row">
+                    <span class="c" style="width:55%;"><span class="lbl">DOB</span> &nbsp; {{ $report->patient_dob ?? '' }}</span>
+                    <span class="c"><span class="lbl">Age</span> &nbsp; {{ $report->patient_age ?? '' }} &nbsp; <span class="lbl">Yrs.</span></span>
+                </div>
+                <div class="hr-row"><span class="c"><span class="lbl">Date</span> &nbsp; {{ $reportDate }}</span></div>
+                <div class="hr-row"><span class="c"><span class="lbl">Doctor</span> &nbsp; {{ $report->doctor_name ?? '' }}</span></div>
+            </div>
         </div>
     </div>
 
-    <!-- Parameters + Images side by side -->
-    <div class="data-table">
-        <div class="data-left">
-            <table class="params">
-                <thead>
+    <!-- Main box -->
+    <div class="box">
+        <p class="main-title">Semen Analysis and Freezing</p>
+
+        <div class="cols">
+            <div class="col-params">
+                <table class="params">
                     <tr>
-                        <th style="width:50%">Parameter</th>
-                        <th style="width:25%">Value</th>
-                        <th style="width:25%">Normal Range</th>
+                        <td class="lbl">Wife 's name</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->wife_name ?? '' }}</span></td>
+                        <td class="unit"></td>
+                        <td class="norm">{{ $report->wife_hn ? 'H.N '.$report->wife_hn : '' }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Abstinence day</td><td>{{ $report->abstinence_days ? $report->abstinence_days.' Days' : '—' }}</td><td></td></tr>
-                    <tr><td>Appearance</td><td>{{ $report->appearance ?? '—' }}</td><td></td></tr>
-                    <tr><td>Liquefaction</td><td>{{ $report->liquefaction ?? '—' }}</td><td class="norm">30 mins</td></tr>
-                    <tr><td>Viscosity</td><td>{{ $report->viscosity ?? '—' }}</td><td></td></tr>
-                    <tr><td>pH</td><td>{{ $report->ph ?? '—' }}</td><td class="norm">7.2 – 8.0</td></tr>
-                    <tr><td>Viability</td><td>{{ $report->viability !== null ? $report->viability.'%' : '—' }}</td><td class="norm">&gt; 75</td></tr>
-                    <tr><td>Volume</td><td>{{ $report->volume !== null ? $report->volume.' ml.' : '—' }}</td><td class="norm">&gt; 2</td></tr>
-                    <tr><td>Count</td><td>{{ $report->count_per_ml !== null ? $report->count_per_ml.' x10⁶/ml.' : '—' }}</td><td class="norm">&gt; 20</td></tr>
-                    <tr><td>Total count</td><td>{{ $report->total_count !== null ? $report->total_count.' x10⁶' : '—' }}</td><td class="norm">&gt; 40</td></tr>
-                    <tr><td>Motile</td><td>{{ $report->motile !== null ? $report->motile.' x10⁶/ml.' : '—' }}</td><td></td></tr>
-                    <tr><td>Total motile</td><td>{{ $report->total_motile !== null ? $report->total_motile.' x10⁶' : '—' }}</td><td></td></tr>
-                    <tr><td>Motility</td><td>{{ $report->motility !== null ? $report->motility.'%' : '—' }}</td><td class="norm">&gt; 50</td></tr>
-                    <tr><td class="bold" colspan="3">Motility rate <span style="font-weight:normal;font-size:10px">(WHO 1999)</span></td></tr>
-                    <tr><td class="indent">4 rapid</td><td>{{ $report->motility_4_rapid !== null ? $report->motility_4_rapid.'%' : '—' }}</td><td class="norm">&gt; 25</td></tr>
-                    <tr><td class="indent">3 medium</td><td>{{ $report->motility_3_medium !== null ? $report->motility_3_medium.'%' : '—' }}</td><td></td></tr>
-                    <tr><td class="indent">2 slow</td><td>{{ $report->motility_2_slow !== null ? $report->motility_2_slow.'%' : '—' }}</td><td></td></tr>
-                    <tr><td class="indent">1 static</td><td>{{ $report->motility_1_static !== null ? $report->motility_1_static.'%' : '—' }}</td><td></td></tr>
-                    <tr><td>WBC</td><td>{{ $report->wbc !== null ? $report->wbc.' /HPF' : '—' }}</td><td></td></tr>
-                    <tr><td class="bold" colspan="3">Morphology <span style="font-weight:normal;font-size:10px">(Strict criteria)</span></td></tr>
-                    <tr><td class="indent">Normal</td><td>{{ $report->morphology_normal !== null ? $report->morphology_normal.'%' : '—' }}</td><td class="norm">&gt; 14</td></tr>
-                    <tr><td class="indent">Abnormal</td><td>{{ $report->morphology_abnormal !== null ? $report->morphology_abnormal.'%' : '—' }}</td><td></td></tr>
-                    <tr><td class="indent2">Head Defect</td><td>{{ $report->head_defect !== null ? $report->head_defect.'%' : '—' }}</td><td></td></tr>
-                    <tr><td class="indent2">Neck Defect</td><td>{{ $report->neck_defect !== null ? $report->neck_defect.'%' : '—' }}</td><td></td></tr>
-                    <tr><td class="indent2">Tail Defect</td><td>{{ $report->tail_defect !== null ? $report->tail_defect.'%' : '—' }}</td><td></td></tr>
-                    <tr><td>No. of Vial</td><td>{{ $report->no_of_vial !== null ? $report->no_of_vial.' vials' : '—' }}</td><td></td></tr>
-                </tbody>
-            </table>
+                    <tr>
+                        <td class="lbl">Abstinence day</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->abstinence_days !== null ? $report->abstinence_days.' Days' : '' }}</span></td>
+                        <td class="unit"></td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Appearance</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->appearance ?? '' }}</span></td>
+                        <td class="unit"></td>
+                        <td class="norm norm-head">Normal Range (WHO 1999)</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Liquefaction</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->liquefaction ?? '' }}</span></td>
+                        <td class="unit"></td><td class="norm">30 mins</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Viscosity</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->viscosity ?? '' }}</span></td>
+                        <td class="unit"></td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">pH</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->ph ?? '' }}</span></td>
+                        <td class="unit"></td><td class="norm">7.2 - 8.0</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Viability</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->viability ?? '' }}</span></td>
+                        <td class="unit"></td><td class="norm">&gt; 75</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Volume</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->volume ?? '' }}</span></td>
+                        <td class="unit">ml.</td><td class="norm">&gt; 2</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Count</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->count_per_ml ?? '' }}</span></td>
+                        <td class="unit">x10&#8310;/ml.</td><td class="norm">&gt; 20</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Total count</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->total_count ?? '' }}</span></td>
+                        <td class="unit">x10&#8310;</td><td class="norm">&gt; 40</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Motile</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->motile ?? '' }}</span></td>
+                        <td class="unit">x10&#8310;/ml.</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Total motile</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->total_motile ?? '' }}</span></td>
+                        <td class="unit">x10&#8310;</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Motility</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->motility ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm">&gt; 50</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Motility rate</td><td class="sub">4 rapid</td>
+                        <td class="val"><span>{{ $report->motility_4_rapid ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm">&gt; 25</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">3 medium</td>
+                        <td class="val"><span>{{ $report->motility_3_medium ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">2 slow</td>
+                        <td class="val"><span>{{ $report->motility_2_slow ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">1 static</td>
+                        <td class="val"><span>{{ $report->motility_1_static ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">WBC</td>
+                        <td class="val"><span>{{ $report->wbc ?? '' }}</span></td>
+                        <td class="unit">/HPF</td><td class="norm"></td>
+                    </tr>
+                    <tr><td colspan="5" class="grp">Morphology (Strict criteria)</td></tr>
+                    <tr>
+                        <td class="lbl" style="padding-left:12px;">Normal</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->morphology_normal ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm">&gt; 14</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl" style="padding-left:12px;">Abnormal</td><td class="sub"></td>
+                        <td class="val"><span>{{ $report->morphology_abnormal ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">Head Defect</td>
+                        <td class="val"><span>{{ $report->head_defect ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">Neck Defect</td>
+                        <td class="val"><span>{{ $report->neck_defect ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                    <tr>
+                        <td class="lbl"></td><td class="sub">Tail Defect</td>
+                        <td class="val"><span>{{ $report->tail_defect ?? '' }}</span></td>
+                        <td class="unit">%</td><td class="norm"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-imgs">
+                <p>Normal Form</p>
+                <img src="{{ public_path('images/sperm-forms/normal_form.png') }}" alt="Normal Form" />
+                <p>Abnormal Form</p>
+                <img src="{{ public_path('images/sperm-forms/abnormal_form.png') }}" alt="Abnormal Form" />
+            </div>
         </div>
-        <div class="data-right">
-            <p class="img-label">Normal Form</p>
-            <img class="sperm-img" src="{{ public_path('images/sperm-forms/normal_form.png') }}" alt="Normal Form" /><br>
-            <p class="img-label">Abnormal Form</p>
-            <img class="sperm-img" src="{{ public_path('images/sperm-forms/abnormal_form.png') }}" alt="Abnormal Form" />
-        </div>
-    </div>
 
-    <!-- Times -->
-    <div class="times-row">
-        <div class="times-cell"><strong>Ejaculation time:</strong> {{ $report->ejaculation_time ?? '—' }}</div>
-        <div class="times-cell"><strong>Examination time:</strong> {{ $report->examination_time ?? '—' }}</div>
-        <div class="times-cell"><strong>Receive time:</strong> {{ $report->receive_time ?? '—' }}</div>
-        <div class="times-cell"><strong>Finish time:</strong> {{ $report->finish_time ?? '—' }}</div>
-    </div>
-
-    <!-- Remark -->
-    @if($report->remark)
-    <div class="remark"><strong>Remark:</strong> {{ $report->remark }}</div>
-    @endif
-
-    <!-- Signatures -->
-    <div class="sig-row">
-        <div class="sig-cell">
-            <p class="sig-label">Reported by</p>
-            <p>{{ $report->reported_by ?? '—' }}</p>
-            <p class="sig-date">
-                {{ $report->reported_date ? 'Date: '.$report->reported_date : '' }}
-                {{ $report->reported_time ? ' Time: '.$report->reported_time : '' }}
-                @if(!$report->reported_date && !$report->reported_time) — @endif
-            </p>
+        <!-- No. of Vial -->
+        <div class="vial-row">
+            No. of Vial &nbsp; <span class="uval">{{ $report->no_of_vial ?? '' }}</span> &nbsp; vials
         </div>
-        <div class="sig-cell">
-            <p class="sig-label">Approved by</p>
-            <p>{{ $report->approved_by ?? '—' }}</p>
-            <p class="sig-date">
-                {{ $report->approved_date ? 'Date: '.$report->approved_date : '' }}
-                {{ $report->approved_time ? ' Time: '.$report->approved_time : '' }}
-                @if(!$report->approved_date && !$report->approved_time) — @endif
-            </p>
+
+        <!-- Times -->
+        <div class="times">
+            <span class="tc"><strong>Ejaculation time</strong></span>
+            <span class="tc"><span class="uval">{{ $report->ejaculation_time ?? '' }}</span></span>
+            <span class="tc"><strong>Examination time</strong></span>
+            <span class="tc"><span class="uval">{{ $report->examination_time ?? '' }}</span></span>
         </div>
+        <div class="times" style="margin-top:3px;">
+            <span class="tc"><strong>Receive time</strong></span>
+            <span class="tc"><span class="uval">{{ $report->receive_time ?? '' }}</span></span>
+            <span class="tc"><strong>Finish time</strong></span>
+            <span class="tc"><span class="uval">{{ $report->finish_time ?? '' }}</span></span>
+        </div>
+
+        <!-- Remark -->
+        <div class="remark-ln"><strong>Remark&nbsp;&nbsp;:</strong> <span class="uval">{{ $report->remark ?? '' }}</span></div>
+
+        <!-- Signatures -->
+        <table class="sig-table">
+            <tr>
+                <td class="sl">Reported by</td>
+                <td class="sv">{{ $report->reported_by ?? '' }}</td>
+                <td class="sd"><strong>Date</strong> &nbsp; {{ $report->reported_date ?? '' }}</td>
+                <td class="sd"><strong>Time</strong> &nbsp; {{ $report->reported_time ?? '' }}</td>
+            </tr>
+            <tr>
+                <td class="sl">Approved by</td>
+                <td class="sv">{{ $report->approved_by ?? '' }}</td>
+                <td class="sd"><strong>Date</strong> &nbsp; {{ $report->approved_date ?? '' }}</td>
+                <td class="sd"><strong>Time</strong> &nbsp; {{ $report->approved_time ?? '' }}</td>
+            </tr>
+        </table>
     </div>
 
 </body>

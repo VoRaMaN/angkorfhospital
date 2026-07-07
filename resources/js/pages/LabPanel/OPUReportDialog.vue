@@ -12,6 +12,7 @@ import {
     ClipboardList,
     Eye,
     Loader2,
+    Plus,
     Printer,
     Search,
     User,
@@ -27,6 +28,13 @@ interface PatientOption {
     phone: string | null;
     id_card: string | null;
     gender: string | null;
+}
+
+interface EmbryoDevelopment {
+    day: number;
+    datetime: string | null;
+    checked_by: string | null;
+    embryos: (string | null)[];
 }
 
 interface OPUReportData {
@@ -75,12 +83,7 @@ interface OPUReportData {
     freeze_position?: string | null;
     freeze_method?: string | null;
     freeze_media?: string | null;
-    day3_datetime?: string | null;
-    day3_checked_by?: string | null;
-    day3_embryos?: (string | null)[];
-    day5_datetime?: string | null;
-    day5_checked_by?: string | null;
-    day5_embryos?: (string | null)[];
+    embryo_developments?: EmbryoDevelopment[];
     et_no?: number | null;
     et_day?: string | null;
     et_datetime?: string | null;
@@ -144,6 +147,23 @@ const now = () => {
 const isMaleProp = () => props.femalePatientName ? /^mr\.?\s/i.test(props.femalePatientName.trim()) : false;
 const autoIsMale = computed(() => isMaleProp());
 
+const emptyDevelopmentSection = (day: number): EmbryoDevelopment => ({
+    day,
+    datetime: null,
+    checked_by: null,
+    embryos: Array(20).fill(null),
+});
+
+const addDevelopmentSection = () => {
+    const sections = form.embryo_developments ?? (form.embryo_developments = []);
+    const lastDay = sections.length ? Number(sections[sections.length - 1].day) || 0 : 0;
+    sections.push(emptyDevelopmentSection(lastDay + 1));
+};
+
+const removeDevelopmentSection = (index: number) => {
+    form.embryo_developments?.splice(index, 1);
+};
+
 const buildEmptyForm = (): OPUReportData => ({
     medical_order_id: props.orderId,
     female_patient_id: isMaleProp() ? null : props.femalePatientId,
@@ -162,8 +182,7 @@ const buildEmptyForm = (): OPUReportData => ({
     embryo_freeze_datetime: null, freeze_day: null, freeze_stage: null,
     no_of_embryo: null, no_of_straw: null, freeze_position: null,
     freeze_method: null, freeze_media: null,
-    day3_datetime: null, day3_checked_by: null, day3_embryos: Array(20).fill(null),
-    day5_datetime: null, day5_checked_by: null, day5_embryos: Array(20).fill(null),
+    embryo_developments: [emptyDevelopmentSection(1)],
     et_no: null, et_day: null, et_datetime: null, assisted_hatching: false,
     et_volume: '15µl', et_catheter: null, et_doctor: null, et_embryologist: null,
     number_of_transfer: null, number_of_freeze: null, number_of_discard: null,
@@ -182,8 +201,12 @@ watch(
             if (r) {
                 Object.assign(form, {
                     ...r,
-                    day3_embryos: r.day3_embryos ?? Array(20).fill(null),
-                    day5_embryos: r.day5_embryos ?? Array(20).fill(null),
+                    embryo_developments: r.embryo_developments?.length
+                        ? r.embryo_developments.map((s) => ({
+                            ...s,
+                            embryos: [...(s.embryos ?? []), ...Array(20).fill(null)].slice(0, 20),
+                        }))
+                        : [emptyDevelopmentSection(1)],
                 });
             } else {
                 Object.assign(form, buildEmptyForm());
@@ -546,19 +569,43 @@ const save = () => {
                             </div>
                         </div>
 
-                        <!-- ── Embryo Development Day 3 ──────────────────── -->
-                        <div class="rounded-xl border p-4">
+                        <!-- ── Embryo Development (dynamic days) ─────────── -->
+                        <div
+                            v-for="(section, si) in form.embryo_developments"
+                            :key="si"
+                            class="rounded-xl border p-4"
+                        >
                             <div class="mb-3 flex items-center justify-between">
-                                <h3 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development (Day 3)</h3>
+                                <h3 class="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                                    Embryo Development (Day
+                                    <Input
+                                        v-model.number="section.day"
+                                        type="number"
+                                        min="1"
+                                        max="99"
+                                        class="h-7 w-14 text-center text-sm"
+                                    />
+                                    )
+                                </h3>
+                                <Button
+                                    v-if="form.embryo_developments!.length > 1"
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                    @click="removeDevelopmentSection(si)"
+                                >
+                                    <X class="h-4 w-4" />
+                                </Button>
                             </div>
                             <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div class="space-y-1">
                                     <Label class="text-xs">Date &amp; Time</Label>
-                                    <Input v-model="form.day3_datetime" type="datetime-local" class="h-8 text-sm" />
+                                    <Input v-model="section.datetime" type="datetime-local" class="h-8 text-sm" />
                                 </div>
                                 <div class="space-y-1">
                                     <Label class="text-xs">Checked By</Label>
-                                    <Input v-model="form.day3_checked_by" placeholder="Embryologist name" class="h-8 text-sm" />
+                                    <Input v-model="section.checked_by" placeholder="Embryologist name" class="h-8 text-sm" />
                                 </div>
                             </div>
                             <!-- Embryo grid 4×5 -->
@@ -567,7 +614,7 @@ const save = () => {
                                     <div v-for="idx in col" :key="idx" class="flex items-center gap-1.5">
                                         <span class="w-5 shrink-0 text-xs font-medium text-muted-foreground">{{ idx + 1 }}</span>
                                         <Input
-                                            v-model="form.day3_embryos![idx]"
+                                            v-model="section.embryos[idx]"
                                             type="text"
                                             :placeholder="`g4/A`"
                                             class="h-7 text-xs"
@@ -577,35 +624,16 @@ const save = () => {
                             </div>
                         </div>
 
-                        <!-- ── Embryo Development Day 5 ──────────────────── -->
-                        <div class="rounded-xl border p-4">
-                            <div class="mb-3 flex items-center justify-between">
-                                <h3 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Embryo Development (Day 5)</h3>
-                            </div>
-                            <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                <div class="space-y-1">
-                                    <Label class="text-xs">Date &amp; Time</Label>
-                                    <Input v-model="form.day5_datetime" type="datetime-local" class="h-8 text-sm" />
-                                </div>
-                                <div class="space-y-1">
-                                    <Label class="text-xs">Checked By</Label>
-                                    <Input v-model="form.day5_checked_by" placeholder="Embryologist name" class="h-8 text-sm" />
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-4 gap-2">
-                                <div v-for="col in embryoCols" :key="col[0]" class="space-y-2">
-                                    <div v-for="idx in col" :key="idx" class="flex items-center gap-1.5">
-                                        <span class="w-5 shrink-0 text-xs font-medium text-muted-foreground">{{ idx + 1 }}</span>
-                                        <Input
-                                            v-model="form.day5_embryos![idx]"
-                                            type="text"
-                                            :placeholder="`A/B`"
-                                            class="h-7 text-xs"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Add another development day -->
+                        <Button
+                            type="button"
+                            variant="outline"
+                            class="w-full border-dashed"
+                            @click="addDevelopmentSection"
+                        >
+                            <Plus class="mr-1 h-4 w-4" />
+                            Add Embryo Development Day
+                        </Button>
 
                         <!-- ── Embryo for ET ──────────────────────────────── -->
                         <div class="rounded-xl border p-4">

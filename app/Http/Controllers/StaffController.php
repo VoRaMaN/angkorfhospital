@@ -74,7 +74,7 @@ class StaffController extends Controller
         $this->authorize('create', Staff::class);
 
         $departments = \App\Models\Department::all();
-        $roles = \Spatie\Permission\Models\Role::all();
+        $roles = \App\Models\StaffRole::all();
 
         return Inertia::render('Staff/Create', [
             'roles' => $roles,
@@ -97,11 +97,9 @@ class StaffController extends Controller
             'password' => bcrypt($validated['password']),
         ]);
 
-        // Assign role to user
-        $role = \Spatie\Permission\Models\Role::find($validated['role_id']);
-        if ($role) {
-            $user->assignRole($role);
-        }
+        // The Spatie role is synced by StaffObserver::created from the staff
+        // domain role (role_id references the StaffRole table, whose ids do
+        // not match Spatie role ids).
 
         // Create Staff with user_id
         $staffData = $validated;
@@ -168,7 +166,7 @@ class StaffController extends Controller
 
         return Inertia::render('Staff/Edit', [
             'staff' => $transformedStaff,
-            'roles' => \Spatie\Permission\Models\Role::all(),
+            'roles' => \App\Models\StaffRole::all(),
             'departments' => \App\Models\Department::all(),
         ]);
     }

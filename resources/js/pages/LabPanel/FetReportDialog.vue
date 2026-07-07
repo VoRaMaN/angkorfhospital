@@ -18,6 +18,11 @@ interface PatientOption {
     gender: string | null;
 }
 
+interface EmbryoPicture {
+    no: string | null;
+    path: string | null;
+}
+
 interface FetReportData {
     id?: number;
     medical_order_id: number;
@@ -55,6 +60,9 @@ interface FetReportData {
     day5_embryo_3?: string | null;
     day5_embryo_4?: string | null;
     day5_embryo_5?: string | null;
+    picture_day?: number | null;
+    picture_datetime?: string | null;
+    embryo_pictures?: EmbryoPicture[] | null;
     no_of_et?: number | null;
     et_volume?: string | null;
     number_of_transfer?: number | null;
@@ -167,6 +175,9 @@ const clearPartner = () => {
         form.male_dob = null;
     }
 };
+const emptyPictureGrid = (): EmbryoPicture[] =>
+    Array.from({ length: 10 }, () => ({ no: null, path: null }));
+
 const buildEmptyForm = (): FetReportData => ({
     medical_order_id: props.orderId,
     female_patient_id: autoIsMale.value ? null : (props.patientId ?? null),
@@ -203,6 +214,9 @@ const buildEmptyForm = (): FetReportData => ({
     day5_embryo_3: null,
     day5_embryo_4: null,
     day5_embryo_5: null,
+    picture_day: null,
+    picture_datetime: null,
+    embryo_pictures: emptyPictureGrid(),
     no_of_et: null,
     et_volume: '15µl',
     number_of_transfer: null,
@@ -228,7 +242,12 @@ watch(
             savedReportId.value = null;
             const r = props.existingReport;
             if (r) {
-                Object.assign(form, r);
+                Object.assign(form, r, {
+                    embryo_pictures: [
+                        ...(r.embryo_pictures ?? []).map((p) => ({ no: p?.no ?? null, path: p?.path ?? null })),
+                        ...emptyPictureGrid(),
+                    ].slice(0, 10),
+                });
                 selectedFemale.value = r.female_patient_id
                     ? { id: r.female_patient_id, name: r.female_patient_name ?? r.female_patient_id, dob: r.female_dob ?? null, phone: null, id_card: null, gender: null }
                     : null;
@@ -291,6 +310,56 @@ const save = () => {
 
 // ─── Embryo grading image helper ──────────────────────────────────────────────
 const gradingDays = [1, 2, 3, 4, 5];
+
+// ─── Picture of Embryo Development uploads ────────────────────────────────────
+const uploadingSlots = reactive<Record<number, boolean>>({});
+const pictureInputs = ref<(HTMLInputElement | null)[]>([]);
+
+const pictureUrl = (path: string) =>
+    `/fet-reports/embryo-image/${encodeURIComponent(path.replace(/^fet_embryos\//, ''))}`;
+
+const triggerPictureUpload = (index: number) => {
+    pictureInputs.value[index]?.click();
+};
+
+const xsrfToken = (): string => {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+};
+
+const onPictureSelected = async (index: number, event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || !form.embryo_pictures) return;
+
+    uploadingSlots[index] = true;
+    try {
+        const body = new FormData();
+        body.append('image', file);
+        const res = await fetch('/fet-reports/embryo-image', {
+            method: 'POST',
+            headers: { 'X-XSRF-TOKEN': xsrfToken(), Accept: 'application/json' },
+            body,
+        });
+        if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+        const data = await res.json();
+        form.embryo_pictures[index].path = data.path;
+        if (!form.embryo_pictures[index].no) {
+            form.embryo_pictures[index].no = String(index + 1);
+        }
+    } catch {
+        alert('Image upload failed. Please try again.');
+    } finally {
+        uploadingSlots[index] = false;
+    }
+};
+
+const removePicture = (index: number) => {
+    if (!form.embryo_pictures) return;
+    form.embryo_pictures[index].path = null;
+    form.embryo_pictures[index].no = null;
+};
 </script>
 
 <template>
@@ -488,6 +557,64 @@ const gradingDays = [1, 2, 3, 4, 5];
                                             v-model="(form as any)[`day5_embryo_${n}`]"
                                             placeholder="e.g. g4A"
                                             class="h-7 text-xs"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Picture of Embryo Development ──────────────── -->
+                        <div class="space-y-3">
+                            <h3 class="text-center text-sm font-bold tracking-wide uppercase text-muted-foreground border-b pb-1">Picture of Embryo Development</h3>
+                            <div class="grid grid-cols-2 gap-3 sm:max-w-md">
+                                <div class="space-y-1">
+                                    <Label class="text-xs">Day</Label>
+                                    <Input v-model.number="form.picture_day" type="number" min="1" max="99" class="h-8 text-sm" />
+                                </div>
+                                <div class="space-y-1">
+                                    <Label class="text-xs">Date &amp; Time</Label>
+                                    <Input v-model="form.picture_datetime" placeholder="DD/MM/YYYY HH:MM" class="h-8 text-sm" />
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2">
+                                <div
+                                    v-for="(pic, pi) in form.embryo_pictures"
+                                    :key="pi"
+                                    class="space-y-1 rounded-lg border p-2"
+                                >
+                                    <Input
+                                        v-model="pic.no"
+                                        placeholder="No."
+                                        class="h-6 text-center text-xs"
+                                    />
+                                    <div class="relative flex h-20 items-center justify-center overflow-hidden rounded border bg-muted/30">
+                                        <template v-if="pic.path">
+                                            <img :src="pictureUrl(pic.path)" class="h-full w-full object-contain" alt="Embryo" />
+                                            <button
+                                                type="button"
+                                                class="absolute right-0.5 top-0.5 rounded bg-black/50 p-0.5 text-white hover:bg-destructive"
+                                                @click="removePicture(pi)"
+                                            >
+                                                <X class="h-3 w-3" />
+                                            </button>
+                                        </template>
+                                        <template v-else>
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                                                :disabled="uploadingSlots[pi]"
+                                                @click="triggerPictureUpload(pi)"
+                                            >
+                                                <Loader2 v-if="uploadingSlots[pi]" class="h-4 w-4 animate-spin" />
+                                                <template v-else>+ Image</template>
+                                            </button>
+                                        </template>
+                                        <input
+                                            :ref="(el) => (pictureInputs[pi] = el as HTMLInputElement | null)"
+                                            type="file"
+                                            accept="image/*"
+                                            class="hidden"
+                                            @change="onPictureSelected(pi, $event)"
                                         />
                                     </div>
                                 </div>

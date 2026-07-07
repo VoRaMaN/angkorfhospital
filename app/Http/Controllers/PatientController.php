@@ -284,9 +284,8 @@ class PatientController extends Controller
             // `App\Models\Role` is a domain model (staff roles). Spatie uses its
             // own Role model for permission checks. When creating a user account
             // for a patient we must assign the Spatie role (not the domain Role
-            // model). Use the role name string so `assignRole` will work whether
-            // the Spatie role exists as a model or only as a string.
-            $user->assignRole('Patient');
+            // model). Role names are case-sensitive: the seeded role is 'patient'.
+            $user->assignRole('patient');
 
             $patient->user_id = $user->id;
             $patient->save();
@@ -452,6 +451,7 @@ class PatientController extends Controller
             'patient_files' => $patientFiles,
         ];
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('patient-report', compact('report', 'patient'));
         $pdf->setOptions([
@@ -460,7 +460,7 @@ class PatientController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'dpi' => 96,
             'isPhpEnabled' => true,
-        ]);
+        ], true);
 
         $filename = 'patient-report-'.str_replace('/', '-', $patient->id).'-'.now()->format('Y-m-d').'.pdf';
 

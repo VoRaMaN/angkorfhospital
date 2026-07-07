@@ -11,12 +11,12 @@ use Inertia\Response;
 
 class SaReportController extends Controller
 {
-    public function show(SaReport $saReport): Response
+    private function buildPatientData(SaReport $report): array
     {
-        $saReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
+        $report->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
 
-        $patient = $saReport->patient ?? $saReport->medicalOrder?->patient;
-        $staff = $saReport->medicalOrder?->staff;
+        $patient = $report->patient ?? $report->medicalOrder?->patient;
+        $staff = $report->medicalOrder?->staff;
 
         $dob = null;
         $age = null;
@@ -33,49 +33,47 @@ class SaReportController extends Controller
 
         $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
 
-        return Inertia::render('LabPanel/SaReport', [
-            'report' => array_merge($saReport->toArray(), [
-                'patient_name' => $patientName,
-                'patient_hn' => $patient?->id,
-                'patient_dob' => $dob,
-                'patient_age' => $age,
-                'doctor_name' => $staff?->user?->name,
-            ]),
-        ]);
-    }
-
-    public function generatePdf(SaReport $saReport): \Illuminate\Http\Response
-    {
-        $saReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
-
-        $patient = $saReport->patient ?? $saReport->medicalOrder?->patient;
-        $staff = $saReport->medicalOrder?->staff;
-
-        $dob = null;
-        $age = null;
-        if ($patient) {
-            $d = $patient->date_of_birth_day;
-            $m = $patient->date_of_birth_month;
-            $y = $patient->date_of_birth_year;
-            if ($d && $m && $y) {
-                $dob = str_pad($d, 2, '0', STR_PAD_LEFT).'/'.str_pad($m, 2, '0', STR_PAD_LEFT).'/'.$y;
-                $birth = new \DateTime("{$y}-{$m}-{$d}");
-                $age = (new \DateTime)->diff($birth)->y;
-            }
-        }
-
-        $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
-
-        $report = (object) array_merge($saReport->toArray(), [
+        return [
             'patient_name' => $patientName,
             'patient_hn' => $patient?->id,
             'patient_dob' => $dob,
             'patient_age' => $age,
             'doctor_name' => $staff?->user?->name,
+        ];
+    }
+
+    /**
+     * Store/refresh the SA report PDF in the patient's files.
+     */
+    private function syncPatientFile(SaReport $report): void
+    {
+        $patientData = $this->buildPatientData($report);
+
+        app(\App\Services\LabResultFileService::class)->syncReportPdf(
+            $report->medicalOrder,
+            'lab-reports.sa-report',
+            [
+                'report' => (object) array_merge($report->toArray(), $patientData),
+                'reportDate' => now()->format('d/m/Y'),
+            ],
+            'SA Report - Order '.$report->medical_order_id.'.pdf'
+        );
+    }
+
+    public function show(SaReport $saReport): Response
+    {
+        return Inertia::render('LabPanel/SaReport', [
+            'report' => array_merge($saReport->toArray(), $this->buildPatientData($saReport)),
         ]);
+    }
+
+    public function generatePdf(SaReport $saReport): \Illuminate\Http\Response
+    {
+        $report = (object) array_merge($saReport->toArray(), $this->buildPatientData($saReport));
 
         $reportDate = now()->format('d/m/Y');
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('lab-reports.sa-report', compact('report', 'reportDate'))
             ->setOptions([
@@ -84,7 +82,7 @@ class SaReportController extends Controller
                 'defaultFont' => 'DejaVu Sans',
                 'dpi' => 96,
                 'isPhpEnabled' => true,
-            ]);
+            ], true);
 
         return $pdf->stream('sa-report-'.$saReport->id.'-'.now()->format('Y-m-d').'.pdf');
     }
@@ -136,6 +134,8 @@ class SaReportController extends Controller
             $data
         );
 
+        $this->syncPatientFile($report);
+
         return back()->with('success', 'SA report saved.')->with('report_id', $report->id);
     }
 
@@ -181,6 +181,8 @@ class SaReportController extends Controller
         ]);
 
         $saReport->update($data);
+
+        $this->syncPatientFile($saReport);
 
         return back()->with('success', 'SA report updated.');
     }

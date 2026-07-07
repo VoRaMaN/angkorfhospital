@@ -18,12 +18,20 @@ class FetReport extends Model
         'no_of_remaining', 'thawing_by',
         'day3_datetime', 'day3_embryo_1', 'day3_embryo_2', 'day3_embryo_3', 'day3_embryo_4', 'day3_embryo_5',
         'day5_datetime', 'day5_embryo_1', 'day5_embryo_2', 'day5_embryo_3', 'day5_embryo_4', 'day5_embryo_5',
+        'picture_day', 'picture_datetime', 'embryo_pictures',
         'no_of_et', 'et_volume', 'number_of_transfer', 'et_day',
         'et_catheter', 'number_of_freeze_et', 'et_datetime',
         'et_doctor', 'number_of_discard', 'assisted_hatching',
         'et_embryologist', 'embryologist_report', 'embryologist_approve',
         'remark',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'embryo_pictures' => 'array',
+        ];
+    }
 
     public function medicalOrder(): BelongsTo
     {

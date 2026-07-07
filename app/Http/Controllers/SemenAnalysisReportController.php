@@ -11,12 +11,12 @@ use Inertia\Response;
 
 class SemenAnalysisReportController extends Controller
 {
-    public function show(SemenAnalysisReport $semenAnalysisReport): Response
+    private function buildPatientData(SemenAnalysisReport $report): array
     {
-        $semenAnalysisReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
+        $report->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
 
-        $patient = $semenAnalysisReport->patient ?? $semenAnalysisReport->medicalOrder?->patient;
-        $staff = $semenAnalysisReport->medicalOrder?->staff;
+        $patient = $report->patient ?? $report->medicalOrder?->patient;
+        $staff = $report->medicalOrder?->staff;
 
         $dob = null;
         $age = null;
@@ -33,49 +33,47 @@ class SemenAnalysisReportController extends Controller
 
         $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
 
-        return Inertia::render('LabPanel/SemenAnalysisReport', [
-            'report' => array_merge($semenAnalysisReport->toArray(), [
-                'patient_name' => $patientName,
-                'patient_hn' => $patient?->id,
-                'patient_dob' => $dob,
-                'patient_age' => $age,
-                'doctor_name' => $staff?->user?->name,
-            ]),
-        ]);
-    }
-
-    public function generatePdf(SemenAnalysisReport $semenAnalysisReport): \Illuminate\Http\Response
-    {
-        $semenAnalysisReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
-
-        $patient = $semenAnalysisReport->patient ?? $semenAnalysisReport->medicalOrder?->patient;
-        $staff = $semenAnalysisReport->medicalOrder?->staff;
-
-        $dob = null;
-        $age = null;
-        if ($patient) {
-            $d = $patient->date_of_birth_day;
-            $m = $patient->date_of_birth_month;
-            $y = $patient->date_of_birth_year;
-            if ($d && $m && $y) {
-                $dob = str_pad($d, 2, '0', STR_PAD_LEFT).'/'.str_pad($m, 2, '0', STR_PAD_LEFT).'/'.$y;
-                $birth = new \DateTime("{$y}-{$m}-{$d}");
-                $age = (new \DateTime)->diff($birth)->y;
-            }
-        }
-
-        $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
-
-        $report = (object) array_merge($semenAnalysisReport->toArray(), [
+        return [
             'patient_name' => $patientName,
             'patient_hn' => $patient?->id,
             'patient_dob' => $dob,
             'patient_age' => $age,
             'doctor_name' => $staff?->user?->name,
+        ];
+    }
+
+    /**
+     * Store/refresh the semen analysis report PDF in the patient's files.
+     */
+    private function syncPatientFile(SemenAnalysisReport $report): void
+    {
+        $patientData = $this->buildPatientData($report);
+
+        app(\App\Services\LabResultFileService::class)->syncReportPdf(
+            $report->medicalOrder,
+            'lab-reports.semen-analysis-report',
+            [
+                'report' => (object) array_merge($report->toArray(), $patientData),
+                'reportDate' => now()->format('d/m/Y'),
+            ],
+            'Semen Analysis Report - Order '.$report->medical_order_id.'.pdf'
+        );
+    }
+
+    public function show(SemenAnalysisReport $semenAnalysisReport): Response
+    {
+        return Inertia::render('LabPanel/SemenAnalysisReport', [
+            'report' => array_merge($semenAnalysisReport->toArray(), $this->buildPatientData($semenAnalysisReport)),
         ]);
+    }
+
+    public function generatePdf(SemenAnalysisReport $semenAnalysisReport): \Illuminate\Http\Response
+    {
+        $report = (object) array_merge($semenAnalysisReport->toArray(), $this->buildPatientData($semenAnalysisReport));
 
         $reportDate = now()->format('d/m/Y');
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('lab-reports.semen-analysis-report', compact('report', 'reportDate'))
             ->setOptions([
@@ -84,7 +82,7 @@ class SemenAnalysisReportController extends Controller
                 'defaultFont' => 'DejaVu Sans',
                 'dpi' => 96,
                 'isPhpEnabled' => true,
-            ]);
+            ], true);
 
         return $pdf->stream('semen-analysis-report-'.$semenAnalysisReport->id.'-'.now()->format('Y-m-d').'.pdf');
     }
@@ -137,6 +135,8 @@ class SemenAnalysisReportController extends Controller
             $data
         );
 
+        $this->syncPatientFile($report);
+
         return back()->with('success', 'Semen analysis report saved.')->with('report_id', $report->id);
     }
 
@@ -183,6 +183,8 @@ class SemenAnalysisReportController extends Controller
         ]);
 
         $semenAnalysisReport->update($data);
+
+        $this->syncPatientFile($semenAnalysisReport);
 
         return back()->with('success', 'Semen analysis report updated.');
     }

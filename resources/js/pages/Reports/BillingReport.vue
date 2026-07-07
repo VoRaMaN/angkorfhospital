@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { Calendar, Download, FileText, TrendingUp } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { index as billingReportIndex, exportMethod as billingReportExport } from '@/routes/billing-report';
 
 interface Billing {
@@ -80,18 +81,93 @@ const exportReport = () => {
             start_date: startDate.value,
             end_date: endDate.value,
             group_by: groupBy.value,
+            ...(effectiveStatus.value !== 'all' ? { status: effectiveStatus.value } : {}),
         },
     }).url, '_blank');
 };
 
-const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
+
+const getStatusColor = (status: string): BadgeVariant => {
+    const colors: Record<string, BadgeVariant> = {
         paid: 'default',
         pending: 'secondary',
         overdue: 'destructive',
     };
     return colors[status] || 'secondary';
 };
+
+const statusLabels: Record<string, string> = {
+    paid: 'Paid',
+    pending: 'Pending',
+    overdue: 'Overdue',
+    partial: 'Partial',
+    written_off: 'Written Off',
+    cancelled: 'Cancelled',
+    revision: 'Revision',
+    revised: 'Revised',
+    sent_to_account: 'Sent to Account',
+};
+
+const statusOrder = ['paid', 'pending', 'overdue', 'partial', 'written_off', 'cancelled', 'revision', 'revised', 'sent_to_account'];
+
+const activeStatus = ref('all');
+
+const statusTabs = computed(() => {
+    const counts: Record<string, number> = {};
+    let total = 0;
+    for (const patient of props.billingData) {
+        for (const billing of patient.billings) {
+            counts[billing.status] = (counts[billing.status] || 0) + 1;
+            total++;
+        }
+    }
+    const tabs = [{ value: 'all', label: `All (${total})` }];
+    for (const status of statusOrder) {
+        if (counts[status]) {
+            tabs.push({ value: status, label: `${statusLabels[status] ?? status} (${counts[status]})` });
+        }
+    }
+    return tabs;
+});
+
+// Fall back to "all" if the selected status vanished after a new report was generated
+const effectiveStatus = computed(() =>
+    statusTabs.value.some((t) => t.value === activeStatus.value) ? activeStatus.value : 'all',
+);
+
+const filteredBillingData = computed(() => {
+    if (effectiveStatus.value === 'all') {
+        return props.billingData;
+    }
+    return props.billingData
+        .map((patient) => {
+            const billings = patient.billings.filter((b) => b.status === effectiveStatus.value);
+            return {
+                ...patient,
+                billings,
+                bill_count: billings.length,
+                total_amount: billings.reduce((sum, b) => sum + b.amount, 0),
+            };
+        })
+        .filter((patient) => patient.billings.length > 0);
+});
+
+// Summary cards follow the active tab: on "Paid" only paid money/counts, etc.
+const displaySummary = computed<Summary>(() => {
+    if (effectiveStatus.value === 'all') {
+        return props.summary;
+    }
+    const bills = filteredBillingData.value.flatMap((patient) => patient.billings);
+    const revenue = bills.reduce((sum, b) => sum + b.amount, 0);
+    return {
+        total_revenue: revenue,
+        total_bills: bills.length,
+        average_bill: bills.length ? revenue / bills.length : 0,
+        paid_count: bills.filter((b) => b.status === 'paid').length,
+        unpaid_count: bills.filter((b) => ['pending', 'overdue'].includes(b.status)).length,
+    };
+});
 </script>
 
 <template>
@@ -169,39 +245,57 @@ const getStatusColor = (status: string) => {
                 <Card>
                     <CardHeader class="pb-2">
                         <CardDescription>Total Revenue</CardDescription>
-                        <CardTitle class="text-2xl">${{ summary.total_revenue.toFixed(2) }}</CardTitle>
+                        <CardTitle class="text-2xl">${{ displaySummary.total_revenue.toFixed(2) }}</CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader class="pb-2">
                         <CardDescription>Total Bills</CardDescription>
-                        <CardTitle class="text-2xl">{{ summary.total_bills }}</CardTitle>
+                        <CardTitle class="text-2xl">{{ displaySummary.total_bills }}</CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader class="pb-2">
                         <CardDescription>Average Bill</CardDescription>
-                        <CardTitle class="text-2xl">${{ summary.average_bill.toFixed(2) }}</CardTitle>
+                        <CardTitle class="text-2xl">${{ displaySummary.average_bill.toFixed(2) }}</CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader class="pb-2">
                         <CardDescription>Paid Bills</CardDescription>
-                        <CardTitle class="text-2xl text-green-600">{{ summary.paid_count }}</CardTitle>
+                        <CardTitle class="text-2xl text-green-600">{{ displaySummary.paid_count }}</CardTitle>
                     </CardHeader>
                 </Card>
                 <Card>
                     <CardHeader class="pb-2">
                         <CardDescription>Unpaid Bills</CardDescription>
-                        <CardTitle class="text-2xl text-red-600">{{ summary.unpaid_count }}</CardTitle>
+                        <CardTitle class="text-2xl text-red-600">{{ displaySummary.unpaid_count }}</CardTitle>
                     </CardHeader>
                 </Card>
             </div>
 
             <!-- Results -->
             <div v-if="billingData.length > 0" class="space-y-6">
+                <!-- Status Tabs -->
+                <Tabs v-model="activeStatus">
+                    <TabsList>
+                        <TabsTrigger v-for="tab in statusTabs" :key="tab.value" :value="tab.value">
+                            {{ tab.label }}
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+
+                <!-- No bills for selected status -->
+                <Card v-if="filteredBillingData.length === 0">
+                    <CardContent class="flex flex-col items-center justify-center py-12">
+                        <TrendingUp class="size-12 text-muted-foreground" />
+                        <p class="mt-4 text-lg font-medium">No bills with this status</p>
+                        <p class="text-sm text-muted-foreground">Select another tab to see results</p>
+                    </CardContent>
+                </Card>
+
                 <!-- Patient Groups -->
-                <Card v-for="patient in billingData" :key="patient.patient_id">
+                <Card v-for="patient in filteredBillingData" :key="patient.patient_id">
                     <CardHeader>
                         <div class="flex items-center justify-between">
                             <div>

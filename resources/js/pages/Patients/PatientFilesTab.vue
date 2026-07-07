@@ -70,6 +70,34 @@ const labOrders = computed(() => {
         .sort((a, b) => (b.ordered_at || '').localeCompare(a.ordered_at || ''));
 });
 
+// Section order and labels for the grouped files list. Lab files come first
+// so lab results generated from the LabPanel workflow have their own section.
+const FILE_TYPE_SECTIONS: Array<{ type: string; label: string }> = [
+    { type: 'lab_result', label: 'Lab Files' },
+    { type: 'medical_record', label: 'Medical Records' },
+    { type: 'insurance', label: 'Insurance Documents' },
+    { type: 'identification', label: 'Identification' },
+    { type: 'consent_form', label: 'Consent Forms' },
+    { type: 'discharge_summary', label: 'Discharge Summaries' },
+];
+
+const fileGroups = computed(() => {
+    const files = props.patient.patient_files || [];
+    const groups = FILE_TYPE_SECTIONS.map(({ type, label }) => ({
+        type,
+        label,
+        files: files.filter((f) => f.type === type),
+    })).filter((g) => g.files.length > 0);
+
+    const knownTypes = new Set(FILE_TYPE_SECTIONS.map((s) => s.type));
+    const other = files.filter((f) => !knownTypes.has(f.type));
+    if (other.length > 0) {
+        groups.push({ type: 'other', label: 'Other Documents', files: other });
+    }
+
+    return groups;
+});
+
 const submitForm = () => {
     if (!form.file) {
         form.setError('file', 'Please select a file');
@@ -191,95 +219,91 @@ function deleteFile(id: number) {
             </div>
         </div>
 
-        <!-- Files List -->
+        <!-- Files List (grouped by type, lab files first) -->
         <div v-if="hasPermission('view_files')" class="rounded-lg border bg-card p-6">
             <h3 class="mb-4 text-lg font-medium">Patient Files</h3>
-            <div class="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>File Name</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Uploaded</TableHead>
-                            <TableHead>Lab Order</TableHead>
-                            <TableHead>Size</TableHead>
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow
-                            v-for="item in props.patient.patient_files"
-                            :key="item.id"
-                        >
-                            <TableCell>{{ item.file.name }}</TableCell>
-                            <TableCell>{{ item.type }}</TableCell>
-                            <TableCell>{{ formatDateTime(item.created_at) }}</TableCell>
-                            <TableCell>
-                                <template v-if="item.medical_order_id">
-                                    <a
-                                        :href="`/medical-orders/${item.medical_order_id}`"
-                                        class="text-blue-600 hover:underline"
-                                    >
-                                        Order #{{ item.medical_order_id }}
-                                    </a>
-                                </template>
-                                <template v-else>
-                                    —
-                                </template>
-                            </TableCell>
-                            <TableCell>{{ item.file.size }}</TableCell>
-                            <TableCell>
-                                <div class="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <a
-                                            :href="`${show(item.id).url}?inline=1`"
-                                            target="_blank"
-                                        >
-                                            <Eye class="size-4" />
-                                        </a>
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <a
-                                            :href="show(item.id).url"
-                                            target="_blank"
-                                        >
-                                            <Download class="size-4" />
-                                        </a>
-                                    </Button>
-                                    <Button
-                                        v-if="hasPermission('delete_patient_files')"
-                                        variant="destructive"
-                                        size="sm"
-                                        @click.prevent="deleteFile(item.id)"
-                                    >
-                                        <Trash2 class="size-4" />
-                                    </Button>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow
-                            v-if="
-                                !props.patient.patient_files ||
-                                props.patient.patient_files.length === 0
-                            "
-                        >
-                            <TableCell
-                                colspan="4"
-                                class="text-center text-muted-foreground"
+
+            <div v-if="fileGroups.length === 0" class="rounded-md border p-6 text-center text-muted-foreground">
+                No files uploaded yet
+            </div>
+
+            <div v-for="group in fileGroups" :key="group.type" class="mb-6 last:mb-0">
+                <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                    {{ group.label }}
+                    <span class="ml-1 font-normal">({{ group.files.length }})</span>
+                </h4>
+                <div class="rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>File Name</TableHead>
+                                <TableHead>Uploaded</TableHead>
+                                <TableHead>Lab Order</TableHead>
+                                <TableHead>Size</TableHead>
+                                <TableHead>Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow
+                                v-for="item in group.files"
+                                :key="item.id"
                             >
-                                No files uploaded yet
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
+                                <TableCell>{{ item.file.name }}</TableCell>
+                                <TableCell>{{ formatDateTime(item.created_at) }}</TableCell>
+                                <TableCell>
+                                    <template v-if="item.medical_order_id">
+                                        <a
+                                            :href="`/medical-orders/${item.medical_order_id}`"
+                                            class="text-blue-600 hover:underline"
+                                        >
+                                            Order #{{ item.medical_order_id }}
+                                        </a>
+                                    </template>
+                                    <template v-else>
+                                        —
+                                    </template>
+                                </TableCell>
+                                <TableCell>{{ item.file.size }}</TableCell>
+                                <TableCell>
+                                    <div class="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            as-child
+                                        >
+                                            <a
+                                                :href="`${show(item.id).url}?inline=1`"
+                                                target="_blank"
+                                            >
+                                                <Eye class="size-4" />
+                                            </a>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            as-child
+                                        >
+                                            <a
+                                                :href="show(item.id).url"
+                                                target="_blank"
+                                            >
+                                                <Download class="size-4" />
+                                            </a>
+                                        </Button>
+                                        <Button
+                                            v-if="hasPermission('delete_patient_files')"
+                                            variant="destructive"
+                                            size="sm"
+                                            @click.prevent="deleteFile(item.id)"
+                                        >
+                                            <Trash2 class="size-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         </div>
 

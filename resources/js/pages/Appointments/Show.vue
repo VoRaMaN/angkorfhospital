@@ -14,10 +14,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { formatDateTime } from '@/lib/utils';
 import { updateStatus as updateStatusRoute } from '@/routes/appointments';
 import { report as reportRoute } from '@/routes/appointments';
+import { convertToVisit as convertToVisitRoute } from '@/routes/appointments';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Download } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ArrowLeft, Edit, Download, CalendarPlus } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Props {
     appointment: {
@@ -40,6 +41,8 @@ interface Props {
         opu_time?: string | null;
         et_fet_time?: string | null;
         is_beta_hcg?: boolean;
+        has_visit?: boolean;
+        visit_id?: number | null;
         created_at: string;
         updated_at: string;
     };
@@ -90,6 +93,49 @@ const cancelStatusUpdate = () => {
     confirmModalOpen.value = false;
     selectedNewStatus.value = '';
 };
+
+const canConvertToVisit = computed(() =>
+    !props.appointment.has_visit &&
+    ['confirmed', 'arrived', 'in_progress'].includes(props.appointment.status),
+);
+
+const convertingToVisit = ref(false);
+
+const convertToVisit = () => {
+    convertingToVisit.value = true;
+    router.post(
+        convertToVisitRoute(props.appointment.id).url,
+        {},
+        {
+            onFinish: () => {
+                convertingToVisit.value = false;
+            },
+        },
+    );
+};
+
+// Builds the same "objective" summary as Appointments/Index.vue's getObjective(),
+// so the Type badge reflects the actual IVF monitoring flags (TVS, Hormone Test,
+// Beta hCG, OPU, ET/FET) instead of a stale/default appointment_type value like
+// "consultation" when those flags are what the appointment is really for.
+const objective = computed(() => {
+    const parts: string[] = [];
+    if (props.appointment.is_tvs) parts.push('TVS');
+    if (props.appointment.is_hormone_test) parts.push('Hormone Test');
+    if (props.appointment.is_beta_hcg) parts.push('Beta HCG');
+    if (props.appointment.opu_time) parts.push('OPU');
+    if (props.appointment.et_fet_time) parts.push('ET/FET');
+    if (props.appointment.appointment_type && props.appointment.appointment_type !== 'consultation') {
+        parts.push(
+            props.appointment.appointment_type.charAt(0).toUpperCase() +
+                props.appointment.appointment_type.slice(1).replace('_', ' '),
+        );
+    }
+    if (parts.length === 0) {
+        return props.appointment.appointment_type?.replace('_', ' ') || 'Consultation';
+    }
+    return parts.join(', ');
+});
 
 // Helper functions for colors
 const getStatusColor = (status: string) => {
@@ -239,6 +285,26 @@ const getTypeColor = (type: string) => {
                             Download Report
                         </a>
                     </Button>
+                    <Button
+                        v-if="hasPermission('create_visits') && canConvertToVisit"
+                        variant="default"
+                        size="sm"
+                        :disabled="convertingToVisit"
+                        @click="convertToVisit"
+                    >
+                        <CalendarPlus class="size-4" />
+                        Convert to Visit
+                    </Button>
+                    <Button
+                        v-else-if="hasPermission('create_visits') && props.appointment.has_visit"
+                        variant="outline"
+                        as-child
+                    >
+                        <Link :href="`/visits/${props.appointment.visit_id}`">
+                            <CalendarPlus class="size-4" />
+                            View Visit
+                        </Link>
+                    </Button>
                 </div>
             </div>
 
@@ -330,12 +396,7 @@ const getTypeColor = (type: string) => {
                                         )
                                     "
                                 >
-                                    {{
-                                        props.appointment.appointment_type.replace(
-                                            '_',
-                                            ' ',
-                                        )
-                                    }}
+                                    {{ objective }}
                                 </Badge>
                             </dd>
                         </div>

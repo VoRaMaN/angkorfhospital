@@ -141,7 +141,7 @@ class PatientSeeder extends Seeder
                 $user = User::create($patientData['user']);
 
                 // Assign patient role to user
-                $user->assignRole('Patient');
+                $user->assignRole('patient');
             }
 
             // Check if patient record already exists

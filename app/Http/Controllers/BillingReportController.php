@@ -55,7 +55,7 @@ class BillingReportController extends Controller
                                 'id' => $billing->id,
                                 'bill_no' => $billing->bill_no,
                                 'billing_date' => $billing->billing_date->format('d/m/y'),
-                                'amount' => $billing->amount,
+                                'amount' => (float) $billing->amount,
                                 'status' => $billing->status,
                                 'payment_method' => $billing->payment_method ?? 'N/A',
                             ];
@@ -81,14 +81,17 @@ class BillingReportController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'group_by' => 'required|in:year,month,day',
+            'status' => 'nullable|string|in:'.implode(',', array_column(\App\Enums\BillingStatusEnum::cases(), 'value')),
         ]);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $groupBy = $request->input('group_by');
+        $status = $request->input('status');
 
         $billings = Billing::with(['patient.user'])
             ->whereBetween('billing_date', [$startDate, $endDate])
+            ->when($status, fn ($query) => $query->where('status', $status))
             ->orderBy('billing_date', 'asc')
             ->get();
 
@@ -97,7 +100,7 @@ class BillingReportController extends Controller
             $rows = $billings->map(fn ($billing) => [
                 $billing->billing_date->format('d/m/y'),
                 $billing->bill_no,
-                $billing->patient?->user?->name ?? 'Unknown',
+                $billing->patient?->full_name ?: 'Unknown',
                 number_format($billing->amount, 2),
                 $billing->status instanceof \BackedEnum ? $billing->status->value : $billing->status,
                 $billing->payment_method ?? 'N/A',
@@ -109,7 +112,7 @@ class BillingReportController extends Controller
             foreach ($grouped as $key => $group) {
                 $yearMonth = explode('_', $key)[0];
                 $patient = $group->first()->patient;
-                $rows[] = [$yearMonth, $patient?->user?->name ?? 'Unknown', $group->count(), number_format($group->sum('amount'), 2)];
+                $rows[] = [$yearMonth, $patient?->full_name ?: 'Unknown', $group->count(), number_format($group->sum('amount'), 2)];
             }
         } else {
             $headers = ['Year', 'Patient Name', 'Total Bills', 'Total Amount'];
@@ -118,11 +121,11 @@ class BillingReportController extends Controller
             foreach ($grouped as $key => $group) {
                 $year = explode('_', $key)[0];
                 $patient = $group->first()->patient;
-                $rows[] = [$year, $patient?->user?->name ?? 'Unknown', $group->count(), number_format($group->sum('amount'), 2)];
+                $rows[] = [$year, $patient?->full_name ?: 'Unknown', $group->count(), number_format($group->sum('amount'), 2)];
             }
         }
 
-        $filename = 'billing_report_'.$startDate.'_to_'.$endDate.'.csv';
+        $filename = 'billing_report_'.($status ? $status.'_' : '').$startDate.'_to_'.$endDate.'.csv';
 
         return $this->renderExportHtml('Billing Report Export', $headers, $rows, $this->buildCsvString($headers, $rows), $filename);
     }

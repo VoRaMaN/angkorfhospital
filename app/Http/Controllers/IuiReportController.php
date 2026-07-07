@@ -11,12 +11,12 @@ use Inertia\Response;
 
 class IuiReportController extends Controller
 {
-    public function show(IuiReport $iuiReport): Response
+    private function buildPatientData(IuiReport $report): array
     {
-        $iuiReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
+        $report->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
 
-        $patient = $iuiReport->patient ?? $iuiReport->medicalOrder?->patient;
-        $staff = $iuiReport->medicalOrder?->staff;
+        $patient = $report->patient ?? $report->medicalOrder?->patient;
+        $staff = $report->medicalOrder?->staff;
 
         $dob = null;
         $age = null;
@@ -33,49 +33,47 @@ class IuiReportController extends Controller
 
         $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
 
-        return Inertia::render('LabPanel/IuiReport', [
-            'report' => array_merge($iuiReport->toArray(), [
-                'patient_name' => $patientName,
-                'patient_hn' => $patient?->id,
-                'patient_dob' => $dob,
-                'patient_age' => $age,
-                'doctor_name' => $staff?->user?->name,
-            ]),
-        ]);
-    }
-
-    public function generatePdf(IuiReport $iuiReport): \Illuminate\Http\Response
-    {
-        $iuiReport->load(['patient', 'medicalOrder.patient', 'medicalOrder.staff.user']);
-
-        $patient = $iuiReport->patient ?? $iuiReport->medicalOrder?->patient;
-        $staff = $iuiReport->medicalOrder?->staff;
-
-        $dob = null;
-        $age = null;
-        if ($patient) {
-            $d = $patient->date_of_birth_day;
-            $m = $patient->date_of_birth_month;
-            $y = $patient->date_of_birth_year;
-            if ($d && $m && $y) {
-                $dob = str_pad($d, 2, '0', STR_PAD_LEFT).'/'.str_pad($m, 2, '0', STR_PAD_LEFT).'/'.$y;
-                $birth = new \DateTime("{$y}-{$m}-{$d}");
-                $age = (new \DateTime)->diff($birth)->y;
-            }
-        }
-
-        $patientName = $patient ? trim(($patient->title ? $patient->title.' ' : '').($patient->name ?? '').($patient->surname ? ' '.$patient->surname : '')) : null;
-
-        $report = (object) array_merge($iuiReport->toArray(), [
+        return [
             'patient_name' => $patientName,
             'patient_hn' => $patient?->id,
             'patient_dob' => $dob,
             'patient_age' => $age,
             'doctor_name' => $staff?->user?->name,
+        ];
+    }
+
+    /**
+     * Store/refresh the IUI report PDF in the patient's files.
+     */
+    private function syncPatientFile(IuiReport $report): void
+    {
+        $patientData = $this->buildPatientData($report);
+
+        app(\App\Services\LabResultFileService::class)->syncReportPdf(
+            $report->medicalOrder,
+            'lab-reports.iui-report',
+            [
+                'report' => (object) array_merge($report->toArray(), $patientData),
+                'reportDate' => now()->format('d/m/Y'),
+            ],
+            'IUI Report - Order '.$report->medical_order_id.'.pdf'
+        );
+    }
+
+    public function show(IuiReport $iuiReport): Response
+    {
+        return Inertia::render('LabPanel/IuiReport', [
+            'report' => array_merge($iuiReport->toArray(), $this->buildPatientData($iuiReport)),
         ]);
+    }
+
+    public function generatePdf(IuiReport $iuiReport): \Illuminate\Http\Response
+    {
+        $report = (object) array_merge($iuiReport->toArray(), $this->buildPatientData($iuiReport));
 
         $reportDate = now()->format('d/m/Y');
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('lab-reports.iui-report', compact('report', 'reportDate'))
             ->setOptions([
@@ -84,7 +82,7 @@ class IuiReportController extends Controller
                 'defaultFont' => 'DejaVu Sans',
                 'dpi' => 96,
                 'isPhpEnabled' => true,
-            ]);
+            ], true);
 
         return $pdf->stream('iui-report-'.$iuiReport->id.'-'.now()->format('Y-m-d').'.pdf');
     }
@@ -98,12 +96,16 @@ class IuiReportController extends Controller
             $data
         );
 
+        $this->syncPatientFile($report);
+
         return back()->with('success', 'IUI report saved.')->with('report_id', $report->id);
     }
 
     public function update(Request $request, IuiReport $iuiReport): RedirectResponse
     {
         $iuiReport->update($this->validated($request));
+
+        $this->syncPatientFile($iuiReport);
 
         return back()->with('success', 'IUI report updated.');
     }

@@ -37,6 +37,7 @@ class OpuReportController extends Controller
             ? $opuReport->created_at->format('d/m/Y')
             : now()->format('d/m/Y');
 
+        ini_set('memory_limit', '512M');
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('lab-reports.opu-report', compact('report', 'reportDate'))
             ->setOptions([
@@ -45,7 +46,7 @@ class OpuReportController extends Controller
                 'defaultFont' => 'DejaVu Sans',
                 'dpi' => 96,
                 'isPhpEnabled' => true,
-            ]);
+            ], true);
 
         return $pdf->stream('opu-report-'.$medicalOrderId.'-'.now()->format('Y-m-d').'.pdf');
     }
@@ -110,14 +111,12 @@ class OpuReportController extends Controller
             'freeze_position' => 'nullable|string',
             'freeze_method' => 'nullable|string',
             'freeze_media' => 'nullable|string',
-            'day3_datetime' => 'nullable|date',
-            'day3_checked_by' => 'nullable|string',
-            'day3_embryos' => 'nullable|array',
-            'day3_embryos.*' => 'nullable|string',
-            'day5_datetime' => 'nullable|date',
-            'day5_checked_by' => 'nullable|string',
-            'day5_embryos' => 'nullable|array',
-            'day5_embryos.*' => 'nullable|string',
+            'embryo_developments' => 'nullable|array',
+            'embryo_developments.*.day' => 'required|integer|min:1|max:99',
+            'embryo_developments.*.datetime' => 'nullable|date',
+            'embryo_developments.*.checked_by' => 'nullable|string',
+            'embryo_developments.*.embryos' => 'nullable|array|max:20',
+            'embryo_developments.*.embryos.*' => 'nullable|string',
             'et_no' => 'nullable|integer',
             'et_day' => 'nullable|string',
             'et_datetime' => 'nullable|date',
@@ -138,6 +137,8 @@ class OpuReportController extends Controller
             ['medical_order_id' => $data['medical_order_id']],
             $data
         );
+
+        $this->syncPatientFile($report);
 
         return back()->with('success', 'OPU Report saved successfully.')->with('report_id', $report->id);
     }
@@ -185,14 +186,12 @@ class OpuReportController extends Controller
             'freeze_position' => 'nullable|string',
             'freeze_method' => 'nullable|string',
             'freeze_media' => 'nullable|string',
-            'day3_datetime' => 'nullable|date',
-            'day3_checked_by' => 'nullable|string',
-            'day3_embryos' => 'nullable|array',
-            'day3_embryos.*' => 'nullable|string',
-            'day5_datetime' => 'nullable|date',
-            'day5_checked_by' => 'nullable|string',
-            'day5_embryos' => 'nullable|array',
-            'day5_embryos.*' => 'nullable|string',
+            'embryo_developments' => 'nullable|array',
+            'embryo_developments.*.day' => 'required|integer|min:1|max:99',
+            'embryo_developments.*.datetime' => 'nullable|date',
+            'embryo_developments.*.checked_by' => 'nullable|string',
+            'embryo_developments.*.embryos' => 'nullable|array|max:20',
+            'embryo_developments.*.embryos.*' => 'nullable|string',
             'et_no' => 'nullable|integer',
             'et_day' => 'nullable|string',
             'et_datetime' => 'nullable|date',
@@ -210,6 +209,8 @@ class OpuReportController extends Controller
         ]);
 
         $opuReport->update($data);
+
+        $this->syncPatientFile($opuReport);
 
         return back()->with('success', 'OPU Report updated successfully.');
     }
@@ -247,6 +248,25 @@ class OpuReportController extends Controller
             ]);
 
         return response()->json($patients);
+    }
+
+    /**
+     * Store/refresh the OPU report PDF in the patient's files.
+     */
+    private function syncPatientFile(OpuReport $report): void
+    {
+        $report->loadMissing(['femalePatient', 'malePatient', 'doctor.user', 'medicalOrder.patient']);
+
+        $reportDate = $report->created_at
+            ? $report->created_at->format('d/m/Y')
+            : now()->format('d/m/Y');
+
+        app(\App\Services\LabResultFileService::class)->syncReportPdf(
+            $report->medicalOrder,
+            'lab-reports.opu-report',
+            ['report' => $this->formatReport($report), 'reportDate' => $reportDate],
+            'OPU Report - Order '.$report->medical_order_id.'.pdf'
+        );
     }
 
     private function formatReport(OpuReport $report): array
@@ -302,12 +322,7 @@ class OpuReportController extends Controller
             'freeze_position' => $report->freeze_position,
             'freeze_method' => $report->freeze_method,
             'freeze_media' => $report->freeze_media,
-            'day3_datetime' => $report->day3_datetime?->format('Y-m-d\TH:i'),
-            'day3_checked_by' => $report->day3_checked_by,
-            'day3_embryos' => $report->day3_embryos ?? array_fill(0, 20, null),
-            'day5_datetime' => $report->day5_datetime?->format('Y-m-d\TH:i'),
-            'day5_checked_by' => $report->day5_checked_by,
-            'day5_embryos' => $report->day5_embryos ?? array_fill(0, 20, null),
+            'embryo_developments' => $this->formatEmbryoDevelopments($report),
             'et_no' => $report->et_no,
             'et_day' => $report->et_day,
             'et_datetime' => $report->et_datetime?->format('Y-m-d\TH:i'),
@@ -323,5 +338,52 @@ class OpuReportController extends Controller
             'embryologist_report' => $report->embryologist_report,
             'embryologist_approve' => $report->embryologist_approve,
         ];
+    }
+
+    /**
+     * Normalize embryo development sections: pad embryos to 20 slots, fall
+     * back to converting the legacy fixed day3/day5 columns, and default
+     * to a single empty Day 1 section so the form always has one to show.
+     *
+     * @return array<int, array{day: int, datetime: ?string, checked_by: ?string, embryos: array<int, ?string>}>
+     */
+    private function formatEmbryoDevelopments(OpuReport $report): array
+    {
+        $sections = $report->embryo_developments;
+
+        if (empty($sections)) {
+            $sections = [];
+            foreach ([3 => 'day3', 5 => 'day5'] as $day => $prefix) {
+                $embryos = $report->{$prefix.'_embryos'} ?? [];
+                if ($report->{$prefix.'_datetime'} || $report->{$prefix.'_checked_by'} || array_filter($embryos)) {
+                    $sections[] = [
+                        'day' => $day,
+                        'datetime' => $report->{$prefix.'_datetime'}?->format('Y-m-d\TH:i'),
+                        'checked_by' => $report->{$prefix.'_checked_by'},
+                        'embryos' => $embryos,
+                    ];
+                }
+            }
+        }
+
+        if (empty($sections)) {
+            $sections = [['day' => 1, 'datetime' => null, 'checked_by' => null, 'embryos' => []]];
+        }
+
+        return array_values(array_map(function ($section) {
+            $embryos = array_values((array) ($section['embryos'] ?? []));
+
+            $datetime = $section['datetime'] ?? null;
+            if ($datetime) {
+                $datetime = rescue(fn () => \Illuminate\Support\Carbon::parse($datetime)->format('Y-m-d\TH:i'), null, false);
+            }
+
+            return [
+                'day' => (int) ($section['day'] ?? 1),
+                'datetime' => $datetime,
+                'checked_by' => $section['checked_by'] ?? null,
+                'embryos' => array_pad(array_slice($embryos, 0, 20), 20, null),
+            ];
+        }, $sections));
     }
 }

@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
 export const show = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
 show.url = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ show.url = (args: { staff: number | { id: number } } | [staff: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
 show.get = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ show.get = (args: { staff: number | { id: number } } | [staff: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
 show.head = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ show.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
 
     /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
     const showForm = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ show.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
 
             /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
         showForm.get = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ show.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
         })
             /**
 * @see \App\Http\Controllers\StaffController::show
- * @see app/Http/Controllers/StaffController.php:121
+ * @see app/Http/Controllers/StaffController.php:119
  * @route '/staff/{staff}'
  */
         showForm.head = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ show.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
     show.form = showForm
 /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
 export const edit = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -329,7 +329,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
 edit.url = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ edit.url = (args: { staff: number | { id: number } } | [staff: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
 edit.get = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -371,7 +371,7 @@ edit.get = (args: { staff: number | { id: number } } | [staff: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
 edit.head = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -381,7 +381,7 @@ edit.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
 
     /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
     const editForm = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -391,7 +391,7 @@ edit.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
 
             /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
         editForm.get = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,7 +400,7 @@ edit.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
         })
             /**
 * @see \App\Http\Controllers\StaffController::edit
- * @see app/Http/Controllers/StaffController.php:150
+ * @see app/Http/Controllers/StaffController.php:148
  * @route '/staff/{staff}/edit'
  */
         editForm.head = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -416,7 +416,7 @@ edit.head = (args: { staff: number | { id: number } } | [staff: number | { id: n
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
 export const update = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -431,7 +431,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
 update.url = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -464,7 +464,7 @@ update.url = (args: { staff: number | { id: number } } | [staff: number | { id: 
 
 /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
 update.put = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -473,7 +473,7 @@ update.put = (args: { staff: number | { id: number } } | [staff: number | { id: 
 })
 /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
 update.patch = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -483,7 +483,7 @@ update.patch = (args: { staff: number | { id: number } } | [staff: number | { id
 
     /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
     const updateForm = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -498,7 +498,7 @@ update.patch = (args: { staff: number | { id: number } } | [staff: number | { id
 
             /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
         updateForm.put = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -512,7 +512,7 @@ update.patch = (args: { staff: number | { id: number } } | [staff: number | { id
         })
             /**
 * @see \App\Http\Controllers\StaffController::update
- * @see app/Http/Controllers/StaffController.php:179
+ * @see app/Http/Controllers/StaffController.php:177
  * @route '/staff/{staff}'
  */
         updateForm.patch = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -528,7 +528,7 @@ update.patch = (args: { staff: number | { id: number } } | [staff: number | { id
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:220
+ * @see app/Http/Controllers/StaffController.php:218
  * @route '/staff/{staff}'
  */
 export const destroy = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -543,7 +543,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:220
+ * @see app/Http/Controllers/StaffController.php:218
  * @route '/staff/{staff}'
  */
 destroy.url = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -576,7 +576,7 @@ destroy.url = (args: { staff: number | { id: number } } | [staff: number | { id:
 
 /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:220
+ * @see app/Http/Controllers/StaffController.php:218
  * @route '/staff/{staff}'
  */
 destroy.delete = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -586,7 +586,7 @@ destroy.delete = (args: { staff: number | { id: number } } | [staff: number | { 
 
     /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:220
+ * @see app/Http/Controllers/StaffController.php:218
  * @route '/staff/{staff}'
  */
     const destroyForm = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -601,7 +601,7 @@ destroy.delete = (args: { staff: number | { id: number } } | [staff: number | { 
 
             /**
 * @see \App\Http\Controllers\StaffController::destroy
- * @see app/Http/Controllers/StaffController.php:220
+ * @see app/Http/Controllers/StaffController.php:218
  * @route '/staff/{staff}'
  */
         destroyForm.delete = (args: { staff: number | { id: number } } | [staff: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
