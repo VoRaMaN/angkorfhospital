@@ -13,5 +13,5 @@ defineProps<Props>();
 </script>
 
 <template>
-    <img src="/images/logo.svg" alt="" />
+    <img src="/images/logo.png" alt="Angkor-F Hospital" class="object-contain" v-bind="$attrs" />
 </template>
