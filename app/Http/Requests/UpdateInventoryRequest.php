@@ -15,6 +15,22 @@ class UpdateInventoryRequest extends FormRequest
     }
 
     /**
+     * The form offers Plastic Ware / Culture Medium as supply types, but they
+     * are stored as lab_supply plus a category (how the sidebar pages filter).
+     */
+    protected function prepareForValidation(): void
+    {
+        $labCategories = \App\Http\Controllers\InventoryController::LAB_CATEGORY_TYPES;
+
+        if (isset($labCategories[$this->type_of_supply])) {
+            $this->merge([
+                'category' => $labCategories[$this->type_of_supply],
+                'type_of_supply' => \App\Enums\SupplyTypeEnum::LAB_SUPPLY->value,
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>

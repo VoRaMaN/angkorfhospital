@@ -64,12 +64,28 @@ class InventoryController extends Controller
         ]);
     }
 
+    /**
+     * Dropdown options for the create/edit forms. Plastic Ware and Culture
+     * Medium are not real enum types — they are stored as lab_supply plus a
+     * category (see plasticWare()/cultureMedium() pages); the form requests
+     * map these pseudo-values back to that shape on submit.
+     */
+    public const LAB_CATEGORY_TYPES = [
+        'plastic_ware' => 'Plastic Ware',
+        'culture_medium' => 'Culture Medium',
+    ];
+
+    private function formTypesOfSupply(): array
+    {
+        return array_merge(\App\Enums\SupplyTypeEnum::options(), self::LAB_CATEGORY_TYPES);
+    }
+
     public function create(): Response
     {
         $this->authorize('create', Inventory::class);
 
         return Inertia::render('Inventories/Create', [
-            'typesOfSupply' => \App\Enums\SupplyTypeEnum::options(),
+            'typesOfSupply' => $this->formTypesOfSupply(),
         ]);
     }
 
@@ -94,9 +110,17 @@ class InventoryController extends Controller
     {
         $this->authorize('update', $inventory);
 
+        // Show lab_supply items categorized as Plastic Ware / Culture Medium
+        // under their pseudo type so the dropdown round-trips.
+        $item = $inventory->toArray();
+        $pseudo = array_search($inventory->category, self::LAB_CATEGORY_TYPES, true);
+        if ($inventory->type_of_supply === \App\Enums\SupplyTypeEnum::LAB_SUPPLY && $pseudo !== false) {
+            $item['type_of_supply'] = $pseudo;
+        }
+
         return Inertia::render('Inventories/Edit', [
-            'item' => $inventory,
-            'typesOfSupply' => \App\Enums\SupplyTypeEnum::options(),
+            'item' => $item,
+            'typesOfSupply' => $this->formTypesOfSupply(),
         ]);
     }
 
