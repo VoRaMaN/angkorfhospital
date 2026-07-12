@@ -120,6 +120,39 @@ it('does not bill package-included items even when they have an inventory price'
     expect($service->calculateOrderTotal($data['medicalOrder']))->toBe(50.0); // only 25 * 2
 });
 
+it('does not bill a package-included special_item even when a catalog SpecialItem with the same name has a real price', function () {
+    // Reproduces the reported bug: the "Special Items" picker (as opposed to
+    // the Medicine Groups picker) never sent is_package_included, so these
+    // items fell through calculateItemTotal's name-based SpecialItem lookup
+    // and got billed at the catalog price despite the checkbox being ticked.
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    \App\Models\SpecialItem::create([
+        'name' => 'Ultrasound Kit',
+        'description' => 'Reusable ultrasound supply kit',
+        'unit_price' => 15.00,
+        'is_active' => true,
+    ]);
+
+    $packageSpecialItem = MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => null,
+        'item_type' => 'special_item',
+        'item_name' => 'Ultrasound Kit',
+        'quantity_required' => 1,
+        'unit_price' => 0,
+        'selling_price' => 0,
+        'is_package_included' => true,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'notes' => 'Include Package - Not counted in billing',
+    ]);
+
+    $service = app(MedicalOrderBillingService::class);
+
+    expect($service->calculateItemTotal($packageSpecialItem))->toBe(0.0);
+});
+
 it('processWithUpdate persists is_package_included and excludes it from billing', function () {
     $admin = createPackageBillingAdmin();
     $data = createOrderWithPackageItem($admin);

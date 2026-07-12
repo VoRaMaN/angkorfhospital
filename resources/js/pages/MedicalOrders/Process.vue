@@ -430,8 +430,7 @@ const toggleMedicineGroup = (groupId: number, checked: boolean) => {
     }
 };
 
-const addSelectedMedicineGroups = () => {
-    const includePackage = medicineGroupIncludePackage.value;
+const addSelectedMedicineGroups = (includePackage: boolean) => {
     selectedMedicineGroupIds.value.forEach((groupId) => {
         const group = props.medicineGroups.find((g) => g.id === groupId);
         if (!group) return;
@@ -467,9 +466,6 @@ const addSelectedMedicineGroups = () => {
             });
         }
     });
-    selectedMedicineGroupIds.value = [];
-    medicineGroupIncludePackage.value = false;
-    showMedicineGroupDialog.value = false;
 };
 
 const selectedMedicineGroupCount = computed(() => selectedMedicineGroupIds.value.length);
@@ -487,22 +483,39 @@ const toggleSpecialItem = (itemId: number, checked: boolean) => {
     }
 };
 
-const addSelectedSpecialItems = () => {
+const addSelectedSpecialItems = (includePackage: boolean) => {
     selectedSpecialItemIds.value.forEach((itemId) => {
         const item = props.specialItems.find((i) => i.id === itemId);
         if (!item) return;
+        const includesNote = item.items.length > 0 ? ' (includes: ' + item.items.map(i => i.item_name).join(', ') + ')' : '';
         form.order_items.push({
             item_type: 'special_item',
             item_name: item.name,
             details: item.description || '',
             quantity_required: 1,
             status: 'pending',
-            notes: `Special Item${item.items.length > 0 ? ' (includes: ' + item.items.map(i => i.item_name).join(', ') + ')' : ''}`,
-            unit_price: item.unit_price,
-            selling_price: item.unit_price,
+            notes: `Special Item${includesNote}${includePackage ? ' - Include Package - Not counted in billing' : ''}`,
+            unit_price: includePackage ? 0 : item.unit_price,
+            selling_price: includePackage ? 0 : item.unit_price,
+            is_package_included: includePackage,
         });
     });
+};
+
+// Adds whichever of groups / individual special items are currently selected
+// (previously only one or the other could be added per click, silently
+// dropping the other selection) and resets the shared dialog state once.
+const addSelectedGroupsAndSpecialItems = () => {
+    const includePackage = medicineGroupIncludePackage.value;
+    if (selectedMedicineGroupIds.value.length > 0) {
+        addSelectedMedicineGroups(includePackage);
+    }
+    if (selectedSpecialItemIds.value.length > 0) {
+        addSelectedSpecialItems(includePackage);
+    }
+    selectedMedicineGroupIds.value = [];
     selectedSpecialItemIds.value = [];
+    medicineGroupIncludePackage.value = false;
     showMedicineGroupDialog.value = false;
 };
 
@@ -1574,7 +1587,7 @@ const submitForm = () => {
                                         <Button type="button" variant="outline" size="sm" @click="showMedicineGroupDialog = false; selectedSpecialItemIds = []; medicineGroupSearchQuery = ''">
                                             Cancel
                                         </Button>
-                                        <Button type="button" size="sm" @click="selectedMedicineGroupIds.length > 0 ? addSelectedMedicineGroups() : addSelectedSpecialItems()" :disabled="selectedMedicineGroupCount === 0 && selectedSpecialItemCount === 0">
+                                        <Button type="button" size="sm" @click="addSelectedGroupsAndSpecialItems()" :disabled="selectedMedicineGroupCount === 0 && selectedSpecialItemCount === 0">
                                             Add {{ (selectedMedicineGroupCount + selectedSpecialItemCount) > 0 ? `(${selectedMedicineGroupCount + selectedSpecialItemCount}) ` : '' }}Selected
                                         </Button>
                                     </div>
