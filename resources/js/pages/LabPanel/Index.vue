@@ -122,6 +122,33 @@ const breadcrumbs: BreadcrumbItem[] = [
 const labStartDate = ref(props.filters.lab_start_date || new Date().toISOString().slice(0, 10));
 const labEndDate = ref(props.filters.lab_end_date || new Date().toISOString().slice(0, 10));
 
+// Client-side search over the already-loaded active lab orders: name, patient
+// ID/number, order number, or date — no extra round trip needed.
+const labOrderSearchQuery = ref('');
+
+const filteredActiveLabOrders = computed(() => {
+    const q = labOrderSearchQuery.value.trim().toLowerCase();
+    if (!q) return props.activeLabOrders;
+
+    return props.activeLabOrders.filter((order) => {
+        const haystack = [
+            order.patient_name,
+            order.patient_id,
+            order.patient_id_card,
+            order.patient_phone,
+            order.staff_name,
+            `#${order.id}`,
+            String(order.id),
+            order.ordered_at,
+        ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+        return haystack.includes(q);
+    });
+});
+
 const searchLabOrders = () => {
     router.get(
         labPanelIndex().url,
@@ -452,6 +479,15 @@ const onCbcSaved = () => {
                     >
                         Today
                     </Button>
+                    <div class="relative ml-auto w-full sm:w-64">
+                        <Search class="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            v-model="labOrderSearchQuery"
+                            type="text"
+                            placeholder="Search name, ID, number, or date…"
+                            class="h-8 pl-8 text-sm"
+                        />
+                    </div>
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
@@ -461,7 +497,7 @@ const onCbcSaved = () => {
                             <span class="relative inline-flex size-3 rounded-full bg-blue-500"></span>
                         </span>
                         Lab Orders
-                        <Badge variant="secondary" class="ml-1">{{ props.activeLabOrders.length }}</Badge>
+                        <Badge variant="secondary" class="ml-1">{{ filteredActiveLabOrders.length }}</Badge>
                     </h2>
                     <p class="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock class="size-3" />
@@ -472,9 +508,13 @@ const onCbcSaved = () => {
                     <FlaskConical class="mx-auto mb-2 size-8 opacity-40" />
                     <p class="text-sm">No lab orders found for this date range</p>
                 </div>
+                <div v-else-if="filteredActiveLabOrders.length === 0" class="rounded-xl border border-dashed p-6 text-center text-muted-foreground">
+                    <Search class="mx-auto mb-2 size-8 opacity-40" />
+                    <p class="text-sm">No lab orders match "{{ labOrderSearchQuery }}"</p>
+                </div>
                 <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <div
-                        v-for="order in props.activeLabOrders"
+                        v-for="order in filteredActiveLabOrders"
                         :key="order.id"
                     >
                     <Card

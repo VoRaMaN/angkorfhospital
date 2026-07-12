@@ -1,0 +1,1 @@
+import{d as e,c as s,B as a,o as t}from"./app-Bp4rQd2A.js";const p=e({inheritAttrs:!1,__name:"AppLogoIcon",props:{className:{}},setup(n){return(o,r)=>(t(),s("img",a({src:"/images/logo.png",alt:"Angkor-F Hospital",class:"object-contain"},o.$attrs),null,16))}});export{p as _};
