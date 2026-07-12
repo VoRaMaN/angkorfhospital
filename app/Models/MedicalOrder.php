@@ -111,4 +111,9 @@ class MedicalOrder extends Model
     {
         return $this->hasOne(HormoneReport::class);
     }
+
+    public function cbcReport()
+    {
+        return $this->hasOne(CbcReport::class);
+    }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BillingReportController;
+use App\Http\Controllers\CbcReportController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FetReportController;
@@ -102,6 +103,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('hormone-reports', [HormoneReportController::class, 'store'])->name('hormone-reports.store');
     Route::put('hormone-reports/{hormoneReport}', [HormoneReportController::class, 'update'])->name('hormone-reports.update');
     Route::get('hormone-reports/order/{medicalOrderId}', [HormoneReportController::class, 'getByOrder'])->name('hormone-reports.get-by-order');
+
+    // CBC Reports
+    Route::get('cbc-reports/order/{medicalOrderId}', [CbcReportController::class, 'getByOrder'])->name('cbc-reports.get-by-order');
+    Route::post('cbc-reports', [CbcReportController::class, 'store'])->name('cbc-reports.store');
+    Route::put('cbc-reports/{cbcReport}', [CbcReportController::class, 'update'])->name('cbc-reports.update');
+    Route::get('cbc-reports/{cbcReport}', [CbcReportController::class, 'show'])->name('cbc-reports.show');
 
     // IUI Reports
     Route::post('iui-reports', [IuiReportController::class, 'store'])->name('iui-reports.store');

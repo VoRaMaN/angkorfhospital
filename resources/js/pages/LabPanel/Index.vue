@@ -40,6 +40,7 @@ import IuiReportDialog from './IuiReportDialog.vue';
 import FetReportDialog from './FetReportDialog.vue';
 import SpermFreezingDialog from './SpermFreezingDialog.vue';
 import HormoneReportDialog from './HormoneReportDialog.vue';
+import CbcReportDialog from './CbcReportDialog.vue';
 
 interface LabItem {
     id: number;
@@ -73,6 +74,7 @@ interface ActiveLabOrder {
     fet_report_id: number | null;
     sperm_freezing_report_id: number | null;
     hormone_report_id: number | null;
+    cbc_report_id: number | null;
     lab_items: LabItem[];
 }
 
@@ -380,6 +382,29 @@ const openHormoneDialog = async (order: ActiveLabOrder) => {
 const onHormoneSaved = () => {
     router.reload({ only: ['activeLabOrders'], preserveScroll: true });
 };
+
+// ─── CBC Report Dialog ────────────────────────────────────────────────────────
+const cbcDialogOpen = ref(false);
+const cbcOrderContext = ref<ActiveLabOrder | null>(null);
+const cbcExistingReport = ref<any>(null);
+
+const openCbcDialog = async (order: ActiveLabOrder) => {
+    cbcOrderContext.value = order;
+    cbcExistingReport.value = null;
+    if (order.cbc_report_id) {
+        try {
+            const resp = await fetch(`/cbc-reports/order/${order.id}`);
+            if (resp.ok) {
+                cbcExistingReport.value = await resp.json();
+            }
+        } catch {/* ignore */}
+    }
+    cbcDialogOpen.value = true;
+};
+
+const onCbcSaved = () => {
+    router.reload({ only: ['activeLabOrders'], preserveScroll: true });
+};
 </script>
 
 <template>
@@ -559,6 +584,16 @@ const onHormoneSaved = () => {
                                 >
                                     <FileText class="size-3" />
                                     {{ order.hormone_report_id ? 'Edit Hormone Report' : 'Input Hormone Report' }}
+                                </Button>
+
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    class="h-7 gap-1 border-red-200 bg-red-50 px-2 text-xs text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                                    @click.stop="openCbcDialog(order)"
+                                >
+                                    <FileText class="size-3" />
+                                    {{ order.cbc_report_id ? 'Edit CBC Report' : 'Input CBC Report' }}
                                 </Button>
 
                             </div>
@@ -949,5 +984,18 @@ const onHormoneSaved = () => {
         :doctor-name="hormoneOrderContext?.staff_name ?? null"
         :existing-report="hormoneExistingReport"
         @saved="onHormoneSaved"
+    />
+
+    <!-- CBC Report Dialog -->
+    <CbcReportDialog
+        v-model="cbcDialogOpen"
+        :order-id="cbcOrderContext?.id ?? 0"
+        :patient-id="cbcOrderContext?.patient_id ?? null"
+        :patient-name="cbcOrderContext?.patient_name ?? ''"
+        :patient-dob="cbcOrderContext?.patient_dob ?? null"
+        :patient-hn="cbcOrderContext?.patient_id ?? null"
+        :doctor-name="cbcOrderContext?.staff_name ?? null"
+        :existing-report="cbcExistingReport"
+        @saved="onCbcSaved"
     />
 </template>
