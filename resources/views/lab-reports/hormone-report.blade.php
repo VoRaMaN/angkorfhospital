@@ -4,49 +4,50 @@
     <meta charset="UTF-8">
     <title>Hormone Report</title>
     <style>
+        @page { margin: 7mm 9mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #000; padding: 28px 36px; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #000; }
 
         /* ── Header ──────────────────────────────────────────── */
-        .header { display: table; width: 100%; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .header-left  { display: table-cell; vertical-align: top; width: 55%; }
-        .header-left img { width: 130px; display: block; margin-bottom: 4px; }
-        .header-left .addr { font-size: 9px; color: #444; line-height: 1.4; }
-        .header-right { display: table-cell; vertical-align: top; text-align: left; width: 45%; font-size: 11px; padding-left: 10px; }
+        .header { display: table; width: 100%; margin-bottom: 5px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+        .header-left  { display: table-cell; vertical-align: top; width: 40%; }
+        .header-left img { width: 72px; display: block; margin-bottom: 3px; }
+        .header-left .addr { font-size: 7px; color: #444; line-height: 1.35; }
+        .header-right { display: table-cell; vertical-align: top; text-align: left; width: 60%; font-size: 9px; padding-left: 8px; }
         .header-right table { width: 100%; }
-        .header-right td { padding: 1px 4px 1px 0; font-size: 11px; }
-        .header-right td.lbl { font-weight: bold; white-space: nowrap; width: 1px; padding-right: 4px; }
-        .header-right td.sep { width: 8px; text-align: center; }
+        .header-right td { padding: 1px 3px 1px 0; font-size: 9px; white-space: nowrap; }
+        .header-right td.lbl { font-weight: bold; white-space: nowrap; width: 1px; padding-right: 3px; }
+        .header-right td.sep { width: 6px; text-align: center; }
         .header-right td.val { }
 
         /* ── Main results table ───────────────────────────────── */
-        .results-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        .results-table th { background: #f0f0f0; border: 1px solid #aaa; padding: 5px 6px; font-size: 11px; font-weight: bold; text-align: left; }
-        .results-table td { border: 1px solid #ccc; padding: 4px 6px; font-size: 11px; vertical-align: middle; }
-        .results-table tr.section-row td { font-weight: bold; background: #fafafa; padding: 4px 6px; }
-        .results-table tr.specimen-row td { font-weight: bold; font-size: 11px; }
-        .results-table td.test-name { padding-left: 14px; }
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        .results-table th { background: #f0f0f0; border: 1px solid #aaa; padding: 2px 5px; font-size: 9px; font-weight: bold; text-align: left; }
+        .results-table td { border: 1px solid #ccc; padding: 1.5px 5px; font-size: 9px; vertical-align: middle; }
+        .results-table tr.section-row td { font-weight: bold; background: #fafafa; }
+        .results-table tr.specimen-row td { font-weight: bold; font-size: 9px; }
+        .results-table td.test-name { padding-left: 12px; }
         .results-table td.result { text-align: center; font-weight: bold; }
         .results-table td.unit  { text-align: center; }
         .results-table td.ref   { text-align: center; color: #555; }
 
         /* ── Signature row ────────────────────────────────────── */
-        .sig-section { margin-top: 14px; }
+        .sig-section { margin-top: 6px; }
         .sig-row { display: table; width: 100%; }
-        .sig-cell { display: table-cell; width: 50%; vertical-align: top; font-size: 11px; }
+        .sig-cell { display: table-cell; width: 50%; vertical-align: top; font-size: 9px; }
         .sig-cell .sig-label { font-weight: bold; }
-        .sig-cell .sig-name  { border-bottom: 1px solid #000; display: inline-block; min-width: 160px; font-weight: bold; }
-        .sig-cell .sig-date  { margin-top: 3px; font-size: 10px; }
+        .sig-cell .sig-name  { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; font-weight: bold; }
+        .sig-cell .sig-date  { margin-top: 2px; font-size: 8px; }
 
         /* ── Remark ───────────────────────────────────────────── */
-        .remark-section { margin-top: 10px; padding-top: 8px; border-top: 1px solid #ccc; font-size: 10px; }
-        .remark-section p { margin: 2px 0; }
+        .remark-section { margin-top: 5px; padding-top: 4px; border-top: 1px solid #ccc; font-size: 8px; }
+        .remark-section p { margin: 1px 0; }
 
         /* ── Reference range section ──────────────────────────── */
-        .ref-section { margin-top: 18px; page-break-inside: avoid; }
-        .ref-title { background: #3b7abf; color: #fff; text-align: center; font-weight: bold; font-size: 12px; padding: 6px 0; }
+        .ref-section { margin-top: 7px; page-break-inside: avoid; }
+        .ref-title { background: #3b7abf; color: #fff; text-align: center; font-weight: bold; font-size: 10px; padding: 3px 0; }
         .ref-table { width: 100%; border-collapse: collapse; margin-top: 0; }
-        .ref-table th, .ref-table td { border: 1px solid #aaa; padding: 4px 5px; font-size: 9.5px; text-align: center; }
+        .ref-table th, .ref-table td { border: 1px solid #aaa; padding: 2px 3px; font-size: 8px; text-align: center; }
         .ref-table th { background: #ddeeff; font-weight: bold; }
         .ref-table td.row-label { text-align: left; font-weight: bold; }
         .ref-table th.women-header { background: #c8dff8; }
@@ -79,10 +80,10 @@
                     <td class="val">{{ $report->patient_sex ?? '—' }}</td>
                 </tr>
                 <tr>
-                    <td class="lbl">Clinic</td><td class="sep">:</td>
-                    <td class="val">ANGKOR-F CLINIC</td>
-                    <td class="lbl" style="padding-left:10px;">DOB</td><td class="sep">:</td>
+                    <td class="lbl">DOB</td><td class="sep">:</td>
                     <td class="val">{{ $report->patient_dob ?? '—' }}</td>
+                    <td class="lbl" style="padding-left:10px;"></td><td class="sep"></td>
+                    <td class="val"></td>
                 </tr>
                 <tr>
                     <td class="lbl">Collection Date</td><td class="sep">:</td>
@@ -97,7 +98,7 @@
                     <td class="val">{{ $report->received_time ?? '—' }}</td>
                 </tr>
                 <tr>
-                    <td class="lbl">Clinician</td><td class="sep">:</td>
+                    <td class="lbl">Doctor</td><td class="sep">:</td>
                     <td class="val" colspan="3">{{ $report->doctor_name ?? '—' }}</td>
                 </tr>
             </table>
