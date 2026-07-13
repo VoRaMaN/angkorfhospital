@@ -123,10 +123,10 @@ onMounted(() => window.print());
                 <!-- ── Letterhead ── -->
                 <div class="flex items-start justify-between">
                     <img src="/images/logo1.png" alt="Angkor-F Hospital" class="h-16 w-16 object-contain mt-1" />
-                    <div class="flex-1 text-center leading-snug">
-                        <p class="khmer text-[13px] font-bold blue">ព្រះរាជាណាចក្រកម្ពុជា</p>
-                        <p class="khmer text-[11px] blue">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
-                        <p class="khmer text-[15px] font-bold blue mt-1">មន្ទីរពេទ្យ អង្គរ-អេហ្វ</p>
+                    <div class="flex-1 text-center leading-relaxed">
+                        <p class="khmer-muol text-[13px] blue">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                        <p class="khmer-muol text-[10px] blue">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                        <p class="khmer-muol text-[14px] blue mt-1">មន្ទីរពេទ្យ អង្គរ-អេហ្វ</p>
                         <p class="text-[15px] font-bold blue tracking-wide">ANGKOR-F HOSPITAL</p>
                     </div>
                     <img src="/images/logo1.png" alt="Angkor-F Hospital" class="h-16 w-16 object-contain mt-1" />
@@ -242,9 +242,22 @@ onMounted(() => window.print());
 </template>
 
 <style scoped>
+@font-face {
+    font-family: 'Khmer OS Muol Light';
+    src: url('/fonts/KhmerOSMuolLight.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 .khmer-doc .khmer,
 .khmer-doc {
     font-family: 'Noto Sans Khmer', 'DejaVu Sans', sans-serif;
+}
+
+/* Ornate Muol script for the official letterhead titles */
+.khmer-doc .khmer-muol {
+    font-family: 'Khmer OS Muol Light', 'Noto Sans Khmer', sans-serif;
+    line-height: 2;
 }
 
 .khmer-doc .blue {

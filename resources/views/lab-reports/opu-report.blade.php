@@ -111,7 +111,12 @@
         <div class="cols">
             <div class="col" style="width: 25%;">
                 <p class="grp-title">Maturation</p>
-                <div class="ln"><span class="l">No of OPU</span> <span class="v">(Rt = {{ $report['no_of_opu_right'] ?? ' ' }}, Lt = {{ $report['no_of_opu_left'] ?? ' ' }})</span></div>
+                @php
+                    $opuTotal = ($report['no_of_opu_right'] !== null || $report['no_of_opu_left'] !== null)
+                        ? (int) ($report['no_of_opu_right'] ?? 0) + (int) ($report['no_of_opu_left'] ?? 0)
+                        : null;
+                @endphp
+                <div class="ln"><span class="l">No of OPU</span> <span class="v">(Rt = {{ $report['no_of_opu_right'] ?? ' ' }}, Lt = {{ $report['no_of_opu_left'] ?? ' ' }}){{ $opuTotal !== null ? ' = '.$opuTotal : '' }}</span></div>
                 <div class="ln"><span class="l">Date&amp;Time :</span> <span class="v">{{ $report['maturation_datetime'] ?? '' }}</span></div>
                 <div class="ln"><span class="l">M II :</span> <span class="v">{{ $report['m_ii'] ?? '' }}</span></div>
                 <div class="ln"><span class="l">M I :</span> <span class="v">{{ $report['m_i'] ?? '' }}</span></div>
