@@ -77,7 +77,7 @@ class LabPanelController extends Controller
                     'patient_id_card' => $patient?->id_card_or_passport ?? null,
                     'patient_dob' => $dob,
                     'patient_phone' => $patient?->mobile_phone ?? $patient?->home_phone ?? null,
-                    'staff_name' => $order->staff?->user?->name ?? 'Unknown Staff',
+                    'staff_name' => ($order->staff?->display_name ?: null) ?? 'Unknown Staff',
                     'staff_id' => $order->staff_id,
                     'status' => $order->status->value,
                     'status_label' => $order->status->label(),

@@ -18,7 +18,7 @@ class FetReportController extends Controller
 
         return Inertia::render('LabPanel/FetReport', [
             'report' => array_merge($fetReport->toArray(), [
-                'doctor_name' => $staff?->user?->name ?? $fetReport->doctor,
+                'doctor_name' => ($staff?->display_name ?: null) ?? $fetReport->doctor,
             ]),
         ]);
     }
@@ -29,7 +29,7 @@ class FetReportController extends Controller
         $staff = $fetReport->medicalOrder?->staff;
 
         $report = $fetReport;
-        $doctorName = $staff?->user?->name ?? $fetReport->doctor;
+        $doctorName = ($staff?->display_name ?: null) ?? $fetReport->doctor;
         $reportDate = $fetReport->created_at
             ? $fetReport->created_at->format('d/m/Y')
             : now()->format('d/m/Y');
@@ -61,7 +61,7 @@ class FetReportController extends Controller
             'lab-reports.fet-report',
             [
                 'report' => $report,
-                'doctorName' => $staff?->user?->name ?? $report->doctor,
+                'doctorName' => ($staff?->display_name ?: null) ?? $report->doctor,
                 'reportDate' => $report->created_at
                     ? $report->created_at->format('d/m/Y')
                     : now()->format('d/m/Y'),

@@ -82,7 +82,7 @@ class LabResultFileService
                 'dob' => $dob,
                 'age' => $age,
                 'sex' => $patient->gender,
-                'doctor_name' => $order->staff?->user?->name,
+                'doctor_name' => $order->staff?->display_name,
             ],
         ]);
 

@@ -49,6 +49,7 @@ interface Props {
                 unit_price: number;
                 total: number;
                 details?: string;
+                is_package_included?: boolean;
             }>;
             subtotal: number;
             item_count: number;
@@ -487,7 +488,12 @@ const sendBackToNurse = () => {
                                 >
                                     <div class="flex items-center gap-3">
                                         <div>
-                                            <div class="font-medium">{{ item.item_name }}</div>
+                                            <div class="font-medium">
+                                                {{ item.item_name }}
+                                                <Badge v-if="item.is_package_included" variant="outline" class="ml-1 border-emerald-300 bg-emerald-50 text-[10px] text-emerald-700">
+                                                    Include Package
+                                                </Badge>
+                                            </div>
                                             <div v-if="item.details" class="text-sm text-muted-foreground">
                                                 {{ item.details }}
                                             </div>

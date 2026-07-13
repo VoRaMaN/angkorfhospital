@@ -13,10 +13,10 @@
 
         body {
             font-family: 'Times New Roman', serif;
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 17px;
+            line-height: 1.55;
             color: #000;
-            padding: 40px 60px;
+            padding: 36px 52px;
         }
 
         .header {
@@ -32,13 +32,13 @@
         }
 
         .header-left h1 {
-            font-size: 16px;
+            font-size: 19px;
             font-weight: bold;
             margin-bottom: 3px;
         }
 
         .header-left p {
-            font-size: 13px;
+            font-size: 15px;
             margin: 2px 0;
         }
 
@@ -55,7 +55,7 @@
         }
 
         .bill-box p {
-            font-size: 13px;
+            font-size: 15px;
             margin: 3px 0;
         }
 
@@ -63,7 +63,7 @@
             border: 2px solid #000;
             padding: 5px 15px;
             display: inline-block;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
         }
 
@@ -79,13 +79,13 @@
         }
 
         .patient-left p {
-            font-size: 13px;
+            font-size: 16px;
             margin: 3px 0;
         }
 
         .patient-left .label {
             display: inline-block;
-            width: 100px;
+            width: 120px;
         }
 
         .patient-right {
@@ -96,7 +96,7 @@
         }
 
         .patient-right p {
-            font-size: 13px;
+            font-size: 16px;
             margin: 3px 0;
         }
 
@@ -112,7 +112,7 @@
             border-bottom: 1px solid #000;
             padding: 9px 10px;
             text-align: center;
-            font-size: 13px;
+            font-size: 16px;
             font-weight: bold;
         }
 
@@ -122,8 +122,8 @@
 
         table td {
             border: none;
-            padding: 9px 10px;
-            font-size: 13px;
+            padding: 10px 12px;
+            font-size: 16px;
         }
 
         table td.description {
@@ -147,13 +147,13 @@
         }
 
         .total-words {
-            font-size: 13px;
+            font-size: 16px;
             margin-bottom: 30px;
         }
 
         .footer-note {
             text-align: left;
-            font-size: 12px;
+            font-size: 14px;
             color: #000;
             margin-bottom: 80px;
             line-height: 1.6;
@@ -170,11 +170,21 @@
             margin-left: auto;
             padding-top: 5px;
             text-align: center;
-            font-size: 13px;
+            font-size: 15px;
+        }
+
+        .pkg-label {
+            font-size: 11px;
+            font-weight: normal;
+            color: #067647;
+            border: 1px solid #067647;
+            border-radius: 3px;
+            padding: 0 4px;
+            white-space: nowrap;
         }
 
         .payment-method {
-            font-size: 13px;
+            font-size: 15px;
             margin-top: 30px;
         }
     </style>
@@ -226,7 +236,7 @@
                         {{-- Special items: show each item individually by name --}}
                         @foreach($group['items'] as $item)
                             <tr>
-                                <td class="description">{{ $item['item_name'] }}</td>
+                                <td class="description">{{ $item['item_name'] }} @if(!empty($item['is_package_included']))<span class="pkg-label">Include Package</span>@endif</td>
                                 <td class="amount col-sep">{{ number_format($item['total'], 2) }}</td>
                                 <td class="discount col-sep"></td>
                                 <td class="net col-sep">{{ number_format($item['total'], 2) }}</td>
@@ -240,6 +250,16 @@
                             <td class="discount col-sep"></td>
                             <td class="net col-sep">{{ number_format($group['subtotal'], 2) }}</td>
                         </tr>
+                        @foreach($group['items'] as $item)
+                            @if(!empty($item['is_package_included']))
+                            <tr>
+                                <td class="description" style="font-weight:normal;padding-left:28px;">{{ $item['item_name'] }} <span class="pkg-label">Include Package</span></td>
+                                <td class="amount col-sep">0.00</td>
+                                <td class="discount col-sep"></td>
+                                <td class="net col-sep">0.00</td>
+                            </tr>
+                            @endif
+                        @endforeach
                     @endif
                 @endforeach
             @else

@@ -38,7 +38,7 @@ class IuiReportController extends Controller
             'patient_hn' => $patient?->id,
             'patient_dob' => $dob,
             'patient_age' => $age,
-            'doctor_name' => $staff?->user?->name,
+            'doctor_name' => $staff?->display_name,
         ];
     }
 

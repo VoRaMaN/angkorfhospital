@@ -154,6 +154,7 @@ class MedicalOrderBillingService
                 'unit_price' => $unitPrice,
                 'total' => $itemTotal,
                 'details' => $orderItem->details,
+                'is_package_included' => $orderItem->isPackageIncluded(),
             ];
 
             $groups[$groupKey]['subtotal'] += $itemTotal;

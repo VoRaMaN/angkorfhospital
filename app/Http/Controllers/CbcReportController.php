@@ -48,7 +48,7 @@ class CbcReportController extends Controller
             'patient_age' => $age,
             'patient_sex' => $sex,
             'patient_phone' => $patient?->mobile_phone ?? $patient?->home_phone,
-            'doctor_name' => $staff?->user?->name,
+            'doctor_name' => $staff?->display_name,
         ];
     }
 

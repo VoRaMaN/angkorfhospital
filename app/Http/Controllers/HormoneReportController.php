@@ -45,7 +45,7 @@ class HormoneReportController extends Controller
             'patient_dob' => $dob,
             'patient_age' => $age,
             'patient_sex' => $sex,
-            'doctor_name' => $staff?->user?->name,
+            'doctor_name' => $staff?->display_name,
         ];
     }
 

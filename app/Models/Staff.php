@@ -35,6 +35,15 @@ class Staff extends Model
         return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 
+    /**
+     * Name to print on reports: the staff record's own first/last name (the
+     * editable, full version), falling back to the login account's name.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name !== '' ? $this->name : (string) ($this->user?->name ?? '');
+    }
+
     public function role()
     {
         // role_id references the custom roles table (StaffRole), not the Spatie

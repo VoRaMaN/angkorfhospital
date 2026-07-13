@@ -288,7 +288,7 @@ class OpuReportController extends Controller
             'male_dob' => $mp && $mp->date_of_birth_day ? str_pad($mp->date_of_birth_day, 2, '0', STR_PAD_LEFT).'/'.str_pad($mp->date_of_birth_month, 2, '0', STR_PAD_LEFT).'/'.$mp->date_of_birth_year : null,
             'procedure' => $report->procedure,
             'doctor_id' => $report->doctor_id,
-            'doctor_name' => $report->doctor?->user?->name,
+            'doctor_name' => $report->doctor?->display_name,
             'opu_datetime' => $report->opu_datetime?->format('Y-m-d\TH:i'),
             'no_of_opu_right' => $report->no_of_opu_right,
             'no_of_opu_left' => $report->no_of_opu_left,
