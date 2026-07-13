@@ -118,120 +118,108 @@ onMounted(() => window.print());
 
         <!-- ─── Printable Form ─────────────────────────────────────────────── -->
         <div class="mx-auto max-w-4xl px-6 pb-10">
-            <div id="cbc-print-form" class="khmer-doc bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-6">
+            <div id="cbc-print-form" class="khmer-doc bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-8">
 
-                <!-- ── Header ── -->
-                <div class="flex items-start justify-between border-b-2 border-black pb-3 mb-3">
-                    <div class="flex items-center gap-3">
-                        <img src="/images/logo1.png" alt="Angkor-F Hospital" class="h-20 w-auto object-contain" />
-                        <div class="ml-1">
-                            <p class="text-sm font-bold">Angkor-F Hospital</p>
-                            <p class="text-xs leading-tight text-gray-600">#National Road 6A, Salakonseng Village,</p>
-                            <p class="text-xs leading-tight text-gray-600">Sangkat Svay Dangkum, Siem Reap, Cambodia</p>
-                            <p class="text-xs leading-tight text-gray-600">Tel: (855) 31 3 5555 88 | (855) 12 881 307</p>
-                            <p class="text-xs leading-tight text-gray-600">E-mail: angkorfhospital@gmail.com</p>
+                <!-- ── Letterhead ── -->
+                <div class="flex items-start justify-between">
+                    <img src="/images/logo1.png" alt="Angkor-F Hospital" class="h-16 w-16 object-contain mt-1" />
+                    <div class="flex-1 text-center leading-snug">
+                        <p class="khmer text-[13px] font-bold blue">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                        <p class="khmer text-[11px] blue">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                        <p class="khmer text-[15px] font-bold blue mt-1">មន្ទីរពេទ្យ អង្គរ-អេហ្វ</p>
+                        <p class="text-[15px] font-bold blue tracking-wide">ANGKOR-F HOSPITAL</p>
+                    </div>
+                    <img src="/images/logo1.png" alt="Angkor-F Hospital" class="h-16 w-16 object-contain mt-1" />
+                </div>
+                <div class="mt-1 mb-2 flex items-center justify-between text-[11px]">
+                    <p class="khmer blue">សេវាថែទាំសុខភាពដែលមានគុណភាពល្អបំផុត</p>
+                    <p class="blue font-semibold">Best Quality Health Care Services</p>
+                </div>
+
+                <p class="text-center font-bold text-[15px] navy tracking-wide mb-1">LABORATORY RESULT</p>
+
+                <!-- ── Patient Info (3-column, bilingual labels) ── -->
+                <div class="border-t-2 border-b-2 border-gray-400 py-1.5 mb-3 text-[13px] navy">
+                    <div class="grid grid-cols-3 gap-x-4 gap-y-0.5">
+                        <div><span class="font-semibold">ឈ្មោះ/Name</span> : {{ val(report.patient_name) }}</div>
+                        <div><span class="font-semibold">អាយុ/Age</span> : {{ val(report.patient_age, ' Y') }}</div>
+                        <div><span class="font-semibold">ភេទ/Sex</span> : {{ report.patient_sex === 'FEMALE' ? 'Female' : 'Male' }}</div>
+                        <div><span class="font-semibold">Patient ID</span> : {{ val(report.patient_hn) }}</div>
+                        <div><span class="font-semibold">Lab ID</span> : {{ val(report.lab_id) }}</div>
+                        <div><span class="font-semibold">ទូរស័ព្ទ/Phone</span> : {{ val(report.patient_phone, '') !== '—' ? report.patient_phone : '' }}</div>
+                        <div><span class="font-semibold">Requested By</span> : {{ val(report.requested_by ?? report.doctor_name) }}</div>
+                        <div><span class="font-semibold">Requested Date</span> : {{ val(report.requested_date) }}</div>
+                        <div><span class="font-semibold">Analysis Date</span> : {{ val(report.analysis_date) }}</div>
+                    </div>
+                </div>
+
+                <!-- ── HEMATOLOGY band ── -->
+                <div class="bg-gray-200 py-0.5 mb-1 text-center">
+                    <p class="font-bold text-[13px] text-black tracking-wide">HEMATOLOGY</p>
+                </div>
+
+                <!-- Column headers -->
+                <div class="flex text-[13px] font-bold border-b border-transparent mb-0.5">
+                    <div class="flex-1">Test Name</div>
+                    <div class="w-24">Result</div>
+                    <div class="w-8"></div>
+                    <div class="w-24">Units</div>
+                    <div class="w-28 text-center">Ref. Ranges</div>
+                </div>
+
+                <p class="font-bold text-[13px] mb-0.5">COMPLETE BLOOD COUNT <span class="khmer">(រាប់គ្រាប់ឈាម)</span></p>
+
+                <div class="mb-1">
+                    <div v-for="test in cbcTests" :key="test.field" class="flex items-end text-[13px] leading-6">
+                        <div class="flex flex-1 items-end pl-3 min-w-0">
+                            <span class="whitespace-nowrap">{{ test.label }} <span class="khmer text-[11.5px]">({{ test.khmer }})</span></span>
+                            <span class="leader"></span>
                         </div>
+                        <div class="w-24 font-semibold" :class="cbcFlag((report as any)[test.field], test) ? 'text-red-600' : 'navy'">
+                            : {{ val((report as any)[test.field]) }}
+                        </div>
+                        <div class="w-8 font-bold text-red-600">{{ cbcFlag((report as any)[test.field], test) }}</div>
+                        <div class="w-24 text-[12px]">{{ test.unit }}</div>
+                        <div class="w-28 text-center text-[12px]">{{ test.low }} - {{ test.high }}</div>
                     </div>
-                    <div class="text-sm space-y-0.5 text-right">
-                        <p class="font-bold text-base">LABORATORY RESULT</p>
-                        <p><span class="font-semibold">Report Date:</span> {{ reportDate }}</p>
+                </div>
+
+                <p class="font-bold text-[13px] mb-0.5 pl-1">Differential White Cell Count</p>
+                <div class="mb-2">
+                    <div v-for="test in diffTests" :key="test.field" class="flex items-end text-[13px] leading-6">
+                        <div class="flex flex-1 items-end pl-3 min-w-0">
+                            <span class="whitespace-nowrap">{{ test.label }} (%)</span>
+                            <span class="leader"></span>
+                        </div>
+                        <div class="w-24 font-semibold" :class="cbcFlag((report as any)[test.field], test) ? 'text-red-600' : 'navy'">
+                            : {{ val((report as any)[test.field]) }}
+                        </div>
+                        <div class="w-8 font-bold text-red-600">{{ cbcFlag((report as any)[test.field], test) }}</div>
+                        <div class="w-24 text-[12px]">%</div>
+                        <div class="w-28 text-center text-[12px]">{{ test.low }} - {{ test.high }}</div>
                     </div>
-                </div>
-
-                <!-- ── Title ── -->
-                <div class="text-center mb-4">
-                    <p class="font-bold text-base tracking-wide">MEDICAL LABORATORY ANALYSIS</p>
-                    <p class="font-semibold text-sm">( Complete Blood Count — CBC Report )</p>
-                </div>
-
-                <!-- ── Patient Info ── -->
-                <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4 border-b border-gray-300 pb-3">
-                    <div><span class="font-semibold">Name:</span> <span>{{ val(report.patient_name) }}</span></div>
-                    <div><span class="font-semibold">Sex:</span> <span>{{ val(report.patient_sex) }}</span></div>
-                    <div><span class="font-semibold">Patient ID:</span> <span>{{ val(report.patient_hn) }}</span></div>
-                    <div><span class="font-semibold">Age:</span> <span>{{ val(report.patient_age, ' Y') }}</span></div>
-                    <div><span class="font-semibold">Lab ID:</span> <span>{{ val(report.lab_id) }}</span></div>
-                    <div><span class="font-semibold">Phone:</span> <span>{{ val(report.patient_phone) }}</span></div>
-                    <div><span class="font-semibold">Requested By:</span> <span>{{ val(report.requested_by ?? report.doctor_name) }}</span></div>
-                    <div><span class="font-semibold">Requested Date:</span> <span>{{ val(report.requested_date) }}</span></div>
-                    <div><span class="font-semibold">Analysis Date:</span> <span>{{ val(report.analysis_date) }}</span></div>
-                </div>
-
-                <!-- ── HEMATOLOGY ── -->
-                <div class="mb-1 bg-gray-100 border border-gray-400 px-2 py-1">
-                    <p class="font-bold text-sm">HEMATOLOGY</p>
-                </div>
-
-                <div class="mb-3">
-                    <p class="font-bold text-sm mb-1">COMPLETE BLOOD COUNT <span class="khmer">(ការរាប់កោសិកាឈាមពេញលេញ)</span></p>
-                    <table class="w-full text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-400 text-left text-xs text-gray-600">
-                                <th class="py-1 font-semibold">Test Name</th>
-                                <th class="py-1 font-semibold text-right">Result</th>
-                                <th class="py-1 font-semibold text-center w-8"></th>
-                                <th class="py-1 font-semibold pl-4">Units</th>
-                                <th class="py-1 font-semibold pl-4">Ref. Ranges</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="test in cbcTests" :key="test.field" class="border-b border-dotted border-gray-300">
-                                <td class="py-1">
-                                    {{ test.label }}
-                                    <span class="khmer text-xs text-gray-500">({{ test.khmer }})</span>
-                                </td>
-                                <td
-                                    class="py-1 text-right font-semibold"
-                                    :class="cbcFlag((report as any)[test.field], test) ? 'text-red-600' : ''"
-                                >{{ val((report as any)[test.field]) }}</td>
-                                <td class="py-1 text-center text-xs font-bold text-red-600">{{ cbcFlag((report as any)[test.field], test) }}</td>
-                                <td class="py-1 pl-4 text-gray-600">{{ test.unit }}</td>
-                                <td class="py-1 pl-4 text-gray-600">{{ test.low }} - {{ test.high }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mb-4">
-                    <p class="font-bold text-sm mb-1">Differential White Cell Count <span class="khmer">(ចំណាត់ថ្នាក់កោសិកាឈាមស)</span></p>
-                    <table class="w-full text-sm border-collapse">
-                        <tbody>
-                            <tr v-for="test in diffTests" :key="test.field" class="border-b border-dotted border-gray-300">
-                                <td class="py-1">
-                                    {{ test.label }}
-                                    <span class="khmer text-xs text-gray-500">({{ test.khmer }})</span>
-                                </td>
-                                <td
-                                    class="py-1 text-right font-semibold"
-                                    :class="cbcFlag((report as any)[test.field], test) ? 'text-red-600' : ''"
-                                >{{ val((report as any)[test.field]) }}</td>
-                                <td class="py-1 text-center text-xs font-bold text-red-600 w-8">{{ cbcFlag((report as any)[test.field], test) }}</td>
-                                <td class="py-1 pl-4 text-gray-600">{{ test.unit }}</td>
-                                <td class="py-1 pl-4 text-gray-600">{{ test.low }} - {{ test.high }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
 
                 <!-- ── Remark ── -->
-                <div v-if="report.remark" class="mb-4 text-sm">
+                <div v-if="report.remark" class="mb-2 text-[13px]">
                     <span class="font-semibold">Remark:</span> {{ report.remark }}
                 </div>
 
                 <!-- ── Footer / Sign-off ── -->
-                <div class="flex items-end justify-between border-t border-gray-300 pt-4 mt-6 text-sm">
-                    <div>
-                        <p class="text-xs text-gray-500 mb-6">Verified by</p>
-                        <p class="font-semibold border-t border-gray-500 pt-1 min-w-[180px]">{{ val(report.reported_by) }}</p>
-                        <p class="text-xs text-gray-500">Lab. Technician</p>
+                <div class="mt-8 flex items-end justify-between text-[13px]">
+                    <div class="text-center">
+                        <p class="mb-10">Verified by</p>
+                        <p class="font-semibold border-t border-gray-500 pt-1 min-w-[180px] navy">{{ val(report.reported_by) }}</p>
                     </div>
-                    <div class="text-right text-xs text-gray-500">
-                        <p>Report date: {{ val(report.reported_date, '') !== '—' ? report.reported_date : reportDate }}</p>
+                    <div class="text-right">
+                        <p>Report date : {{ val(report.reported_date, '') !== '—' ? report.reported_date : reportDate }}</p>
+                        <p>Lab. Technician</p>
                     </div>
                 </div>
 
-                <div class="mt-6 border-t border-gray-300 pt-2 text-center text-[10px] text-gray-500">
-                    Phum Mondul Muy, Sangkat Svay Dangkum, Krong Siem Reap, Siem Reap Province — Tel: (855) 31 3 5555 88
+                <div class="mt-4 border-t-2 border-gray-400 pt-1.5 text-center text-[11px] leading-snug">
+                    <p>#National Road 6A, Salakonseng Village, Sangkat Svay Dangkum, Siem Reap, Cambodia</p>
+                    <p>Tel: (855) 31 3 5555 88 / (855) 12 881 307 &nbsp; angkorfhospital@gmail.com</p>
                 </div>
 
             </div>
@@ -259,9 +247,30 @@ onMounted(() => window.print());
     font-family: 'Noto Sans Khmer', 'DejaVu Sans', sans-serif;
 }
 
+.khmer-doc .blue {
+    color: #2456a6;
+}
+
+.khmer-doc .navy {
+    color: #1e3a6e;
+}
+
+/* Dotted leader between test name and result, like the paper form */
+.khmer-doc .leader {
+    flex: 1;
+    min-width: 12px;
+    margin: 0 6px 5px 6px;
+    border-bottom: 1.5px dotted #777;
+}
+
 @media print {
     .no-print {
         display: none !important;
+    }
+
+    #cbc-print-form {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
     }
 }
 </style>

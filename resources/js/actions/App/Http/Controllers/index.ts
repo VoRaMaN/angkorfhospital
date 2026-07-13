@@ -12,6 +12,7 @@ import SemenAnalysisReportController from './SemenAnalysisReportController'
 import SaReportController from './SaReportController'
 import SpermFreezingReportController from './SpermFreezingReportController'
 import HormoneReportController from './HormoneReportController'
+import CbcReportController from './CbcReportController'
 import IuiReportController from './IuiReportController'
 import FetReportController from './FetReportController'
 import MedicineGroupController from './MedicineGroupController'
@@ -43,6 +44,7 @@ SemenAnalysisReportController: Object.assign(SemenAnalysisReportController, Seme
 SaReportController: Object.assign(SaReportController, SaReportController),
 SpermFreezingReportController: Object.assign(SpermFreezingReportController, SpermFreezingReportController),
 HormoneReportController: Object.assign(HormoneReportController, HormoneReportController),
+CbcReportController: Object.assign(CbcReportController, CbcReportController),
 IuiReportController: Object.assign(IuiReportController, IuiReportController),
 FetReportController: Object.assign(FetReportController, FetReportController),
 MedicineGroupController: Object.assign(MedicineGroupController, MedicineGroupController),
