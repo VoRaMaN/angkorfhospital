@@ -153,6 +153,38 @@ it('does not bill a package-included special_item even when a catalog SpecialIte
     expect($service->calculateItemTotal($packageSpecialItem))->toBe(0.0);
 });
 
+it('does not re-price a legacy sentinel-note row that was saved without the flag', function () {
+    // Rows created by stale (pre-flag) browser bundles have selling_price 0
+    // and the "Include Package" note but is_package_included = false; the
+    // catalog-name fallback must still treat them as free.
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    \App\Models\SpecialItem::create([
+        'name' => 'TVS 15',
+        'description' => 'TVS scan special item',
+        'unit_price' => 15.00,
+        'is_active' => true,
+    ]);
+
+    $legacyRow = MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => null,
+        'item_type' => 'special_item',
+        'item_name' => 'TVS 15',
+        'quantity_required' => 1,
+        'unit_price' => 0,
+        'selling_price' => 0,
+        'is_package_included' => false,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'notes' => 'Special Items: TVS 15 - Include Package - Not counted in billing',
+    ]);
+
+    $service = app(MedicalOrderBillingService::class);
+
+    expect($service->calculateItemTotal($legacyRow))->toBe(0.0);
+});
+
 it('processWithUpdate persists is_package_included and excludes it from billing', function () {
     $admin = createPackageBillingAdmin();
     $data = createOrderWithPackageItem($admin);

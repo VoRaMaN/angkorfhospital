@@ -43,6 +43,17 @@ class MedicalOrderInventory extends Model
         ];
     }
 
+    /**
+     * Whether this item's price is covered by a package. Falls back to the
+     * notes sentinel written by the Process screen so rows saved by clients
+     * that didn't send the flag (stale bundles, pre-flag data) still count.
+     */
+    public function isPackageIncluded(): bool
+    {
+        return $this->is_package_included
+            || str_contains((string) $this->notes, 'Include Package - Not counted in billing');
+    }
+
     public function medicalOrder(): BelongsTo
     {
         return $this->belongsTo(MedicalOrder::class);

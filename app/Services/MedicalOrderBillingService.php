@@ -36,7 +36,7 @@ class MedicalOrderBillingService
     {
         // Package-included items are deliberately free: their price is covered
         // by the package, so never fall back to catalog/inventory prices.
-        if ($orderItem->is_package_included) {
+        if ($orderItem->isPackageIncluded()) {
             return 0;
         }
 
