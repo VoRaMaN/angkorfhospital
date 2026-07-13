@@ -131,6 +131,8 @@
                     ['Progesterone', 'progesterone',  'ng/mL'],
                     ['Testosterone', 'testosterone',  'ng/mL'],
                     ['TSH',          'tsh',           'mIU/L'],
+                    ['T3',           't3',            'ng/mL'],
+                    ['T4',           't4',            'µg/dL'],
                     ['AMH',          'amh',           'ng/mL'],
                 ];
             @endphp

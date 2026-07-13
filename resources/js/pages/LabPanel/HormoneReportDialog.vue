@@ -24,6 +24,8 @@ interface HormoneReportData {
     progesterone?: number | null;
     testosterone?: number | null;
     tsh?: number | null;
+    t3?: number | null;
+    t4?: number | null;
     amh?: number | null;
     beta_hcg?: number | null;
     remark?: string | null;
@@ -93,6 +95,8 @@ const buildEmptyForm = (): HormoneReportData => ({
     progesterone: null,
     testosterone: null,
     tsh: null,
+    t3: null,
+    t4: null,
     amh: null,
     beta_hcg: null,
     remark: null,
@@ -158,6 +162,8 @@ const hormoneTests = [
     { label: 'Progesterone', field: 'progesterone', unit: 'ng/mL',  step: '0.01' },
     { label: 'Testosterone', field: 'testosterone', unit: 'ng/mL',  step: '0.001' },
     { label: 'TSH',          field: 'tsh',          unit: 'mIU/L',  step: '0.001' },
+    { label: 'T3',           field: 't3',           unit: 'ng/mL',  step: '0.01' },
+    { label: 'T4',           field: 't4',           unit: 'µg/dL',  step: '0.01' },
     { label: 'AMH',          field: 'amh',          unit: 'ng/mL',  step: '0.01' },
     { label: 'Beta-hCG',     field: 'beta_hcg',     unit: 'mIU/mL', step: '0.01' },
 ] as const;

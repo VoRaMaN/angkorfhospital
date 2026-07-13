@@ -33,6 +33,7 @@ import { FlaskConical, Plus, Search, Clock, AlertCircle, CheckCircle2, Clipboard
 
 import { computed, ref, watch, reactive } from 'vue';
 import { useAuth } from '@/composables/useAuth';
+import { labItemForm } from '@/lib/labItemForms';
 import OPUReportDialog from './OPUReportDialog.vue';
 import SemenAnalysisDialog from './SemenAnalysisDialog.vue';
 import SaReportDialog from './SaReportDialog.vue';
@@ -219,7 +220,19 @@ const activeResultForm = ref<number | null>(null);
 // Store form data per item id
 const resultForms = reactive<Record<number, { result_value: string; result_unit: string; result_notes: string }>>({})
 
-const openResultForm = (item: LabItem) => {
+const openResultForm = (order: ActiveLabOrder, item: LabItem) => {
+    // Hormone/CBC tests have dedicated structured report forms — open those
+    // instead of the generic value/unit editor.
+    const structuredForm = labItemForm(item.item_name);
+    if (structuredForm === 'hormone') {
+        openHormoneDialog(order);
+        return;
+    }
+    if (structuredForm === 'cbc') {
+        openCbcDialog(order);
+        return;
+    }
+
     activeResultForm.value = item.id;
     // Always refresh so editing re-populates with current saved values
     resultForms[item.id] = {
@@ -671,7 +684,7 @@ const onCbcSaved = () => {
                                                 size="sm"
                                                 variant="outline"
                                                 class="h-7 px-2 text-xs"
-                                                @click.stop="openResultForm(item)"
+                                                @click.stop="openResultForm(order, item)"
                                             >
                                                 <ClipboardEdit class="mr-1 size-3" />
                                                 Input Result
@@ -681,7 +694,7 @@ const onCbcSaved = () => {
                                                 size="sm"
                                                 variant="ghost"
                                                 class="h-7 px-2 text-xs text-muted-foreground"
-                                                @click.stop="openResultForm(item)"
+                                                @click.stop="openResultForm(order, item)"
                                             >
                                                 <ClipboardEdit class="mr-1 size-3" />
                                                 Edit

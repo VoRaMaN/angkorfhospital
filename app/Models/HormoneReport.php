@@ -21,6 +21,8 @@ class HormoneReport extends Model
         'progesterone',
         'testosterone',
         'tsh',
+        't3',
+        't4',
         'amh',
         'beta_hcg',
         'remark',
