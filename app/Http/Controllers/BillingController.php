@@ -65,7 +65,22 @@ class BillingController extends Controller
         if (! request('start_date') && ! request('end_date')) {
             // Only apply today filter on the default All tab (no specific status)
             if (! request('status')) {
-                $query->whereDate('billing_date', today());
+                // Bills still awaiting someone's action (sent to account, in
+                // revision, pending payment...) must stay visible regardless of
+                // how old their billing_date is — otherwise a bill that sits
+                // unreceived past today silently disappears from the accountant's
+                // queue. Only bills with no outstanding action are subject to the
+                // "today" default, keeping the All tab focused on today's routine
+                // activity without hiding backlogged work.
+                $activeStatuses = collect(\App\Enums\BillingStatusEnum::cases())
+                    ->filter(fn ($status) => $status->isActive())
+                    ->map(fn ($status) => $status->value)
+                    ->all();
+
+                $query->where(function ($q) use ($activeStatuses) {
+                    $q->whereDate('billing_date', today())
+                        ->orWhereIn('status', $activeStatuses);
+                });
             }
         }
 

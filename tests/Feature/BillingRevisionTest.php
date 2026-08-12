@@ -278,6 +278,28 @@ test('process and bill refreshes a stale billing_date so it reappears for the ac
     expect($visible)->toContain($data['billing']->id);
 });
 
+test('billings index All tab shows old sent_to_account billings but still hides old paid ones', function () {
+    $user = createAdminWithStaff();
+
+    $oldActive = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::SENT_TO_ACCOUNT,
+        'billing_date' => now()->subMonths(2),
+    ])['billing'];
+
+    $oldPaid = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::PAID,
+        'billing_date' => now()->subMonths(2),
+    ])['billing'];
+
+    $this->actingAs($user)
+        ->get(route('billings.index'))
+        ->assertInertia(fn ($page) => $page
+            ->component('Billings/Index')
+            ->where('billings', fn ($rows) => collect($rows)->pluck('id')->contains($oldActive->id)
+                && ! collect($rows)->pluck('id')->contains($oldPaid->id))
+        );
+});
+
 test('edit medical order page exposes revisionNotice when linked billing is in revision', function () {
     $user = createAdminWithStaff();
     $data = createBillingWithMedicalOrder([
