@@ -236,7 +236,7 @@ const exportAppointments = () => {
                 <div class="relative flex-1 min-w-0">
                     <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input v-model="searchQuery" placeholder="Search appointments..." class="pl-10"
-                        @keyup.enter="performSearch(true)" />
+                        data-enter-nav-skip @keyup.enter="performSearch(true)" />
                 </div>
                 <div class="flex items-center gap-4 flex-wrap">
                     <label class="text-sm text-muted-foreground">From</label>

@@ -193,7 +193,7 @@ const exportBillings = () => {
                 <div class="relative max-w-sm flex-1">
                     <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input v-model="searchQuery" placeholder="Search billings..." class="pl-9"
-                        @keyup.enter="performSearch" />
+                        data-enter-nav-skip @keyup.enter="performSearch" />
                 </div>
                 <Button @click="performSearch" variant="outline">
                     Search

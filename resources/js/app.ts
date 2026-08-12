@@ -5,6 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
+import { initEnterKeyNavigation } from './lib/enterKeyNavigation';
 
 const appName = import.meta.env.VITE_APP_NAME || '---';
 
@@ -27,3 +28,6 @@ createInertiaApp({
 
 // This will set light / dark mode on page load...
 initializeTheme();
+
+// Enter key moves focus to the next input field across the app.
+initEnterKeyNavigation();
