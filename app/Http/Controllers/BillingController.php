@@ -650,6 +650,34 @@ class BillingController extends Controller
     }
 
     /**
+     * Admin-only safety net: force-finalize a medical order and its billing that got
+     * stuck in "revision" status because the nurse saved without clicking "Send to
+     * Account". Finalizes the order exactly as currently saved.
+     */
+    public function recoverStuckRevision(Billing $billing): RedirectResponse
+    {
+        $this->authorize('recoverStuckRevision', $billing);
+
+        if ($billing->status !== \App\Enums\BillingStatusEnum::REVISION) {
+            return redirect()->back()->with('error', 'This billing is not in a stuck revision state.');
+        }
+
+        if (! $billing->medical_order_id || ! $billing->medicalOrder) {
+            return redirect()->back()->with('error', 'This billing has no linked medical order to recover.');
+        }
+
+        $billingService = app(MedicalOrderBillingService::class);
+        $billingService->finalizeRevisedOrder(
+            $billing->medicalOrder,
+            $billing,
+            'Force-recovered from stuck revision by '.auth()->user()->name.' on '.now()->format('Y-m-d H:i').'.'
+        );
+
+        return redirect()->route('billings.show', $billing)
+            ->with('success', 'Order recovered and sent to account for payment.');
+    }
+
+    /**
      * Recalculate billing amount from the linked medical order after revision.
      */
     public function recalculate(Billing $billing): RedirectResponse

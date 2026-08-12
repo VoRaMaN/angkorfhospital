@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:674
+ * @see app/Http/Controllers/BillingController.php:702
  * @route '/billings-export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1050,8 +1050,97 @@ receive.patch = (args: { billing: number | { id: number } } | [billing: number |
     
     receive.form = receiveForm
 /**
+* @see \App\Http\Controllers\BillingController::recoverStuckRevision
+ * @see app/Http/Controllers/BillingController.php:657
+ * @route '/billings/{billing}/recover-stuck-revision'
+ */
+export const recoverStuckRevision = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: recoverStuckRevision.url(args, options),
+    method: 'patch',
+})
+
+recoverStuckRevision.definition = {
+    methods: ["patch"],
+    url: '/billings/{billing}/recover-stuck-revision',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Http\Controllers\BillingController::recoverStuckRevision
+ * @see app/Http/Controllers/BillingController.php:657
+ * @route '/billings/{billing}/recover-stuck-revision'
+ */
+recoverStuckRevision.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { billing: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { billing: args.id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    billing: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        billing: typeof args.billing === 'object'
+                ? args.billing.id
+                : args.billing,
+                }
+
+    return recoverStuckRevision.definition.url
+            .replace('{billing}', parsedArgs.billing.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BillingController::recoverStuckRevision
+ * @see app/Http/Controllers/BillingController.php:657
+ * @route '/billings/{billing}/recover-stuck-revision'
+ */
+recoverStuckRevision.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: recoverStuckRevision.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Http\Controllers\BillingController::recoverStuckRevision
+ * @see app/Http/Controllers/BillingController.php:657
+ * @route '/billings/{billing}/recover-stuck-revision'
+ */
+    const recoverStuckRevisionForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: recoverStuckRevision.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\BillingController::recoverStuckRevision
+ * @see app/Http/Controllers/BillingController.php:657
+ * @route '/billings/{billing}/recover-stuck-revision'
+ */
+        recoverStuckRevisionForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: recoverStuckRevision.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    recoverStuckRevision.form = recoverStuckRevisionForm
+/**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:655
+ * @see app/Http/Controllers/BillingController.php:683
  * @route '/billings/{billing}/recalculate'
  */
 export const recalculate = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1066,7 +1155,7 @@ recalculate.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:655
+ * @see app/Http/Controllers/BillingController.php:683
  * @route '/billings/{billing}/recalculate'
  */
 recalculate.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1099,7 +1188,7 @@ recalculate.url = (args: { billing: number | { id: number } } | [billing: number
 
 /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:655
+ * @see app/Http/Controllers/BillingController.php:683
  * @route '/billings/{billing}/recalculate'
  */
 recalculate.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1109,7 +1198,7 @@ recalculate.patch = (args: { billing: number | { id: number } } | [billing: numb
 
     /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:655
+ * @see app/Http/Controllers/BillingController.php:683
  * @route '/billings/{billing}/recalculate'
  */
     const recalculateForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1124,7 +1213,7 @@ recalculate.patch = (args: { billing: number | { id: number } } | [billing: numb
 
             /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:655
+ * @see app/Http/Controllers/BillingController.php:683
  * @route '/billings/{billing}/recalculate'
  */
         recalculateForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1431,6 +1520,6 @@ generateLetter.head = (args: { billing: number | { id: number } } | [billing: nu
         })
     
     generateLetter.form = generateLetterForm
-const BillingController = { exportMethod, index, create, store, show, edit, update, destroy, updateStatus, completePayment, sendBackToNurse, receive, recalculate, applyDiscount, generateReport, generateLetter, export: exportMethod }
+const BillingController = { exportMethod, index, create, store, show, edit, update, destroy, updateStatus, completePayment, sendBackToNurse, receive, recoverStuckRevision, recalculate, applyDiscount, generateReport, generateLetter, export: exportMethod }
 
 export default BillingController

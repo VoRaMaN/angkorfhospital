@@ -178,6 +178,15 @@ const sendBackToNurse = () => {
     });
 };
 
+const recoverStuckRevision = () => {
+    if (confirm(`This will finalize the medical order exactly as currently saved, reduce inventory, and forward it for payment. Billing was last updated ${formatDateTime(props.billing.updated_at)}. Only do this if the nurse is not actively editing it. Continue?`)) {
+        router.patch(`/billings/${props.billing.id}/recover-stuck-revision`, {}, {
+            preserveState: false,
+            preserveScroll: false,
+        });
+    }
+};
+
 </script>
 
 <template>
@@ -221,6 +230,16 @@ const sendBackToNurse = () => {
                     >
                         <Inbox class="size-4" />
                         Receive
+                    </Button>
+                    <!-- Recover Stuck Revision: admin-only safety net for orders stuck at 'revision' because the nurse only clicked Update -->
+                    <Button
+                        v-if="isAdmin && props.billing.status === 'revision'"
+                        variant="outline"
+                        class="border-amber-600 text-amber-700 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950/20"
+                        @click="recoverStuckRevision"
+                    >
+                        <RotateCcw class="size-4" />
+                        Recover Stuck Revision
                     </Button>
                     <!-- Finish: mark as paid (not when awaiting receipt or in revision flow) -->
                     <Button

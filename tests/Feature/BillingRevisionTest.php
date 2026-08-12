@@ -249,6 +249,103 @@ test('process and bill handles revision flow with existing billing', function ()
     expect($data['visit']->status)->toBe(VisitStatusEnum::AWAITING_ACCOUNTANT);
 });
 
+test('edit medical order page exposes revisionNotice when linked billing is in revision', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::REVISION,
+        'notes' => 'Sent back for revision on 2026-01-01: needs more items',
+    ], [
+        'status' => MedicalOrderStatusEnum::PENDING,
+        'completed_at' => null,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('medical-orders.edit', $data['medicalOrder']))
+        ->assertInertia(fn ($page) => $page
+            ->component('MedicalOrders/Edit')
+            ->where('revisionNotice.billing_id', $data['billing']->id)
+            ->where('revisionNotice.notes', $data['billing']->notes)
+        );
+});
+
+test('edit medical order page has null revisionNotice for a normal order', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::PAID,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('medical-orders.edit', $data['medicalOrder']))
+        ->assertInertia(fn ($page) => $page
+            ->component('MedicalOrders/Edit')
+            ->where('revisionNotice', null)
+        );
+});
+
+test('admin can recover a billing stuck in revision', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::REVISION,
+    ], [
+        'status' => MedicalOrderStatusEnum::PENDING,
+        'completed_at' => null,
+    ]);
+    $data['orderItem']->update([
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'completed_at' => null,
+    ]);
+    $originalQty = $data['inventory']->quantity;
+
+    $this->actingAs($user)
+        ->patch(route('billings.recover-stuck-revision', $data['billing']))
+        ->assertRedirect(route('billings.show', $data['billing']))
+        ->assertSessionHas('success');
+
+    $data['billing']->refresh();
+    expect($data['billing']->status)->toBe(BillingStatusEnum::SENT_TO_ACCOUNT);
+    expect($data['billing']->notes)->toContain('Force-recovered from stuck revision');
+
+    $data['medicalOrder']->refresh();
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::COMPLETED);
+
+    $data['inventory']->refresh();
+    expect($data['inventory']->quantity)->toBe($originalQty - 2);
+});
+
+test('non-admin cannot recover a billing stuck in revision', function () {
+    $domainRole = StaffRole::firstOrCreate(['name' => 'accountant'], ['description' => 'Accountant']);
+    $spatieRole = Role::firstOrCreate(['name' => 'accountant', 'guard_name' => 'web']);
+    $spatieRole->syncPermissions(['edit_billings']);
+    $user = User::factory()->create();
+    $user->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $user->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $data = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::REVISION,
+    ]);
+
+    $this->actingAs($user->fresh())
+        ->patch(route('billings.recover-stuck-revision', $data['billing']))
+        ->assertForbidden();
+
+    $data['billing']->refresh();
+    expect($data['billing']->status)->toBe(BillingStatusEnum::REVISION);
+});
+
+test('cannot recover a billing that is not stuck in revision', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder(['status' => BillingStatusEnum::PAID]);
+
+    $this->actingAs($user)
+        ->patch(route('billings.recover-stuck-revision', $data['billing']))
+        ->assertRedirect()
+        ->assertSessionHas('error');
+
+    $data['billing']->refresh();
+    expect($data['billing']->status)->toBe(BillingStatusEnum::PAID);
+});
+
 test('billing revision enum has correct properties', function () {
     $revision = BillingStatusEnum::REVISION;
 

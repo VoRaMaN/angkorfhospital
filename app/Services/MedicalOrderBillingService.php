@@ -263,6 +263,43 @@ class MedicalOrderBillingService
     }
 
     /**
+     * Finalize a medical order that was sent back for revision and is now being
+     * resubmitted: completes the order and its items, reduces inventory, and
+     * forwards the existing billing back to the accountant.
+     */
+    public function finalizeRevisedOrder(MedicalOrder $medicalOrder, Billing $billing, ?string $noteSuffix = null): Billing
+    {
+        return DB::transaction(function () use ($medicalOrder, $billing, $noteSuffix) {
+            $totalAmount = $this->calculateOrderTotal($medicalOrder);
+
+            $medicalOrder->update([
+                'status' => MedicalOrderStatusEnum::COMPLETED,
+                'completed_at' => now(),
+            ]);
+
+            $medicalOrder->orderItems()->update([
+                'status' => 'completed',
+                'completed_at' => now(),
+            ]);
+
+            $this->reduceInventoryStock($medicalOrder);
+
+            $currentNotes = $billing->notes ? $billing->notes."\n\n" : '';
+            $billing->update([
+                'amount' => $totalAmount,
+                'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
+                'notes' => $currentNotes.($noteSuffix ?? ('Recalculated after revision on '.now()->format('Y-m-d H:i').'. New amount: $'.number_format($totalAmount, 2))),
+            ]);
+
+            if ($medicalOrder->visit_id) {
+                \App\Models\Visit::where('id', $medicalOrder->visit_id)->update(['status' => \App\Models\Visit::STATUS_AWAITING_ACCOUNTANT]);
+            }
+
+            return $billing->fresh();
+        });
+    }
+
+    /**
      * Restore inventory stock for all items in a medical order (used when sending back for revision).
      */
     public function restoreInventoryStock(MedicalOrder $medicalOrder): void

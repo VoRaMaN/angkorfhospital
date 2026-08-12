@@ -106,4 +106,14 @@ class BillingPolicy
     {
         return $user->can('edit_billing') || $user->hasRole('admin');
     }
+
+    /**
+     * Determine whether the user can force-finalize a billing stuck in revision
+     * (e.g. the nurse saved without clicking "Send to Account"). Admin-only,
+     * since it bypasses the nurse's normal confirmation that she's done editing.
+     */
+    public function recoverStuckRevision(User $user, Billing $billing): bool
+    {
+        return $user->hasRole('admin');
+    }
 }

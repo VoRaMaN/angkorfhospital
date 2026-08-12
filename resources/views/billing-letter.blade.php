@@ -242,8 +242,24 @@
                                 <td class="net col-sep">{{ number_format($item['total'], 2) }}</td>
                             </tr>
                         @endforeach
+                    @elseif($group['type'] === 'rx_medicine')
+                        {{-- Medicines: keep grouped, collapse package-included items into one generic row --}}
+                        <tr>
+                            <td class="description">{{ $group['name'] }}</td>
+                            <td class="amount col-sep">{{ number_format($group['subtotal'], 2) }}</td>
+                            <td class="discount col-sep"></td>
+                            <td class="net col-sep">{{ number_format($group['subtotal'], 2) }}</td>
+                        </tr>
+                        @if(collect($group['items'])->contains(fn ($item) => !empty($item['is_package_included'])))
+                        <tr>
+                            <td class="description" style="font-weight:normal;padding-left:28px;">Medicine <span class="pkg-label">Include Package</span></td>
+                            <td class="amount col-sep">0.00</td>
+                            <td class="discount col-sep"></td>
+                            <td class="net col-sep">0.00</td>
+                        </tr>
+                        @endif
                     @else
-                        {{-- Lab and Medicine: keep grouped --}}
+                        {{-- Lab and everything else: keep grouped --}}
                         <tr>
                             <td class="description">{{ $group['name'] }}</td>
                             <td class="amount col-sep">{{ number_format($group['subtotal'], 2) }}</td>

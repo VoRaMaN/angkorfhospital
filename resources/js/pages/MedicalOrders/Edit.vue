@@ -37,6 +37,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import {
     Activity,
+    AlertCircle,
     ArrowLeft,
     ChevronDown,
     ChevronRight,
@@ -141,6 +142,10 @@ interface Props {
         completed_at?: string;
         order_items: OrderItem[];
     };
+    revisionNotice: {
+        billing_id: number;
+        notes: string | null;
+    } | null;
     patients: Array<{
         id: number;
         name: string;
@@ -804,6 +809,23 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                     <p class="text-muted-foreground">
                         Update medical order and its items
                     </p>
+                </div>
+            </div>
+
+            <div
+                v-if="props.revisionNotice"
+                class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/50"
+            >
+                <div class="flex items-start gap-2">
+                    <AlertCircle class="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <div class="text-sm text-amber-800 dark:text-amber-200">
+                        <p class="font-medium">This billing was sent back for revision.</p>
+                        <p>
+                            Saving with "Update Medical Order" alone will
+                            <strong>not</strong> send this order back to accounting.
+                            Click "Send to Account" once you've finished making corrections.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -2587,7 +2609,9 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                         {{
                             form.processing
                                 ? 'Updating...'
-                                : 'Update Medical Order'
+                                : props.revisionNotice
+                                    ? 'Save Draft (does not send to accountant)'
+                                    : 'Update Medical Order'
                         }}
                     </Button>
                     <Button

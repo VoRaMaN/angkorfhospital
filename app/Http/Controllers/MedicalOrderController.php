@@ -483,8 +483,16 @@ class MedicalOrderController extends Controller
             }),
         ];
 
+        $linkedRevisionBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
+            ->where('status', \App\Enums\BillingStatusEnum::REVISION->value)
+            ->first();
+
         return Inertia::render('MedicalOrders/Edit', [
             'medicalOrder' => $transformedOrder,
+            'revisionNotice' => $linkedRevisionBilling ? [
+                'billing_id' => $linkedRevisionBilling->id,
+                'notes' => $linkedRevisionBilling->notes,
+            ] : null,
             'patients' => $patients,
             'staff' => $staff,
             'labPanels' => $labPanels,
@@ -571,21 +579,23 @@ class MedicalOrderController extends Controller
             }
         }
 
-        // Recalculate any linked pending billing so the amount stays in sync
-        if ($request->has('order_items')) {
-            $medicalOrder->load('orderItems');
-            $linkedBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
-                ->whereIn('status', ['pending', 'revision', 'sent_to_account'])
-                ->first();
+        $linkedBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
+            ->whereIn('status', ['pending', 'revision', 'sent_to_account'])
+            ->first();
 
-            if ($linkedBilling) {
-                $billingService = app(MedicalOrderBillingService::class);
-                $newAmount = $billingService->calculateOrderTotal($medicalOrder);
-                $linkedBilling->update(['amount' => $newAmount]);
-            }
+        // Recalculate any linked pending billing so the amount stays in sync
+        if ($request->has('order_items') && $linkedBilling) {
+            $medicalOrder->load('orderItems');
+            $billingService = app(MedicalOrderBillingService::class);
+            $newAmount = $billingService->calculateOrderTotal($medicalOrder);
+            $linkedBilling->update(['amount' => $newAmount]);
         }
 
-        return redirect()->route('medical-orders.index')->with('success', 'Medical order updated successfully.');
+        $message = ($linkedBilling && $linkedBilling->status === \App\Enums\BillingStatusEnum::REVISION)
+            ? 'Medical order saved. This billing was sent back for revision — remember to click "Send to Account" to resubmit it.'
+            : 'Medical order updated successfully.';
+
+        return redirect()->route('medical-orders.index')->with('success', $message);
     }
 
     public function destroy(MedicalOrder $medicalOrder): RedirectResponse
@@ -1063,37 +1073,12 @@ class MedicalOrderController extends Controller
                 ->first();
 
             if ($existingBilling) {
-                // Revision flow: recalculate amount and update existing billing
-                $totalAmount = $billingService->calculateOrderTotal($medicalOrder);
-
-                // Update the medical order
-                $medicalOrder->update([
-                    'status' => \App\Enums\MedicalOrderStatusEnum::COMPLETED,
-                    'completed_at' => now(),
-                ]);
-
-                // Update all order items to completed
-                $medicalOrder->orderItems()->update([
-                    'status' => 'completed',
-                    'completed_at' => now(),
-                ]);
-
-                // Reduce inventory stock for any new items
-                $billingService->reduceInventoryStock($medicalOrder);
-
-                // Update billing amount and set to sent_to_account so billing user must Receive
-                $currentNotes = $existingBilling->notes ? $existingBilling->notes."\n\n" : '';
-                $existingBilling->update([
-                    'amount' => $totalAmount,
-                    'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT,
-                    'notes' => $currentNotes.'Recalculated after revision on '.now()->format('Y-m-d H:i').'. New amount: $'.number_format($totalAmount, 2),
-                ]);
-
-                Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_AWAITING_ACCOUNTANT]);
+                // Revision flow: finalize the order and forward the existing billing
+                $existingBilling = $billingService->finalizeRevisedOrder($medicalOrder, $existingBilling);
 
                 if (auth()->user()->can('view_billing') || auth()->user()->hasRole('admin')) {
                     return redirect()->route('billings.show', $existingBilling)
-                        ->with('success', 'Medical order revised and billing recalculated. New total: $'.number_format($totalAmount, 2));
+                        ->with('success', 'Medical order revised and billing recalculated. New total: $'.number_format($existingBilling->amount, 2));
                 }
 
                 return redirect()->route('medical-orders.show', $medicalOrder)
