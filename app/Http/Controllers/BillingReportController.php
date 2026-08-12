@@ -33,12 +33,14 @@ class BillingReportController extends Controller
                 ->orderBy('billing_date', 'desc')
                 ->get();
 
-            // Calculate summary
+            // Calculate summary. Revenue only counts money actually collected
+            // (paid bills) — a Sent to Account / Overdue bill isn't revenue yet.
+            $paidBillings = $billings->where('status', 'paid');
             $summary['total_bills'] = $billings->count();
-            $summary['total_revenue'] = $billings->sum('amount');
-            $summary['average_bill'] = $summary['total_bills'] > 0 ? $summary['total_revenue'] / $summary['total_bills'] : 0;
-            $summary['paid_count'] = $billings->where('status', 'paid')->count();
-            $summary['unpaid_count'] = $billings->whereIn('status', ['pending', 'overdue'])->count();
+            $summary['total_revenue'] = $paidBillings->sum('amount');
+            $summary['paid_count'] = $paidBillings->count();
+            $summary['average_bill'] = $summary['paid_count'] > 0 ? $summary['total_revenue'] / $summary['paid_count'] : 0;
+            $summary['unpaid_count'] = $billings->where('status', '!=', 'paid')->count();
 
             // Group by patient
             $billingData = $billings->groupBy('patient_id')
@@ -81,7 +83,7 @@ class BillingReportController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'group_by' => 'required|in:year,month,day',
-            'status' => 'nullable|string|in:'.implode(',', array_column(\App\Enums\BillingStatusEnum::cases(), 'value')),
+            'status' => 'nullable|string|in:unpaid,'.implode(',', array_column(\App\Enums\BillingStatusEnum::cases(), 'value')),
         ]);
 
         $startDate = $request->input('start_date');
@@ -91,7 +93,8 @@ class BillingReportController extends Controller
 
         $billings = Billing::with(['patient.user'])
             ->whereBetween('billing_date', [$startDate, $endDate])
-            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($status === 'unpaid', fn ($query) => $query->where('status', '!=', 'paid'))
+            ->when($status && $status !== 'unpaid', fn ($query) => $query->where('status', $status))
             ->orderBy('billing_date', 'asc')
             ->get();
 

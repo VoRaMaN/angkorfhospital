@@ -93,48 +93,48 @@ const getStatusColor = (status: string): BadgeVariant => {
         paid: 'default',
         pending: 'secondary',
         overdue: 'destructive',
+        cancelled: 'destructive',
+        sent_to_account: 'outline',
+        partial: 'outline',
+        revision: 'outline',
+        revised: 'outline',
+        written_off: 'destructive',
     };
     return colors[status] || 'secondary';
 };
 
-const statusLabels: Record<string, string> = {
-    paid: 'Paid',
-    pending: 'Pending',
-    overdue: 'Overdue',
-    partial: 'Partial',
-    written_off: 'Written Off',
-    cancelled: 'Cancelled',
-    revision: 'Revision',
-    revised: 'Revised',
-    sent_to_account: 'Sent to Account',
-};
-
-const statusOrder = ['paid', 'pending', 'overdue', 'partial', 'written_off', 'cancelled', 'revision', 'revised', 'sent_to_account'];
+// Status tabs collapse to exactly All / Paid / Unpaid — "Unpaid" is every
+// status that isn't 'paid'. Individual bill rows still show their real
+// status badge (billing.status.toUpperCase() in the template); only the
+// tabs group statuses together.
+const statusTabs = computed(() => {
+    let paid = 0;
+    let unpaid = 0;
+    for (const patient of props.billingData) {
+        for (const billing of patient.billings) {
+            if (billing.status === 'paid') paid++;
+            else unpaid++;
+        }
+    }
+    return [
+        { value: 'all', label: `All (${paid + unpaid})` },
+        { value: 'paid', label: `Paid (${paid})` },
+        { value: 'unpaid', label: `Unpaid (${unpaid})` },
+    ];
+});
 
 const activeStatus = ref('all');
 
-const statusTabs = computed(() => {
-    const counts: Record<string, number> = {};
-    let total = 0;
-    for (const patient of props.billingData) {
-        for (const billing of patient.billings) {
-            counts[billing.status] = (counts[billing.status] || 0) + 1;
-            total++;
-        }
-    }
-    const tabs = [{ value: 'all', label: `All (${total})` }];
-    for (const status of statusOrder) {
-        if (counts[status]) {
-            tabs.push({ value: status, label: `${statusLabels[status] ?? status} (${counts[status]})` });
-        }
-    }
-    return tabs;
-});
-
-// Fall back to "all" if the selected status vanished after a new report was generated
+// Fall back to "all" if the selected tab vanished after a new report was generated
 const effectiveStatus = computed(() =>
     statusTabs.value.some((t) => t.value === activeStatus.value) ? activeStatus.value : 'all',
 );
+
+const matchesActiveStatus = (status: string): boolean => {
+    if (effectiveStatus.value === 'all') return true;
+    if (effectiveStatus.value === 'paid') return status === 'paid';
+    return status !== 'paid'; // unpaid
+};
 
 const filteredBillingData = computed(() => {
     if (effectiveStatus.value === 'all') {
@@ -142,7 +142,7 @@ const filteredBillingData = computed(() => {
     }
     return props.billingData
         .map((patient) => {
-            const billings = patient.billings.filter((b) => b.status === effectiveStatus.value);
+            const billings = patient.billings.filter((b) => matchesActiveStatus(b.status));
             return {
                 ...patient,
                 billings,
@@ -153,7 +153,10 @@ const filteredBillingData = computed(() => {
         .filter((patient) => patient.billings.length > 0);
 });
 
-// Summary cards follow the active tab: on "Paid" only paid money/counts, etc.
+// Summary cards follow the active tab: on "All" this is the backend's
+// paid-only revenue figure; on "Paid"/"Unpaid" it's the sum of whatever
+// bills that tab is currently showing (so the Unpaid tab shows the unpaid
+// total, not $0 — "revenue" only means paid-only money on the All tab).
 const displaySummary = computed<Summary>(() => {
     if (effectiveStatus.value === 'all') {
         return props.summary;
@@ -165,7 +168,7 @@ const displaySummary = computed<Summary>(() => {
         total_bills: bills.length,
         average_bill: bills.length ? revenue / bills.length : 0,
         paid_count: bills.filter((b) => b.status === 'paid').length,
-        unpaid_count: bills.filter((b) => ['pending', 'overdue'].includes(b.status)).length,
+        unpaid_count: bills.filter((b) => b.status !== 'paid').length,
     };
 });
 </script>
