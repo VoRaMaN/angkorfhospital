@@ -622,7 +622,7 @@ class PatientController extends Controller
             ]);
             $fullName = trim(implode(' ', $nameParts));
 
-            $dob = $patient->date_of_birth_month.'/'.$patient->date_of_birth_day.'/'.$patient->date_of_birth_year;
+            $dob = sprintf('%02d/%02d/%02d', $patient->date_of_birth_day, $patient->date_of_birth_month, $patient->date_of_birth_year % 100);
             $gender = strtoupper(substr($patient->gender, 0, 1)); // M or F
 
             $age = null;
