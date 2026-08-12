@@ -12,6 +12,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PatientPhotoCapture from '@/components/PatientPhotoCapture.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -38,6 +39,7 @@ interface Props {
         nationality: string;
         religion?: string;
         race?: string;
+        photo_url?: string | null;
 
         // Address
         address?: string;
@@ -102,6 +104,8 @@ const patientName = props.patient.user?.name ? props.patient.user.name.split(' '
 const patientSurname = props.patient.user?.name ? props.patient.user.name.split(' ').slice(1).join(' ') : props.patient.surname;
 
 const form = useForm({
+    photo: null as File | null,
+    remove_photo: false,
     create_user_account: false,
     name: patientName,
     surname: patientSurname,
@@ -257,7 +261,7 @@ const copyAddressToEmergency = () => {
                     <TabsContent value="information" class="mt-6">
                         <form
                             @submit.prevent="
-                                form.put(`/patients/update?patient=${props.patient.id}`)
+                                form.put(`/patients/update?patient=${props.patient.id}`, { forceFormData: true })
                             "
                             class="space-y-8"
                         >
@@ -267,6 +271,16 @@ const copyAddressToEmergency = () => {
                                 <div class="rounded-md border">
                                     <table class="w-full">
                                         <tbody>
+                                            <tr class="border-b">
+                                                <td class="p-4 font-medium w-1/3">Photo</td>
+                                                <td class="p-4">
+                                                    <PatientPhotoCapture
+                                                        v-model:file="form.photo"
+                                                        v-model:remove="form.remove_photo"
+                                                        :existing-url="props.patient.photo_url"
+                                                    />
+                                                </td>
+                                            </tr>
                                             <tr class="border-b">
                                                 <td class="p-4 font-medium w-1/3">Title</td>
                                                 <td class="p-4">

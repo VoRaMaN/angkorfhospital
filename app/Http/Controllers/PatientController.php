@@ -11,6 +11,7 @@ use App\Models\Staff;
 use App\Models\User;
 use Dompdf\Dompdf;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -109,6 +110,11 @@ class PatientController extends Controller
     public function store(StorePatientRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        unset($data['photo']);
+
+        if ($request->hasFile('photo')) {
+            $data['photo_path'] = $request->file('photo')->store('patient_photos');
+        }
 
         // Create patient record without user account
         $patient = Patient::create($data);
@@ -247,6 +253,23 @@ class PatientController extends Controller
     }
 
     /**
+     * Stream the patient's profile photo inline.
+     */
+    public function photo()
+    {
+        $patient = Patient::findOrFail(request('patient'));
+        $this->authorize('view', $patient);
+
+        if (! $patient->photo_path || ! Storage::exists($patient->photo_path)) {
+            abort(404, 'Photo not found');
+        }
+
+        return Storage::response($patient->photo_path, null, [
+            'Content-Disposition' => 'inline',
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(): Response
@@ -271,6 +294,18 @@ class PatientController extends Controller
         $this->authorize('update', $patient);
 
         $data = $request->validated();
+        $removePhoto = $request->boolean('remove_photo');
+        unset($data['photo'], $data['remove_photo']);
+
+        if ($request->hasFile('photo')) {
+            if ($patient->photo_path) {
+                Storage::delete($patient->photo_path);
+            }
+            $data['photo_path'] = $request->file('photo')->store('patient_photos');
+        } elseif ($removePhoto && $patient->photo_path) {
+            Storage::delete($patient->photo_path);
+            $data['photo_path'] = null;
+        }
 
         // Handle user account creation (only for patients without existing user accounts)
         if ($request->boolean('create_user_account') && ! $patient->user_id) {

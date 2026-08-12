@@ -46,6 +46,7 @@ class Patient extends Model
         'nationality',
         'religion',
         'race',
+        'photo_path',
 
         // Address
         'address',
@@ -89,7 +90,7 @@ class Patient extends Model
         'patient_type',
     ];
 
-    protected $appends = ['full_name'];
+    protected $appends = ['full_name', 'photo_url'];
 
     protected function casts(): array
     {
@@ -108,6 +109,15 @@ class Patient extends Model
     public function getPhoneNumberAttribute(): ?string
     {
         return $this->mobile_phone ?? $this->home_phone;
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (! $this->photo_path) {
+            return null;
+        }
+
+        return route('patients.photo', ['patient' => $this->id]);
     }
 
     public function appointments()

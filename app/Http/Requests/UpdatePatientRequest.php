@@ -41,6 +41,8 @@ class UpdatePatientRequest extends FormRequest
             'nationality' => 'required|string|max:100',
             'religion' => 'nullable|string|max:100',
             'race' => 'nullable|string|max:100',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            'remove_photo' => 'nullable|boolean',
 
             // Address
             'address' => 'nullable|string|max:500',

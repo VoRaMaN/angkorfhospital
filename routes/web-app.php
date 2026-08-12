@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('billings/{billing}/complete-payment', [BillingController::class, 'completePayment'])->name('billings.complete-payment');
     Route::patch('billings/{billing}/send-back-to-nurse', [BillingController::class, 'sendBackToNurse'])->name('billings.send-back-to-nurse');
     Route::patch('billings/{billing}/receive', [BillingController::class, 'receive'])->name('billings.receive');
+    Route::patch('billings/{billing}/recover-stuck-revision', [BillingController::class, 'recoverStuckRevision'])->name('billings.recover-stuck-revision');
     Route::patch('billings/{billing}/recalculate', [BillingController::class, 'recalculate'])->name('billings.recalculate');
     Route::patch('billings/{billing}/discount', [BillingController::class, 'applyDiscount'])->name('billings.apply-discount');
     Route::get('billings/{billing}/report', [BillingController::class, 'generateReport'])->name('billings.report');
@@ -170,6 +171,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('patients/create', [PatientController::class, 'create'])->name('patients.create');
     Route::post('patients', [PatientController::class, 'store'])->name('patients.store');
     Route::get('patients/show', [PatientController::class, 'show'])->name('patients.show');
+    Route::get('patients/photo', [PatientController::class, 'photo'])->name('patients.photo');
     Route::get('patients/edit', [PatientController::class, 'edit'])->name('patients.edit');
     Route::put('patients/update', [PatientController::class, 'update'])->name('patients.update');
     Route::delete('patients/destroy', [PatientController::class, 'destroy'])->name('patients.destroy');

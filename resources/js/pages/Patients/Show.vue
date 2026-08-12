@@ -76,6 +76,7 @@ interface Props {
         surname: string;
         khmer_china_name?: string;
         khmer_china_surname?: string;
+        photo_url?: string | null;
         date_of_birth_day: number;
         date_of_birth_month: number;
         date_of_birth_year: number;
@@ -317,6 +318,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <div class="rounded-md border">
                                 <table class="w-full">
                                     <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-4 font-medium w-1/3">Photo</td>
+                                            <td class="p-4">
+                                                <img
+                                                    v-if="patient.photo_url"
+                                                    :src="patient.photo_url"
+                                                    alt="Patient photo"
+                                                    class="h-24 w-24 rounded-md border object-cover"
+                                                />
+                                                <span v-else class="text-muted-foreground">No photo</span>
+                                            </td>
+                                        </tr>
                                         <tr class="border-b">
                                             <td class="p-4 font-medium w-1/3">Title</td>
                                             <td class="p-4">{{ patient.title || 'N/A' }}</td>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import DateOfBirthInput from '@/components/DateOfBirthInput.vue';
+import PatientPhotoCapture from '@/components/PatientPhotoCapture.vue';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -63,6 +64,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const { hasPermission } = useAuth();
 
 const form = useForm({
+    photo: null as File | null,
     title: '',
     name: '',
     surname: '',
@@ -206,7 +208,7 @@ watch(() => form.title, (newTitle) => {
 
             <div class="w-full">
                 <form
-                    @submit.prevent="form.post('/patients')"
+                    @submit.prevent="form.post('/patients', { forceFormData: true })"
                     class="space-y-6"
                 >
                     <!-- Two Column Layout -->
@@ -215,6 +217,12 @@ watch(() => form.title, (newTitle) => {
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium">Personal Information</h3>
                             <div class="rounded-md border bg-blue-50 p-6 space-y-4">
+                                <div>
+                                    <label class="text-sm font-medium">Photo</label>
+                                    <div class="mt-1.5">
+                                        <PatientPhotoCapture v-model:file="form.photo" />
+                                    </div>
+                                </div>
                                 <div>
                                     <label class="text-sm font-medium">Title</label>
                                     <Select v-model="form.title">
