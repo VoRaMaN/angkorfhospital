@@ -577,6 +577,12 @@ class MedicalOrderController extends Controller
                     'notes' => $item['notes'] ?? null,
                 ]);
             }
+
+            // Relation was mutated directly via the query builder above; refresh
+            // the loaded collection so anything reading $medicalOrder->orderItems
+            // below (including processAndBill(), if send_to_account is set) sees
+            // the items that were just saved, not a stale cached collection.
+            $medicalOrder->load('orderItems');
         }
 
         $linkedBilling = \App\Models\Billing::where('medical_order_id', $medicalOrder->id)
@@ -585,10 +591,16 @@ class MedicalOrderController extends Controller
 
         // Recalculate any linked pending billing so the amount stays in sync
         if ($request->has('order_items') && $linkedBilling) {
-            $medicalOrder->load('orderItems');
             $billingService = app(MedicalOrderBillingService::class);
             $newAmount = $billingService->calculateOrderTotal($medicalOrder);
             $linkedBilling->update(['amount' => $newAmount]);
+        }
+
+        // "Send to Account" from the edit page saves and finalizes in one request,
+        // instead of two separate round trips that briefly landed the user back on
+        // the medical orders list before the second request redirected again.
+        if ($request->boolean('send_to_account')) {
+            return $this->processAndBill($medicalOrder);
         }
 
         $message = ($linkedBilling && $linkedBilling->status === \App\Enums\BillingStatusEnum::REVISION)

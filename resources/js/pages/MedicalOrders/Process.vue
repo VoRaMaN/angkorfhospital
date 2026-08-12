@@ -31,7 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index, processAndBill, processWithUpdate, show, update } from '@/routes/medical-orders';
+import { index, processWithUpdate, show, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import {
@@ -922,12 +922,12 @@ const sendToAccount = () => {
                     unit_price: item.unit_price,
                     selling_price: item.selling_price,
                 })),
+                send_to_account: true,
             },
             preserveState: false,
             preserveScroll: false,
             onSuccess: () => {
                 clearDraft();
-                router.patch(processAndBill(props.medicalOrder.id).url);
             },
             onError: (errors) => {
                 submitError.value = Object.values(errors).flat().join(', ');

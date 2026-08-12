@@ -67,6 +67,7 @@ class UpdateMedicalOrderRequest extends FormRequest
             'order_items.*.is_package_included' => 'nullable|boolean',
             'order_items.*.status' => 'nullable|in:'.implode(',', array_column(MedicalOrderStatusEnum::cases(), 'value')),
             'order_items.*.notes' => 'nullable|string|max:500',
+            'send_to_account' => 'nullable|boolean',
         ];
     }
 }

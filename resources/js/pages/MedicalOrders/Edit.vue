@@ -32,9 +32,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { index, processAndBill, update } from '@/routes/medical-orders';
+import { index, update } from '@/routes/medical-orders';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import {
     Activity,
     AlertCircle,
@@ -202,6 +202,7 @@ const form = useForm<{
     ordered_at: string;
     completed_at: string;
     order_items: OrderItem[];
+    send_to_account: boolean;
 }>({
     patient_id: props.medicalOrder.patient_id,
     staff_id: props.medicalOrder.staff_id,
@@ -212,6 +213,7 @@ const form = useForm<{
     ordered_at: props.medicalOrder.ordered_at,
     completed_at: props.medicalOrder.completed_at || '',
     order_items: props.medicalOrder.order_items.map((item) => ({ ...item })),
+    send_to_account: false,
 });
 
 const patientValue = computed({
@@ -250,16 +252,13 @@ const staffOptions = computed(() => {
 });
 
 const submitForm = () => {
-    console.log('Submitting form data:', form.data());
+    form.send_to_account = false;
     form.put(update(props.medicalOrder.id).url);
 };
 
 const sendToAccount = () => {
-    form.put(update(props.medicalOrder.id).url, {
-        onSuccess: () => {
-            router.patch(processAndBill(props.medicalOrder.id).url);
-        },
-    });
+    form.send_to_account = true;
+    form.put(update(props.medicalOrder.id).url);
 };
 
 const priorities = [

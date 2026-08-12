@@ -184,6 +184,112 @@ it('rejects processWithUpdate for non-pending orders', function () {
     $response->assertSessionHas('error');
 });
 
+it('send_to_account on update finalizes and bills the order in a single request', function () {
+    $doctor = createDoctorWithStaff();
+    $data = createPendingOrder($doctor);
+    $data['medicalOrder']->update(['status' => MedicalOrderStatusEnum::PROCESSING]);
+
+    $response = $this->actingAs($doctor)->put(
+        route('medical-orders.update', $data['medicalOrder']),
+        [
+            'order_details' => 'Ready to bill',
+            'notes' => 'Notes',
+            'order_items' => [
+                [
+                    'item_type' => 'rx_medicine',
+                    'item_name' => $data['inventory']->item_name,
+                    'quantity_required' => 2,
+                    'status' => 'pending',
+                    'inventory_id' => $data['inventory']->id,
+                ],
+            ],
+            'send_to_account' => true,
+        ],
+    );
+
+    $billing = \App\Models\Billing::where('medical_order_id', $data['medicalOrder']->id)->first();
+    expect($billing)->not->toBeNull();
+
+    // This doctor has no billing-view permission, so processAndBill() sends them to
+    // the order's own page — but crucially NOT back to the medical orders list,
+    // which is what happened before this fix (the confusing double-hop bug).
+    $response->assertRedirect(route('medical-orders.show', $data['medicalOrder']));
+    $response->assertSessionDoesntHaveErrors();
+    $response->assertSessionHas('success');
+
+    $data['medicalOrder']->refresh();
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::COMPLETED);
+    expect($billing->status)->toBe(\App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT);
+    expect((float) $billing->amount)->toBe(50.00);
+});
+
+it('admin using send_to_account is redirected straight to the billing page', function () {
+    $domainRole = StaffRole::firstOrCreate(['name' => 'admin'], ['description' => 'System Administrator']);
+    $spatieRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $admin = User::factory()->create();
+    $admin->assignRole($spatieRole);
+    Staff::factory()->create(['user_id' => $admin->id, 'role_id' => $domainRole->id]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+    $admin = $admin->fresh();
+
+    $data = createPendingOrder($admin);
+    $adminStaff = Staff::where('user_id', $admin->id)->first();
+    $data['medicalOrder']->update(['staff_id' => $adminStaff->id, 'status' => MedicalOrderStatusEnum::PROCESSING]);
+
+    $response = $this->actingAs($admin)->put(
+        route('medical-orders.update', $data['medicalOrder']),
+        [
+            'order_details' => 'Ready to bill',
+            'order_items' => [
+                [
+                    'item_type' => 'rx_medicine',
+                    'item_name' => $data['inventory']->item_name,
+                    'quantity_required' => 1,
+                    'status' => 'pending',
+                    'inventory_id' => $data['inventory']->id,
+                ],
+            ],
+            'send_to_account' => true,
+        ],
+    );
+
+    $billing = \App\Models\Billing::where('medical_order_id', $data['medicalOrder']->id)->first();
+    expect($billing)->not->toBeNull();
+    $response->assertRedirect(route('billings.show', $billing));
+
+    $data['medicalOrder']->refresh();
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::COMPLETED);
+});
+
+it('update without send_to_account just saves and redirects to the medical orders list', function () {
+    $doctor = createDoctorWithStaff();
+    $data = createPendingOrder($doctor);
+    $data['medicalOrder']->update(['status' => MedicalOrderStatusEnum::PROCESSING]);
+
+    $response = $this->actingAs($doctor)->put(
+        route('medical-orders.update', $data['medicalOrder']),
+        [
+            'order_details' => 'Still working on it',
+            'order_items' => [
+                [
+                    'item_type' => 'rx_medicine',
+                    'item_name' => $data['inventory']->item_name,
+                    'quantity_required' => 2,
+                    'status' => 'pending',
+                    'inventory_id' => $data['inventory']->id,
+                ],
+            ],
+        ],
+    );
+
+    $response->assertRedirect(route('medical-orders.index'));
+    $response->assertSessionHas('success');
+
+    $data['medicalOrder']->refresh();
+    expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::PROCESSING);
+    expect(\App\Models\Billing::where('medical_order_id', $data['medicalOrder']->id)->exists())->toBeFalse();
+});
+
 it('handles special_item type in processWithUpdate', function () {
     $doctor = createDoctorWithStaff();
     $data = createPendingOrder($doctor);
