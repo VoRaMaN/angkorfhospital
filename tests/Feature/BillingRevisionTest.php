@@ -249,6 +249,35 @@ test('process and bill handles revision flow with existing billing', function ()
     expect($data['visit']->status)->toBe(VisitStatusEnum::AWAITING_ACCOUNTANT);
 });
 
+test('process and bill refreshes a stale billing_date so it reappears for the accountant', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::REVISION,
+        'billing_date' => now()->subDay(), // stale: billed yesterday, revised/resent today
+    ], [
+        'status' => MedicalOrderStatusEnum::PROCESSED,
+        'completed_at' => null,
+    ]);
+    $data['orderItem']->update([
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'completed_at' => null,
+    ]);
+
+    $this->actingAs($user)
+        ->patch(route('medical-orders.process-and-bill', $data['medicalOrder']))
+        ->assertRedirect(route('billings.show', $data['billing']));
+
+    $data['billing']->refresh();
+    expect($data['billing']->billing_date->toDateString())->toBe(now()->toDateString());
+
+    // The accountant's default "All" tab (no explicit date filter) only shows
+    // today's billings — this is the exact query that was silently hiding it.
+    $visible = \App\Models\Billing::where('status', '!=', BillingStatusEnum::PAID)
+        ->whereDate('billing_date', today())
+        ->pluck('id');
+    expect($visible)->toContain($data['billing']->id);
+});
+
 test('edit medical order page exposes revisionNotice when linked billing is in revision', function () {
     $user = createAdminWithStaff();
     $data = createBillingWithMedicalOrder([

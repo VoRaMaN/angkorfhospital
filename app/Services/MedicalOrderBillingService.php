@@ -288,6 +288,12 @@ class MedicalOrderBillingService
             $billing->update([
                 'amount' => $totalAmount,
                 'status' => \App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT->value,
+                // Refresh billing_date so the billing reappears in the accountant's
+                // default "All" view, which only shows today's billings when no
+                // date range is set — a revision can span multiple days, and a
+                // stale date otherwise makes an already-finalized billing silently
+                // invisible to the accountant.
+                'billing_date' => now()->toDateString(),
                 'notes' => $currentNotes.($noteSuffix ?? ('Recalculated after revision on '.now()->format('Y-m-d H:i').'. New amount: $'.number_format($totalAmount, 2))),
             ]);
 
