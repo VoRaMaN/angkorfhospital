@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { todayInPhnomPenh } from '@/lib/utils';
 import { router, usePage } from '@inertiajs/vue3';
 import { CheckCircle2, FlaskConical, Loader2, Printer, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
@@ -84,9 +85,9 @@ const buildEmptyForm = (): HormoneReportData => ({
     medical_order_id: props.orderId,
     patient_id: props.patientId,
     specimen: 'Serum',
-    collection_date: null,
+    collection_date: todayInPhnomPenh(),
     collection_time: null,
-    received_date: null,
+    received_date: todayInPhnomPenh(),
     received_time: null,
     lh: null,
     fsh: null,
@@ -101,10 +102,10 @@ const buildEmptyForm = (): HormoneReportData => ({
     beta_hcg: null,
     remark: null,
     reported_by: null,
-    reported_date: null,
+    reported_date: todayInPhnomPenh(),
     reported_time: null,
     approved_by: null,
-    approved_date: null,
+    approved_date: todayInPhnomPenh(),
     approved_time: null,
 });
 

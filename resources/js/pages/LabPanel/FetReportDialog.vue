@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { router, usePage } from '@inertiajs/vue3';
 import { CheckCircle2, FlaskConical, Loader2, Printer, Search, User, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
+import { nowInPhnomPenhDisplay, todayInPhnomPenh } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PatientOption {
@@ -189,10 +190,10 @@ const buildEmptyForm = (): FetReportData => ({
     male_hn: autoIsMale.value ? (props.patientId ?? null) : null,
     male_dob: null,
     procedure: 'FET',
-    fet_date: null,
+    fet_date: todayInPhnomPenh(),
     doctor: props.staffName ?? null,
     freeze_datetime: null,
-    thaw_datetime: null,
+    thaw_datetime: nowInPhnomPenhDisplay(),
     thawing_media: null,
     no_of_freeze: null,
     no_of_thaw: null,
@@ -223,7 +224,7 @@ const buildEmptyForm = (): FetReportData => ({
     et_day: null,
     et_catheter: null,
     number_of_freeze_et: null,
-    et_datetime: null,
+    et_datetime: nowInPhnomPenhDisplay(),
     et_doctor: null,
     number_of_discard: null,
     assisted_hatching: null,

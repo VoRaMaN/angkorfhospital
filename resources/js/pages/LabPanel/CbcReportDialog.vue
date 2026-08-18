@@ -7,6 +7,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import { CheckCircle2, Droplet, Loader2, Printer, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 import { cbcFlag, cbcTests, diffTests } from '@/lib/cbcReference';
+import { todayInPhnomPenh } from '@/lib/utils';
 
 // ─── Props & Emits ────────────────────────────────────────────────────────────
 interface CbcReportData {
@@ -84,8 +85,8 @@ const buildEmptyForm = (): CbcReportData => ({
     patient_id: props.patientId,
     lab_id: null,
     requested_by: props.doctorName,
-    requested_date: null,
-    analysis_date: null,
+    requested_date: todayInPhnomPenh(),
+    analysis_date: todayInPhnomPenh(),
     wbc: null,
     rbc: null,
     hemoglobin: null,
@@ -102,7 +103,7 @@ const buildEmptyForm = (): CbcReportData => ({
     basophils: null,
     remark: null,
     reported_by: null,
-    reported_date: null,
+    reported_date: todayInPhnomPenh(),
 });
 
 const form = reactive<CbcReportData>(buildEmptyForm());

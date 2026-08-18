@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { router, usePage } from '@inertiajs/vue3';
 import { CheckCircle2, ClipboardList, Loader2, Printer, Search, User, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
+import { todayInPhnomPenh } from '@/lib/utils';
 
 // ─── Props & Emits ────────────────────────────────────────────────────────────
 interface PatientOption {
@@ -178,10 +179,10 @@ const buildEmptyForm = (): SemenAnalysisData => ({
     finish_time: null,
     remark: null,
     reported_by: null,
-    reported_date: null,
+    reported_date: todayInPhnomPenh(),
     reported_time: null,
     approved_by: null,
-    approved_date: null,
+    approved_date: todayInPhnomPenh(),
     approved_time: null,
 });
 

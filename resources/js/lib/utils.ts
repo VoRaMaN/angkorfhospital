@@ -54,6 +54,29 @@ export function formatDateTime(date: string | Date | null | undefined): string {
 }
 
 /**
+ * Today's date in Asia/Phnom_Penh, as YYYY-MM-DD (for native `type="date"` inputs).
+ * Uses explicit timezone conversion rather than toISOString(), which would shift
+ * to UTC and can land on the wrong calendar day near midnight.
+ */
+export function todayInPhnomPenh(): string {
+    const now = new Date();
+    const pp = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
+    return `${pp.getFullYear()}-${String(pp.getMonth() + 1).padStart(2, '0')}-${String(pp.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * Current date & time in Asia/Phnom_Penh, as "DD/MM/YYYY HH:mm" (for free-text
+ * datetime inputs that display in this format).
+ */
+export function nowInPhnomPenhDisplay(): string {
+    const now = new Date();
+    const pp = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
+    const date = `${String(pp.getDate()).padStart(2, '0')}/${String(pp.getMonth() + 1).padStart(2, '0')}/${pp.getFullYear()}`;
+    const time = `${String(pp.getHours()).padStart(2, '0')}:${String(pp.getMinutes()).padStart(2, '0')}`;
+    return `${date} ${time}`;
+}
+
+/**
  * Format a datetime string to HH:mm format
  */
 export function formatTime(date: string | Date | null | undefined): string {
