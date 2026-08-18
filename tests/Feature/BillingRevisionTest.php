@@ -139,6 +139,58 @@ test('admin can send paid billing back to nurse for revision', function () {
     expect($data['visit']->status)->toBe(VisitStatusEnum::SENT_BACK);
 });
 
+test('cannot send back a billing that is already in revision', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder(['status' => BillingStatusEnum::REVISION]);
+    $originalQty = $data['inventory']->quantity;
+
+    $this->actingAs($user)
+        ->patch(route('billings.send-back-to-nurse', $data['billing']), [
+            'reason' => 'Trying to send back again',
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('error');
+
+    $data['billing']->refresh();
+    expect($data['billing']->status)->toBe(BillingStatusEnum::REVISION);
+
+    // Inventory must not be restored a second time
+    $data['inventory']->refresh();
+    expect($data['inventory']->quantity)->toBe($originalQty);
+});
+
+test('cannot send back a cancelled billing', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder(['status' => BillingStatusEnum::CANCELLED]);
+    $originalQty = $data['inventory']->quantity;
+
+    $this->actingAs($user)
+        ->patch(route('billings.send-back-to-nurse', $data['billing']))
+        ->assertRedirect()
+        ->assertSessionHas('error');
+
+    $data['billing']->refresh();
+    expect($data['billing']->status)->toBe(BillingStatusEnum::CANCELLED);
+    $data['inventory']->refresh();
+    expect($data['inventory']->quantity)->toBe($originalQty);
+});
+
+test('cannot send back a written off billing', function () {
+    $user = createAdminWithStaff();
+    $data = createBillingWithMedicalOrder(['status' => BillingStatusEnum::WRITTEN_OFF]);
+    $originalQty = $data['inventory']->quantity;
+
+    $this->actingAs($user)
+        ->patch(route('billings.send-back-to-nurse', $data['billing']))
+        ->assertRedirect()
+        ->assertSessionHas('error');
+
+    $data['billing']->refresh();
+    expect($data['billing']->status)->toBe(BillingStatusEnum::WRITTEN_OFF);
+    $data['inventory']->refresh();
+    expect($data['inventory']->quantity)->toBe($originalQty);
+});
+
 test('sending billing back restores inventory stock', function () {
     $user = createAdminWithStaff();
     $data = createBillingWithMedicalOrder();

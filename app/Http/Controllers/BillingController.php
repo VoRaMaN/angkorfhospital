@@ -574,6 +574,19 @@ class BillingController extends Controller
             return redirect()->back()->with('error', 'This billing has no linked medical order and cannot be sent back for revision.');
         }
 
+        // Already in revision (would double-restore inventory before the nurse
+        // resubmits), or a dead/terminal status (cancelled, written off) that
+        // should never be revived via send-back.
+        $blockedStatuses = [
+            \App\Enums\BillingStatusEnum::REVISION,
+            \App\Enums\BillingStatusEnum::CANCELLED,
+            \App\Enums\BillingStatusEnum::WRITTEN_OFF,
+        ];
+
+        if (in_array($billing->status, $blockedStatuses, true)) {
+            return redirect()->back()->with('error', 'This billing cannot be sent back for revision at its current status.');
+        }
+
         $medicalOrder = $billing->medicalOrder;
         $medicalOrder->load('orderItems.inventory');
 
