@@ -58,14 +58,19 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Parse the appointment datetime in Phnom Penh timezone
+// The backend already sends appointment_date_time as a naive Phnom Penh
+// local string (e.g. "2026-08-19T10:30", see AppointmentController::edit()).
+// Parse it directly instead of round-tripping through a Date object — that
+// previous approach depended on the browser's own timezone matching Phnom
+// Penh and was fragile for anyone testing/administering from elsewhere.
 const parseDateTime = (dateTimeStr: string) => {
-    const date = new Date(new Date(dateTimeStr).toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
+    const [datePart, timePart] = dateTimeStr.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
     return {
-        day: date.getDate(),
-        month: date.getMonth() + 1,
-        year: date.getFullYear(),
-        time: `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
+        day,
+        month,
+        year,
+        time: (timePart ?? '00:00').slice(0, 5),
     };
 };
 
@@ -94,15 +99,15 @@ const selectedMonth = ref(initialMonth);
 const selectedYear = ref(initialYear);
 const appointmentTime = ref(initialTime);
 
-// Computed property to combine date and time into ISO format for backend
+// Combine date and time into the naive local datetime string the backend
+// expects (Phnom Penh time, no offset) — see the matching note in Create.vue.
 const combinedDateTime = computed(() => {
     if (!selectedDay.value || !selectedMonth.value || !selectedYear.value || !appointmentTime.value) return '';
     const day = String(selectedDay.value).padStart(2, '0');
     const month = String(selectedMonth.value).padStart(2, '0');
     const year = selectedYear.value;
     const [hours, minutes] = appointmentTime.value.split(':');
-    const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
-    return date.toISOString().slice(0, 16);
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 });
 
 const form = useForm({

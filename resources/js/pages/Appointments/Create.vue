@@ -93,13 +93,15 @@ const appointmentDate = computed(() => {
     return `${day}/${month}/${year}`;
 });
 
-// Computed property to combine date and time into ISO format for backend
+// Combine date and time into the naive local datetime string the backend
+// expects (Phnom Penh time, no offset). Do NOT round-trip through a Date
+// object / toISOString() here — that converts to UTC and silently shifts
+// the entered time by the timezone offset before it ever reaches the server.
 const combinedDateTime = computed(() => {
     if (!appointmentDate.value || !appointmentTime.value) return '';
     const [day, month, year] = appointmentDate.value.split('/');
     const [hours, minutes] = appointmentTime.value.split(':');
-    const date = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
-    return date.toISOString().slice(0, 16);
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 });
 
 const form = useForm({
