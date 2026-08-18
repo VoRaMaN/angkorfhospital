@@ -278,7 +278,7 @@ test('process and bill refreshes a stale billing_date so it reappears for the ac
     expect($visible)->toContain($data['billing']->id);
 });
 
-test('billings index All tab shows old sent_to_account billings but still hides old paid ones', function () {
+test('billings index All tab defaults to today regardless of status, by design', function () {
     $user = createAdminWithStaff();
 
     $oldActive = createBillingWithMedicalOrder([
@@ -286,17 +286,30 @@ test('billings index All tab shows old sent_to_account billings but still hides 
         'billing_date' => now()->subMonths(2),
     ])['billing'];
 
-    $oldPaid = createBillingWithMedicalOrder([
-        'status' => BillingStatusEnum::PAID,
-        'billing_date' => now()->subMonths(2),
+    $todayActive = createBillingWithMedicalOrder([
+        'status' => BillingStatusEnum::SENT_TO_ACCOUNT,
+        'billing_date' => now(),
     ])['billing'];
 
+    // Default "All" tab (no status/date filter): only today's billings, even
+    // though the older one still needs action — this is intentional, bills
+    // "archive" out of the default view after midnight and are found via the
+    // date pickers or an explicit status filter instead.
     $this->actingAs($user)
         ->get(route('billings.index'))
         ->assertInertia(fn ($page) => $page
             ->component('Billings/Index')
+            ->where('billings', fn ($rows) => ! collect($rows)->pluck('id')->contains($oldActive->id)
+                && collect($rows)->pluck('id')->contains($todayActive->id))
+        );
+
+    // Explicit status filter bypasses the date default, same as the other
+    // status tabs (Pending/Paid/Overdue/...) already do.
+    $this->actingAs($user)
+        ->get(route('billings.index', ['status' => 'sent_to_account']))
+        ->assertInertia(fn ($page) => $page
             ->where('billings', fn ($rows) => collect($rows)->pluck('id')->contains($oldActive->id)
-                && ! collect($rows)->pluck('id')->contains($oldPaid->id))
+                && collect($rows)->pluck('id')->contains($todayActive->id))
         );
 });
 
