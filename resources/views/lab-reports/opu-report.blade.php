@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Summary of OPU Report</title>
     <style>
-        @page { margin: 8mm 10mm; }
+        @page { margin: 10mm 12mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; line-height: 1.4; color: #000; }
 
@@ -106,7 +106,7 @@
         </div>
     </div>
 
-    <!-- Main data box: Maturation | Fertilization | Sperm preparation | Embryo Freezing -->
+    <!-- Main data box: Maturation | Sperm preparation | Fertilization | Embryo Freezing -->
     <div class="box">
         <div class="cols">
             <div class="col" style="width: 25%;">
@@ -124,16 +124,6 @@
                 <div class="ln"><span class="l">Post mature :</span> <span class="v">{{ $report['post_mature'] ?? '' }}</span></div>
                 <div class="ln"><span class="l">Abnormal :</span> <span class="v">{{ $report['maturation_abnormal'] ?? '' }}</span></div>
                 <div class="ln"><span class="l">Dead :</span> <span class="v">{{ $report['maturation_dead'] ?? '' }}</span></div>
-            </div>
-            <div class="col" style="width: 21%;">
-                <p class="grp-title">Fertilization</p>
-                <div class="ln"><span class="l">Date&amp;Time :</span> <span class="v">{{ $report['fertilization_datetime'] ?? '' }}</span></div>
-                <div class="ln"><span class="l">2 PN :</span> <span class="v">{{ $report['pn2'] ?? '' }}</span></div>
-                <div class="ln"><span class="l">1 PN :</span> <span class="v">{{ $report['pn1'] ?? '' }}</span></div>
-                <div class="ln"><span class="l">3 PN :</span> <span class="v">{{ $report['pn3'] ?? '' }}</span></div>
-                <div class="ln"><span class="l">4 PN :</span> <span class="v">{{ $report['pn4'] ?? '' }}</span></div>
-                <div class="ln"><span class="l">No PN :</span> <span class="v">{{ $report['no_pn'] ?? '' }}</span></div>
-                <div class="ln"><span class="l">Dead :</span> <span class="v">{{ $report['fert_dead'] ?? '' }}</span></div>
             </div>
             <div class="col" style="width: 30%;">
                 <p class="grp-title" style="text-align:center;">Sperm preparation</p>
@@ -154,6 +144,16 @@
                     &nbsp;&nbsp;
                     <span class="cb">{!! $isFrozen ? '&#10003;' : '&nbsp;' !!}</span> Frozen sperm
                 </div>
+            </div>
+            <div class="col" style="width: 21%;">
+                <p class="grp-title">Fertilization</p>
+                <div class="ln"><span class="l">Date&amp;Time :</span> <span class="v">{{ $report['fertilization_datetime'] ?? '' }}</span></div>
+                <div class="ln"><span class="l">2 PN :</span> <span class="v">{{ $report['pn2'] ?? '' }}</span></div>
+                <div class="ln"><span class="l">1 PN :</span> <span class="v">{{ $report['pn1'] ?? '' }}</span></div>
+                <div class="ln"><span class="l">3 PN :</span> <span class="v">{{ $report['pn3'] ?? '' }}</span></div>
+                <div class="ln"><span class="l">4 PN :</span> <span class="v">{{ $report['pn4'] ?? '' }}</span></div>
+                <div class="ln"><span class="l">No PN :</span> <span class="v">{{ $report['no_pn'] ?? '' }}</span></div>
+                <div class="ln"><span class="l">Dead :</span> <span class="v">{{ $report['fert_dead'] ?? '' }}</span></div>
             </div>
             <div class="col" style="width: 24%;">
                 <p class="grp-title">Embryo Freezing</p>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Semen Analysis and Freezing Report</title>
     <style>
-        @page { margin: 8mm 12mm; }
+        @page { margin: 10mm 12mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 9.5px; line-height: 1.45; color: #000; }
 

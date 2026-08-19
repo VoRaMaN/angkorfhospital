@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Summary of FET Report</title>
     <style>
-        @page { margin: 8mm 10mm; }
+        @page { margin: 10mm 12mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 8.5px; line-height: 1.35; color: #000; }
 

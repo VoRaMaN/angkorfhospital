@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Hormone Report</title>
     <style>
-        @page { margin: 7mm 9mm; }
+        @page { margin: 10mm 12mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #000; }
 
