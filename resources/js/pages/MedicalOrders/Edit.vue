@@ -2,6 +2,7 @@
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Card,
     CardContent,
@@ -127,6 +128,7 @@ interface OrderItem {
     inventory_id?: number;
     unit_price?: number;
     selling_price?: number;
+    is_package_included?: boolean;
 }
 
 interface Props {
@@ -692,6 +694,30 @@ const addSupplyItem = () => {
 
 const removeOrderItem = (index: number) => {
     form.order_items.splice(index, 1);
+};
+
+// Toggle "Include Package" on an already-added item: on -> price 0 (covered
+// by the package); off -> restore the catalog price when we can find it.
+const setItemPackageIncluded = (item: OrderItem, included: boolean) => {
+    item.is_package_included = included;
+    if (included) {
+        item.unit_price = 0;
+        item.selling_price = 0;
+        if (!(item.notes ?? '').includes('Include Package - Not counted in billing')) {
+            item.notes = `${item.notes ? item.notes + ' - ' : ''}Include Package - Not counted in billing`;
+        }
+    } else {
+        item.notes = (item.notes ?? '')
+            .replace(/\s*-?\s*Include Package - Not counted in billing/g, '')
+            .trim();
+        const inv = item.inventory_id
+            ? props.inventoryItems.find((i) => i.id === item.inventory_id)
+            : undefined;
+        if (inv) {
+            item.unit_price = inv.unit_price || 0;
+            item.selling_price = inv.selling_price || 0;
+        }
+    }
 };
 
 const duplicateOrderItem = (index: number) => {
@@ -2085,7 +2111,14 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                                             itemData.item
                                                                 .item_name ||
                                                             'Unnamed item'
-                                                        }}</span
+                                                        }}
+                                                        <Badge
+                                                            v-if="itemData.item.is_package_included"
+                                                            variant="outline"
+                                                            class="ml-1 border-emerald-300 bg-emerald-50 text-[10px] text-emerald-700"
+                                                        >
+                                                            Include Package
+                                                        </Badge></span
                                                     >
                                                     <span
                                                         v-if="
@@ -2180,6 +2213,17 @@ const getItemTypeDisplayName = (type: string, panelName?: string) => {
                                             "
                                             class="space-y-3 border-t p-3"
                                         >
+                                            <!-- Include Package toggle (all item types) -->
+                                            <label
+                                                class="flex w-fit cursor-pointer items-center gap-2 rounded-md border bg-muted/40 px-3 py-1.5"
+                                            >
+                                                <Checkbox
+                                                    :model-value="!!itemData.item.is_package_included"
+                                                    @update:model-value="(v: boolean | 'indeterminate') => setItemPackageIncluded(itemData.item, v === true)"
+                                                />
+                                                <span class="text-xs font-medium">Include Package (price $0 — not counted in billing)</span>
+                                            </label>
+
                                             <!-- Lab Test Fields -->
                                             <div
                                                 v-if="

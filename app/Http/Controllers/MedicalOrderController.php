@@ -430,37 +430,44 @@ class MedicalOrderController extends Controller
             'ordered_at' => $medicalOrder->ordered_at->toDateString(),
             'completed_at' => $medicalOrder->completed_at?->toDateString(),
             'order_items' => $medicalOrder->orderItems->map(function ($item) {
-                // Use stored price if > 0, else fall back to inventory price
-                $unitPrice = $item->unit_price > 0
-                    ? (float) $item->unit_price
-                    : ($item->inventory?->unit_price ?? 0);
-                $sellingPrice = $item->selling_price > 0
-                    ? (float) $item->selling_price
-                    : ($item->inventory?->selling_price ?? 0);
+                if ($item->is_package_included) {
+                    // Package-included items are always $0 — never resurrect a
+                    // catalog/service price for them (see is_package_included bug).
+                    $unitPrice = 0;
+                    $sellingPrice = 0;
+                } else {
+                    // Use stored price if > 0, else fall back to inventory price
+                    $unitPrice = $item->unit_price > 0
+                        ? (float) $item->unit_price
+                        : ($item->inventory?->unit_price ?? 0);
+                    $sellingPrice = $item->selling_price > 0
+                        ? (float) $item->selling_price
+                        : ($item->inventory?->selling_price ?? 0);
 
-                // For medical services without inventory, look up price from MedicalService
-                if ($sellingPrice <= 0 && ! $item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
-                    $medicalService = \App\Models\MedicalService::where('name', $item->item_name)->first();
-                    if ($medicalService) {
-                        $unitPrice = (float) $medicalService->price;
-                        $sellingPrice = (float) $medicalService->price;
-                    }
-                }
-
-                // For special items with no stored price, look up from SpecialItem or MedicineGroup
-                if ($sellingPrice <= 0 && $item->item_type === 'special_item') {
-                    $specialItem = \App\Models\SpecialItem::where('name', $item->item_name)->first();
-                    if ($specialItem) {
-                        $unitPrice = (float) $specialItem->unit_price;
-                        $sellingPrice = (float) $specialItem->unit_price;
+                    // For medical services without inventory, look up price from MedicalService
+                    if ($sellingPrice <= 0 && ! $item->inventory_id && in_array($item->item_type, ['procedure', 'imaging', 'consultation', 'therapy'])) {
+                        $medicalService = \App\Models\MedicalService::where('name', $item->item_name)->first();
+                        if ($medicalService) {
+                            $unitPrice = (float) $medicalService->price;
+                            $sellingPrice = (float) $medicalService->price;
+                        }
                     }
 
-                    if ($sellingPrice <= 0) {
-                        $medicineGroup = \App\Models\MedicineGroup::where('name', $item->item_name)->first();
-                        if ($medicineGroup) {
-                            $price = (float) $medicineGroup->total_price;
-                            $unitPrice = $price;
-                            $sellingPrice = $price;
+                    // For special items with no stored price, look up from SpecialItem or MedicineGroup
+                    if ($sellingPrice <= 0 && $item->item_type === 'special_item') {
+                        $specialItem = \App\Models\SpecialItem::where('name', $item->item_name)->first();
+                        if ($specialItem) {
+                            $unitPrice = (float) $specialItem->unit_price;
+                            $sellingPrice = (float) $specialItem->unit_price;
+                        }
+
+                        if ($sellingPrice <= 0) {
+                            $medicineGroup = \App\Models\MedicineGroup::where('name', $item->item_name)->first();
+                            if ($medicineGroup) {
+                                $price = (float) $medicineGroup->total_price;
+                                $unitPrice = $price;
+                                $sellingPrice = $price;
+                            }
                         }
                     }
                 }
@@ -477,6 +484,7 @@ class MedicalOrderController extends Controller
                     'quantity_required' => $item->quantity_required,
                     'status' => $item->status->value,
                     'notes' => $item->notes,
+                    'is_package_included' => $item->is_package_included,
                     'unit_price' => $unitPrice,
                     'selling_price' => $sellingPrice,
                 ];

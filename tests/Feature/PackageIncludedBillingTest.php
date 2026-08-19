@@ -266,6 +266,90 @@ it('processAndBill reuses an existing sent_to_account billing instead of creatin
     expect(Billing::where('medical_order_id', $data['medicalOrder']->id)->count())->toBe(1);
 });
 
+it('edit page preserves is_package_included and does not resurrect the catalog price', function () {
+    // Reproduces the reported bug: MedicalOrderController::edit() never sent
+    // is_package_included to the page, and its price-fallback logic
+    // resurrected the real inventory price for any item stored at $0 —
+    // which is exactly how a package-included item is stored.
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => $data['labInventory']->id,
+        'item_type' => 'lab',
+        'item_name' => $data['labInventory']->item_name,
+        'quantity_required' => 1,
+        'unit_price' => 0,
+        'selling_price' => 0,
+        'is_package_included' => true,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'notes' => 'Include Package - Not counted in billing',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('medical-orders.edit', $data['medicalOrder']))
+        ->assertInertia(fn ($page) => $page
+            ->component('MedicalOrders/Edit')
+            ->where('medicalOrder.order_items.0.is_package_included', true)
+            ->where('medicalOrder.order_items.0.unit_price', 0)
+            ->where('medicalOrder.order_items.0.selling_price', 0)
+        );
+});
+
+it('saving an untouched package-included item through update() keeps it free', function () {
+    // Simulates exactly what a correctly-fixed Edit.vue now sends when the
+    // nurse saves without touching the package item: the same fields
+    // edit() renders it with (is_package_included: true, $0 prices, the
+    // notes sentinel). Paired with the previous test — which confirms
+    // edit() actually renders those exact values — this proves the full
+    // send-back -> nurse-edit -> resend cycle no longer loses the flag.
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    MedicalOrderInventory::create([
+        'medical_order_id' => $data['medicalOrder']->id,
+        'inventory_id' => $data['labInventory']->id,
+        'item_type' => 'lab',
+        'item_name' => $data['labInventory']->item_name,
+        'quantity_required' => 1,
+        'unit_price' => 0,
+        'selling_price' => 0,
+        'is_package_included' => true,
+        'status' => MedicalOrderStatusEnum::PENDING->value,
+        'notes' => 'Include Package - Not counted in billing',
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('medical-orders.update', $data['medicalOrder']), [
+            'order_details' => $data['medicalOrder']->order_details,
+            'order_items' => [
+                [
+                    'item_type' => 'lab',
+                    'item_name' => $data['labInventory']->item_name,
+                    'quantity_required' => 1,
+                    'status' => 'pending',
+                    'inventory_id' => $data['labInventory']->id,
+                    'unit_price' => 0,
+                    'selling_price' => 0,
+                    'is_package_included' => true,
+                    'notes' => 'Include Package - Not counted in billing',
+                ],
+            ],
+        ])
+        ->assertRedirect();
+
+    $stored = MedicalOrderInventory::where('medical_order_id', $data['medicalOrder']->id)
+        ->where('item_type', 'lab')
+        ->first();
+    expect($stored->is_package_included)->toBeTrue();
+    expect((float) $stored->unit_price)->toBe(0.0);
+    expect((float) $stored->selling_price)->toBe(0.0);
+
+    $service = app(MedicalOrderBillingService::class);
+    expect($service->calculateItemTotal($stored))->toBe(0.0);
+});
+
 it('sends billing back to nurse without a reason', function () {
     $admin = createPackageBillingAdmin();
     $data = createOrderWithPackageItem($admin);
