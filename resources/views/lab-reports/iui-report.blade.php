@@ -4,46 +4,46 @@
     <meta charset="UTF-8">
     <title>IUI Report</title>
     <style>
-        @page { margin: 10mm 12mm; }
+        @page { margin: 14mm 16mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 10px; line-height: 1.5; color: #000; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 10px; line-height: 1.46; color: #000; }
 
-        .box { border: 1.2px solid #222; border-radius: 4px; padding: 10px 14px; margin-bottom: 12px; }
+        .box { border: 1.2px solid #222; border-radius: 4px; padding: 9.7px 13.6px; margin-bottom: 11.6px; }
 
         /* Header box */
         .header { display: table; width: 100%; }
         .header-left { display: table-cell; vertical-align: top; width: 48%; }
         .header-left img { width: 60px; float: left; margin-right: 8px; }
-        .hosp-name { font-weight: bold; font-size: 14px; padding-top: 4px; }
+        .hosp-name { font-weight: bold; font-size: 14px; padding-top: 3.9px; }
         .hosp-info { font-size: 7px; color: #333; }
-        .lab-line { font-weight: bold; font-size: 11px; margin-top: 18px; clear: both; }
+        .lab-line { font-weight: bold; font-size: 11px; margin-top: 17.5px; clear: both; }
         .header-right { display: table-cell; vertical-align: top; width: 52%; }
-        .hr-row { display: table; width: 100%; margin-bottom: 4px; font-size: 10px; }
+        .hr-row { display: table; width: 100%; margin-bottom: 3.9px; font-size: 10px; }
         .hr-row .c { display: table-cell; }
         .hr-row .lbl { font-weight: bold; }
         .hr-row .v { font-weight: normal; }
 
         /* Main box */
-        .main-title { text-align: center; font-weight: bold; font-size: 13px; text-decoration: underline; margin: 4px 0 14px; }
+        .main-title { text-align: center; font-weight: bold; font-size: 13px; text-decoration: underline; margin: 3.9px 0 13.6px; }
 
         .uval { display: inline-block; border-bottom: 1px solid #000; min-width: 130px; text-align: center; font-weight: bold; padding: 0 4px; }
         .uval.short { min-width: 90px; }
 
-        .wife-row { margin-bottom: 12px; font-size: 10px; }
+        .wife-row { margin-bottom: 11.6px; font-size: 10px; }
 
         .cb { display: inline-block; width: 10px; height: 10px; border: 1px solid #000; font-size: 9px; line-height: 10px; text-align: center; vertical-align: middle; margin-right: 5px; }
-        .cb-row { display: table; width: 80%; margin: 0 auto 8px; font-size: 10px; }
+        .cb-row { display: table; width: 80%; margin: 0 auto 7.8px; font-size: 10px; }
         .cb-row .c { display: table-cell; width: 50%; }
 
-        .basic-row { display: table; width: 100%; margin-bottom: 6px; font-size: 10px; }
+        .basic-row { display: table; width: 100%; margin-bottom: 5.8px; font-size: 10px; }
         .basic-row .bl { display: table-cell; width: 24%; }
         .basic-row .bv { display: table-cell; width: 36%; }
         .basic-row .bn { display: table-cell; color: #333; }
 
         /* Pre / Post preparation grid */
-        table.prep { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 6px; }
-        table.prep th { font-weight: bold; font-size: 11px; text-decoration: underline; text-align: center; padding-bottom: 6px; }
-        table.prep td { padding: 3px 2px; vertical-align: bottom; }
+        table.prep { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 5.8px; }
+        table.prep th { font-weight: bold; font-size: 11px; text-decoration: underline; text-align: center; padding-bottom: 5.8px; }
+        table.prep td { padding: 2.9px 1.9px; vertical-align: bottom; }
         table.prep .lbl { width: 17%; }
         table.prep .sub { width: 11%; }
         table.prep .unit { width: 10%; color: #333; }
@@ -53,14 +53,14 @@
         table.prep .gap { width: 8%; }
 
         /* Times */
-        .times { display: table; width: 100%; margin-top: 14px; font-size: 10px; }
-        .times .tc { display: table-cell; width: 25%; padding: 3px 0; }
+        .times { display: table; width: 100%; margin-top: 13.6px; font-size: 10px; }
+        .times .tc { display: table-cell; width: 25%; padding: 2.9px 0; }
 
-        .remark-ln { margin-top: 12px; font-size: 10px; }
+        .remark-ln { margin-top: 11.6px; font-size: 10px; }
         .remark-ln .uval { min-width: 420px; text-align: left; }
 
-        .sig-table { width: 100%; margin-top: 10px; font-size: 10px; border-collapse: collapse; }
-        .sig-table td { padding: 3px 0; }
+        .sig-table { width: 100%; margin-top: 9.7px; font-size: 10px; border-collapse: collapse; }
+        .sig-table td { padding: 2.9px 0; }
         .sig-table .sl { width: 18%; font-weight: bold; }
         .sig-table .sv { width: 34%; }
         .sig-table .sd { width: 24%; }

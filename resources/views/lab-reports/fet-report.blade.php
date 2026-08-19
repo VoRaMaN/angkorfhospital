@@ -4,46 +4,46 @@
     <meta charset="UTF-8">
     <title>Summary of FET Report</title>
     <style>
-        @page { margin: 10mm 12mm; }
+        @page { margin: 14mm 16mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 8.5px; line-height: 1.35; color: #000; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 8.5px; line-height: 1.31; color: #000; }
 
         /* Header */
-        .header { display: table; width: 100%; margin-bottom: 4px; }
+        .header { display: table; width: 100%; margin-bottom: 3.9px; }
         .header-left { display: table-cell; vertical-align: top; width: 42%; }
         .header-left img { width: 44px; float: left; margin-right: 6px; }
-        .hosp-name { font-weight: bold; font-size: 12px; padding-top: 2px; }
+        .hosp-name { font-weight: bold; font-size: 12px; padding-top: 1.9px; }
         .hosp-info { font-size: 6px; color: #333; }
         .header-title { display: table-cell; vertical-align: middle; width: 58%; text-align: center; }
         .header-title p { font-weight: bold; font-size: 13px; text-decoration: underline; }
 
-        .box { border: 1.1px solid #222; border-radius: 4px; padding: 5px 9px; margin-bottom: 5px; }
-        .box-title { text-align: center; font-weight: bold; font-size: 10px; margin-bottom: 3px; }
+        .box { border: 1.1px solid #222; border-radius: 4px; padding: 4.9px 8.7px; margin-bottom: 4.9px; }
+        .box-title { text-align: center; font-weight: bold; font-size: 10px; margin-bottom: 2.9px; }
 
         .cols { display: table; width: 100%; table-layout: fixed; }
         .col { display: table-cell; vertical-align: top; padding-right: 8px; }
         .col:last-child { padding-right: 0; }
 
-        .ln { font-size: 8.5px; margin-bottom: 2px; }
+        .ln { font-size: 8.5px; margin-bottom: 1.9px; }
         .ln .l { color: #000; }
         .ln .v { font-weight: bold; }
 
         /* Day 3 / Day 5 slots */
-        .dev-title { font-weight: bold; font-size: 9.5px; text-align: center; margin-bottom: 2px; }
+        .dev-title { font-weight: bold; font-size: 9.5px; text-align: center; margin-bottom: 1.9px; }
         .slot-row { font-size: 8.5px; margin-bottom: 1px; }
         .slot-idx { display: inline-block; width: 12px; color: #555; }
         .slot-row .v { font-weight: bold; }
 
         /* Picture grid */
-        .pic-meta { font-size: 8.5px; margin-bottom: 3px; }
+        .pic-meta { font-size: 8.5px; margin-bottom: 2.9px; }
         .pic-meta .v { font-weight: bold; border-bottom: 1px solid #000; display: inline-block; min-width: 40px; text-align: center; }
-        table.pics { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 3px; }
+        table.pics { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 2.9px; }
         table.pics td { border: 1px solid #444; height: 78px; text-align: center; vertical-align: middle; padding: 1px; }
         table.pics td .pic-no { font-size: 8px; font-weight: bold; display: block; text-align: left; padding: 0 2px; }
         table.pics td img { max-width: 100%; max-height: 62px; }
 
         /* Grading */
-        .grading-images { display: table; width: 100%; table-layout: fixed; margin: 2px 0 3px; }
+        .grading-images { display: table; width: 100%; table-layout: fixed; margin: 1.9px 0 2.9px; }
         .grading-img-col { display: table-cell; text-align: center; }
         .grading-img-col p { font-size: 7.5px; color: #333; margin-bottom: 1px; }
         .grading-img-col img { width: 40px; height: 40px; object-fit: contain; }

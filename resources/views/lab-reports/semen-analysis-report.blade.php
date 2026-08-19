@@ -4,37 +4,37 @@
     <meta charset="UTF-8">
     <title>Semen Analysis and Freezing Report</title>
     <style>
-        @page { margin: 10mm 12mm; }
+        @page { margin: 14mm 16mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9.5px; line-height: 1.45; color: #000; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9.5px; line-height: 1.41; color: #000; }
 
-        .box { border: 1.2px solid #222; border-radius: 4px; padding: 9px 14px; margin-bottom: 10px; }
+        .box { border: 1.2px solid #222; border-radius: 4px; padding: 8.7px 13.6px; margin-bottom: 9.7px; }
 
         /* Header box */
         .header { display: table; width: 100%; }
         .header-left { display: table-cell; vertical-align: top; width: 48%; }
         .header-left img { width: 58px; float: left; margin-right: 8px; }
-        .hosp-name { font-weight: bold; font-size: 14px; padding-top: 3px; }
+        .hosp-name { font-weight: bold; font-size: 14px; padding-top: 2.9px; }
         .hosp-info { font-size: 7px; color: #333; }
-        .lab-line { font-weight: bold; font-size: 11px; margin-top: 14px; clear: both; }
+        .lab-line { font-weight: bold; font-size: 11px; margin-top: 13.6px; clear: both; }
         .header-right { display: table-cell; vertical-align: top; width: 52%; }
-        .hr-row { display: table; width: 100%; margin-bottom: 3px; font-size: 9.5px; }
+        .hr-row { display: table; width: 100%; margin-bottom: 2.9px; font-size: 9.5px; }
         .hr-row .c { display: table-cell; }
         .hr-row .lbl { font-weight: bold; }
 
         /* Main box */
-        .main-title { text-align: center; font-weight: bold; font-size: 12px; text-decoration: underline; margin: 2px 0 10px; }
+        .main-title { text-align: center; font-weight: bold; font-size: 12px; text-decoration: underline; margin: 1.9px 0 9.7px; }
 
         .uval { display: inline-block; border-bottom: 1px solid #000; min-width: 120px; text-align: center; font-weight: bold; padding: 0 4px; }
 
         .cols { display: table; width: 100%; table-layout: fixed; }
         .col-params { display: table-cell; vertical-align: top; width: 76%; }
         .col-imgs { display: table-cell; vertical-align: top; width: 24%; text-align: center; padding-top: 130px; }
-        .col-imgs p { font-size: 9px; font-weight: bold; margin-bottom: 3px; }
-        .col-imgs img { max-width: 105px; border: 1px solid #ccc; background: #fff; margin-bottom: 14px; }
+        .col-imgs p { font-size: 9px; font-weight: bold; margin-bottom: 2.9px; }
+        .col-imgs img { max-width: 105px; border: 1px solid #ccc; background: #fff; margin-bottom: 13.6px; }
 
         table.params { width: 100%; border-collapse: collapse; font-size: 9.5px; }
-        table.params td { padding: 2px 2px; vertical-align: bottom; }
+        table.params td { padding: 1.9px 1.9px; vertical-align: bottom; }
         table.params .lbl { width: 22%; }
         table.params .sub { width: 13%; }
         table.params .val { width: 26%; text-align: center; }
@@ -42,20 +42,20 @@
         table.params .unit { width: 14%; color: #333; font-size: 8.5px; }
         table.params .norm { width: 25%; font-size: 9px; color: #222; }
         table.params .norm-head { font-weight: bold; font-size: 8.5px; color: #000; white-space: nowrap; }
-        table.params .grp { font-weight: bold; padding-top: 5px; }
+        table.params .grp { font-weight: bold; padding-top: 4.9px; }
 
-        .vial-row { text-align: center; margin-top: 8px; font-size: 9.5px; font-weight: bold; }
+        .vial-row { text-align: center; margin-top: 7.8px; font-size: 9.5px; font-weight: bold; }
         .vial-row .uval { min-width: 70px; }
 
         /* Times */
-        .times { display: table; width: 100%; margin-top: 8px; font-size: 9.5px; }
-        .times .tc { display: table-cell; width: 25%; padding: 2px 0; }
+        .times { display: table; width: 100%; margin-top: 7.8px; font-size: 9.5px; }
+        .times .tc { display: table-cell; width: 25%; padding: 1.9px 0; }
 
-        .remark-ln { margin-top: 8px; font-size: 9.5px; }
+        .remark-ln { margin-top: 7.8px; font-size: 9.5px; }
         .remark-ln .uval { min-width: 420px; text-align: left; }
 
-        .sig-table { width: 100%; margin-top: 8px; font-size: 9.5px; border-collapse: collapse; }
-        .sig-table td { padding: 2px 0; }
+        .sig-table { width: 100%; margin-top: 7.8px; font-size: 9.5px; border-collapse: collapse; }
+        .sig-table td { padding: 1.9px 0; }
         .sig-table .sl { width: 18%; font-weight: bold; }
         .sig-table .sv { width: 34%; }
         .sig-table .sd { width: 24%; }

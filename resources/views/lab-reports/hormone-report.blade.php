@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <title>Hormone Report</title>
     <style>
-        @page { margin: 10mm 12mm; }
+        @page { margin: 14mm 16mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #000; }
 
         /* ── Header ──────────────────────────────────────────── */
-        .header { display: table; width: 100%; margin-bottom: 5px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+        .header { display: table; width: 100%; margin-bottom: 4.9px; border-bottom: 2px solid #000; padding-bottom: 4.9px; }
         .header-left  { display: table-cell; vertical-align: top; width: 40%; }
-        .header-left img { width: 72px; display: block; margin-bottom: 3px; }
-        .header-left .addr { font-size: 7px; color: #444; line-height: 1.35; }
+        .header-left img { width: 72px; display: block; margin-bottom: 2.9px; }
+        .header-left .addr { font-size: 7px; color: #444; line-height: 1.31; }
         .header-right { display: table-cell; vertical-align: top; text-align: left; width: 60%; font-size: 9px; padding-left: 8px; }
         .header-right table { width: 100%; }
         .header-right td { padding: 1px 3px 1px 0; font-size: 9px; white-space: nowrap; }
@@ -21,8 +21,8 @@
         .header-right td.val { }
 
         /* ── Main results table ───────────────────────────────── */
-        .results-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-        .results-table th { background: #f0f0f0; border: 1px solid #aaa; padding: 2px 5px; font-size: 9px; font-weight: bold; text-align: left; }
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 3.9px; }
+        .results-table th { background: #f0f0f0; border: 1px solid #aaa; padding: 1.9px 5px; font-size: 9px; font-weight: bold; text-align: left; }
         .results-table td { border: 1px solid #ccc; padding: 1.5px 5px; font-size: 9px; vertical-align: middle; }
         .results-table tr.section-row td { font-weight: bold; background: #fafafa; }
         .results-table tr.specimen-row td { font-weight: bold; font-size: 9px; }
@@ -32,22 +32,22 @@
         .results-table td.ref   { text-align: center; color: #555; }
 
         /* ── Signature row ────────────────────────────────────── */
-        .sig-section { margin-top: 6px; }
+        .sig-section { margin-top: 5.8px; }
         .sig-row { display: table; width: 100%; }
         .sig-cell { display: table-cell; width: 50%; vertical-align: top; font-size: 9px; }
         .sig-cell .sig-label { font-weight: bold; }
         .sig-cell .sig-name  { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; font-weight: bold; }
-        .sig-cell .sig-date  { margin-top: 2px; font-size: 8px; }
+        .sig-cell .sig-date  { margin-top: 1.9px; font-size: 8px; }
 
         /* ── Remark ───────────────────────────────────────────── */
-        .remark-section { margin-top: 5px; padding-top: 4px; border-top: 1px solid #ccc; font-size: 8px; }
+        .remark-section { margin-top: 4.9px; padding-top: 3.9px; border-top: 1px solid #ccc; font-size: 8px; }
         .remark-section p { margin: 1px 0; }
 
         /* ── Reference range section ──────────────────────────── */
-        .ref-section { margin-top: 7px; page-break-inside: avoid; }
-        .ref-title { background: #3b7abf; color: #fff; text-align: center; font-weight: bold; font-size: 10px; padding: 3px 0; }
+        .ref-section { margin-top: 6.8px; page-break-inside: avoid; }
+        .ref-title { background: #3b7abf; color: #fff; text-align: center; font-weight: bold; font-size: 10px; padding: 2.9px 0; }
         .ref-table { width: 100%; border-collapse: collapse; margin-top: 0; }
-        .ref-table th, .ref-table td { border: 1px solid #aaa; padding: 2px 3px; font-size: 8px; text-align: center; }
+        .ref-table th, .ref-table td { border: 1px solid #aaa; padding: 1.9px 3px; font-size: 8px; text-align: center; }
         .ref-table th { background: #ddeeff; font-weight: bold; }
         .ref-table td.row-label { text-align: left; font-weight: bold; }
         .ref-table th.women-header { background: #c8dff8; }

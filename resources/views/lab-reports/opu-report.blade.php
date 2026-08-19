@@ -4,36 +4,36 @@
     <meta charset="UTF-8">
     <title>Summary of OPU Report</title>
     <style>
-        @page { margin: 10mm 12mm; }
+        @page { margin: 14mm 16mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; line-height: 1.4; color: #000; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; line-height: 1.36; color: #000; }
 
         /* Header */
-        .header { display: table; width: 100%; margin-bottom: 9px; }
+        .header { display: table; width: 100%; margin-bottom: 8.7px; }
         .header-left { display: table-cell; vertical-align: top; width: 42%; }
         .header-left img { width: 58px; float: left; margin-right: 6px; }
-        .hosp-name { font-weight: bold; font-size: 13px; padding-top: 4px; }
+        .hosp-name { font-weight: bold; font-size: 13px; padding-top: 3.9px; }
         .hosp-info { font-size: 6.5px; color: #333; }
         .header-title { display: table-cell; vertical-align: middle; width: 58%; text-align: center; }
         .header-title p { font-weight: bold; font-size: 14px; text-decoration: underline; }
 
         /* Bordered section boxes */
-        .box { border: 1.2px solid #222; border-radius: 8px; padding: 7px 10px; margin-bottom: 9px; }
-        .box-title { text-align: center; font-weight: bold; font-size: 11px; margin-bottom: 5px; }
+        .box { border: 1.2px solid #222; border-radius: 8px; padding: 6.8px 9.7px; margin-bottom: 8.7px; }
+        .box-title { text-align: center; font-weight: bold; font-size: 11px; margin-bottom: 4.9px; }
 
         /* Generic column layouts */
         .cols { display: table; width: 100%; table-layout: fixed; }
         .col { display: table-cell; vertical-align: top; padding-right: 8px; }
         .col:last-child { padding-right: 0; }
 
-        .grp-title { font-weight: bold; font-size: 10px; margin-bottom: 3px; }
+        .grp-title { font-weight: bold; font-size: 10px; margin-bottom: 2.9px; }
 
-        .ln { font-size: 9px; margin-bottom: 3px; }
+        .ln { font-size: 9px; margin-bottom: 2.9px; }
         .ln .l { color: #000; }
         .ln .v { font-weight: bold; }
 
         /* Sperm preparation rows with unit hints */
-        .srow { display: table; width: 100%; margin-bottom: 3px; }
+        .srow { display: table; width: 100%; margin-bottom: 2.9px; }
         .srow .sl { display: table-cell; width: 46%; font-size: 9px; }
         .srow .sv { display: table-cell; font-size: 9px; font-weight: bold; }
         .srow .su { display: table-cell; width: 26%; text-align: right; font-size: 8px; color: #444; }
@@ -42,26 +42,26 @@
         .cb { display: inline-block; width: 9px; height: 9px; border: 1px solid #000; font-size: 8px; line-height: 9px; text-align: center; vertical-align: middle; margin-right: 3px; }
 
         /* Embryo development numbered grid */
-        .dev-meta { display: table; width: 100%; font-size: 9px; margin-bottom: 2px; }
+        .dev-meta { display: table; width: 100%; font-size: 9px; margin-bottom: 1.9px; }
         .dev-meta .dm { display: table-cell; }
         .dev-meta .v { font-weight: bold; }
         .embryo-grid { display: table; width: 100%; table-layout: fixed; }
         .embryo-col { display: table-cell; vertical-align: top; padding-right: 6px; }
-        .embryo-row { font-size: 9px; line-height: 1.75; }
+        .embryo-row { font-size: 9px; line-height: 1.7; }
         .embryo-idx { display: inline-block; width: 16px; color: #555; }
         .embryo-row .v { font-weight: bold; }
 
         /* Remark + signatures */
-        .remark-ln { font-size: 9px; margin-top: 4px; }
-        .sig-row { display: table; width: 100%; margin-top: 6px; }
+        .remark-ln { font-size: 9px; margin-top: 3.9px; }
+        .sig-row { display: table; width: 100%; margin-top: 5.8px; }
         .sig-cell { display: table-cell; width: 50%; font-size: 9px; }
         .sig-cell.right { text-align: right; }
         .sig-cell .v { font-weight: bold; }
 
         /* Grading */
-        .grading-images { display: table; width: 100%; table-layout: fixed; margin: 3px 0 5px; }
+        .grading-images { display: table; width: 100%; table-layout: fixed; margin: 2.9px 0 4.9px; }
         .grading-img-col { display: table-cell; text-align: center; }
-        .grading-img-col p { font-size: 8px; color: #333; margin-bottom: 2px; }
+        .grading-img-col p { font-size: 8px; color: #333; margin-bottom: 1.9px; }
         .grading-img-col img { width: 62px; height: 62px; object-fit: contain; }
         .grading-legend { display: table; width: 100%; font-size: 8.5px; }
         .grading-legend .gl { display: table-cell; vertical-align: top; }
@@ -126,7 +126,7 @@
                 <div class="ln"><span class="l">Dead :</span> <span class="v">{{ $report['maturation_dead'] ?? '' }}</span></div>
             </div>
             <div class="col" style="width: 30%;">
-                <p class="grp-title" style="text-align:center;">Sperm preparation</p>
+                <p class="grp-title">Sperm preparation</p>
                 <div class="srow"><span class="sl">Date&amp;Time :</span><span class="sv">{{ $report['sperm_prep_datetime'] ?? '' }}</span><span class="su"></span></div>
                 <div class="srow"><span class="sl">Volume :</span><span class="sv">{{ $report['sperm_volume_ml'] ?? '' }}</span><span class="su">(ml.)</span></div>
                 <div class="srow"><span class="sl">Count :</span><span class="sv">{{ $report['sperm_count_per_ml'] ?? '' }}</span><span class="su">(x10&#8310;/ml.)</span></div>
