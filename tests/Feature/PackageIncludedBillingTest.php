@@ -297,6 +297,59 @@ it('edit page preserves is_package_included and does not resurrect the catalog p
         );
 });
 
+it('adding a brand-new package-included lab item through update() survives a reload', function () {
+    // Reproduces the client's follow-up report: the Lab/RX/Medicine-Group
+    // "Add" dialogs zeroed the price and set the notes sentinel when
+    // "Include Package" was checked, but never sent is_package_included
+    // itself — so a newly-added item looked free in the moment, then lost
+    // the flag on save and had its price resurrected on the next reload.
+    $admin = createPackageBillingAdmin();
+    $data = createOrderWithPackageItem($admin);
+
+    // Simulates Edit.vue's addSelectedLabItems() after the fix: the nurse
+    // checks "Include Package" on a brand-new lab item (no existing DB row).
+    $this->actingAs($admin)
+        ->put(route('medical-orders.update', $data['medicalOrder']), [
+            'order_details' => $data['medicalOrder']->order_details,
+            'order_items' => [
+                [
+                    'item_type' => 'lab',
+                    'item_name' => $data['labInventory']->item_name,
+                    'quantity_required' => 1,
+                    'status' => 'pending',
+                    'inventory_id' => $data['labInventory']->id,
+                    'unit_price' => 0,
+                    'selling_price' => 0,
+                    'is_package_included' => true,
+                    'notes' => 'Include Package - Not counted in billing',
+                ],
+            ],
+        ])
+        ->assertRedirect();
+
+    $stored = MedicalOrderInventory::where('medical_order_id', $data['medicalOrder']->id)
+        ->where('item_type', 'lab')
+        ->first();
+    expect($stored)->not->toBeNull();
+    expect($stored->is_package_included)->toBeTrue();
+    expect((float) $stored->unit_price)->toBe(0.0);
+    expect((float) $stored->selling_price)->toBe(0.0);
+
+    // Reloading the edit page (e.g. after a subsequent send-back) must not
+    // resurrect the catalog price now that the flag correctly persisted.
+    $this->actingAs($admin)
+        ->get(route('medical-orders.edit', $data['medicalOrder']))
+        ->assertInertia(fn ($page) => $page
+            ->component('MedicalOrders/Edit')
+            ->where('medicalOrder.order_items.0.is_package_included', true)
+            ->where('medicalOrder.order_items.0.unit_price', 0)
+            ->where('medicalOrder.order_items.0.selling_price', 0)
+        );
+
+    $service = app(MedicalOrderBillingService::class);
+    expect($service->calculateItemTotal($stored))->toBe(0.0);
+});
+
 it('saving an untouched package-included item through update() keeps it free', function () {
     // Simulates exactly what a correctly-fixed Edit.vue now sends when the
     // nurse saves without touching the package item: the same fields
