@@ -322,7 +322,19 @@ class BillingController extends Controller
         $this->authorize('updateStatus', $billing);
 
         $oldStatus = $billing->status;
-        $billing->update(['status' => $request->status]);
+        $data = ['status' => $request->status];
+
+        // Refreshing billing_date whenever a bill is manually put back into
+        // pending/partial keeps it immune to the auto-overdue sweep below
+        // (and to the console `billings:mark-overdue` equivalent) so it
+        // actually stays visible as "Pending" instead of being silently
+        // flipped back to "Overdue" the next time anyone loads the billings
+        // list — mirrors the existing revised-billing billing_date refresh.
+        if (in_array($request->status, ['pending', 'partial'], true)) {
+            $data['billing_date'] = now()->toDateString();
+        }
+
+        $billing->update($data);
 
         // Generate medical record when billing is marked as paid
         if ($request->status === 'paid' && $oldStatus !== 'paid') {

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { todayInPhnomPenh } from '@/lib/utils';
+import { nowTimeInPhnomPenh, todayInPhnomPenh } from '@/lib/utils';
 import { router, usePage } from '@inertiajs/vue3';
 import { CheckCircle2, FlaskConical, Loader2, Printer, X } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
@@ -86,9 +86,9 @@ const buildEmptyForm = (): HormoneReportData => ({
     patient_id: props.patientId,
     specimen: 'Serum',
     collection_date: todayInPhnomPenh(),
-    collection_time: null,
+    collection_time: nowTimeInPhnomPenh(),
     received_date: todayInPhnomPenh(),
-    received_time: null,
+    received_time: nowTimeInPhnomPenh(),
     lh: null,
     fsh: null,
     prolactin: null,
@@ -103,10 +103,10 @@ const buildEmptyForm = (): HormoneReportData => ({
     remark: null,
     reported_by: null,
     reported_date: todayInPhnomPenh(),
-    reported_time: null,
+    reported_time: nowTimeInPhnomPenh(),
     approved_by: null,
     approved_date: todayInPhnomPenh(),
-    approved_time: null,
+    approved_time: nowTimeInPhnomPenh(),
 });
 
 const form = reactive<HormoneReportData>(buildEmptyForm());

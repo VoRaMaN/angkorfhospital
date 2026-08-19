@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\BillingController::exportMethod
- * @see app/Http/Controllers/BillingController.php:715
+ * @see app/Http/Controllers/BillingController.php:727
  * @route '/billings-export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -606,7 +606,7 @@ update.patch = (args: { billing: number | { id: number } } | [billing: number | 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\BillingController::destroy
- * @see app/Http/Controllers/BillingController.php:366
+ * @see app/Http/Controllers/BillingController.php:378
  * @route '/billings/{billing}'
  */
 export const destroy = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -621,7 +621,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::destroy
- * @see app/Http/Controllers/BillingController.php:366
+ * @see app/Http/Controllers/BillingController.php:378
  * @route '/billings/{billing}'
  */
 destroy.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -654,7 +654,7 @@ destroy.url = (args: { billing: number | { id: number } } | [billing: number | {
 
 /**
 * @see \App\Http\Controllers\BillingController::destroy
- * @see app/Http/Controllers/BillingController.php:366
+ * @see app/Http/Controllers/BillingController.php:378
  * @route '/billings/{billing}'
  */
 destroy.delete = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -664,7 +664,7 @@ destroy.delete = (args: { billing: number | { id: number } } | [billing: number 
 
     /**
 * @see \App\Http\Controllers\BillingController::destroy
- * @see app/Http/Controllers/BillingController.php:366
+ * @see app/Http/Controllers/BillingController.php:378
  * @route '/billings/{billing}'
  */
     const destroyForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -679,7 +679,7 @@ destroy.delete = (args: { billing: number | { id: number } } | [billing: number 
 
             /**
 * @see \App\Http\Controllers\BillingController::destroy
- * @see app/Http/Controllers/BillingController.php:366
+ * @see app/Http/Controllers/BillingController.php:378
  * @route '/billings/{billing}'
  */
         destroyForm.delete = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -784,7 +784,7 @@ updateStatus.patch = (args: { billing: number | { id: number } } | [billing: num
     updateStatus.form = updateStatusForm
 /**
 * @see \App\Http\Controllers\BillingController::completePayment
- * @see app/Http/Controllers/BillingController.php:340
+ * @see app/Http/Controllers/BillingController.php:352
  * @route '/billings/{billing}/complete-payment'
  */
 export const completePayment = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -799,7 +799,7 @@ completePayment.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::completePayment
- * @see app/Http/Controllers/BillingController.php:340
+ * @see app/Http/Controllers/BillingController.php:352
  * @route '/billings/{billing}/complete-payment'
  */
 completePayment.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -832,7 +832,7 @@ completePayment.url = (args: { billing: number | { id: number } } | [billing: nu
 
 /**
 * @see \App\Http\Controllers\BillingController::completePayment
- * @see app/Http/Controllers/BillingController.php:340
+ * @see app/Http/Controllers/BillingController.php:352
  * @route '/billings/{billing}/complete-payment'
  */
 completePayment.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -842,7 +842,7 @@ completePayment.patch = (args: { billing: number | { id: number } } | [billing: 
 
     /**
 * @see \App\Http\Controllers\BillingController::completePayment
- * @see app/Http/Controllers/BillingController.php:340
+ * @see app/Http/Controllers/BillingController.php:352
  * @route '/billings/{billing}/complete-payment'
  */
     const completePaymentForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -857,7 +857,7 @@ completePayment.patch = (args: { billing: number | { id: number } } | [billing: 
 
             /**
 * @see \App\Http\Controllers\BillingController::completePayment
- * @see app/Http/Controllers/BillingController.php:340
+ * @see app/Http/Controllers/BillingController.php:352
  * @route '/billings/{billing}/complete-payment'
  */
         completePaymentForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -873,7 +873,7 @@ completePayment.patch = (args: { billing: number | { id: number } } | [billing: 
     completePayment.form = completePaymentForm
 /**
 * @see \App\Http\Controllers\BillingController::sendBackToNurse
- * @see app/Http/Controllers/BillingController.php:564
+ * @see app/Http/Controllers/BillingController.php:576
  * @route '/billings/{billing}/send-back-to-nurse'
  */
 export const sendBackToNurse = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -888,7 +888,7 @@ sendBackToNurse.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::sendBackToNurse
- * @see app/Http/Controllers/BillingController.php:564
+ * @see app/Http/Controllers/BillingController.php:576
  * @route '/billings/{billing}/send-back-to-nurse'
  */
 sendBackToNurse.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -921,7 +921,7 @@ sendBackToNurse.url = (args: { billing: number | { id: number } } | [billing: nu
 
 /**
 * @see \App\Http\Controllers\BillingController::sendBackToNurse
- * @see app/Http/Controllers/BillingController.php:564
+ * @see app/Http/Controllers/BillingController.php:576
  * @route '/billings/{billing}/send-back-to-nurse'
  */
 sendBackToNurse.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -931,7 +931,7 @@ sendBackToNurse.patch = (args: { billing: number | { id: number } } | [billing: 
 
     /**
 * @see \App\Http\Controllers\BillingController::sendBackToNurse
- * @see app/Http/Controllers/BillingController.php:564
+ * @see app/Http/Controllers/BillingController.php:576
  * @route '/billings/{billing}/send-back-to-nurse'
  */
     const sendBackToNurseForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -946,7 +946,7 @@ sendBackToNurse.patch = (args: { billing: number | { id: number } } | [billing: 
 
             /**
 * @see \App\Http\Controllers\BillingController::sendBackToNurse
- * @see app/Http/Controllers/BillingController.php:564
+ * @see app/Http/Controllers/BillingController.php:576
  * @route '/billings/{billing}/send-back-to-nurse'
  */
         sendBackToNurseForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -962,7 +962,7 @@ sendBackToNurse.patch = (args: { billing: number | { id: number } } | [billing: 
     sendBackToNurse.form = sendBackToNurseForm
 /**
 * @see \App\Http\Controllers\BillingController::receive
- * @see app/Http/Controllers/BillingController.php:636
+ * @see app/Http/Controllers/BillingController.php:648
  * @route '/billings/{billing}/receive'
  */
 export const receive = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -977,7 +977,7 @@ receive.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::receive
- * @see app/Http/Controllers/BillingController.php:636
+ * @see app/Http/Controllers/BillingController.php:648
  * @route '/billings/{billing}/receive'
  */
 receive.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1010,7 +1010,7 @@ receive.url = (args: { billing: number | { id: number } } | [billing: number | {
 
 /**
 * @see \App\Http\Controllers\BillingController::receive
- * @see app/Http/Controllers/BillingController.php:636
+ * @see app/Http/Controllers/BillingController.php:648
  * @route '/billings/{billing}/receive'
  */
 receive.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1020,7 +1020,7 @@ receive.patch = (args: { billing: number | { id: number } } | [billing: number |
 
     /**
 * @see \App\Http\Controllers\BillingController::receive
- * @see app/Http/Controllers/BillingController.php:636
+ * @see app/Http/Controllers/BillingController.php:648
  * @route '/billings/{billing}/receive'
  */
     const receiveForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1035,7 +1035,7 @@ receive.patch = (args: { billing: number | { id: number } } | [billing: number |
 
             /**
 * @see \App\Http\Controllers\BillingController::receive
- * @see app/Http/Controllers/BillingController.php:636
+ * @see app/Http/Controllers/BillingController.php:648
  * @route '/billings/{billing}/receive'
  */
         receiveForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1051,7 +1051,7 @@ receive.patch = (args: { billing: number | { id: number } } | [billing: number |
     receive.form = receiveForm
 /**
 * @see \App\Http\Controllers\BillingController::recoverStuckRevision
- * @see app/Http/Controllers/BillingController.php:670
+ * @see app/Http/Controllers/BillingController.php:682
  * @route '/billings/{billing}/recover-stuck-revision'
  */
 export const recoverStuckRevision = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1066,7 +1066,7 @@ recoverStuckRevision.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::recoverStuckRevision
- * @see app/Http/Controllers/BillingController.php:670
+ * @see app/Http/Controllers/BillingController.php:682
  * @route '/billings/{billing}/recover-stuck-revision'
  */
 recoverStuckRevision.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1099,7 +1099,7 @@ recoverStuckRevision.url = (args: { billing: number | { id: number } } | [billin
 
 /**
 * @see \App\Http\Controllers\BillingController::recoverStuckRevision
- * @see app/Http/Controllers/BillingController.php:670
+ * @see app/Http/Controllers/BillingController.php:682
  * @route '/billings/{billing}/recover-stuck-revision'
  */
 recoverStuckRevision.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1109,7 +1109,7 @@ recoverStuckRevision.patch = (args: { billing: number | { id: number } } | [bill
 
     /**
 * @see \App\Http\Controllers\BillingController::recoverStuckRevision
- * @see app/Http/Controllers/BillingController.php:670
+ * @see app/Http/Controllers/BillingController.php:682
  * @route '/billings/{billing}/recover-stuck-revision'
  */
     const recoverStuckRevisionForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1124,7 +1124,7 @@ recoverStuckRevision.patch = (args: { billing: number | { id: number } } | [bill
 
             /**
 * @see \App\Http\Controllers\BillingController::recoverStuckRevision
- * @see app/Http/Controllers/BillingController.php:670
+ * @see app/Http/Controllers/BillingController.php:682
  * @route '/billings/{billing}/recover-stuck-revision'
  */
         recoverStuckRevisionForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1140,7 +1140,7 @@ recoverStuckRevision.patch = (args: { billing: number | { id: number } } | [bill
     recoverStuckRevision.form = recoverStuckRevisionForm
 /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:696
+ * @see app/Http/Controllers/BillingController.php:708
  * @route '/billings/{billing}/recalculate'
  */
 export const recalculate = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1155,7 +1155,7 @@ recalculate.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:696
+ * @see app/Http/Controllers/BillingController.php:708
  * @route '/billings/{billing}/recalculate'
  */
 recalculate.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1188,7 +1188,7 @@ recalculate.url = (args: { billing: number | { id: number } } | [billing: number
 
 /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:696
+ * @see app/Http/Controllers/BillingController.php:708
  * @route '/billings/{billing}/recalculate'
  */
 recalculate.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1198,7 +1198,7 @@ recalculate.patch = (args: { billing: number | { id: number } } | [billing: numb
 
     /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:696
+ * @see app/Http/Controllers/BillingController.php:708
  * @route '/billings/{billing}/recalculate'
  */
     const recalculateForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1213,7 +1213,7 @@ recalculate.patch = (args: { billing: number | { id: number } } | [billing: numb
 
             /**
 * @see \App\Http\Controllers\BillingController::recalculate
- * @see app/Http/Controllers/BillingController.php:696
+ * @see app/Http/Controllers/BillingController.php:708
  * @route '/billings/{billing}/recalculate'
  */
         recalculateForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1229,7 +1229,7 @@ recalculate.patch = (args: { billing: number | { id: number } } | [billing: numb
     recalculate.form = recalculateForm
 /**
 * @see \App\Http\Controllers\BillingController::applyDiscount
- * @see app/Http/Controllers/BillingController.php:513
+ * @see app/Http/Controllers/BillingController.php:525
  * @route '/billings/{billing}/discount'
  */
 export const applyDiscount = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1244,7 +1244,7 @@ applyDiscount.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::applyDiscount
- * @see app/Http/Controllers/BillingController.php:513
+ * @see app/Http/Controllers/BillingController.php:525
  * @route '/billings/{billing}/discount'
  */
 applyDiscount.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1277,7 +1277,7 @@ applyDiscount.url = (args: { billing: number | { id: number } } | [billing: numb
 
 /**
 * @see \App\Http\Controllers\BillingController::applyDiscount
- * @see app/Http/Controllers/BillingController.php:513
+ * @see app/Http/Controllers/BillingController.php:525
  * @route '/billings/{billing}/discount'
  */
 applyDiscount.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -1287,7 +1287,7 @@ applyDiscount.patch = (args: { billing: number | { id: number } } | [billing: nu
 
     /**
 * @see \App\Http\Controllers\BillingController::applyDiscount
- * @see app/Http/Controllers/BillingController.php:513
+ * @see app/Http/Controllers/BillingController.php:525
  * @route '/billings/{billing}/discount'
  */
     const applyDiscountForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1302,7 +1302,7 @@ applyDiscount.patch = (args: { billing: number | { id: number } } | [billing: nu
 
             /**
 * @see \App\Http\Controllers\BillingController::applyDiscount
- * @see app/Http/Controllers/BillingController.php:513
+ * @see app/Http/Controllers/BillingController.php:525
  * @route '/billings/{billing}/discount'
  */
         applyDiscountForm.patch = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1318,7 +1318,7 @@ applyDiscount.patch = (args: { billing: number | { id: number } } | [billing: nu
     applyDiscount.form = applyDiscountForm
 /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
 export const generateReport = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1333,7 +1333,7 @@ generateReport.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
 generateReport.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1366,7 +1366,7 @@ generateReport.url = (args: { billing: number | { id: number } } | [billing: num
 
 /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
 generateReport.get = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1375,7 +1375,7 @@ generateReport.get = (args: { billing: number | { id: number } } | [billing: num
 })
 /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
 generateReport.head = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1385,7 +1385,7 @@ generateReport.head = (args: { billing: number | { id: number } } | [billing: nu
 
     /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
     const generateReportForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1395,7 +1395,7 @@ generateReport.head = (args: { billing: number | { id: number } } | [billing: nu
 
             /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
         generateReportForm.get = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1404,7 +1404,7 @@ generateReport.head = (args: { billing: number | { id: number } } | [billing: nu
         })
             /**
 * @see \App\Http\Controllers\BillingController::generateReport
- * @see app/Http/Controllers/BillingController.php:377
+ * @see app/Http/Controllers/BillingController.php:389
  * @route '/billings/{billing}/report'
  */
         generateReportForm.head = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1420,7 +1420,7 @@ generateReport.head = (args: { billing: number | { id: number } } | [billing: nu
     generateReport.form = generateReportForm
 /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
 export const generateLetter = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1435,7 +1435,7 @@ generateLetter.definition = {
 
 /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
 generateLetter.url = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1468,7 +1468,7 @@ generateLetter.url = (args: { billing: number | { id: number } } | [billing: num
 
 /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
 generateLetter.get = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1477,7 +1477,7 @@ generateLetter.get = (args: { billing: number | { id: number } } | [billing: num
 })
 /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
 generateLetter.head = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1487,7 +1487,7 @@ generateLetter.head = (args: { billing: number | { id: number } } | [billing: nu
 
     /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
     const generateLetterForm = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1497,7 +1497,7 @@ generateLetter.head = (args: { billing: number | { id: number } } | [billing: nu
 
             /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
         generateLetterForm.get = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1506,7 +1506,7 @@ generateLetter.head = (args: { billing: number | { id: number } } | [billing: nu
         })
             /**
 * @see \App\Http\Controllers\BillingController::generateLetter
- * @see app/Http/Controllers/BillingController.php:526
+ * @see app/Http/Controllers/BillingController.php:538
  * @route '/billings/{billing}/letter'
  */
         generateLetterForm.head = (args: { billing: number | { id: number } } | [billing: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

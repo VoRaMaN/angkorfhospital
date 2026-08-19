@@ -77,6 +77,16 @@ export function nowInPhnomPenhDisplay(): string {
 }
 
 /**
+ * Current time in Asia/Phnom_Penh, as "HH:mm" (for free-text time inputs
+ * paired with a `todayInPhnomPenh()`-filled date field).
+ */
+export function nowTimeInPhnomPenh(): string {
+    const now = new Date();
+    const pp = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Phnom_Penh' }));
+    return `${String(pp.getHours()).padStart(2, '0')}:${String(pp.getMinutes()).padStart(2, '0')}`;
+}
+
+/**
  * Format a datetime string to HH:mm format
  */
 export function formatTime(date: string | Date | null | undefined): string {
