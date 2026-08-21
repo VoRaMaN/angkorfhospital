@@ -770,3 +770,47 @@
 .enterprise tbody tr:nth-child(even):hover {
     background: hsl(210 45% 85%) !important;
 }
+
+/*
+ * Shared print rules for the LabPanel browser-print report pages
+ * (Cbc/Fet/Iui/Sa/SemenAnalysisReport.vue). These pages use window.print()
+ * directly on an on-screen container instead of a dompdf-rendered PDF, so
+ * without an explicit @page size/margin the on-screen max-width (sized for
+ * viewing, not print) overflows the actual printable area and gets clipped.
+ */
+@media print {
+    @page {
+        size: A4;
+        margin: 14mm 16mm;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    nav,
+    header,
+    aside,
+    footer,
+    [class*='sidebar'],
+    [class*='breadcrumb'] {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+
+    .print-report-wrapper {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .print-report-form {
+        max-width: 100% !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+}

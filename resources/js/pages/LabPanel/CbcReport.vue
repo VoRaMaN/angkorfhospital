@@ -117,8 +117,8 @@ onMounted(() => window.print());
         </div>
 
         <!-- ─── Printable Form ─────────────────────────────────────────────── -->
-        <div class="mx-auto max-w-4xl px-6 pb-10">
-            <div id="cbc-print-form" class="khmer-doc bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-8">
+        <div class="print-report-wrapper mx-auto max-w-4xl px-6 pb-10">
+            <div id="cbc-print-form" class="print-report-form khmer-doc bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-8">
 
                 <!-- ── Letterhead ── -->
                 <div class="flex items-start justify-between">
@@ -277,10 +277,6 @@ onMounted(() => window.print());
 }
 
 @media print {
-    .no-print {
-        display: none !important;
-    }
-
     #cbc-print-form {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;

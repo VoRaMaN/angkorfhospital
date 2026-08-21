@@ -2,10 +2,11 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { pdf as opuReportPdf } from '@/routes/opu-reports';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ArrowLeft, ClipboardList, Edit2, Printer, User } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import OPUReportDialog from './OPUReportDialog.vue';
 
 interface ReportData {
@@ -120,9 +121,10 @@ const femaleSlotIsMale = computed(() =>
 );
 
 // ─── Print ────────────────────────────────────────────────────────────────────
-const printPage = () => window.print();
-
-onMounted(() => window.print());
+// This page is an on-screen dashboard view, not a letterhead-style print
+// form — the actual printable report is the dompdf-generated PDF (already
+// tuned for A4 margins), so Print opens that instead of printing this view.
+const printPage = () => window.open(opuReportPdf(props.report.medical_order_id).url, '_blank');
 
 // ─── Edit dialog ──────────────────────────────────────────────────────────────
 const editOpen = ref(false);
@@ -149,7 +151,7 @@ const onSaved = () => {
         <div class="mx-auto max-w-5xl space-y-6 px-6 py-4">
 
             <!-- Header -->
-            <div class="flex items-center justify-between">
+            <div class="no-print flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <Button variant="ghost" size="icon" @click="router.visit('/lab-panels')">
                         <ArrowLeft class="h-4 w-4" />

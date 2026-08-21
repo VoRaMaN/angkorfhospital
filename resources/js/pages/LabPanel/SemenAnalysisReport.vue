@@ -193,8 +193,8 @@ onMounted(() => window.print());
         </div>
 
         <!-- ─── Printable Form ─────────────────────────────────────────────── -->
-        <div class="mx-auto max-w-4xl px-6 pb-10">
-            <div id="sa-print-form" class="bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-6">
+        <div class="print-report-wrapper mx-auto max-w-4xl px-6 pb-10">
+            <div id="sa-print-form" class="print-report-form bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-6">
 
                 <!-- ── Header ── -->
                 <div class="flex items-start justify-between border-b-2 border-black pb-3 mb-3">
@@ -468,28 +468,3 @@ onMounted(() => window.print());
         @saved="onSaved"
     />
 </template>
-
-<style>
-@media print {
-    .no-print {
-        display: none !important;
-    }
-    nav,
-    header,
-    aside,
-    footer,
-    [class*="breadcrumb"],
-    [class*="sidebar"] {
-        display: none !important;
-    }
-    body {
-        background: white !important;
-    }
-    #sa-print-form {
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        max-width: 100% !important;
-    }
-}
-</style>

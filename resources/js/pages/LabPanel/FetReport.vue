@@ -145,8 +145,8 @@ onMounted(() => window.print());
         </div>
 
         <!-- ─── Printable Form ─────────────────────────────────────────────── -->
-        <div class="mx-auto max-w-4xl px-6 pb-10">
-            <div id="fet-print-form" class="bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-6">
+        <div class="print-report-wrapper mx-auto max-w-4xl px-6 pb-10">
+            <div id="fet-print-form" class="print-report-form bg-white text-black print:shadow-none print:p-0 rounded-lg border shadow-sm p-6">
 
                 <!-- ── Header ── -->
                 <div class="flex items-start justify-between border-b-2 border-black pb-3 mb-3">
@@ -314,11 +314,3 @@ onMounted(() => window.print());
         />
     </AppLayout>
 </template>
-
-<style scoped>
-@media print {
-    .no-print {
-        display: none !important;
-    }
-}
-</style>
