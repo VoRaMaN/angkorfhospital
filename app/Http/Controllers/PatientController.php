@@ -657,7 +657,7 @@ class PatientController extends Controller
             ]);
             $fullName = trim(implode(' ', $nameParts));
 
-            $dob = sprintf('%02d/%02d/%02d', $patient->date_of_birth_day, $patient->date_of_birth_month, $patient->date_of_birth_year % 100);
+            $dob = sprintf('%02d/%02d/%04d', $patient->date_of_birth_day, $patient->date_of_birth_month, $patient->date_of_birth_year);
             $gender = strtoupper(substr($patient->gender, 0, 1)); // M or F
 
             $age = null;
@@ -693,7 +693,7 @@ class PatientController extends Controller
                     letter-spacing: 0.5px;  /* added character spacing */">
                     <div style="margin-bottom: 4px;"> '.htmlspecialchars((string) ($fullName ?? ''), ENT_QUOTES, 'UTF-8').'</div>
                     <div style="margin-bottom: 4px;">HN: '.htmlspecialchars((string) $patient->id, ENT_QUOTES, 'UTF-8').'</div>
-                    <div>DOB: '.htmlspecialchars($dob, ENT_QUOTES, 'UTF-8').' ('.htmlspecialchars($age, ENT_QUOTES, 'UTF-8').')</div>
+                    <div style="font-size: 10pt;">DOB: '.htmlspecialchars($dob, ENT_QUOTES, 'UTF-8').' ('.htmlspecialchars($age, ENT_QUOTES, 'UTF-8').')</div>
                 </div>
             ';
 
