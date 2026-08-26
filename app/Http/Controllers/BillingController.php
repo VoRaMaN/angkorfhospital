@@ -616,7 +616,7 @@ class BillingController extends Controller
 
             return [
                 'no' => $index + 1,
-                'datetime' => $billing->created_at?->format('Y-m-d H:i:s'),
+                'datetime' => $billing->created_at?->format('Y-m-d H:i'),
                 'patient_code' => $patient->id ?? '—',
                 'patient_name' => $patient?->full_name ?: 'Unknown Patient',
                 'sex' => $patient->gender ?? '—',
@@ -658,6 +658,7 @@ class BillingController extends Controller
             'dpi' => 96,
             'isPhpEnabled' => true,
         ], true);
+        $pdf->setPaper('a4', 'portrait');
 
         $filename = 'income-summary-'.now()->format('Y-m-d').'.pdf';
 

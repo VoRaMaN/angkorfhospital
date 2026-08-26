@@ -4,23 +4,40 @@
     <meta charset="UTF-8">
     <title>Income Summary Record - {{ $today }}</title>
     <style>
-        @page { size: A4 landscape; margin: 14mm 16mm; }
+        @page { size: A4; margin: 14mm 16mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #000; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 8px; color: #000; }
 
         .header { display: table; width: 100%; margin-bottom: 8px; }
         .header-left { display: table-cell; vertical-align: top; width: 55%; }
-        .header-left img { width: 90px; margin-bottom: 4px; display: block; }
-        .header-left p { font-size: 9.5px; margin: 1px 0; }
+        .header-left img { width: 70px; margin-bottom: 4px; display: block; }
+        .header-left p { font-size: 8.5px; margin: 1px 0; }
 
-        .title { text-align: center; font-weight: bold; font-size: 15px; text-decoration: underline; margin: 6px 0 4px; }
-        .range { text-align: center; font-size: 9.5px; margin-bottom: 10px; }
+        .title { text-align: center; font-weight: bold; font-size: 13px; text-decoration: underline; margin: 6px 0 4px; }
+        .range { text-align: center; font-size: 8.5px; margin-bottom: 10px; }
 
-        table.summary { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-        table.summary th, table.summary td { border: 1px solid #444; padding: 3px 4px; font-size: 8.5px; text-align: left; }
+        table.summary { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+        table.summary th, table.summary td {
+            border: 1px solid #444; padding: 2px 3px; font-size: 6.5px; text-align: left;
+            overflow-wrap: break-word; word-break: break-word;
+        }
         table.summary th { background: #f0f0f0; font-weight: bold; text-align: center; }
         table.summary td.num { text-align: right; }
         table.summary td.center { text-align: center; }
+
+        .col-no       { width: 3.5%; }
+        .col-date     { width: 9.5%; }
+        .col-code     { width: 7.5%; }
+        .col-name     { width: 12%; }
+        .col-sex      { width: 4%; }
+        .col-age      { width: 8.5%; }
+        .col-ipd      { width: 5.5%; }
+        .col-paid     { width: 8.5%; }
+        .col-deposit  { width: 8%; }
+        .col-paidby   { width: 8.5%; }
+        .col-pttype   { width: 6.5%; }
+        .col-inv      { width: 8%; }
+        .col-cashier  { width: 10%; }
 
         .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .totals-table td { border: 1px solid #444; padding: 3px 6px; font-size: 9px; }
@@ -28,7 +45,7 @@
         .totals-table td.value { text-align: right; }
 
         .payment-summary-title { font-weight: bold; font-size: 10px; margin-bottom: 3px; }
-        table.payment-summary { width: 40%; border-collapse: collapse; margin-bottom: 20px; }
+        table.payment-summary { width: 55%; border-collapse: collapse; margin-bottom: 20px; }
         table.payment-summary th, table.payment-summary td { border: 1px solid #444; padding: 3px 6px; font-size: 8.5px; }
         table.payment-summary th { background: #f0f0f0; text-align: left; }
         table.payment-summary td.num { text-align: right; }
@@ -53,6 +70,12 @@
     <p class="range">From: {{ $today }} 00:00:00 &nbsp;&nbsp; To: {{ $today }} 23:59:59</p>
 
     <table class="summary">
+        <colgroup>
+            <col class="col-no"><col class="col-date"><col class="col-code"><col class="col-name">
+            <col class="col-sex"><col class="col-age"><col class="col-ipd"><col class="col-paid">
+            <col class="col-deposit"><col class="col-paidby"><col class="col-pttype"><col class="col-inv">
+            <col class="col-cashier">
+        </colgroup>
         <thead>
             <tr>
                 <th>No.</th>
@@ -80,8 +103,8 @@
                 <td class="center">{{ $row['sex'] }}</td>
                 <td>{{ $row['age'] }}</td>
                 <td class="center">OPD</td>
-                <td class="num">USD {{ number_format($row['paid'], 2) }}</td>
-                <td class="num">USD 0.00</td>
+                <td class="num">{{ number_format($row['paid'], 2) }}</td>
+                <td class="num">0.00</td>
                 <td>{{ $row['payment_method'] }}</td>
                 <td>{{ $row['patient_type'] }}</td>
                 <td>{{ $row['inv_no'] }}</td>
