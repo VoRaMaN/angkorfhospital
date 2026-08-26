@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Income Summary Record - {{ $today }}</title>
     <style>
-        @page { margin: 20mm; }
+        @page { margin: 25mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 8px; color: #000; }
 
