@@ -266,16 +266,14 @@
                             <td class="discount col-sep"></td>
                             <td class="net col-sep">{{ number_format($group['subtotal'], 2) }}</td>
                         </tr>
-                        @foreach($group['items'] as $item)
-                            @if(!empty($item['is_package_included']))
-                            <tr>
-                                <td class="description" style="font-weight:normal;padding-left:28px;">{{ $item['item_name'] }} <span class="pkg-label">Include Package</span></td>
-                                <td class="amount col-sep">0.00</td>
-                                <td class="discount col-sep"></td>
-                                <td class="net col-sep">0.00</td>
-                            </tr>
-                            @endif
-                        @endforeach
+                        @if(collect($group['items'])->contains(fn ($item) => !empty($item['is_package_included'])))
+                        <tr>
+                            <td class="description" style="font-weight:normal;padding-left:28px;">{{ $group['name'] }} <span class="pkg-label">Include Package</span></td>
+                            <td class="amount col-sep">0.00</td>
+                            <td class="discount col-sep"></td>
+                            <td class="net col-sep">0.00</td>
+                        </tr>
+                        @endif
                     @endif
                 @endforeach
             @else
