@@ -658,7 +658,6 @@ class BillingController extends Controller
             'dpi' => 96,
             'isPhpEnabled' => true,
         ], true);
-        $pdf->setPaper('a4', 'portrait');
 
         $filename = 'income-summary-'.now()->format('Y-m-d').'.pdf';
 
