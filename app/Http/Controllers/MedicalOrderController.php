@@ -1114,7 +1114,10 @@ class MedicalOrderController extends Controller
             // Generate medical record after billing is created
             $this->generateMedicalRecord($medicalOrder, $billing);
 
-            Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_COMPLETED]);
+            // Not COMPLETED yet — the accountant hasn't acted on this billing.
+            // Visit only becomes COMPLETED once BillingController::completePayment()
+            // actually finishes the bill.
+            Visit::where('id', $medicalOrder->visit_id)->update(['status' => Visit::STATUS_AWAITING_ACCOUNTANT]);
 
             if (auth()->user()->can('view_billing') || auth()->user()->hasRole('admin')) {
                 return redirect()->route('billings.show', $billing)

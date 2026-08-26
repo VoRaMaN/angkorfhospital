@@ -221,6 +221,48 @@ it('send_to_account on update finalizes and bills the order in a single request'
     expect($data['medicalOrder']->status)->toBe(MedicalOrderStatusEnum::COMPLETED);
     expect($billing->status)->toBe(\App\Enums\BillingStatusEnum::SENT_TO_ACCOUNT);
     expect((float) $billing->amount)->toBe(50.00);
+
+    // The visit itself is NOT done yet — the accountant hasn't acted on this
+    // billing. It must stay awaiting_accountant (not completed), otherwise it
+    // silently vanishes from Visits/My Visits/My Visits to Process.
+    $data['visit']->refresh();
+    expect($data['visit']->status)->toBe(\App\Enums\VisitStatusEnum::AWAITING_ACCOUNTANT);
+});
+
+it('a visit sent to account for the first time still appears on Visits and My Visits to Process', function () {
+    $doctor = createDoctorWithStaff();
+    $data = createPendingOrder($doctor);
+    $data['medicalOrder']->update(['status' => MedicalOrderStatusEnum::PROCESSING]);
+
+    $this->actingAs($doctor)->put(
+        route('medical-orders.update', $data['medicalOrder']),
+        [
+            'order_details' => 'Ready to bill',
+            'notes' => 'Notes',
+            'order_items' => [
+                [
+                    'item_type' => 'rx_medicine',
+                    'item_name' => $data['inventory']->item_name,
+                    'quantity_required' => 2,
+                    'status' => 'pending',
+                    'inventory_id' => $data['inventory']->id,
+                ],
+            ],
+            'send_to_account' => true,
+        ],
+    );
+
+    $this->actingAs($doctor)
+        ->get(route('visits.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('visits', fn ($visits) => collect($visits)->contains(fn ($v) => $v['id'] === $data['visit']->id))
+        );
+
+    $this->actingAs($doctor)
+        ->get(route('doctors.my-to-be-process-visits'))
+        ->assertInertia(fn ($page) => $page
+            ->where('visits', fn ($visits) => collect($visits)->contains(fn ($v) => $v['id'] === $data['visit']->id))
+        );
 });
 
 it('admin using send_to_account is redirected straight to the billing page', function () {

@@ -20,14 +20,15 @@ class VisitController extends Controller
      */
     public function index(): Response
     {
-        // Auto-archive: mark yesterday's (and older) active visits as completed
+        // Auto-archive: mark yesterday's (and older) visits as completed, but only
+        // if nobody ever picked them up. Visits actively awaiting accountant/nurse
+        // action (SENT_BACK, AWAITING_ACCOUNTANT) must stay open regardless of how
+        // old the original visit date is — the pipeline isn't finished yet.
         Visit::whereIn('status', [
             Visit::STATUS_PENDING,
             Visit::STATUS_AWAITING_ASSIGNMENT,
             Visit::STATUS_ASSIGNED,
             Visit::STATUS_IN_PROGRESS,
-            Visit::STATUS_SENT_BACK,
-            Visit::STATUS_AWAITING_ACCOUNTANT,
         ])
             ->whereDate('visit_date_time', '<', today())
             ->update(['status' => Visit::STATUS_COMPLETED]);
@@ -61,8 +62,14 @@ class VisitController extends Controller
             // User selected a specific date
             $query->whereDate('visit_date_time', $dateFilter);
         } elseif (! $patientFilter) {
-            // Default: show only today's visits (unless viewing patient history)
-            $query->whereDate('visit_date_time', today());
+            // Default: show today's visits, plus any visit still awaiting
+            // accountant/nurse action regardless of its original date — a
+            // revision cycle can span multiple days and shouldn't vanish from
+            // the default view just because it started yesterday.
+            $query->where(function ($q) {
+                $q->whereDate('visit_date_time', today())
+                    ->orWhereIn('status', [Visit::STATUS_AWAITING_ACCOUNTANT, Visit::STATUS_SENT_BACK]);
+            });
         }
 
         // Apply search filter
@@ -462,14 +469,14 @@ class VisitController extends Controller
      */
     public function myToBeProcessVisits(): Response
     {
-        // Auto-archive: mark expired active visits as completed
+        // Auto-archive: mark expired visits as completed, but only if nobody
+        // ever picked them up — visits actively awaiting accountant/nurse
+        // action must stay open regardless of how old the visit date is.
         Visit::whereIn('status', [
             Visit::STATUS_PENDING,
             Visit::STATUS_AWAITING_ASSIGNMENT,
             Visit::STATUS_ASSIGNED,
             Visit::STATUS_IN_PROGRESS,
-            Visit::STATUS_SENT_BACK,
-            Visit::STATUS_AWAITING_ACCOUNTANT,
         ])
             ->whereDate('visit_date_time', '<', today())
             ->update(['status' => Visit::STATUS_COMPLETED]);
@@ -477,12 +484,16 @@ class VisitController extends Controller
         $query = Visit::with(['patient.user', 'staff.user', 'appointment', 'medicalOrders'])
             ->whereNotIn('status', [Visit::STATUS_COMPLETED, Visit::STATUS_CANCELLED]);
 
-        // Date filter - defaults to today
+        // Date filter - defaults to today, plus any visit still awaiting
+        // accountant/nurse action regardless of its original date.
         $dateFilter = request('date');
         if ($dateFilter) {
             $query->whereDate('visit_date_time', $dateFilter);
         } else {
-            $query->whereDate('visit_date_time', today());
+            $query->where(function ($q) {
+                $q->whereDate('visit_date_time', today())
+                    ->orWhereIn('status', [Visit::STATUS_AWAITING_ACCOUNTANT, Visit::STATUS_SENT_BACK]);
+            });
         }
 
         // Search filter
