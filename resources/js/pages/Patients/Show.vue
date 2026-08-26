@@ -59,9 +59,13 @@ const labResultGroups = computed(() => {
         type: string;
         medical_order_id?: number | null;
         created_at: string;
-        file: { id: number; name: string; size: number; mime_type: string };
+        file: { id: number; name: string; size: number; mime_type: string } | null;
     }>)
-        .filter((f) => f.type === 'lab_result')
+        // f.file can be null if the underlying File row was deleted (e.g. via
+        // the generic Files admin page) — patient_files.file_id has no FK/
+        // cascade, so this is a real, silent state to guard against rather
+        // than assume away.
+        .filter((f): f is typeof f & { file: NonNullable<typeof f.file> } => f.type === 'lab_result' && !!f.file)
         .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
 
     const orderLookup = new Map((props.patient.medical_orders_data || []).map((o: any) => [o.id, o]));
