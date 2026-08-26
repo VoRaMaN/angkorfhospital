@@ -60,7 +60,7 @@ class AppointmentsExport
             }
         }
 
-        $appointments = $query->get();
+        $appointments = $query->orderBy('appointment_date_time', 'desc')->get();
 
         $headers = ['Date', 'Time', 'ID', 'Name', 'Mobile', 'Doctor', 'Status', 'Reason', 'Comment'];
         $rows = $this->buildRows($appointments);
