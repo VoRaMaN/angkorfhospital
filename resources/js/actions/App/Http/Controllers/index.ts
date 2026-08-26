@@ -7,6 +7,7 @@ import DepartmentController from './DepartmentController'
 import DoctorController from './DoctorController'
 import InventoryController from './InventoryController'
 import LabPanelController from './LabPanelController'
+import LabResultController from './LabResultController'
 import OpuReportController from './OpuReportController'
 import SemenAnalysisReportController from './SemenAnalysisReportController'
 import SaReportController from './SaReportController'
@@ -39,6 +40,7 @@ DepartmentController: Object.assign(DepartmentController, DepartmentController),
 DoctorController: Object.assign(DoctorController, DoctorController),
 InventoryController: Object.assign(InventoryController, InventoryController),
 LabPanelController: Object.assign(LabPanelController, LabPanelController),
+LabResultController: Object.assign(LabResultController, LabResultController),
 OpuReportController: Object.assign(OpuReportController, OpuReportController),
 SemenAnalysisReportController: Object.assign(SemenAnalysisReportController, SemenAnalysisReportController),
 SaReportController: Object.assign(SaReportController, SaReportController),

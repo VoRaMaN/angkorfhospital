@@ -27,6 +27,7 @@ import {
     index as labPanelIndex,
     show as labPanelShow,
 } from '@/routes/lab-panels';
+import { index as labResultIndex } from '@/routes/lab-results';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { FlaskConical, Plus, Search, Clock, AlertCircle, CheckCircle2, ClipboardEdit, FileText } from 'lucide-vue-next';
@@ -462,12 +463,20 @@ const onCbcSaved = () => {
                         supplies
                     </p>
                 </div>
-                <Button v-if="hasPermission('create_lab_panels')" as-child>
-                    <Link :href="labPanelCreate().url">
-                        <Plus class="size-4" />
-                        Add Panel
-                    </Link>
-                </Button>
+                <div class="flex gap-2">
+                    <Button variant="outline" as-child>
+                        <Link :href="labResultIndex().url">
+                            <FlaskConical class="size-4" />
+                            Lab Results
+                        </Link>
+                    </Button>
+                    <Button v-if="hasPermission('create_lab_panels')" as-child>
+                        <Link :href="labPanelCreate().url">
+                            <Plus class="size-4" />
+                            Add Panel
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <!-- Active Lab Orders - Lab Staff Reminder -->

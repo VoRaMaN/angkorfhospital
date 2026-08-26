@@ -32,6 +32,7 @@ import {
     ClipboardList,
     DollarSign,
     FileText,
+    FlaskConical,
     Heart,
     LayoutGrid,
     Pill,
@@ -54,6 +55,7 @@ import {
     rxMedicine,
 } from '@/routes/inventory';
 import { index as labPanelIndex } from '@/routes/lab-panels';
+import { index as labResultIndex } from '@/routes/lab-results';
 import { index as medicalOrdersIndex } from '@/routes/medical-orders';
 import { index as medicalRecordsIndex } from '@/routes/medical-records';
 import { index as medicalServicesIndex } from '@/routes/medical-services';
@@ -159,6 +161,12 @@ const medicalResourcesNavItems = computed(() => [
         title: 'Lab Panels',
         href: labPanelIndex().url,
         icon: Heart,
+        permissions: 'view_lab_packages',
+    },
+    {
+        title: 'Lab Results',
+        href: labResultIndex().url,
+        icon: FlaskConical,
         permissions: 'view_lab_packages',
     },
     {

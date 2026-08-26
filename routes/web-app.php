@@ -13,6 +13,7 @@ use App\Http\Controllers\HormoneReportController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IuiReportController;
 use App\Http\Controllers\LabPanelController;
+use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MedicalOrderController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicalServiceController;
@@ -70,6 +71,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Lab Panels
     Route::resource('lab-panels', LabPanelController::class);
+
+    // Lab Results (completed results, merged across all 8 report types)
+    Route::get('lab-results', [LabResultController::class, 'index'])->name('lab-results.index');
 
     // OPU Reports
     Route::get('opu-reports/search-patients', [OpuReportController::class, 'searchPatients'])->name('opu-reports.search-patients');
