@@ -50,7 +50,7 @@
         table.payment-summary th { background: #f0f0f0; text-align: left; }
         table.payment-summary td.num { text-align: right; }
 
-        .sig-row { display: table; width: 100%; margin-top: 30px; }
+        .sig-row { display: table; width: 100%; margin-top: 45mm; }
         .sig-cell { display: table-cell; width: 50%; font-size: 9.5px; vertical-align: top; }
         .sig-cell p { margin: 2px 0; }
     </style>
