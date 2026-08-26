@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Billings
     Route::get('billings-export', [BillingController::class, 'export'])->name('billings.export');
+    Route::get('billings-print-today', [BillingController::class, 'printTodaySummary'])->name('billings.print-today');
     Route::resource('billings', BillingController::class);
     Route::patch('billings/{billing}/status', [BillingController::class, 'updateStatus'])->name('billings.update-status');
     Route::patch('billings/{billing}/complete-payment', [BillingController::class, 'completePayment'])->name('billings.complete-payment');

@@ -1,7 +1,22 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { formatDate, formatDateTime } from '@/lib/utils';
+import { PAYMENT_METHOD_OPTIONS } from '@/lib/paymentMethods';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { letter as letterRoute, receive as receiveRoute } from '@/routes/billings';
 import { type BreadcrumbItem } from '@/types';
@@ -151,13 +166,24 @@ const saveDiscount = () => {
 
 const sendingBack = ref(false);
 
+const isFinishDialogOpen = ref(false);
+const finishPaymentMethod = ref('');
+
+const openFinishDialog = () => {
+    finishPaymentMethod.value = '';
+    isFinishDialogOpen.value = true;
+};
+
 const completePayment = () => {
-    if (confirm('Are you sure you want to mark this billing as paid? This will complete the payment and move the order to history.')) {
-        router.patch(`/billings/${props.billing.id}/complete-payment`, {}, {
-            preserveState: false,
-            preserveScroll: false,
-        });
-    }
+    router.patch(`/billings/${props.billing.id}/complete-payment`, {
+        payment_method: finishPaymentMethod.value,
+    }, {
+        preserveState: false,
+        preserveScroll: false,
+        onSuccess: () => {
+            isFinishDialogOpen.value = false;
+        },
+    });
 };
 
 const receiveRevised = () => {
@@ -245,7 +271,7 @@ const recoverStuckRevision = () => {
                     <Button
                         v-if="hasPermission('edit_billings') && props.billing.status !== 'paid' && props.billing.status !== 'revision' && props.billing.status !== 'revised' && props.billing.status !== 'sent_to_account'"
                         variant="default"
-                        @click="completePayment"
+                        @click="openFinishDialog"
                     >
                         <CheckCircle class="size-4" />
                         Finish
@@ -558,4 +584,34 @@ const recoverStuckRevision = () => {
         </div>
 
     </AppLayout>
+
+    <Dialog v-model:open="isFinishDialogOpen">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Finish Billing</DialogTitle>
+            </DialogHeader>
+            <div class="py-4">
+                <p class="text-sm text-muted-foreground">
+                    This will mark the billing as paid and move the order to history.
+                </p>
+                <div class="mt-4">
+                    <label for="finish-payment-method-select" class="block text-sm font-medium">Payment Method</label>
+                    <Select v-model="finishPaymentMethod">
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select payment method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem v-for="method in PAYMENT_METHOD_OPTIONS" :key="method" :value="method">
+                                {{ method }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" @click="isFinishDialogOpen = false">Cancel</Button>
+                <Button :disabled="!finishPaymentMethod" @click="completePayment">Finish</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

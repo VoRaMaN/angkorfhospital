@@ -2,7 +2,10 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { formatDate } from '@/lib/utils';
+import { PAYMENT_METHOD_OPTIONS } from '@/lib/paymentMethods';
+import { useRecentNames } from '@/composables/useRecentNames';
 import {
     Dialog,
     DialogContent,
@@ -71,6 +74,7 @@ const endDate = ref(props.filters.end_date || '');
 const isDialogOpen = ref(false);
 const selectedBilling = ref<Props['billings'][0] | null>(null);
 const selectedStatus = ref('');
+const paymentMethod = ref('');
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -100,7 +104,10 @@ const getStatusColor = (status: string) => {
 };
 
 const updateStatus = (billingId: number, newStatus: string) => {
-    router.patch(`/billings/${billingId}/status`, { status: newStatus }, {
+    router.patch(`/billings/${billingId}/status`, {
+        status: newStatus,
+        payment_method: newStatus === 'paid' ? paymentMethod.value : undefined,
+    }, {
         preserveScroll: true,
         onSuccess: () => {
             isDialogOpen.value = false;
@@ -149,6 +156,7 @@ const clearDates = () => {
 const openStatusDialog = (billing: Props['billings'][0]) => {
     selectedBilling.value = billing;
     selectedStatus.value = '';
+    paymentMethod.value = '';
     isDialogOpen.value = true;
 };
 
@@ -161,6 +169,22 @@ const exportBillings = () => {
 
     const url = `/billings-export?${params.toString()}`;
     window.open(url, '_blank');
+};
+
+const { recent: recentClosedByNames, remember: rememberClosedByName } = useRecentNames('angkorf.billings.recentClosedBy');
+const isPrintTodayDialogOpen = ref(false);
+const closedByName = ref('');
+
+const openPrintTodayDialog = () => {
+    closedByName.value = recentClosedByNames.value[0] ?? '';
+    isPrintTodayDialogOpen.value = true;
+};
+
+const confirmPrintToday = () => {
+    rememberClosedByName(closedByName.value);
+    const url = `/billings-print-today?closed_by=${encodeURIComponent(closedByName.value.trim())}`;
+    window.open(url, '_blank');
+    isPrintTodayDialogOpen.value = false;
 };
 </script>
 
@@ -204,6 +228,9 @@ const exportBillings = () => {
                     <Button variant="ghost" size="sm" @click="clearDates">Clear Dates</Button>
                     <Button variant="outline" size="sm" @click="exportBillings" v-if="hasPermission('view_billings')">
                         Export to CSV
+                    </Button>
+                    <Button variant="outline" size="sm" @click="openPrintTodayDialog" v-if="hasPermission('view_billings')">
+                        Print Today's Bill
                     </Button>
                 </div>
             </div>
@@ -370,11 +397,49 @@ const exportBillings = () => {
                         </SelectContent>
                     </Select>
                 </div>
+                <div v-if="selectedStatus === 'paid'" class="mt-4">
+                    <label for="payment-method-select" class="block text-sm font-medium">Payment Method</label>
+                    <Select v-model="paymentMethod">
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select payment method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem v-for="method in PAYMENT_METHOD_OPTIONS" :key="method" :value="method">
+                                {{ method }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
             <DialogFooter>
                 <Button variant="outline" @click="isDialogOpen = false">Cancel</Button>
                 <Button @click="updateStatus(selectedBilling!.id, selectedStatus)"
-                    :disabled="!selectedStatus">Update</Button>
+                    :disabled="!selectedStatus || (selectedStatus === 'paid' && !paymentMethod)">Update</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    <Dialog v-model:open="isPrintTodayDialogOpen">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Print Today's Bill</DialogTitle>
+            </DialogHeader>
+            <div class="py-4 space-y-3">
+                <div>
+                    <Label for="closed-by-input">Closed By</Label>
+                    <Input id="closed-by-input" v-model="closedByName" placeholder="Enter cashier name"
+                        @keyup.enter="confirmPrintToday" />
+                </div>
+                <div v-if="recentClosedByNames.length" class="flex flex-wrap gap-1.5">
+                    <Button v-for="name in recentClosedByNames" :key="name" type="button" variant="outline" size="sm"
+                        @click="closedByName = name">
+                        {{ name }}
+                    </Button>
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" @click="isPrintTodayDialogOpen = false">Cancel</Button>
+                <Button :disabled="!closedByName.trim()" @click="confirmPrintToday">Print</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

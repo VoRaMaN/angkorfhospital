@@ -21,6 +21,7 @@ class Billing extends Model
         'amount',
         'discount_amount',
         'status',
+        'payment_method',
         'billing_date',
         'notes',
     ];

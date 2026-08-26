@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\VisitController::create
- * @see app/Http/Controllers/VisitController.php:170
+ * @see app/Http/Controllers/VisitController.php:177
  * @route '/visits/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\VisitController::store
- * @see app/Http/Controllers/VisitController.php:197
+ * @see app/Http/Controllers/VisitController.php:204
  * @route '/visits'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::store
- * @see app/Http/Controllers/VisitController.php:197
+ * @see app/Http/Controllers/VisitController.php:204
  * @route '/visits'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::store
- * @see app/Http/Controllers/VisitController.php:197
+ * @see app/Http/Controllers/VisitController.php:204
  * @route '/visits'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\VisitController::store
- * @see app/Http/Controllers/VisitController.php:197
+ * @see app/Http/Controllers/VisitController.php:204
  * @route '/visits'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\VisitController::store
- * @see app/Http/Controllers/VisitController.php:197
+ * @see app/Http/Controllers/VisitController.php:204
  * @route '/visits'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
 export const show = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
 show.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ show.url = (args: { visit: number | { id: number } } | [visit: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
 show.get = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ show.get = (args: { visit: number | { id: number } } | [visit: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
 show.head = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ show.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
 
     /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
     const showForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ show.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
 
             /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
         showForm.get = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ show.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
         })
             /**
 * @see \App\Http\Controllers\VisitController::show
- * @see app/Http/Controllers/VisitController.php:236
+ * @see app/Http/Controllers/VisitController.php:243
  * @route '/visits/{visit}'
  */
         showForm.head = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ show.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
     show.form = showForm
 /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
 export const edit = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -329,7 +329,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
 edit.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ edit.url = (args: { visit: number | { id: number } } | [visit: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
 edit.get = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -371,7 +371,7 @@ edit.get = (args: { visit: number | { id: number } } | [visit: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
 edit.head = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -381,7 +381,7 @@ edit.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
 
     /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
     const editForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -391,7 +391,7 @@ edit.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
 
             /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
         editForm.get = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,7 +400,7 @@ edit.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
         })
             /**
 * @see \App\Http\Controllers\VisitController::edit
- * @see app/Http/Controllers/VisitController.php:280
+ * @see app/Http/Controllers/VisitController.php:287
  * @route '/visits/{visit}/edit'
  */
         editForm.head = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -416,7 +416,7 @@ edit.head = (args: { visit: number | { id: number } } | [visit: number | { id: n
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
 export const update = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -431,7 +431,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
 update.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -464,7 +464,7 @@ update.url = (args: { visit: number | { id: number } } | [visit: number | { id: 
 
 /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
 update.put = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -473,7 +473,7 @@ update.put = (args: { visit: number | { id: number } } | [visit: number | { id: 
 })
 /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
 update.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -483,7 +483,7 @@ update.patch = (args: { visit: number | { id: number } } | [visit: number | { id
 
     /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
     const updateForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -498,7 +498,7 @@ update.patch = (args: { visit: number | { id: number } } | [visit: number | { id
 
             /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
         updateForm.put = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -512,7 +512,7 @@ update.patch = (args: { visit: number | { id: number } } | [visit: number | { id
         })
             /**
 * @see \App\Http\Controllers\VisitController::update
- * @see app/Http/Controllers/VisitController.php:307
+ * @see app/Http/Controllers/VisitController.php:314
  * @route '/visits/{visit}'
  */
         updateForm.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -528,7 +528,7 @@ update.patch = (args: { visit: number | { id: number } } | [visit: number | { id
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\VisitController::destroy
- * @see app/Http/Controllers/VisitController.php:557
+ * @see app/Http/Controllers/VisitController.php:568
  * @route '/visits/{visit}'
  */
 export const destroy = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -543,7 +543,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::destroy
- * @see app/Http/Controllers/VisitController.php:557
+ * @see app/Http/Controllers/VisitController.php:568
  * @route '/visits/{visit}'
  */
 destroy.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -576,7 +576,7 @@ destroy.url = (args: { visit: number | { id: number } } | [visit: number | { id:
 
 /**
 * @see \App\Http\Controllers\VisitController::destroy
- * @see app/Http/Controllers/VisitController.php:557
+ * @see app/Http/Controllers/VisitController.php:568
  * @route '/visits/{visit}'
  */
 destroy.delete = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -586,7 +586,7 @@ destroy.delete = (args: { visit: number | { id: number } } | [visit: number | { 
 
     /**
 * @see \App\Http\Controllers\VisitController::destroy
- * @see app/Http/Controllers/VisitController.php:557
+ * @see app/Http/Controllers/VisitController.php:568
  * @route '/visits/{visit}'
  */
     const destroyForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -601,7 +601,7 @@ destroy.delete = (args: { visit: number | { id: number } } | [visit: number | { 
 
             /**
 * @see \App\Http\Controllers\VisitController::destroy
- * @see app/Http/Controllers/VisitController.php:557
+ * @see app/Http/Controllers/VisitController.php:568
  * @route '/visits/{visit}'
  */
         destroyForm.delete = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -617,7 +617,7 @@ destroy.delete = (args: { visit: number | { id: number } } | [visit: number | { 
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -632,7 +632,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -641,7 +641,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -650,7 +650,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -660,7 +660,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -670,7 +670,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -679,7 +679,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\VisitController::exportMethod
- * @see app/Http/Controllers/VisitController.php:539
+ * @see app/Http/Controllers/VisitController.php:550
  * @route '/visits-export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -695,7 +695,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     exportMethod.form = exportMethodForm
 /**
 * @see \App\Http\Controllers\VisitController::assignAndProcess
- * @see app/Http/Controllers/VisitController.php:344
+ * @see app/Http/Controllers/VisitController.php:351
  * @route '/visits/{visit}/assign-process'
  */
 export const assignAndProcess = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -710,7 +710,7 @@ assignAndProcess.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::assignAndProcess
- * @see app/Http/Controllers/VisitController.php:344
+ * @see app/Http/Controllers/VisitController.php:351
  * @route '/visits/{visit}/assign-process'
  */
 assignAndProcess.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -743,7 +743,7 @@ assignAndProcess.url = (args: { visit: number | { id: number } } | [visit: numbe
 
 /**
 * @see \App\Http\Controllers\VisitController::assignAndProcess
- * @see app/Http/Controllers/VisitController.php:344
+ * @see app/Http/Controllers/VisitController.php:351
  * @route '/visits/{visit}/assign-process'
  */
 assignAndProcess.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -753,7 +753,7 @@ assignAndProcess.patch = (args: { visit: number | { id: number } } | [visit: num
 
     /**
 * @see \App\Http\Controllers\VisitController::assignAndProcess
- * @see app/Http/Controllers/VisitController.php:344
+ * @see app/Http/Controllers/VisitController.php:351
  * @route '/visits/{visit}/assign-process'
  */
     const assignAndProcessForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -768,7 +768,7 @@ assignAndProcess.patch = (args: { visit: number | { id: number } } | [visit: num
 
             /**
 * @see \App\Http\Controllers\VisitController::assignAndProcess
- * @see app/Http/Controllers/VisitController.php:344
+ * @see app/Http/Controllers/VisitController.php:351
  * @route '/visits/{visit}/assign-process'
  */
         assignAndProcessForm.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -784,7 +784,7 @@ assignAndProcess.patch = (args: { visit: number | { id: number } } | [visit: num
     assignAndProcess.form = assignAndProcessForm
 /**
 * @see \App\Http\Controllers\VisitController::assignDoctor
- * @see app/Http/Controllers/VisitController.php:379
+ * @see app/Http/Controllers/VisitController.php:386
  * @route '/visits/{visit}/assign-doctor'
  */
 export const assignDoctor = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -799,7 +799,7 @@ assignDoctor.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::assignDoctor
- * @see app/Http/Controllers/VisitController.php:379
+ * @see app/Http/Controllers/VisitController.php:386
  * @route '/visits/{visit}/assign-doctor'
  */
 assignDoctor.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -832,7 +832,7 @@ assignDoctor.url = (args: { visit: number | { id: number } } | [visit: number | 
 
 /**
 * @see \App\Http\Controllers\VisitController::assignDoctor
- * @see app/Http/Controllers/VisitController.php:379
+ * @see app/Http/Controllers/VisitController.php:386
  * @route '/visits/{visit}/assign-doctor'
  */
 assignDoctor.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -842,7 +842,7 @@ assignDoctor.patch = (args: { visit: number | { id: number } } | [visit: number 
 
     /**
 * @see \App\Http\Controllers\VisitController::assignDoctor
- * @see app/Http/Controllers/VisitController.php:379
+ * @see app/Http/Controllers/VisitController.php:386
  * @route '/visits/{visit}/assign-doctor'
  */
     const assignDoctorForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -857,7 +857,7 @@ assignDoctor.patch = (args: { visit: number | { id: number } } | [visit: number 
 
             /**
 * @see \App\Http\Controllers\VisitController::assignDoctor
- * @see app/Http/Controllers/VisitController.php:379
+ * @see app/Http/Controllers/VisitController.php:386
  * @route '/visits/{visit}/assign-doctor'
  */
         assignDoctorForm.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -873,7 +873,7 @@ assignDoctor.patch = (args: { visit: number | { id: number } } | [visit: number 
     assignDoctor.form = assignDoctorForm
 /**
 * @see \App\Http\Controllers\VisitController::notifyStaff
- * @see app/Http/Controllers/VisitController.php:401
+ * @see app/Http/Controllers/VisitController.php:408
  * @route '/visits/{visit}/notify-staff'
  */
 export const notifyStaff = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -888,7 +888,7 @@ notifyStaff.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::notifyStaff
- * @see app/Http/Controllers/VisitController.php:401
+ * @see app/Http/Controllers/VisitController.php:408
  * @route '/visits/{visit}/notify-staff'
  */
 notifyStaff.url = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -921,7 +921,7 @@ notifyStaff.url = (args: { visit: number | { id: number } } | [visit: number | {
 
 /**
 * @see \App\Http\Controllers\VisitController::notifyStaff
- * @see app/Http/Controllers/VisitController.php:401
+ * @see app/Http/Controllers/VisitController.php:408
  * @route '/visits/{visit}/notify-staff'
  */
 notifyStaff.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -931,7 +931,7 @@ notifyStaff.patch = (args: { visit: number | { id: number } } | [visit: number |
 
     /**
 * @see \App\Http\Controllers\VisitController::notifyStaff
- * @see app/Http/Controllers/VisitController.php:401
+ * @see app/Http/Controllers/VisitController.php:408
  * @route '/visits/{visit}/notify-staff'
  */
     const notifyStaffForm = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -946,7 +946,7 @@ notifyStaff.patch = (args: { visit: number | { id: number } } | [visit: number |
 
             /**
 * @see \App\Http\Controllers\VisitController::notifyStaff
- * @see app/Http/Controllers/VisitController.php:401
+ * @see app/Http/Controllers/VisitController.php:408
  * @route '/visits/{visit}/notify-staff'
  */
         notifyStaffForm.patch = (args: { visit: number | { id: number } } | [visit: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -962,7 +962,7 @@ notifyStaff.patch = (args: { visit: number | { id: number } } | [visit: number |
     notifyStaff.form = notifyStaffForm
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 export const myVisits = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -977,7 +977,7 @@ myVisits.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 myVisits.url = (options?: RouteQueryOptions) => {
@@ -986,7 +986,7 @@ myVisits.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 myVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -995,7 +995,7 @@ myVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1005,7 +1005,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
     const myVisitsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1015,7 +1015,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
         myVisitsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1024,7 +1024,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
         myVisitsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1040,7 +1040,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     myVisits.form = myVisitsForm
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 export const myToBeProcessVisits = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1055,7 +1055,7 @@ myToBeProcessVisits.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 myToBeProcessVisits.url = (options?: RouteQueryOptions) => {
@@ -1064,7 +1064,7 @@ myToBeProcessVisits.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 myToBeProcessVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1073,7 +1073,7 @@ myToBeProcessVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> 
 })
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1083,7 +1083,7 @@ myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
     /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
     const myToBeProcessVisitsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1093,7 +1093,7 @@ myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
             /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
         myToBeProcessVisitsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1102,7 +1102,7 @@ myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'
         })
             /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
         myToBeProcessVisitsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

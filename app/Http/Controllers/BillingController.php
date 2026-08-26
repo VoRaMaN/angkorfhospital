@@ -318,12 +318,17 @@ class BillingController extends Controller
     {
         $request->validate([
             'status' => 'required|in:pending,paid,overdue,partial,cancelled,revision,revised,sent_to_account',
+            'payment_method' => 'required_if:status,paid|nullable|string|max:100',
         ]);
 
         $this->authorize('updateStatus', $billing);
 
         $oldStatus = $billing->status;
         $data = ['status' => $request->status];
+
+        if ($request->status === 'paid') {
+            $data['payment_method'] = $request->payment_method;
+        }
 
         // Refreshing billing_date whenever a bill is manually put back into
         // pending/partial keeps it immune to the auto-overdue sweep below
@@ -350,13 +355,18 @@ class BillingController extends Controller
         return redirect()->route('billings.show', $billing->id)->with('success', 'Billing status updated successfully.');
     }
 
-    public function completePayment(Billing $billing): RedirectResponse
+    public function completePayment(Billing $billing, Request $request): RedirectResponse
     {
         $this->authorize('update', $billing);
+
+        $request->validate([
+            'payment_method' => 'required|string|max:100',
+        ]);
 
         // Update billing status to paid
         $billing->update([
             'status' => \App\Enums\BillingStatusEnum::PAID,
+            'payment_method' => $request->payment_method,
         ]);
 
         // Update related medical order status to PAID
@@ -567,6 +577,89 @@ class BillingController extends Controller
         ], true);
 
         $filename = 'receipt-'.$billing->bill_no.'-'.now()->format('Y-m-d').'.pdf';
+
+        return $pdf->stream($filename);
+    }
+
+    /**
+     * Daily cash-register closing report ("Income Summary Record") — every
+     * bill paid today, a grand total, a payment-method breakdown, and
+     * Closed By / Received By signature lines.
+     */
+    public function printTodaySummary(Request $request): \Illuminate\Http\Response
+    {
+        $this->authorize('viewAny', Billing::class);
+
+        $closedBy = trim((string) $request->input('closed_by', ''));
+
+        $billings = Billing::whereDate('billing_date', today())
+            ->where('status', \App\Enums\BillingStatusEnum::PAID)
+            ->with('patient')
+            ->orderBy('created_at')
+            ->get();
+
+        $rows = $billings->values()->map(function (Billing $billing, int $index) use ($closedBy) {
+            $patient = $billing->patient;
+            $age = null;
+
+            if ($patient && $patient->date_of_birth_year && $patient->date_of_birth_month && $patient->date_of_birth_day) {
+                $birthDate = \Carbon\Carbon::createFromDate(
+                    (int) $patient->date_of_birth_year,
+                    (int) $patient->date_of_birth_month,
+                    (int) $patient->date_of_birth_day
+                );
+                $interval = $birthDate->diff(now());
+                $age = "{$interval->y} y, {$interval->m} m, {$interval->d} d";
+            }
+
+            $netAmount = (float) $billing->amount - (float) $billing->discount_amount;
+
+            return [
+                'no' => $index + 1,
+                'datetime' => $billing->created_at?->format('Y-m-d H:i:s'),
+                'patient_code' => $patient->id ?? '—',
+                'patient_name' => $patient?->full_name ?: 'Unknown Patient',
+                'sex' => $patient->gender ?? '—',
+                'age' => $age ?? '—',
+                'paid' => $netAmount,
+                'payment_method' => $billing->payment_method ?? '—',
+                'patient_type' => $patient->patient_type ?? '—',
+                'inv_no' => $billing->bill_no,
+                'cashier' => $closedBy ?: '—',
+            ];
+        });
+
+        $grandTotal = $rows->sum('paid');
+
+        $paymentSummary = $rows->groupBy('payment_method')->map(function ($group, $method) {
+            return [
+                'payment_method' => $method,
+                'currency' => 'USD',
+                'amount' => $group->sum('paid'),
+            ];
+        })->values();
+
+        $today = now()->format('d-m-Y');
+
+        ini_set('memory_limit', '512M');
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('billing-income-summary', [
+            'rows' => $rows,
+            'grandTotal' => $grandTotal,
+            'paymentSummary' => $paymentSummary,
+            'closedBy' => $closedBy,
+            'today' => $today,
+        ]);
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'isPhpEnabled' => true,
+        ], true);
+
+        $filename = 'income-summary-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->stream($filename);
     }

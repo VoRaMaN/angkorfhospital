@@ -196,7 +196,9 @@ it('completes payment and marks billing as paid and visit as completed', functio
         'notes' => 'Consultation fee',
     ]);
 
-    $response = $this->actingAs($user)->patch("/billings/{$billing->id}/complete-payment");
+    $response = $this->actingAs($user)->patch("/billings/{$billing->id}/complete-payment", [
+        'payment_method' => 'Cash',
+    ]);
 
     $response->assertRedirect(route('billings.index'));
 
@@ -261,7 +263,9 @@ it('completes the full visit lifecycle from creation to billing checkout', funct
     expect($billing->status->value)->toBe('pending');
 
     // Step 5: Checkout / complete payment
-    $checkoutResponse = $this->actingAs($user)->patch("/billings/{$billing->id}/complete-payment");
+    $checkoutResponse = $this->actingAs($user)->patch("/billings/{$billing->id}/complete-payment", [
+        'payment_method' => 'Cash',
+    ]);
     $checkoutResponse->assertRedirect(route('billings.index'));
 
     $billing->refresh();

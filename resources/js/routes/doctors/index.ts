@@ -157,7 +157,7 @@ myPatients.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     myPatients.form = myPatientsForm
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 export const myVisits = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ myVisits.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 myVisits.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ myVisits.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 myVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ myVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
 myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
     const myVisitsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
         myVisitsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\VisitController::myVisits
- * @see app/Http/Controllers/VisitController.php:413
+ * @see app/Http/Controllers/VisitController.php:420
  * @route '/my-visits'
  */
         myVisitsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -235,7 +235,7 @@ myVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     myVisits.form = myVisitsForm
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 export const myToBeProcessVisits = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -250,7 +250,7 @@ myToBeProcessVisits.definition = {
 
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 myToBeProcessVisits.url = (options?: RouteQueryOptions) => {
@@ -259,7 +259,7 @@ myToBeProcessVisits.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 myToBeProcessVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -268,7 +268,7 @@ myToBeProcessVisits.get = (options?: RouteQueryOptions): RouteDefinition<'get'> 
 })
 /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
 myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -278,7 +278,7 @@ myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
     /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
     const myToBeProcessVisitsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -288,7 +288,7 @@ myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
             /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
         myToBeProcessVisitsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -297,7 +297,7 @@ myToBeProcessVisits.head = (options?: RouteQueryOptions): RouteDefinition<'head'
         })
             /**
 * @see \App\Http\Controllers\VisitController::myToBeProcessVisits
- * @see app/Http/Controllers/VisitController.php:463
+ * @see app/Http/Controllers/VisitController.php:470
  * @route '/my-to-be-process-visits'
  */
         myToBeProcessVisitsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
