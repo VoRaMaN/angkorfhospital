@@ -69,7 +69,8 @@ class BillingController extends Controller
             }
         }
 
-        $billings = $query->paginate(15)->appends(request()->only(['search', 'status', 'start_date', 'end_date']));
+        $billings = $query->orderBy('billing_date', 'desc')->orderBy('created_at', 'desc')
+            ->paginate(15)->appends(request()->only(['search', 'status', 'start_date', 'end_date']));
 
         // Transform billings for the frontend
         $transformedBillings = $billings->getCollection()->map(function ($billing) {
