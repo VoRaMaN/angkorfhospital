@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PatientFileTypeEnum;
+use App\Models\ActivityLog;
 use App\Models\File;
 use App\Models\Patient;
 use App\Models\PatientFile;
@@ -207,8 +208,24 @@ class PatientFileController extends Controller
     {
         $this->authorize('delete', $patientFile);
 
-        Storage::delete($patientFile->file->path);
-        $patientFile->file->delete();
+        $patientFile->loadMissing('file', 'patient');
+        $file = $patientFile->file;
+
+        ActivityLog::log(
+            'deleted',
+            sprintf(
+                'PatientFile "%s" of patient "%s" was deleted',
+                $file?->name ?? $patientFile->getKey(),
+                $patientFile->patient?->full_name ?? $patientFile->patient_id,
+            ),
+            $patientFile,
+            ['attributes' => $patientFile->getAttributes() + ['file_name' => $file?->name, 'file_path' => $file?->path]],
+        );
+
+        if ($file) {
+            Storage::delete($file->path);
+            $file->delete();
+        }
         $patientFile->delete();
 
         return redirect()->back();
