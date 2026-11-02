@@ -261,7 +261,15 @@ const copyAddressToEmergency = () => {
                     <TabsContent value="information" class="mt-6">
                         <form
                             @submit.prevent="
-                                form.put(`/patients/update?patient=${props.patient.id}`, { forceFormData: true })
+                                // PHP does not parse multipart PUT bodies, so send a POST with
+                                // _method spoofing; the patient's own email lives in patient_email.
+                                form
+                                    .transform((data) => ({
+                                        ...data,
+                                        email: data.create_user_account ? data.email : data.patient_email,
+                                        _method: 'put',
+                                    }))
+                                    .post(`/patients/update?patient=${props.patient.id}`, { forceFormData: true })
                             "
                             class="space-y-8"
                         >

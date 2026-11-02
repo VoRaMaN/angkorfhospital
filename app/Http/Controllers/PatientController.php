@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Models\Billing;
 use App\Models\Patient;
 use App\Models\Staff;
 // Note: the application's domain `Role` model is separate from Spatie's Role model.
@@ -343,6 +344,33 @@ class PatientController extends Controller
         $patient = Patient::findOrFail(request('patient'));
         $this->authorize('delete', $patient);
 
+        // patient_id columns have no foreign keys, so refuse to orphan clinical/billing history.
+        $history = array_filter([
+            'appointments' => $patient->appointments()->count(),
+            'visits' => $patient->visits()->count(),
+            'medical orders' => $patient->medicalOrders()->count(),
+            'billings' => Billing::where('patient_id', $patient->id)->count(),
+        ]);
+
+        if ($history) {
+            $summary = collect($history)->map(fn ($count, $label) => "{$count} {$label}")->implode(', ');
+
+            return redirect()->route('patients.show', ['patient' => $patient->id])
+                ->with('error', "Cannot delete this patient because they have history ({$summary}).");
+        }
+
+        foreach ($patient->patientFiles()->with('file')->get() as $patientFile) {
+            if ($patientFile->file) {
+                Storage::delete($patientFile->file->path);
+                $patientFile->file->delete();
+            }
+            $patientFile->delete();
+        }
+
+        if ($patient->photo_path) {
+            Storage::delete($patient->photo_path);
+        }
+
         $patient->delete();
 
         return redirect()->route('patients.index')
@@ -657,7 +685,14 @@ class PatientController extends Controller
             ]);
             $fullName = trim(implode(' ', $nameParts));
 
-            $dob = sprintf('%02d/%02d/%04d', $patient->date_of_birth_day, $patient->date_of_birth_month, $patient->date_of_birth_year);
+            // DD/MonthName/YYYY, e.g. 05/April/1996
+            $dobMonth = (int) $patient->date_of_birth_month;
+            $dob = sprintf(
+                '%02d/%s/%04d',
+                $patient->date_of_birth_day,
+                $dobMonth >= 1 && $dobMonth <= 12 ? date('F', mktime(0, 0, 0, $dobMonth, 1)) : sprintf('%02d', $dobMonth),
+                $patient->date_of_birth_year
+            );
             $gender = strtoupper(substr($patient->gender, 0, 1)); // M or F
 
             $age = null;

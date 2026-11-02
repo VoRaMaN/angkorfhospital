@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import PatientFilesTab from '@/pages/Patients/PatientFilesTab.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight, FlaskConical, Download, Eye } from 'lucide-vue-next';
+import { ArrowLeft, Edit, Printer, User, Calendar, ChevronRight, FlaskConical, Download, Eye, Trash2 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import { show as showPatientFile } from '@/routes/patient-files';
 
@@ -189,7 +189,13 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { hasPermission } = useAuth();
+const { hasPermission, isAdmin } = useAuth();
+
+const deletePatient = () => {
+    if (confirm(`Delete patient ${props.patient.id}? This cannot be undone.`)) {
+        router.delete(`/patients/destroy?patient=${props.patient.id}`);
+    }
+};
 
 const createVisit = () => {
     router.visit(`/visits/create?patient=${props.patient.id}`);
@@ -280,6 +286,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <Edit class="size-4" />
                             Edit
                         </Link>
+                    </Button>
+                    <Button v-if="hasPermission('delete_patients') || isAdmin" variant="destructive" @click="deletePatient">
+                        <Trash2 class="size-4" />
+                        Delete
                     </Button>
                 </div>
             </div>
